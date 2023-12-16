@@ -730,7 +730,7 @@ def messagebox(title: str, text: str, error: bool = False) -> None:
         root.update()
 
 
-def title_sorted(data: typing.Sequence, key=None, ignore: typing.Set = frozenset(("a", "the"))):
+def title_sorted(data: typing.Sequence, key=None, ignore: typing.Set = frozenset(("the"))):
     """Sorts a sequence of text ignoring typical articles like "a" or "the" in the beginning."""
     def sorter(element: Union[str, Dict[str, Any]]) -> str:
         if (not isinstance(element, str)):
