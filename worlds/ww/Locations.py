@@ -1,6 +1,7 @@
 from BaseClasses import Location
 from typing import NamedTuple, Optional, Callable, Dict
 
+
 class AchievementData(NamedTuple):
     id: Optional[int]
     region: str
@@ -9,15 +10,16 @@ class AchievementData(NamedTuple):
 class WindWakerAchievement(Location):
     game: str = "Wind Waker"
 
+
 achievement_table: Dict[str, AchievementData] = {
     "Outset - Under Link's House": AchievementData(0x238000, "Outset - Under Grandmas House"),
     "Outset - Grasscutter House": AchievementData(0x238001, "Outset - Grasscutters House"),
     "Outset - Jabun's Cave": AchievementData(0x238002, "Outset - Jabuns Cave"),
     "Outset - Big Pig": AchievementData(0x238003, "The Great Sea"),
-    "Outset - Savage Labryinth Floor 30": AchievementData(0x238004, "Outset - Savage Labryinth First"),
-    "Outset - Savage Labryinth Floor 50": AchievementData(0x238005, "Savage Labryinth Second"),
+    "Outset - Savage Labyrinth Floor 30": AchievementData(0x238004, "Outset - Savage Labyrinth First"),
+    "Outset - Savage Labyrinth Floor 50": AchievementData(0x238005, "Savage Labyrinth Second"),
     "Outset - Give Orca 10 Knights Crest": AchievementData(0x238006, "Outset - Orcas House"),
-    
+
     "Windfall - Tingles Gift 1": AchievementData(0x238007, "Windfall - Jail"),
     "Windfall - Tingles Gift 2": AchievementData(0x238008, "Windfall - Jail"),
     "Windfall - Jail Maze": AchievementData(0x238009, "Windfall - Jail"),
@@ -92,22 +94,23 @@ achievement_table: Dict[str, AchievementData] = {
     "Tower of Gods - Flying Platforms 2": AchievementData(0x238048, "Tower of Gods - Before Locked Door"),
     "Tower of Gods - Big Key Chest": AchievementData(0x238049, "Tower of Gods - Past Locked Door"),
     "Tower of Gods - Gohdan Heart Container": AchievementData(0x23804A, "Tower of Gods - Boss Arena"),
-    
+
     "Hyrule - Master Sword Chamber": AchievementData(0x23804B, "Master Sword Chamber"),
-    
+
     "Forsaken Fortress - Phantom Ganon": AchievementData(0x23804C, "Forsaken Fortress Interior"),
     "Forsaken Fortress - Upper Jail": AchievementData(0x23804D, "Forsaken Fortress - Within the Walls"),
     "Forsaken Fortress - Lower Jail": AchievementData(0x23804E, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Chest Guarded by Bokolin": AchievementData(0x23804F, "Forsaken Fortress - Within the Walls"),
+    "Forsaken Fortress - Chest Guarded by Bokoblin": AchievementData(0x23804F, "Forsaken Fortress - Within the Walls"),
     "Forsaken Fortress - Chest on Bed": AchievementData(0x238050, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Helmaroc King Heart Container": AchievementData(0x238051, "Forsaken Fortress - Within the Walls"),
+    "Forsaken Fortress - Helmaroc King Heart Container": AchievementData(0x238051,
+                                                                         "Forsaken Fortress - Within the Walls"),
 
     "Mother & Child - Interior": AchievementData(0x238052, "Inside Mother & Child"),
 
     "Fire Mountain - Cave": AchievementData(0x238053, "Fire Mountain Cave"),
     "Fire Mountain - Free Platform": AchievementData(0x238054, "The Great Sea"),
     "Fire Mountain - Cannon Platform": AchievementData(0x238055, "The Great Sea"),
-    #"Fire Mountain - Big Octo": AchievementData(0x238056, "The Great Sea"),
+    # "Fire Mountain - Big Octo": AchievementData(0x238056, "The Great Sea"),
 
     "Ice Ring - Frozen Chest": AchievementData(0x238057, "Ice Ring Cave"),
     "Ice Ring - Cave": AchievementData(0x238058, "Ice Ring Cave"),
@@ -155,13 +158,13 @@ achievement_table: Dict[str, AchievementData] = {
     "Great Sea - Ghost Ship": AchievementData(0x23807D, "The Great Sea"),
 
     "Private Oasis - Top of Waterfall": AchievementData(0x23807E, "The Great Sea"),
-    "Cabana Labryinth - Lower": AchievementData(0x23807F, "Cabana Labryinth"),
-    "Cabana Labryinth - Upper": AchievementData(0x238080, "Cabana Labryinth"),
-    #"Private Oasis - Big Octo": AchievementData(0x238081, "The Great Sea"),
+    "Cabana Labyrinth - Lower": AchievementData(0x23807F, "Cabana Labyrinth"),
+    "Cabana Labyrinth - Upper": AchievementData(0x238080, "Cabana Labyrinth"),
+    # "Private Oasis - Big Octo": AchievementData(0x238081, "The Great Sea"),
 
     "Needle Rock - Chest in Ring of Fire": AchievementData(0x238082, "The Great Sea"),
     "Needle Rock - Cave": AchievementData(0x238083, "Needle Rock Cave"),
-    #"Needle Rock - Golden Gunboat": AchievementData(0x238084, "The Great Sea"),
+    # "Needle Rock - Golden Gunboat": AchievementData(0x238084, "The Great Sea"),
 
     "Angular - Peak": AchievementData(0x238085, "The Great Sea"),
     "Angular - Cave": AchievementData(0x238086, "Angular Cave"),
@@ -175,9 +178,9 @@ achievement_table: Dict[str, AchievementData] = {
 
     "Islet of Steel - Cave": AchievementData(0x23808C, "Islet of Steel"),
     "Islet of Steel - Enemy Platform": AchievementData(0x23808D, "The Great Sea"),
-    
+
     "Overlook - Cave": AchievementData(0x23808E, "Overlook Cave"),
-    
+
     "Birds Peak Rock - Cave": AchievementData(0x23808F, "Birds Peak Rock Cave"),
 
     "Pawprint - Chu Cave - Chest": AchievementData(0x238090, "Pawprint Chu Cave"),
@@ -195,11 +198,11 @@ achievement_table: Dict[str, AchievementData] = {
     "Southern Fairy - SE Cannon Platform": AchievementData(0x23809B, "The Great Sea"),
     "Northern Fairy - Submarine": AchievementData(0x23809C, "Northern Fairy Submarine"),
 
-    #"Tingle Island - Big Octo": AchievementData(0x23809D, "The Great Sea"),
+    # "Tingle Island - Big Octo": AchievementData(0x23809D, "The Great Sea"),
 
     "Diamond Steppe - Warp Maze 1st": AchievementData(0x23809E, "Diamond Steppe Cave"),
     "Diamond Steppe - Warp Maze 2nd": AchievementData(0x23809F, "Diamond Steppe Cave"),
-    #"Diamond Steppe - Big Octo": AchievementData(0x2380A0, "The Great Sea"),
+    # "Diamond Steppe - Big Octo": AchievementData(0x2380A0, "The Great Sea"),
 
     "Bomb Island - Cave": AchievementData(0x2380A1, "Bomb Island Cave"),
     "Bomb Island - Free Platform": AchievementData(0x2380A2, "The Great Sea"),
@@ -212,7 +215,7 @@ achievement_table: Dict[str, AchievementData] = {
     "Rock Spire - Western Cannon Platform": AchievementData(0x2380A8, "The Great Sea"),
     "Rock Spire - Eastern Cannon Platform": AchievementData(0x2380A9, "The Great Sea"),
     "Rock Spire - Center Platform": AchievementData(0x2380AA, "The Great Sea"),
-    #"Rock Spire - Southeast Gunboat": AchievementData(0x2380AB, "The Great Sea"),
+    # "Rock Spire - Southeast Gunboat": AchievementData(0x2380AB, "The Great Sea"),
 
     "Shark Island - Cave": AchievementData(0x2380AC, "Shark Island Cave"),
 
@@ -242,7 +245,7 @@ achievement_table: Dict[str, AchievementData] = {
     "7 Star - Center Platform": AchievementData(0x2380BD, "The Great Sea"),
     "7 Star - Northern Platform": AchievementData(0x2380BE, "The Great Sea"),
     "7 Star - Southern Platform": AchievementData(0x2380BF, "The Great Sea"),
-    #"7 Star - Big Octo": AchievementData(0x2380C0, "The Great Sea"),
+    # "7 Star - Big Octo": AchievementData(0x2380C0, "The Great Sea"),
 
     "1 Eye Reef - Top of Eye": AchievementData(0x2380C1, "The Great Sea"),
     "1 Eye Reef - Enemy Platform": AchievementData(0x2380C2, "The Great Sea"),
@@ -314,4 +317,67 @@ achievement_table: Dict[str, AchievementData] = {
     "Victory": AchievementData(None, "Ganons Tower"),
 }
 
-lookup_id_to_name: Dict[int, str] = {loc_data.id: loc_name for loc_name, loc_data in achievement_table.items() if loc_data.id}
+lookup_id_to_name: Dict[int, str] = {loc_data.id: loc_name for loc_name, loc_data in achievement_table.items() if
+                                     loc_data.id}
+location_name_groups = {
+    "Dragon Roost Cavern": {"DRC - First Chest", "DRC - Water Jug Alcove", "DRC - Behind Boards",
+                            "DRC - Across Lava Pit", "DRC - Rat Room", "DRC - Rat Room Boarded Chest",
+                            "DRC - Birds Nest", "DRC - Dark Room Chest", "DRC - Tingle Chest in DRC HUB",
+                            "DRC - Pot Room", "DRC - Mini-Boss Fight", "DRC - Under Bridge",
+                            "DRC - Tingle Chest in DRC Basement", "DRC - Big Key Chest", "DRC - Outside Boss Door Left",
+                            "DRC - Outside Boss Door Right", "DRC - Gohma Heart Container"},
+    "Forbidden Woods": {"Forbidden Woods - 1st Chest", "Forbidden Woods - In Bottom Tree",
+                        "Forbidden Woods - Climb to Top", "Forbidden Woods - Hole in Tree",
+                        "Forbidden Woods - In Morths Pit", "Forbidden Woods - Vine Maze Left",
+                        "Forbidden Woods - Vine Maze Right", "Forbidden Woods - Tall Room Before Mini-Boss",
+                        "Forbidden Woods - Mini-Boss", "Forbidden Woods - Past Hanging Vines",
+                        "Forbidden Woods - Across the Flower", "Forbidden Woods - Tingle Chest",
+                        "Forbidden Woods - Locked in Basement Trunk", "Forbidden Woods - Big Key Chest",
+                        "Forbidden Woods - Double Mothula", "Forbidden Woods - Kalle Demos Heart Container"},
+    "Forsaken Fortress": {"Forsaken Fortress - Phantom Ganon", "Forsaken Fortress - Upper Jail",
+                          "Forsaken Fortress - Lower Jail", "Forsaken Fortress - Chest Guarded by Bokoblin",
+                          "Forsaken Fortress - Chest on Bed", "Forsaken Fortress - Helmaroc King Heart Container"},
+    "Wind Temple": {"Wind Temple - Two Dirt Patches", "Wind Temple - Tingle Chest", "Wind Temple - Behind Stone Head",
+                    "Wind Temple - Left Alcove", "Wind Temple - Big Key Chest", "Wind Temple - Many Cyclones Room",
+                    "Wind Temple - Middle of HUB Room", "Wind Temple - Spike Room - Free Chest",
+                    "Wind Temple - Spike Room - Break All Floors", "Wind Temple - Wizzrobe Mini Boss",
+                    "Wind Temple - Top of HUB Room", "Wind Temple - Behind 7 Armos",
+                    "Wind Temple - Kill Enemies in Basement", "Wind Temple - Molgera Heart Container"},
+    "Earth Temple": {"Earth Temple - First Room", "Earth Temple - Transparent Chest in 1st Crypt",
+                     "Earth Temple - Behind Destructable Walls", "Earth Temple - 3 Blocks Room",
+                     "Earth Temple - Behind Statues", "Earth Temple - Casket in 2nd Crypt",
+                     "Earth Temple - Staflos Mini Boss", "Earth Temple - Tingle Chest",
+                     "Earth Temple - Floormaster Room Free", "Earth Temple - Floormaster Room Fight",
+                     "Earth Temple - 3rd Crypt Chest", "Earth Temple - Many Mirrors Left",
+                     "Earth Temple - Many Mirrors Right", "Earth Temple - Staflos Crypt Room",
+                     "Earth Temple - Big Key Chest", "Earth Temple - Jalhalla Heart Container"},
+    "Tower of the Gods": {"Tower of Gods - Light Torches", "Tower of Gods - Skull Room",
+                          "Tower of Gods - Skull Room Shoot The Eye", "Tower of Gods - Behind Bombable Wall",
+                          "Tower of Gods - Hop Across Boxes", "Tower of Gods - Tingle Chest",
+                          "Tower of Gods - First Chest Guarded", "Tower of Gods - Stone Tablet",
+                          "Tower of Gods - Mini-Boss", "Tower of Gods - Second Chest Guarded",
+                          "Tower of Gods - Flying Platforms 1", "Tower of Gods - Flying Platforms 2",
+                          "Tower of Gods - Big Key Chest", "Tower of Gods - Gohdan Heart Container"
+                          },
+    "Treasure Salvaging": {"Treasure Chart 1 Salvage", "Treasure Chart 2 Salvage", "Treasure Chart 3 Salvage",
+                           "Treasure Chart 4 Salvage", "Treasure Chart 5 Salvage", "Treasure Chart 6 Salvage",
+                           "Treasure Chart 7 Salvage", "Treasure Chart 8 Salvage", "Treasure Chart 9 Salvage",
+                           "Treasure Chart 10 Salvage", "Treasure Chart 11 Salvage", "Treasure Chart 12 Salvage",
+                           "Treasure Chart 13 Salvage", "Treasure Chart 14 Salvage", "Treasure Chart 15 Salvage",
+                           "Treasure Chart 16 Salvage", "Treasure Chart 17 Salvage", "Treasure Chart 18 Salvage",
+                           "Treasure Chart 19 Salvage", "Treasure Chart 20 Salvage", "Treasure Chart 21 Salvage",
+                           "Treasure Chart 22 Salvage", "Treasure Chart 23 Salvage", "Treasure Chart 24 Salvage",
+                           "Treasure Chart 25 Salvage", "Treasure Chart 26 Salvage", "Treasure Chart 27 Salvage",
+                           "Treasure Chart 28 Salvage", "Treasure Chart 29 Salvage", "Treasure Chart 30 Salvage",
+                           "Treasure Chart 31 Salvage", "Treasure Chart 32 Salvage", "Treasure Chart 33 Salvage",
+                           "Treasure Chart 34 Salvage", "Treasure Chart 35 Salvage", "Treasure Chart 36 Salvage",
+                           "Treasure Chart 37 Salvage", "Treasure Chart 38 Salvage", "Treasure Chart 39 Salvage",
+                           "Treasure Chart 40 Salvage", "Treasure Chart 41 Salvage"
+                           },
+    "Triforce Salvaging": {"Triforce Chart 1 Salvage", "Triforce Chart 2 Salvage", "Triforce Chart 3 Salvage",
+                           "Triforce Chart 4 Salvage", "Triforce Chart 5 Salvage", "Triforce Chart 6 Salvage",
+                           "Triforce Chart 7 Salvage", "Triforce Chart 8 Salvage"}
+}
+
+location_name_groups["Salvaging"] = location_name_groups["Triforce Salvaging"] | location_name_groups[
+    "Treasure Salvaging"]

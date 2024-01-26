@@ -136,7 +136,7 @@ location_table: list[Location] = [  # 240/254/304
     #Stage 0x2 (Forsaken Fortress) 5 FORMATTED
     Location("Forsaken Fortress - Upper Jail", 0x2, True, False, False, -1, False, -1, False, 0),
     Location("Forsaken Fortress - Chest on Bed", 0x2, True, False, False, -1, False, -1, False, 1),
-    Location("Forsaken Fortress - Chest Guarded by Bokolin", 0x2, True, False, False, -1, False, -1, False, 2),
+    Location("Forsaken Fortress - Chest Guarded by Bokoblin", 0x2, True, False, False, -1, False, -1, False, 2),
     Location("Forsaken Fortress - Lower Jail", 0x2, True, False, False, -1, False, -1, False, 3),
     Location("Forsaken Fortress - Helmaroc King Heart Container", 0x2, False, True, False, -1, False, -1, False, 21),
 
@@ -268,9 +268,9 @@ location_table: list[Location] = [  # 240/254/304
     Location("Stone Watcher - Cave"    , 0xC, True, False, False, -1, False, -1, False, 10),
     Location("Overlook - Cave"       , 0xC, True, False, False, -1, False, -1, False, 11),
     Location("Birds Peak Rock - Cave"   , 0xC, True, False, False, -1, False, -1, False, 16),
-    Location("Cabana Labryinth - Upper" , 0xC, True, False, False, -1, False, -1, False, 17),
+    Location("Cabana Labyrinth - Upper" , 0xC, True, False, False, -1, False, -1, False, 17),
     Location("Ice Ring - Inner Cave", 0xC, True, False, False, -1, False, -1, False, 21),
-    Location("Cabana Labryinth - Lower" , 0xC, True, False, False, -1, False, -1, False, 22),
+    Location("Cabana Labyrinth - Lower" , 0xC, True, False, False, -1, False, -1, False, 22),
     Location("Diamond Steppe - Warp Maze 1st" , 0xC, True, False, False, -1, False, -1, False, 23),
     Location("Pawprint - Chu Cave - Left Boulder"   , 0xC, True, False, False, -1, False, -1, False, 24),
     Location("Pawprint - Chu Cave - Right Boulder"  , 0xC, True, False, False, -1, False, -1, False, 25),
@@ -283,8 +283,8 @@ location_table: list[Location] = [  # 240/254/304
     Location("Windfall - Pirate Ship Chest", 0xD, True, False, False, -1, False, -1, False, 5),
     Location("Angular - Cave"           , 0xD, True, False, False, -1, False, -1, False, 6),
     Location("Needle Rock - Cave"       , 0xD, True, False, False, -1, False, -1, False, 9),
-    Location("Outset - Savage Labryinth Floor 30", 0xD, True, False, False, -1, False, -1, False, 11),
-    Location("Outset - Savage Labryinth Floor 50", 0xD, True, False, False, -1, False, -1, False, 12),
+    Location("Outset - Savage Labyrinth Floor 30", 0xD, True, False, False, -1, False, -1, False, 11),
+    Location("Outset - Savage Labyrinth Floor 50", 0xD, True, False, False, -1, False, -1, False, 12),
     Location("Boating Course - Cave"    , 0xD, True, False, False, -1, False, -1, False, 15),
     Location("Shark Island - Cave"      , 0xD, True, False, False, -1, False, -1, False, 22),
 

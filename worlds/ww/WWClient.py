@@ -21,7 +21,7 @@ class WWCommandProcessor(ClientCommandProcessor):
 class WWCommonContext(CommonContext):
     command_processor = WWCommandProcessor
     game = "Wind Waker"
-    items_handling = 0b011
+    items_handling = 0b111
 
     def __init__(self, server_address, password):
         super(WWCommonContext, self).__init__(server_address, password)

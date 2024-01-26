@@ -1,13 +1,16 @@
 from typing import NamedTuple, Dict, Optional
 from BaseClasses import Item
 
+
 class ItemData(NamedTuple):
     code: Optional[int]
     progression: bool
     count: int = 1
 
+
 class WindWakerItem(Item):
     game: str = "Wind Waker"
+
 
 item_table: Dict[str, ItemData] = {
     "Telescope": ItemData(0x237000, False),
@@ -35,7 +38,7 @@ item_table: Dict[str, ItemData] = {
     "Ballad of the Gales": ItemData(0x237016, True),
     "Bait Bag": ItemData(0x237017, True),
     "Delivery Bag": ItemData(0x237018, True),
-    "Note to Mom": ItemData(0x237019, False), #Cant Support
+    "Note to Mom": ItemData(0x237019, False),  # Cant Support
     "Cabana Deed": ItemData(0x23701A, True),
     "Maggies Letter": ItemData(0x23701B, False),
     "Moblins Letter": ItemData(0x23701C, False),
@@ -140,6 +143,25 @@ item_table: Dict[str, ItemData] = {
     "Grappling Hook": ItemData(0x23707F, True),
 
     "Defeat Ganon": ItemData(None, True)
-    }
+}
 
 lookup_id_to_name: Dict[int, str] = {data.code: item_name for item_name, data in item_table.items() if data.code}
+item_name_groups = ({
+    "Triforce Charts": {"Triforce Chart 1", "Triforce Chart 2", "Triforce Chart 3", "Triforce Chart 4",
+                        "Triforce Chart 5", "Triforce Chart 6", "Triforce Chart 7", "Triforce Chart 8"},
+
+    "Treasure Charts": {"Treasure Chart 1", "Treasure Chart 2", "Treasure Chart 3", "Treasure Chart 4",
+                        "Treasure Chart 5", "Treasure Chart 6", "Treasure Chart 7", "Treasure Chart 8",
+                        "Treasure Chart 9", "Treasure Chart 10", "Treasure Chart 11", "Treasure Chart 12",
+                        "Treasure Chart 13", "Treasure Chart 14", "Treasure Chart 15", "Treasure Chart 16",
+                        "Treasure Chart 17", "Treasure Chart 18", "Treasure Chart 19", "Treasure Chart 20",
+                        "Treasure Chart 21", "Treasure Chart 22", "Treasure Chart 23", "Treasure Chart 24",
+                        "Treasure Chart 25", "Treasure Chart 26", "Treasure Chart 27", "Treasure Chart 28",
+                        "Treasure Chart 29", "Treasure Chart 30", "Treasure Chart 31", "Treasure Chart 32",
+                        "Treasure Chart 33", "Treasure Chart 34", "Treasure Chart 35", "Treasure Chart 36",
+                        "Treasure Chart 37", "Treasure Chart 38", "Treasure Chart 39", "Treasure Chart 40",
+                        "Treasure Chart 41"
+                        }
+})
+
+item_name_groups["Charts"] = item_name_groups["Triforce Charts"] | item_name_groups["Treasure Charts"]

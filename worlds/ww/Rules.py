@@ -114,8 +114,8 @@ class WindWakerLogic(LogicMixin):
 def set_rules(world: MultiWorld, player: int):
     set_rule(world.get_location("Outset - Jabun's Cave", player), lambda state: state.has("Bombs", player))
     set_rule(world.get_location("Outset - Big Pig", player), lambda state: state._ww_can_feed_pig(player))
-    set_rule(world.get_location("Outset - Savage Labryinth Floor 30", player), lambda state: state._ww_can_do_savage_thirty(player))
-    set_rule(world.get_location("Outset - Savage Labryinth Floor 50", player), lambda state: state._ww_can_do_savage_fifty(player))
+    set_rule(world.get_location("Outset - Savage Labyrinth Floor 30", player), lambda state: state._ww_can_do_savage_thirty(player))
+    set_rule(world.get_location("Outset - Savage Labyrinth Floor 50", player), lambda state: state._ww_can_do_savage_fifty(player))
     set_rule(world.get_location("Outset - Give Orca 10 Knights Crest", player), lambda state: state._ww_can_loot_spoils(player) and (state.has("Triforce Shard", player, 8) or (state.has("Iron Boots", player) and \
                                                                                               state.has("Skull Hammer", player)) or (state.has("Wind Waker", player) and state.has("Winds Reqium", player) and \
                                                                                              (state.has("Hookshot", player) or state.has("Power Bracelets", player)))) and state.has("Progressive Sword", player))
@@ -178,7 +178,7 @@ def set_rules(world: MultiWorld, player: int):
     set_rule(world.get_location("Tower of Gods - Gohdan Heart Container", player), lambda state: state.has("TotG Big Key", player) and state.has("Deku Leaf", player))
 
     set_rule(world.get_entrance("Hyrule Entrance", player), lambda state: state.has("Triforce Shard", player, 8))
-    set_rule(world.get_location("Hyrule - Master Sword Chamber", player), lambda state: state._ww_can_defeat_enemies(player))
+    set_rule(world.get_location("Hyrule - Master Sword Chamber", player), lambda state: state.has("Progressive Bow", player, 3) or state.has("Progressive Sword", player, 1))
 
     set_rule(world.get_entrance("Forsaken Fortress Interior Entrance", player), lambda state: state.has("Bombs", player))
     set_rule(world.get_location("Forsaken Fortress - Phantom Ganon", player), lambda state: state.has("Progressive Sword", player, 2))
@@ -226,10 +226,10 @@ def set_rules(world: MultiWorld, player: int):
     set_rule(world.get_location("Great Sea - Ghost Ship", player), lambda state: state.has("Ghost Ship Chart", player) and state.has("Deku Leaf", player) and state._ww_can_defeat_enemies(player))
 
     set_rule(world.get_location("Private Oasis - Top of Waterfall", player), lambda state: state._ww_get_over_small_gap(player))
-    set_rule(world.get_entrance("Cabana Labryinth Entrance", player), lambda state: state.has("Delivery Bag", player) and state.has("Cabana Deed", player) and \
+    set_rule(world.get_entrance("Cabana Labyrinth Entrance", player), lambda state: state.has("Delivery Bag", player) and state.has("Cabana Deed", player) and \
                                                                                     state.has("Grappling Hook", player) and state.has("Skull Hammer", player))
     #set_rule(world.get_location("Private Oasis - Big Octo", player), lambda state: state._ww_defeat_big_octos(player))
-    set_rule(world.get_location("Cabana Labryinth - Upper", player), lambda state: state.has("Wind Waker", player) and state.has("Winds Requiem", player))
+    set_rule(world.get_location("Cabana Labyrinth - Upper", player), lambda state: state.has("Wind Waker", player) and state.has("Winds Requiem", player))
 
     set_rule(world.get_location("Needle Rock - Chest in Ring of Fire", player), lambda state: state.has("Bait Bag", player))
     set_rule(world.get_entrance("Needle Rock Cave Entrance", player), lambda state: state.has("Progressive Bow", player, 2))

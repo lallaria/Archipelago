@@ -1,8 +1,8 @@
 from typing import Any, Dict
 from .Regions import wind_waker_regions as wwr, mandatory_connections as mc, link_ww_structures
-from .Locations import WindWakerAchievement, achievement_table
+from .Locations import WindWakerAchievement, achievement_table, location_name_groups
 from .Rules import set_rules as _ww_set_rules, completion_rules as _ww_completion_rules
-from .Items import WindWakerItem, item_table
+from .Items import WindWakerItem, item_table, item_name_groups
 from .Options import wind_waker_options
 
 from BaseClasses import ItemClassification, Region, Entrance, Item, Tutorial
@@ -49,6 +49,9 @@ class WindWakerWorld(World):
 
     item_name_to_id = {name: data.code for name, data in item_table.items()}
     location_name_to_id = {name: data.id for name, data in achievement_table.items()}
+
+    item_name_groups = item_name_groups
+    location_name_groups = location_name_groups
 
     data_version: int = 237
 
