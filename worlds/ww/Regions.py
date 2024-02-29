@@ -1,265 +1,129 @@
-
-def link_ww_structures(world, player):
-
-    for (exit, region) in mandatory_connections:
-        world.get_entrance(exit, player).connect(world.get_region(region, player))
-
-    exits = [exit.name for r in world.regions if r.player == player for exit in r.exits if exit.connected_region == None]
-    structs = [r.name for r in world.regions if r.player == player and r.entrances == [] and r.name != 'Menu']
-    exits_spoiler = exits[:]
-
-    pairs = {}
-
-    def set_pair(exit, struct):
-        if (exit in exits) and (struct in structs):
-            pairs[exit] = struct
-            exits.remove(exit)
-            structs.remove(struct)
-        else: 
-            raise Exception(f"Invalid connection: {exit} => {struct} for player {player} ({world.player_name[player]})")
-
-    if world.plando_connections[player]:
-        for conn in world.plando_connections[player]:
-            set_pair(conn.entrance, conn.exit)
-
-    for (exit, struct) in mandatory_connections: 
-            if exit in exits: 
-                set_pair(exit, struct)
-
-    try:
-        assert len(exits) == len(structs) == 0
-    except AssertionError: 
-        raise Exception(f"Failed to connect all Wind Waker structures for player {player} ({world.player_name[player]})")
-
-    for exit in exits_spoiler:
-        world.get_entrance(exit, player).connect(world.get_region(pairs[exit], player))
-        if world.shuffle_structures[player] or world.plando_connections[player]:
-            world.spoiler.set_entrance(exit, pairs[exit], 'entrance', player)
-
-wind_waker_regions = [
-    ('Menu', ['New World']),
-    ('The Great Sea', [ 'Forsaken Fortress Interior Entrance',
-                        'Star Island Cave Entrance',
-                        'Northern Fairy Submarine Entrance',
-                        'Gale Isle Entrance',
-                        'Crescent Moon Submarine Entrance',
-                        'Overlook Cave Entrance',
-                        'Mother & Child Warp Point',
-                        'Windfall - Jail Entrance',
-                        'Windfall - Maggie Room Entrance',
-                        'Windfall - Classroom Entrance',
-                        'Windfall - Lenzo Lower Entrance',
-                        'Windfall - Lenzo Upper Entrance',
-                        'Windfall - Cafe Entrance',
-                        'Windfall - Sploosh Kaboom Entrance',
-                        'Windfall - Potion Shop Entrance',
-                        'Windfall - Pirate Ship Entrance',
-                        'Pawprint Chu Cave Entrance',
-                        'Pawprint Wizzrobe Cave Entrance',
-                        'DRI Secret Cave Entrance',
-                        'DRI Pathway to Rito Hub',
-                        'Flight Control Submarine Entrance',
-                        'Rock Spire Cave Entrance',
-                        'Fire Mountain Cave Entrance',
-                        '6 Eye Reef Submarine Entrance',
-                        'Tower of Gods Entrance',
-                        'Needle Rock Cave Entrance',
-                        'Islet of Steel Entrance',
-                        'Stone Watcher Cave Entrance',
-                        'Private Oasis Entrance',
-                        'Bomb Island Submarine Entrance',
-                        'Bomb Island Cave Entrance',
-                        'Birds Peak Rock Cave Entrance',
-                        'Diamond Steppe Cave Entrance',
-                        'Shark Island Cave Entrance',
-                        'Ice Ring Cave Entrance',
-                        'Forest Haven Entrance',
-                        'Cliff Plateau Cave Entrance',
-                        'Horseshoe Cave Entrance',
-                        'Outset - Grasscutters House Door',
-                        'Outset - Crawl Under Grandmas House',
-                        'Outset - Savage Labyrinth Entrance',
-                        'Outset - Jabuns Cave Entrance',
-                        'Outset - Orcas House Entrance',
-                        'Headstone Island Entrance',
-                        'Headstone Submarine Entrance',
-                        'Angular Cave Entrance',
-                        'Boating Course Cave Entrance',
-                        '5 Star Submarine Entrance',
-                        'Expensive Beedle Ship Entrance',
-                        'Hyrule Entrance']),
-    ('Forsaken Fortress Interior', ['Forsaken Fortress - Within the Walls Entrance']),
-    ('Forsaken Fortress - Within the Walls', []),
-    ('Star Island Cave', []),
-    ('Northern Fairy Submarine', []),
-    ('Wind Temple - First Room', ['Wind Temple - HUB Room Entrance']),
-    ('Wind Temple - HUB Room', ['Wind Temple - Basement Entrance']),
-    ('Wind Temple - Basement', ['Wind Temple - Boss Arena Entrance']),
-    ('Wind Temple - Boss Arena', []),
-    ('Crescent Moon Submarine', []),
-    ('Overlook Cave', []),
-    ('Inside Mother & Child', []),
-    ('Windfall - Jail', []),
-    ('Windfall - Maggie Room', []),
-    ('Windfall - Classroom', []),
-    ('Windfall - Lenzo Lower', []),
-    ('Windfall - Lenzo Upper', []),
-    ('Windfall - Cafe', []),
-    ('Windfall - Sploosh Kaboom', []),
-    ('Windfall - Potion Shop', []),
-    ('Windfall - Pirate Ship', []),
-    ('Pawprint Chu Cave', []),
-    ('Pawprint Wizzrobe Cave', []),
-    ('DRI Secret Cave', []),
-    ('DRI Rito Hub', ['Fly Around Island Entrance', 'Pathway to DRC']),
-    ('Fly Around Island', []),
-    ('DRC - First Room', ['DRC - HUB Room Entrance']),
-    ('DRC - HUB Room', ['DRC - Basement Entrance', 'DRC - 1st Locked Door']),
-    ('DRC - Basement', []),
-    ('DRC - Past 1st Locked Door', ['DRC - Rat Room Locked Door']),
-    ('DRC - Outside Rat Room', ['DRC - Into Dark Room']),
-    ('DRC - Dark Room', ['DRC - Boss Fight Arena Entrance']),
-    ('DRC - Boss Fight Arena', []),
-    ('Flight Control Submarine', []),
-    ('Rock Spire Cave', []),
-    ('Fire Mountain Cave', []),
-    ('6 Eye Reef Submarine', []),
-    ('Tower of Gods - 1st Floor', ['Tower of Gods - Until Stone Tablet Entrance', 'Tower of Gods - Left Side Entrance']),
-    ('Tower of Gods - Left Side', []),
-    ('Tower of Gods - Until Stone Tablet', ['Tower of Gods - After Stone Tablet Entrance']),
-    ('Tower of Gods - After Stone Tablet', ['Tower of Gods - Mini Boss Arena Entrance']),
-    ('Tower of Gods - Mini Boss Arena', ['Tower of Gods - After Mini Boss']),
-    ('Tower of Gods - Before Locked Door', ['Tower of Gods - Locked Door']),
-    ('Tower of Gods - Past Locked Door', ['Tower of Gods - Boss Arena Entrance']),
-    ('Tower of Gods - Boss Arena', []),
-    ('Needle Rock Cave', []),
-    ('Islet of Steel', []),
-    ('Stone Watcher Cave', []),
-    ('Private Oasis', ['Cabana Labyrinth Entrance']),
-    ('Cabana Labyrinth', []),
-    ('Bomb Island Submarine', []),
-    ('Bomb Island Cave', []),
-    ('Birds Peak Rock Cave', []),
-    ('Diamond Steppe Cave', []),
-    ('Shark Island Cave', []),
-    ('Ice Ring Cave', ['Ice Ring Inner Cave Entrance']),
-    ('Ice Ring Inner Cave', []),
-    ('Forest Haven', ['Forbidden Woods Entrance']),
-    ('Forbidden Woods - Pre HUB Room', ['Forbidden Woods - HUB Room Entrance']),
-    ('Forbidden Woods - HUB Room', ['Forbidden Woods - Locked Door', 'Forbidden Woods - Basement Entrance', 'Forbidden Woods - Boss Arena Entrance']),
-    ('Forbidden Woods - Past Locked Door', []),
-    ('Forbidden Woods - Basement', []),
-    ('Forbidden Woods - Boss Arena', []),
-    ('Cliff Plateau Cave', ['Cliff Plateau Upper Entrance']),
-    ('Cliff Plateau Upper', []),
-    ('Horseshoe Cave', []),
-    ('Outset - Grasscutters House', []),
-    ('Outset - Under Grandmas House', []),
-    ('Outset - Savage Labyrinth First', ['Savage Labyrinth Second Entrance']),
-    ('Outset - Jabuns Cave', []),
-    ('Savage Labyrinth Second', []),
-    ('Outset - Orcas House', []),
-    ('Earth Temple - First Rooms', ['Earth Temple - Left Side Entrance', 'Earth Temple - Basement Entrance']),
-    ('Earth Temple - Left Side', []),
-    ('Earth Temple - Basement', ['Earth Temple - Song Stone']),
-    ('Earth Temple - Past Song Stone', ['Earth Temple - 2nd Locked Door']),
-    ('Earth Temple - Past 2nd Locked Door', ['Earth Temple - Boss Arena Entrance']),
-    ('Earth Temple - Boss Arena', []),
-    ('Headstone Submarine', []),
-    ('Angular Cave', []),
-    ('Boating Course Cave', []),
-    ('5 Star Submarine', []),
-    ('Expensive Beedle Ship', []),
-    ('Hyrule', ['Master Sword Chamber Entrance', 'Ganons Tower Entrance']),
-    ('Master Sword Chamber', []),
-    ('Ganons Tower', [])
+DUNGEON_ENTRANCES = [
+    "Dungeon Entrance on Dragon Roost Island",
+    "Dungeon Entrance in Forest Haven Sector",
+    "Dungeon Entrance in Tower of the Gods Sector",
+    "Dungeon Entrance on Headstone Island",
+    "Dungeon Entrance on Gale Isle",
+]
+DUNGEON_EXITS = [
+    "Dragon Roost Cavern",
+    "Forbidden Woods",
+    "Tower of the Gods",
+    "Earth Temple",
+    "Wind Temple",
 ]
 
-mandatory_connections = [
-    ('New World', 'The Great Sea'),
-    ('Forsaken Fortress Interior Entrance', 'Forsaken Fortress Interior'),
-    ('Forsaken Fortress - Within the Walls Entrance', 'Forsaken Fortress - Within the Walls'),
-    ('Star Island Cave Entrance', 'Star Island Cave'),
-    ('Northern Fairy Submarine Entrance', 'Northern Fairy Submarine'),
-    ('Gale Isle Entrance', 'Wind Temple - First Room'),
-    ('Wind Temple - HUB Room Entrance', 'Wind Temple - HUB Room'),
-    ('Wind Temple - Basement Entrance', 'Wind Temple - Basement'),
-    ('Wind Temple - Boss Arena Entrance', 'Wind Temple - Boss Arena'),
-    ('Crescent Moon Submarine Entrance', 'Crescent Moon Submarine'),
-    ('Overlook Cave Entrance', 'Overlook Cave'),
-    ('Mother & Child Warp Point', 'Inside Mother & Child'),
-    ('Windfall - Jail Entrance', 'Windfall - Jail'),
-    ('Windfall - Maggie Room Entrance', 'Windfall - Maggie Room'),
-    ('Windfall - Classroom Entrance', 'Windfall - Classroom'),
-    ('Windfall - Lenzo Lower Entrance', 'Windfall - Lenzo Lower'),
-    ('Windfall - Lenzo Upper Entrance', 'Windfall - Lenzo Upper'),
-    ('Windfall - Cafe Entrance', 'Windfall - Cafe'),
-    ('Windfall - Sploosh Kaboom Entrance', 'Windfall - Sploosh Kaboom'),
-    ('Windfall - Potion Shop Entrance', 'Windfall - Potion Shop'),
-    ('Windfall - Pirate Ship Entrance', 'Windfall - Pirate Ship'),
-    ('Pawprint Chu Cave Entrance', 'Pawprint Chu Cave'),
-    ('Pawprint Wizzrobe Cave Entrance', 'Pawprint Wizzrobe Cave'),
-    ('DRI Secret Cave Entrance', 'DRI Secret Cave'),
-    ('DRI Pathway to Rito Hub', 'DRI Rito Hub'),
-    ('Fly Around Island Entrance', 'Fly Around Island'),
-    ('Pathway to DRC', 'DRC - First Room'),
-    ('DRC - HUB Room Entrance', 'DRC - HUB Room'),
-    ('DRC - Basement Entrance', 'DRC - Basement'),
-    ('DRC - 1st Locked Door', 'DRC - Past 1st Locked Door'),
-    ('DRC - Rat Room Locked Door', 'DRC - Outside Rat Room'),
-    ('DRC - Into Dark Room', 'DRC - Dark Room'),
-    ('DRC - Boss Fight Arena Entrance', 'DRC - Boss Fight Arena'),
-    ('Flight Control Submarine Entrance', 'Flight Control Submarine'),
-    ('Rock Spire Cave Entrance', 'Rock Spire Cave'),
-    ('Fire Mountain Cave Entrance', 'Fire Mountain Cave'),
-    ('6 Eye Reef Submarine Entrance', '6 Eye Reef Submarine'),
-    ('Tower of Gods Entrance', 'Tower of Gods - 1st Floor'),
-    ('Tower of Gods - Left Side Entrance', 'Tower of Gods - Left Side'),
-    ('Tower of Gods - Until Stone Tablet Entrance', 'Tower of Gods - Until Stone Tablet'),
-    ('Tower of Gods - After Stone Tablet Entrance', 'Tower of Gods - After Stone Tablet'),
-    ('Tower of Gods - Mini Boss Arena Entrance', 'Tower of Gods - Mini Boss Arena'),
-    ('Tower of Gods - After Mini Boss', 'Tower of Gods - Before Locked Door'),
-    ('Tower of Gods - Locked Door', 'Tower of Gods - Past Locked Door'),
-    ('Tower of Gods - Boss Arena Entrance', 'Tower of Gods - Boss Arena'),
-    ('Needle Rock Cave Entrance', 'Needle Rock Cave'),
-    ('Islet of Steel Entrance', 'Islet of Steel'),
-    ('Stone Watcher Cave Entrance', 'Stone Watcher Cave'),
-    ('Private Oasis Entrance', 'Private Oasis'),
-    ('Cabana Labyrinth Entrance', 'Cabana Labyrinth'),
-    ('Bomb Island Submarine Entrance', 'Bomb Island Submarine'),
-    ('Bomb Island Cave Entrance', 'Bomb Island Cave'),
-    ('Birds Peak Rock Cave Entrance', 'Birds Peak Rock Cave'),
-    ('Diamond Steppe Cave Entrance', 'Diamond Steppe Cave'),
-    ('Shark Island Cave Entrance', 'Shark Island Cave'),
-    ('Ice Ring Cave Entrance', 'Ice Ring Cave'),
-    ('Ice Ring Inner Cave Entrance', 'Ice Ring Inner Cave'),
-    ('Forest Haven Entrance', 'Forest Haven'),
-    ('Forbidden Woods Entrance', 'Forbidden Woods - Pre HUB Room'),
-    ('Forbidden Woods - HUB Room Entrance', 'Forbidden Woods - HUB Room'),
-    ('Forbidden Woods - Locked Door', 'Forbidden Woods - Past Locked Door'),
-    ('Forbidden Woods - Basement Entrance', 'Forbidden Woods - Basement'),
-    ('Forbidden Woods - Boss Arena Entrance', 'Forbidden Woods - Boss Arena'),
-    ('Cliff Plateau Cave Entrance', 'Cliff Plateau Cave'),
-    ('Cliff Plateau Upper Entrance', 'Cliff Plateau Upper'),
-    ('Horseshoe Cave Entrance', 'Horseshoe Cave'),
-    ('Outset - Grasscutters House Door', 'Outset - Grasscutters House'),
-    ('Outset - Crawl Under Grandmas House', 'Outset - Under Grandmas House'),
-    ('Outset - Savage Labyrinth Entrance', 'Outset - Savage Labyrinth First'),
-    ('Savage Labyrinth Second Entrance', 'Savage Labyrinth Second'),
-    ('Outset - Jabuns Cave Entrance', 'Outset - Jabuns Cave'),
-    ('Outset - Orcas House Entrance', 'Outset - Orcas House'),
-    ('Headstone Island Entrance', 'Earth Temple - First Rooms'),
-    ('Earth Temple - Left Side Entrance', 'Earth Temple - Left Side'),
-    ('Earth Temple - Basement Entrance', 'Earth Temple - Basement'),
-    ('Earth Temple - Song Stone', 'Earth Temple - Past Song Stone'),
-    ('Earth Temple - 2nd Locked Door', 'Earth Temple - Past 2nd Locked Door'),
-    ('Earth Temple - Boss Arena Entrance', 'Earth Temple - Boss Arena'),
-    ('Headstone Submarine Entrance', 'Headstone Submarine'),
-    ('Angular Cave Entrance', 'Angular Cave'),
-    ('Boating Course Cave Entrance', 'Boating Course Cave'),
-    ('5 Star Submarine Entrance', '5 Star Submarine'),
-    ('Expensive Beedle Ship Entrance', 'Expensive Beedle Ship'),
-    ('Hyrule Entrance', 'Hyrule'),
-    ('Master Sword Chamber Entrance', 'Master Sword Chamber'),
-    ('Ganons Tower Entrance', 'Ganons Tower')
+MINIBOSS_ENTRANCES = [
+    "Miniboss Entrance in Forbidden Woods",
+    "Miniboss Entrance in Tower of the Gods",
+    "Miniboss Entrance in Earth Temple",
+    "Miniboss Entrance in Wind Temple",
+    "Miniboss Entrance in Hyrule Castle",
 ]
+MINIBOSS_EXITS = [
+    "Forbidden Woods Miniboss Arena",
+    "Tower of the Gods Miniboss Arena",
+    "Earth Temple Miniboss Arena",
+    "Wind Temple Miniboss Arena",
+    "Master Sword Chamber",
+]
+
+BOSS_ENTRANCES = [
+    "Boss Entrance in Dragon Roost Cavern",
+    "Boss Entrance in Forbidden Woods",
+    "Boss Entrance in Tower of the Gods",
+    "Boss Entrance in Forsaken Fortress",
+    "Boss Entrance in Earth Temple",
+    "Boss Entrance in Wind Temple",
+]
+BOSS_EXITS = [
+    "Gohma Boss Arena",
+    "Kalle Demos Boss Arena",
+    "Gohdan Boss Arena",
+    "Helmaroc King Boss Arena",
+    "Jalhalla Boss Arena",
+    "Molgera Boss Arena",
+]
+
+SECRET_CAVES_ENTRANCES = [
+    "Secret Cave Entrance on Outset Island",
+    "Secret Cave Entrance on Dragon Roost Island",
+    "Secret Cave Entrance on Fire Mountain",
+    "Secret Cave Entrance on Ice Ring Isle",
+    "Secret Cave Entrance on Private Oasis",
+    "Secret Cave Entrance on Needle Rock Isle",
+    "Secret Cave Entrance on Angular Isles",
+    "Secret Cave Entrance on Boating Course",
+    "Secret Cave Entrance on Stone Watcher Island",
+    "Secret Cave Entrance on Overlook Island",
+    "Secret Cave Entrance on Bird's Peak Rock",
+    "Secret Cave Entrance on Pawprint Isle",
+    "Secret Cave Entrance on Pawprint Isle Side Isle",
+    "Secret Cave Entrance on Diamond Steppe Island",
+    "Secret Cave Entrance on Bomb Island",
+    "Secret Cave Entrance on Rock Spire Isle",
+    "Secret Cave Entrance on Shark Island",
+    "Secret Cave Entrance on Cliff Plateau Isles",
+    "Secret Cave Entrance on Horseshoe Island",
+    "Secret Cave Entrance on Star Island",
+]
+SECRET_CAVES_EXITS = [
+    "Savage Labyrinth",
+    "Dragon Roost Island Secret Cave",
+    "Fire Mountain Secret Cave",
+    "Ice Ring Isle Secret Cave",
+    "Cabana Labyrinth",
+    "Needle Rock Isle Secret Cave",
+    "Angular Isles Secret Cave",
+    "Boating Course Secret Cave",
+    "Stone Watcher Island Secret Cave",
+    "Overlook Island Secret Cave",
+    "Bird's Peak Rock Secret Cave",
+    "Pawprint Isle Chuchu Cave",
+    "Pawprint Isle Wizzrobe Cave",
+    "Diamond Steppe Island Warp Maze Cave",
+    "Bomb Island Secret Cave",
+    "Rock Spire Isle Secret Cave",
+    "Shark Island Secret Cave",
+    "Cliff Plateau Isles Secret Cave",
+    "Horseshoe Island Secret Cave",
+    "Star Island Secret Cave",
+]
+
+SECRET_CAVES_INNER_ENTRANCES = [
+    "Inner Entrance in Ice Ring Isle Secret Cave",
+    "Inner Entrance in Cliff Plateau Isles Secret Cave",
+]
+SECRET_CAVES_INNER_EXITS = [
+    "Ice Ring Isle Inner Cave",
+    "Cliff Plateau Isles Inner Cave",
+]
+
+FAIRY_FOUNTAIN_ENTRANCES = [
+    "Fairy Fountain Entrance on Outset Island",
+    "Fairy Fountain Entrance on Thorned Fairy Island",
+    "Fairy Fountain Entrance on Eastern Fairy Island",
+    "Fairy Fountain Entrance on Western Fairy Island",
+    "Fairy Fountain Entrance on Southern Fairy Island",
+    "Fairy Fountain Entrance on Northern Fairy Island",
+]
+FAIRY_FOUNTAIN_EXITS = [
+    "Outset Fairy Fountain",
+    "Thorned Fairy Fountain",
+    "Eastern Fairy Fountain",
+    "Western Fairy Fountain",
+    "Southern Fairy Fountain",
+    "Northern Fairy Fountain",
+]
+
+ALL_ENTRANCES = (
+    DUNGEON_ENTRANCES
+    + MINIBOSS_ENTRANCES
+    + BOSS_ENTRANCES
+    + SECRET_CAVES_ENTRANCES
+    + SECRET_CAVES_INNER_ENTRANCES
+    + FAIRY_FOUNTAIN_ENTRANCES
+)
+ALL_EXITS = (
+    DUNGEON_EXITS + MINIBOSS_EXITS + BOSS_EXITS + SECRET_CAVES_EXITS + SECRET_CAVES_INNER_EXITS + FAIRY_FOUNTAIN_EXITS
+)

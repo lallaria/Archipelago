@@ -1,364 +1,1641 @@
 from BaseClasses import MultiWorld
-from worlds.generic.Rules import set_rule
 from worlds.AutoWorld import LogicMixin
-from BaseClasses import MultiWorld
+from worlds.generic.Rules import set_rule
 
-class WindWakerLogic(LogicMixin):
+from .Macros import *
 
-    def _ww_has_mirror_shield(self, player: int):
-        return self.has("Progressive Shield", player, 2)
 
-    def _ww_elemental(self, player: int):
-        return self.has("Progressive Bow", player, 2)
+class TWWLogic(LogicMixin):
+    def _tww_rematch_bosses_skipped(self, player: int):
+        return self.multiworld.worlds[player].options.skip_rematch_bosses
 
-    def _ww_can_feed_pig(self, player: int):
-        return self.has("Power Bracelets", player) and self.has("Bait Bag", player)
+    def _tww_in_swordless_mode(self, player: int):
+        return self.multiworld.worlds[player].options.sword_mode == "swordless"
 
-    def _ww_can_defeat_enemies(self, player: int):
-        return self.has("Progressive Sword", player) or (self.has("Progressive Bow", player) and self.has("Quiver Upgrade", player)) or \
-              (self.has("Bombs", player) and self.has("Bomb Bag Upgrade", player)) or self.has('Skull Hammer', player)
+    def _tww_outside_swordless_mode(self, player: int):
+        return self.multiworld.worlds[player].options.sword_mode != "swordless"
 
-    def _ww_can_defeat_enemies_wo_upgrades(self, player: int):
-        return self.has("Progressive Sword", player) or self.has("Progressive Bow", player) or \
-               self.has("Bombs", player) or self.has("Skull Hammer", player)
+    def _tww_in_required_bosses_mode(self, player: int):
+        return self.multiworld.worlds[player].options.required_bosses
 
-    def _ww_can_do_savage_thirty(self, player: int):
-        return self._ww_can_defeat_enemies and (self.has("Hookshot", player) or self.has("Deku Leaf", player)) and \
-               self.has("Power Bracelets", player) and self.has("Grappling Hook", player) and \
-               self.has("Wind Waker", player) and self.has("Winds Requiem", player)
+    def _tww_outside_required_bosses_mode(self, player: int):
+        return not self.multiworld.worlds[player].options.required_bosses
 
-    def _ww_can_do_savage_fifty(self, player: int):
-        return self._ww_can_do_savage_thirty(player) and self._ww_has_mirror_shield(player)
+    def _tww_obscure_1(self, player: int):
+        return (
+            self.multiworld.worlds[player].options.logic_obscurity == "normal"
+            or self.multiworld.worlds[player].options.logic_obscurity == "hard"
+            or self.multiworld.worlds[player].options.logic_obscurity == "very_hard"
+        )
 
-    def _ww_can_remove_rock(self, player: int):
-        return self.has("Bombs", player) or self.has("Power Bracelets", player)
+    def _tww_obscure_2(self, player: int):
+        return (
+            self.multiworld.worlds[player].options.logic_obscurity == "hard"
+            or self.multiworld.worlds[player].options.logic_obscurity == "very_hard"
+        )
 
-    def _ww_can_loot_spoils(self, player: int):
-        return self._ww_can_defeat_enemies and self.has("Spoils Bag", player) and self.has("Grappling Hook", player)
+    def _tww_obscure_3(self, player: int):
+        return self.multiworld.worlds[player].options.logic_obscurity == "very_hard"
 
-    def _ww_get_over_small_gap(self, player: int):
-        return self.has("Deku Leaf", player) or self.has("Hookshot", player)
+    def _tww_precise_1(self, player: int):
+        return (
+            self.multiworld.worlds[player].options.logic_precision == "normal"
+            or self.multiworld.worlds[player].options.logic_precision == "hard"
+            or self.multiworld.worlds[player].options.logic_precision == "very_hard"
+        )
 
-    def _ww_top_boulder(self, player: int):
-        return self.has("Bombs", player) or self.has("Progressive Bow", player, 1) or self.has("Boomerang", player) or self.has("Bait Bag", player)
+    def _tww_precise_2(self, player: int):
+        return (
+            self.multiworld.worlds[player].options.logic_precision == "hard"
+            or self.multiworld.worlds[player].options.logic_precision == "very_hard"
+        )
 
-    def _ww_get_into_drc_basement(self, player: int):
-        return ((self.has("DRC Small Key", player, 4) and self.has("Progressive Sword", player)) or \
-                 self._ww_elemental(player) or self.has("Deku Leaf", player)) and self.has("Grappling Hook", player)
-
-    def _ww_get_into_fw(self, player: int):
-        return self.has("Deku Leaf", player) and self.has("Wind Waker", player) and self.has("Winds Requiem", player) and \
-               (self.has("Progressive Sword", player, 1) or self.has("Boomerang", player) or self.has("Double Magic", player) or \
-                self.has("Bombs", player) or self.has("Skull Hammer", player))
-
-    def _ww_kill_fw_bulbs(self, player: int):
-        return self.has("Progressive Bow", player) or self.has("Hookshot", player) or \
-               self.has("Bombs", player) or self.has("Boomerang", player)
-
-    def _ww_get_into_tog(self, player: int):
-        return self.has("Din's Pearl", player) and self.has("Nayru's Pearl", player) and self.has("Farore's Pearl", player)
-
-    def _ww_destroy_cannons(self, player: int):
-        return self.has("Bombs", player) or self.has("Boomerang", player)
-
-    def _ww_defeat_big_octos(self, player: int):
-        return (self.has("Progressive Bow", player) or self.has("Bombs", player) or self.has("Boomerang", player)) and self.has("Grappling Hook", player)
-
-    def _ww_hs_sub(self, player: int):
-        return self.has("Progressive Sword", player) or self.has("Progressive Bow", player) or self.has("Boomerang", player) or \
-               self.has("Skull Hammer", player) or self.has("Grappling Hook", player)
-
-    def _ww_defeat_staflos(self, player: int):
-        return self.has("Skull Hammer", player) or self.has("Progressive Bow", player, 3) or \
-               self.has("Progressive Sword", player) or self.has("Bombs", player) or self.has("Hookshot", player)
-
-    def _ww_cursed_bubbles(self, player: int):
-        return self.has("Progressive Bow", player, 2) or self.has("Bombs", player) or \
-               self.has("Deku Leaf", player) or self.has("Hookshot", player)
-
-    def _ww_into_wt(self, player: int):
-        return self.has("Iron Boots", player) and self.has("Skull Hammer", player) and \
-               self.has("Wind Waker", player) and self.has("Command Melody", player)
-
-    def _ww_withered_trees(self, player: int):
-        return self.has("Bottle", player) and self.has("Deku Leaf", player) and (self._ww_hs_sub(player) or \
-               self.has("Bombs", player) or self.has("Hookshot", player))
-
-    def _ww_can_beat_ganon(self, player: int):
-        return self.has("Progressive Bow", player, 3) and self.has("Progressive Shield", player, 1) and \
-               self.has("Grappling Hook", player) and self.has("Hookshot", player) and \
-               self.has("Boomerang", player) and self.has("Progressive Sword", player, 4) and self.has("Triforce Shard", player, 8)
-
-    def _ww_wizzrobe_cave1(self, player: int):
-        return self.has("Hookshot", player) and (self.has("Skull Hammer", player) or self.has("Progressive Bow", player, 3) or \
-               self.has("Progressive Sword", player) or self.has("Bombs", player))
-
-    def _ww_wizzrobe_cave2(self, player: int):
-        return ((self.has("Boomerang", player) or self.has("Deku Leaf", player)) and self.has("Progressive Sword", player)) or \
-                 self.has("Progressive Bow", player) or self.has("Bombs", player) or self.has("Skull Hammer", player)
-
-    def _ww_cliff_plateau_cave(self, player: int):
-        return self.has("Progressive Sword", player) or self.has("Boomerang", player) or self.has("Skull Hammer", player) or self.has("Hookshot", player) or \
-               self.has("Bombs", player) or self.has("Progressive Bow", player) or (self.has("Deku Leaf", player) and self.has("Grappling Hook", player))
-
-    def _ww_cliff_upper(self, player: int):
-        return self.has("Deku Leaf", player) and (self.has("Progressive Sword", player) or self.has("Boomerang", player) or \
-               self.has("Skull Hammer", player) or self.has("Hookshot", player) or self.has("Bombs", player) or \
-               self.has("Progressive Bow", player) or self.has("Grappling Hook", player))
-
-    def _ww_fc_sub(self, player: int):
-        return (self.has("Progressive Sword", player) or self.has("Progressive Bow", player) or self.has("Bombs", player) or \
-                self.has("Skull Hammer", player)) and (self.has("Progressive Bow", player) or self.has("Hookshot", player))
+    def _tww_precise_3(self, player: int):
+        return self.multiworld.worlds[player].options.logic_precision == "very_hard"
 
 
 def set_rules(world: MultiWorld, player: int):
-    set_rule(world.get_location("Outset - Jabun's Cave", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("Outset - Big Pig", player), lambda state: state._ww_can_feed_pig(player))
-    set_rule(world.get_location("Outset - Savage Labyrinth Floor 30", player), lambda state: state._ww_can_do_savage_thirty(player))
-    set_rule(world.get_location("Outset - Savage Labyrinth Floor 50", player), lambda state: state._ww_can_do_savage_fifty(player))
-    set_rule(world.get_location("Outset - Give Orca 10 Knights Crest", player), lambda state: state._ww_can_loot_spoils(player) and (state.has("Triforce Shard", player, 8) or (state.has("Iron Boots", player) and \
-                                                                                              state.has("Skull Hammer", player)) or (state.has("Wind Waker", player) and state.has("Winds Reqium", player) and \
-                                                                                             (state.has("Hookshot", player) or state.has("Power Bracelets", player)))) and state.has("Progressive Sword", player))
+    # Outset Island
+    set_rule(world.get_location("Outset Island - Underneath Link's House", player), lambda state: True)
+    set_rule(world.get_location("Outset Island - Mesa the Grasscutter's House", player), lambda state: True)
+    set_rule(
+        world.get_location("Outset Island - Orca - Give 10 Knight's Crests", player),
+        lambda state: state.has("Spoils Bag", player)
+        and can_farm_knights_crests(state, player)
+        and can_sword_fight_with_orca(state, player)
+        and has_magic_meter(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Outset Island - Orca - Hit 500 Times", player),
+    #     lambda state: can_sword_fight_with_orca(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Outset Island - Great Fairy", player),
+    #     lambda state: can_access_outset_fairy_fountain(state, player),
+    # )
+    set_rule(world.get_location("Outset Island - Jabun's Cave", player), lambda state: state.has("Bombs", player))
+    set_rule(
+        world.get_location("Outset Island - Dig up Black Soil", player),
+        lambda state: state.has("Bait Bag", player)
+        and can_buy_bait(state, player)
+        and state.has("Power Bracelets", player),
+    )
+    set_rule(
+        world.get_location("Outset Island - Savage Labyrinth - Floor 30", player),
+        lambda state: can_access_savage_labyrinth(state, player)
+        and can_defeat_keese(state, player)
+        and can_defeat_miniblins(state, player)
+        and can_defeat_red_chuchus(state, player)
+        and can_defeat_magtails(state, player)
+        and can_defeat_fire_keese(state, player)
+        and can_defeat_peahats(state, player)
+        and can_defeat_green_chuchus(state, player)
+        and can_defeat_boko_babas(state, player)
+        and can_defeat_mothulas(state, player)
+        and can_defeat_winged_mothulas(state, player)
+        and can_defeat_wizzrobes(state, player)
+        and can_defeat_armos(state, player)
+        and can_defeat_yellow_chuchus(state, player)
+        and can_defeat_red_bubbles(state, player)
+        and can_defeat_darknuts(state, player)
+        and can_play_winds_requiem(state, player)
+        and (
+            state.has("Grappling Hook", player) or has_heros_sword(state, player) or state.has("Skull Hammer", player)
+        ),
+    )
+    set_rule(
+        world.get_location("Outset Island - Savage Labyrinth - Floor 50", player),
+        lambda state: state.can_reach("Outset Island - Savage Labyrinth - Floor 30", "Location", player)
+        and can_aim_mirror_shield(state, player)
+        and can_defeat_redeads(state, player)
+        and can_defeat_blue_bubbles(state, player)
+        and can_defeat_dark_chuchus(state, player)
+        and can_defeat_poes(state, player)
+        and can_defeat_stalfos(state, player)
+        and state.has("Skull Hammer", player),
+    )
 
-    set_rule(world.get_entrance("Windfall - Potion Shop Entrance", player), lambda state: state._ww_can_loot_spoils(player))
-    set_rule(world.get_entrance("Windfall - Lenzo Upper Entrance", player), lambda state: state.has("Progressive Picto Box", player))
-    set_rule(world.get_location("Windfall - Light the Lighthouse", player), lambda state: state._ww_elemental(player))
-    set_rule(world.get_location("Windfall - Transparent Chest", player), lambda state: state._ww_elemental(player) and state._ww_get_over_small_gap(player))
+    # Windfall Island
+    set_rule(world.get_location("Windfall Island - Jail - Tingle - First Gift", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - Jail - Tingle - Second Gift", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - Jail - Maze Chest", player), lambda state: True)
+    set_rule(
+        world.get_location("Windfall Island - Chu Jelly Juice Shop - Give 15 Green Chu Jelly", player),
+        lambda state: can_farm_green_chu_jelly(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Chu Jelly Juice Shop - Give 15 Blue Chu Jelly", player),
+        lambda state: can_obtain_15_blue_chu_jelly(state, player),
+    )
+    # set_rule(world.get_location("Windfall Island - Ivan - Catch Killer Bees", player), lambda state: True)
+    # set_rule(world.get_location("Windfall Island - Mrs. Marie - Catch Killer Bees", player), lambda state: True)
+    # set_rule(
+    #     world.get_location("Windfall Island - Mrs. Marie - Give 1 Joy Pendant", player),
+    #     lambda state: state.has("Spoils Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Mrs. Marie - Give 21 Joy Pendants", player),
+    #     lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Mrs. Marie - Give 40 Joy Pendants", player),
+    #     lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
+    # )
+    set_rule(
+        world.get_location("Windfall Island - Lenzo's House - Left Chest", player),
+        lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Lenzo's House - Right Chest", player),
+        lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Windfall Island - Lenzo's House - Become Lenzo's Assistant", player),
+    #     lambda state: has_picto_box(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Lenzo's House - Bring Forest Firefly", player),
+    #     lambda state: has_picto_box(state, player)
+    #     and state.has("Empty Bottle", player)
+    #     and can_access_forest_haven(state, player),
+    # )
+    set_rule(world.get_location("Windfall Island - House of Wealth Chest", player), lambda state: True)
+    # set_rule(
+    #     world.get_location("Windfall Island - Maggie's Father - Give 20 Skull Necklaces", player),
+    #     lambda state: rescued_aryll(state, player)
+    #     and state.has("Spoils Bag", player)
+    #     and can_farm_skull_necklaces(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Maggie - Free Item", player), lambda state: rescued_aryll(state, player)
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Maggie - Delivery Reward", player),
+    #     lambda state: rescued_aryll(state, player)
+    #     and state.has("Delivery Bag", player)
+    #     and state.has("Moblin's Letter", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Cafe Bar - Postman", player),
+    #     lambda state: rescued_aryll(state, player)
+    #     and state.has("Delivery Bag", player)
+    #     and state.has("Maggie's Letter", player),
+    # )
+    set_rule(
+        world.get_location("Windfall Island - Kreeb - Light Up Lighthouse", player),
+        lambda state: can_play_winds_requiem(state, player) and has_fire_arrows(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Transparent Chest", player),
+        lambda state: can_play_winds_requiem(state, player)
+        and has_fire_arrows(state, player)
+        and (can_fly_with_deku_leaf_outdoors(state, player) or state.has("Hookshot", player)),
+    )
+    # set_rule(
+    #     world.get_location("Windfall Island - Tott - Teach Rhythm", player),
+    #     lambda state: state.has("Wind Waker", player),
+    # )
+    set_rule(world.get_location("Windfall Island - Pirate Ship", player), lambda state: True)
+    # set_rule(world.get_location("Windfall Island - 5 Rupee Auction", player), lambda state: True)
+    # set_rule(world.get_location("Windfall Island - 40 Rupee Auction", player), lambda state: True)
+    # set_rule(world.get_location("Windfall Island - 60 Rupee Auction", player), lambda state: True)
+    # set_rule(world.get_location("Windfall Island - 80 Rupee Auction", player), lambda state: True)
+    # set_rule(
+    #     world.get_location("Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Sam - Decorate the Town", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Kane - Place Shop Guru Statue on Gate", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Kane - Place Postman Statue on Gate", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Kane - Place Six Flags on Gate", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Kane - Place Six Idols on Gate", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Mila - Follow the Thief", player),
+    #     lambda state: rescued_aryll(state, player),
+    # )
+    set_rule(world.get_location("Windfall Island - Battlesquid - First Prize", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - Battlesquid - Second Prize", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - Battlesquid - Under 20 Shots Prize", player), lambda state: True)
+    # set_rule(
+    #     world.get_location("Windfall Island - Pompie and Vera - Secret Meeting Photo", player),
+    #     lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Kamo - Full Moon Photo", player),
+    #     lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Minenco - Miss Windfall Photo", player),
+    #     lambda state: has_deluxe_picto_box(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Windfall Island - Linda and Anton", player),
+    #     lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
+    # )
 
-    set_rule(world.get_location("DRI - Wind Shrine", player), lambda state: state.has("Wind Waker", player))
-    set_rule(world.get_location("DRI - Top of Boulder", player), lambda state: state._ww_top_boulder(player))
-    set_rule(world.get_entrance("Fly Around Island Entrance", player), lambda state: state.has("Deku Leaf", player) and state.has("Wind Waker", player) and state.has("Winds Requiem", player) and \
-                                                                                     (state.has("Progressive Sword", player, 1) or state.has("Bombs", player) or state.has("Skull Hammer", player) or \
-                                                                                      state.has("Boomerang", player) or state.has("Double Magic", player)))
-    set_rule(world.get_location("DRI - Secret Cave", player), lambda state: state._ww_can_remove_rock(player) and state._ww_can_defeat_enemies(player))
+    # Dragon Roost Island
+    set_rule(
+        world.get_location("Dragon Roost Island - Wind Shrine", player), lambda state: state.has("Wind Waker", player)
+    )
+    # set_rule(
+    #     world.get_location("Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers", player),
+    #     lambda state: state.has("Spoils Bag", player) and can_farm_golden_feathers(state, player),
+    # )
+    set_rule(
+        world.get_location("Dragon Roost Island - Chest on Top of Boulder", player),
+        lambda state: has_heros_bow(state, player)
+        or (state.has("Bait Bag", player) and can_buy_hyoi_pears(state, player))
+        or state.has("Boomerang", player)
+        or state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Island - Fly Across Platforms Around Island", player),
+        lambda state: can_fly_with_deku_leaf_outdoors(state, player)
+        and (can_cut_grass(state, player) or has_magic_meter_upgrade(state, player)),
+    )
+    set_rule(world.get_location("Dragon Roost Island - Rito Aerie - Mail Sorting", player), lambda state: True)
+    set_rule(
+        world.get_location("Dragon Roost Island - Secret Cave", player),
+        lambda state: can_access_dragon_roost_island_secret_cave(state, player)
+        and can_defeat_keese(state, player)
+        and can_defeat_red_chuchus(state, player),
+    )
 
-    set_rule(world.get_entrance("DRC - HUB Room Entrance", player), lambda state: state.has("DRC Small Key", player))
-    set_rule(world.get_entrance("DRC - 1st Locked Door", player), lambda state: state.has("DRC Small Key", player, 2)),
-    set_rule(world.get_location("DRC - Across Lava Pit", player), lambda state: state._ww_get_over_small_gap(player) or state.has("Grappling Hook", player))
-    set_rule(world.get_entrance("DRC - Rat Room Locked Door", player), lambda state: state.has("DRC Small Key", player, 3))
-    set_rule(world.get_entrance("DRC - Into Dark Room", player), lambda state: state.has("DRC Small Key", player, 4))
-    set_rule(world.get_location("DRC - Tingle Chest in DRC HUB", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_entrance("DRC - Basement Entrance", player), lambda state: state._ww_get_into_drc_basement(player))
-    set_rule(world.get_location("DRC - Under Bridge", player), lambda state: state.has("Grappling Hook", player) or (state.has("Deku Leaf", player) and \
-                                                                             state.has("Wind Waker", player) and state.has("Winds Requiem", player)))
-    set_rule(world.get_location("DRC - Tingle Chest in DRC Basement", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("DRC - Outside Boss Door Left", player), lambda state: state._ww_get_over_small_gap(player) or state.has("Grappling Hook", player))
-    set_rule(world.get_location("DRC - Outside Boss Door Right", player), lambda state: state._ww_get_over_small_gap(player) or state.has("Grappling Hook", player))
-    set_rule(world.get_location("DRC - Gohma Heart Container", player), lambda state: state.has("DRC Big Key", player) and state.has("Grappling Hook", player))
+    # Dragon Roost Cavern
+    set_rule(
+        world.get_location("Dragon Roost Cavern - First Room", player),
+        lambda state: can_access_dragon_roost_cavern(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Alcove With Water Jugs", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 1),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Water Jug on Upper Shelf", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 1),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Boarded Up Chest", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 1),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Chest Across Lava Pit", player),
+        lambda state: can_access_dragon_roost_cavern(state, player)
+        and state.has("DRC Small Key", player, 2)
+        and (
+            state.has("Grappling Hook", player)
+            or can_fly_with_deku_leaf_indoors(state, player)
+            or (state.has("Hookshot", player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Rat Room", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 2),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Rat Room Boarded Up Chest", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 2),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Bird's Nest", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 3),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Dark Room", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 4),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Tingle Chest in Hub Room", player),
+        lambda state: can_access_dragon_roost_cavern(state, player)
+        and state.has("DRC Small Key", player, 4)
+        and has_tingle_bombs(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Pot on Upper Shelf in Pot Room", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 4),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Pot Room Chest", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 4),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Miniboss", player),
+        lambda state: can_access_dragon_roost_cavern(state, player) and state.has("DRC Small Key", player, 4),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Under Rope Bridge", player),
+        lambda state: can_access_dragon_roost_cavern(state, player)
+        and state.has("DRC Small Key", player, 4)
+        and (state.has("Grappling Hook", player) or can_fly_with_deku_leaf_outdoors(state, player)),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Tingle Statue Chest", player),
+        lambda state: can_reach_dragon_roost_cavern_gaping_maw(state, player)
+        and state.has("Grappling Hook", player)
+        and has_tingle_bombs(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Big Key Chest", player),
+        lambda state: can_reach_dragon_roost_cavern_gaping_maw(state, player)
+        and state.has("Grappling Hook", player)
+        and can_stun_magtails(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Boss Stairs Right Chest", player),
+        lambda state: can_reach_dragon_roost_cavern_boss_stairs(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Boss Stairs Left Chest", player),
+        lambda state: can_reach_dragon_roost_cavern_boss_stairs(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Boss Stairs Right Pot", player),
+        lambda state: can_reach_dragon_roost_cavern_boss_stairs(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Cavern - Gohma Heart Container", player),
+        lambda state: can_access_gohma_boss_arena(state, player) and can_defeat_gohma(state, player),
+    )
 
-    set_rule(world.get_entrance("Forest Haven Entrance", player), lambda state: state.has("Grappling Hook", player))
-    set_rule(world.get_location("Forest Haven - On Small Island", player), lambda state: state.has("Grappling Hook", player) and state.has("Deku Leaf", player) and \
-                                                                                         state.has("Winds Requiem", player) and state.has("Wind Waker", player))
+    # Forest Haven
+    set_rule(
+        world.get_location("Forest Haven - On Tree Branch", player),
+        lambda state: can_access_forest_haven(state, player)
+        and (
+            state.has("Grappling Hook", player)
+            or (
+                can_fly_with_deku_leaf_indoors(state, player)
+                and can_fly_with_deku_leaf_outdoors(state, player)
+                and state._tww_obscure_1(player)
+                and (
+                    (can_cut_grass(state, player) and state._tww_precise_1(player))
+                    or (has_magic_meter_upgrade(state, player) and state._tww_precise_2(player))
+                )
+            )
+        ),
+    )
+    set_rule(
+        world.get_location("Forest Haven - Small Island Chest", player),
+        lambda state: can_access_forest_haven(state, player)
+        and (
+            state.has("Grappling Hook", player)
+            or (
+                can_fly_with_deku_leaf_indoors(state, player)
+                and can_fly_with_deku_leaf_outdoors(state, player)
+                and state._tww_obscure_1(player)
+                and (
+                    (can_cut_grass(state, player) and state._tww_precise_1(player))
+                    or (has_magic_meter_upgrade(state, player) and state._tww_precise_2(player))
+                )
+            )
+        )
+        and can_fly_with_deku_leaf_outdoors(state, player)
+        and (can_cut_grass(state, player) or has_magic_meter_upgrade(state, player)),
+    )
 
-    set_rule(world.get_entrance("Forbidden Woods Entrance", player), lambda state: state._ww_get_into_fw(player))
-    set_rule(world.get_location("Forbidden Woods - Climb to Top", player), lambda state: state._ww_kill_fw_bulbs(player))
-    set_rule(world.get_entrance("Forbidden Woods - Locked Door", player), lambda state: state.has("FW Small Key", player))
-    set_rule(world.get_location("Forbidden Woods - Mini-Boss", player), lambda state: state._ww_can_defeat_enemies(player))
-    set_rule(world.get_location("Forbidden Woods - Past Hanging Vines", player), lambda state: state._ww_kill_fw_bulbs(player))
-    set_rule(world.get_entrance("Forbidden Woods - Basement Entrance", player), lambda state: state.has("Boomerang", player))
-    set_rule(world.get_location("Forbidden Woods - Tingle Chest", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("Forbidden Woods - Double Mothula", player), lambda state: state._ww_kill_fw_bulbs(player))
-    set_rule(world.get_location("Forbidden Woods - Kalle Demos Heart Container", player), lambda state: state.has("Boomerang", player) and state._ww_can_defeat_enemies(player) and state.has("FW Big Key", player))
+    # Forbidden Woods
+    set_rule(
+        world.get_location("Forbidden Woods - First Room", player),
+        lambda state: can_access_forbidden_woods(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Inside Hollow Tree's Mouth", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and (can_defeat_door_flowers(state, player) or can_defeat_boko_babas(state, player)),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Climb to Top Using Boko Baba Bulbs", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_door_flowers(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Pot High Above Hollow Tree", player),
+        lambda state: can_access_forbidden_woods(state, player) and can_fly_with_deku_leaf_indoors(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Hole in Tree", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Morth Pit", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Vine Maze Left Chest", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Vine Maze Right Chest", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Highest Pot in Vine Maze", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Tall Room Before Miniboss", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("FW Small Key", player, 1)
+        and (can_defeat_peahats(state, player) or state._tww_precise_2(player)),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Mothula Miniboss Room", player),
+        lambda state: can_access_forbidden_woods_miniboss_arena(state, player)
+        and can_defeat_winged_mothulas(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Past Seeds Hanging by Vines", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("FW Small Key", player, 1)
+        and can_defeat_door_flowers(state, player)
+        and (can_destroy_seeds_hanging_by_vines(state, player) or state._tww_precise_1(player)),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Chest Across Red Hanging Flower", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("Boomerang", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Tingle Statue Chest", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("Boomerang", player)
+        and (has_tingle_bombs(state, player) or can_activate_tingle_bomb_triggers_without_tingle_tuner(state, player)),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Chest in Locked Tree Trunk", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("Boomerang", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Big Key Chest", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and state.has("Grappling Hook", player)
+        and state.has("Boomerang", player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Double Mothula Room", player),
+        lambda state: can_access_forbidden_woods(state, player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and can_defeat_boko_babas(state, player)
+        and (can_defeat_door_flowers(state, player) or state.has("Grappling Hook", player))
+        and can_defeat_mothulas(state, player),
+    )
+    set_rule(
+        world.get_location("Forbidden Woods - Kalle Demos Heart Container", player),
+        lambda state: can_access_kalle_demos_boss_arena(state, player) and can_defeat_kalle_demos(state, player),
+    )
 
-    set_rule(world.get_location("Greatfish - Hidden Chest", player), lambda state: state.has("Deku Leaf", player))
-    
-    set_rule(world.get_entrance("Tower of Gods Entrance", player), lambda state: state._ww_get_into_tog(player))
-    set_rule(world.get_entrance("Tower of Gods - Left Side Entrance", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("Tower of Gods - Skull Room Shoot The Eye", player), lambda state: state.has("Progressive Bow", player))
-    set_rule(world.get_location("Tower of Gods - Behind Bombable Wall", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_entrance("Tower of Gods - Until Stone Tablet Entrance", player), lambda state: state.has("TotG Small Key", player) and state.has("Bombs", player))
-    set_rule(world.get_location("Tower of Gods - First Chest Guarded", player), lambda state: state.has("Progressive Bow", player))
-    set_rule(world.get_location("Tower of Gods - Stone Tablet", player), lambda state: state.has("Wind Waker", player))
-    set_rule(world.get_entrance("Tower of Gods - Mini Boss Arena Entrance", player), lambda state: (state.has("Deku Leaf", player) or state.has("Grappling Hook", player)) and \
-                                                                                                    state.has("Command Melody", player) and state.has("Wind Waker", player))
-    set_rule(world.get_entrance("Tower of Gods - After Mini Boss", player), lambda state: state.has("Progressive Bow", player))
-    set_rule(world.get_location("Tower of Gods - Second Chest Guarded", player), lambda state: state.has("Winds Requiem", player))
-    set_rule(world.get_entrance("Tower of Gods - Locked Door", player), lambda state: state.has("TotG Small Key", player, 2))
-    set_rule(world.get_location("Tower of Gods - Big Key Chest", player), lambda state: state.has("Deku Leaf", player))
-    set_rule(world.get_location("Tower of Gods - Gohdan Heart Container", player), lambda state: state.has("TotG Big Key", player) and state.has("Deku Leaf", player))
+    # Greatfish Isle
+    set_rule(
+        world.get_location("Greatfish Isle - Hidden Chest", player),
+        lambda state: can_fly_with_deku_leaf_outdoors(state, player),
+    )
 
-    set_rule(world.get_entrance("Hyrule Entrance", player), lambda state: state.has("Triforce Shard", player, 8))
-    set_rule(world.get_location("Hyrule - Master Sword Chamber", player), lambda state: state.has("Progressive Bow", player, 3) or state.has("Progressive Sword", player, 1))
+    # Tower of the Gods
+    set_rule(
+        world.get_location("Tower of the Gods - Chest Behind Bombable Walls", player),
+        lambda state: can_access_tower_of_the_gods(state, player) and state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Pot Behind Bombable Walls", player),
+        lambda state: can_access_tower_of_the_gods(state, player) and state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Hop Across Floating Boxes", player),
+        lambda state: can_access_tower_of_the_gods(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Light Two Torches", player),
+        lambda state: can_access_tower_of_the_gods(state, player) and state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Skulls Room Chest", player),
+        lambda state: can_access_tower_of_the_gods(state, player) and state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Shoot Eye Above Skulls Room Chest", player),
+        lambda state: can_access_tower_of_the_gods(state, player)
+        and state.has("Bombs", player)
+        and has_heros_bow(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Tingle Statue Chest", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player) and has_tingle_bombs(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - First Chest Guarded by Armos Knights", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player) and has_heros_bow(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Stone Tablet", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player)
+        and (
+            can_bring_east_servant_of_the_tower(state, player)
+            or can_bring_west_servant_of_the_tower(state, player)
+            or can_bring_north_servant_of_the_tower(state, player)
+        )
+        and state.has("Wind Waker", player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Darknut Miniboss Room", player),
+        lambda state: can_access_tower_of_the_gods_miniboss_arena(state, player) and can_defeat_darknuts(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Second Chest Guarded by Armos Knights", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player)
+        and state.has("Bombs", player)
+        and can_play_winds_requiem(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Floating Platforms Room", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player)
+        and (
+            has_heros_bow(state, player)
+            or (can_fly_with_deku_leaf_indoors(state, player) and state._tww_precise_1(player))
+            or (state.has("Hookshot", player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Top of Floating Platforms Room", player),
+        lambda state: can_reach_tower_of_the_gods_second_floor(state, player) and has_heros_bow(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Eastern Pot in Big Key Chest Room", player),
+        lambda state: can_reach_tower_of_the_gods_third_floor(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Big Key Chest", player),
+        lambda state: can_reach_tower_of_the_gods_third_floor(state, player),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods - Gohdan Heart Container", player),
+        lambda state: can_access_gohdan_boss_arena(state, player) and can_defeat_gohdan(state, player),
+    )
 
-    set_rule(world.get_entrance("Forsaken Fortress Interior Entrance", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("Forsaken Fortress - Phantom Ganon", player), lambda state: state.has("Progressive Sword", player, 2))
-    set_rule(world.get_entrance("Forsaken Fortress - Within the Walls Entrance", player), lambda state: state.has("Skull Hammer", player))
-    set_rule(world.get_location("Forsaken Fortress - Helmaroc King Heart Container", player), lambda state: state.has("Deku Leaf", player) or state.has("Hookshot", player))
+    # Hyrule
+    set_rule(
+        world.get_location("Hyrule - Master Sword Chamber", player),
+        lambda state: can_access_master_sword_chamber(state, player) and can_defeat_mighty_darknuts(state, player),
+    )
 
-    set_rule(world.get_entrance("Mother & Child Warp Point", player), lambda state: state.has("Wind Waker", player) and state.has("Ballad of the Gales", player))
+    # Forsaken Fortress
+    set_rule(
+        world.get_location("Forsaken Fortress - Phantom Ganon", player),
+        lambda state: can_reach_and_defeat_phantom_ganon(state, player),
+    )
+    set_rule(
+        world.get_location("Forsaken Fortress - Chest Outside Upper Jail Cell", player),
+        lambda state: can_get_inside_forsaken_fortress(state, player)
+        and (
+            can_fly_with_deku_leaf_indoors(state, player)
+            or state.has("Hookshot", player)
+            or state._tww_obscure_1(player)
+        ),
+    )
+    set_rule(
+        world.get_location("Forsaken Fortress - Chest Inside Lower Jail Cell", player),
+        lambda state: can_get_inside_forsaken_fortress(state, player),
+    )
+    set_rule(
+        world.get_location("Forsaken Fortress - Chest Guarded By Bokoblin", player),
+        lambda state: can_get_inside_forsaken_fortress(state, player),
+    )
+    set_rule(
+        world.get_location("Forsaken Fortress - Chest on Bed", player),
+        lambda state: can_get_inside_forsaken_fortress(state, player),
+    )
+    set_rule(
+        world.get_location("Forsaken Fortress - Helmaroc King Heart Container", player),
+        lambda state: can_access_helmaroc_king_boss_arena(state, player) and can_defeat_helmaroc_king(state, player),
+    )
 
-    set_rule(world.get_location("Fire Mountain - Cave", player), lambda state: state.has("Progressive Bow", player, 2))
-    set_rule(world.get_location("Fire Mountain - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
-    #set_rule(world.get_location("Fire Mountain - Big Octo", player), lambda state: state._ww_defeat_big_octos(player))
+    # Mother and Child Isles
+    set_rule(
+        world.get_location("Mother and Child Isles - Inside Mother Isle", player),
+        lambda state: can_play_ballad_of_gales(state, player),
+    )
 
-    set_rule(world.get_entrance("Ice Ring Cave Entrance", player), lambda state: state.has("Progressive Bow", player, 2))
-    set_rule(world.get_entrance("Ice Ring Inner Cave Entrance", player), lambda state: state.has("Iron Boots", player))
+    # Fire Mountain
+    set_rule(
+        world.get_location("Fire Mountain - Cave - Chest", player),
+        lambda state: can_access_fire_mountain_secret_cave(state, player) and can_defeat_magtails(state, player),
+    )
+    set_rule(world.get_location("Fire Mountain - Lookout Platform Chest", player), lambda state: True)
+    set_rule(
+        world.get_location("Fire Mountain - Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Fire Mountain - Big Octo", player),
+    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("Headstone Island - Top of Island", player), lambda state: state.has("Bait Bag", player))
-    set_rule(world.get_location("Headstone Island - Submarine", player), lambda state: state._ww_hs_sub(player))
+    # Ice Ring Isle
+    set_rule(world.get_location("Ice Ring Isle - Frozen Chest", player), lambda state: has_fire_arrows(state, player))
+    set_rule(
+        world.get_location("Ice Ring Isle - Cave - Chest", player),
+        lambda state: can_access_ice_ring_isle_secret_cave(state, player),
+    )
+    set_rule(
+        world.get_location("Ice Ring Isle - Inner Cave - Chest", player),
+        lambda state: can_access_ice_ring_isle_inner_cave(state, player) and has_fire_arrows(state, player),
+    )
 
-    set_rule(world.get_entrance("Headstone Island Entrance", player), lambda state: state.has("Power Bracelets", player) and state.has("Command Melody", player) and state.has("Wind Waker", player))
-    set_rule(world.get_location("Earth Temple - Transparent Chest in 1st Crypt", player), lambda state: state.has("Skull Hammer", player))
-    set_rule(world.get_location("Earth Temple - Behind Destructable Walls", player), lambda state: state.has("Progressive Shield", player, 2) and state.has("Skull Hammer", player))
-    set_rule(world.get_entrance("Earth Temple - Left Side Entrance", player), lambda state: state.has("ET Small Key", player, 2) and state.has("Progressive Bow", player, 2))
-    set_rule(world.get_location("Earth Temple - Staflos Mini Boss", player), lambda state: state.has("ET Small Key", player, 3) and state._ww_defeat_staflos(player))
-    set_rule(world.get_entrance("Earth Temple - Basement Entrance", player), lambda state: state.has("Progressive Shield", player, 2))
-    set_rule(world.get_location("Earth Temple - Tingle Chest", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_entrance("Earth Temple - Song Stone", player), lambda state: state.has("Earth God's Lyrics", player))
-    set_rule(world.get_location("Earth Temple - Floormaster Room Fight", player), lambda state: state.has("Progressive Bow", player) or state.has("Progressive Sword", player))
-    set_rule(world.get_entrance("Earth Temple - 2nd Locked Door", player), lambda state: state.has("ET Small Key", player, 3) and state.has("Skull Hammer", player))
-    set_rule(world.get_location("Earth Temple - Big Key Chest", player), lambda state: state._ww_cursed_bubbles(player))
-    set_rule(world.get_entrance("Earth Temple - Boss Arena Entrance", player), lambda state: state.has("ET Big Key", player))
+    # Headstone Island
+    set_rule(
+        world.get_location("Headstone Island - Top of the Island", player),
+        lambda state: state.has("Bait Bag", player) and can_buy_hyoi_pears(state, player),
+    )
+    set_rule(
+        world.get_location("Headstone Island - Submarine", player), lambda state: can_defeat_bombchus(state, player)
+    )
 
-    set_rule(world.get_entrance("Gale Isle Entrance", player), lambda state: state._ww_into_wt(player))
-    set_rule(world.get_entrance("Wind Temple - HUB Room Entrance", player), lambda state: state.has("Deku Leaf", player))
-    set_rule(world.get_location("Wind Temple - Tingle Chest", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_location("Wind Temple - Behind Stone Head", player), lambda state: state.has("Hookshot", player))
-    set_rule(world.get_location("Wind Temple - Big Key Chest", player), lambda state: state.has("Wind God's Aria", player))
-    set_rule(world.get_location("Wind Temple - Wizzrobe Mini Boss", player), lambda state: state.has("WT Small Key", player, 2))
-    set_rule(world.get_entrance("Wind Temple - Basement Entrance", player), lambda state: state.has("WT Small Key", player, 2) and state.has("Hookshot", player))
-    set_rule(world.get_entrance("Wind Temple - Boss Arena Entrance", player), lambda state: state.has("WT Big Key", player) and state.has("Wind God's Aria", player))
+    # Earth Temple
+    set_rule(
+        world.get_location("Earth Temple - Transparent Chest In Warp Pot Room", player),
+        lambda state: can_access_earth_temple(state, player) and can_play_command_melody(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Behind Curtain In Warp Pot Room", player),
+        lambda state: can_access_earth_temple(state, player)
+        and can_play_command_melody(state, player)
+        and has_fire_arrows(state, player)
+        and (state.has("Boomerang", player) or state.has("Hookshot", player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Transparent Chest in First Crypt", player),
+        lambda state: can_reach_earth_temple_right_path(state, player)
+        and state.has("Power Bracelets", player)
+        and (can_play_command_melody(state, player) or has_mirror_shield(state, player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Chest Behind Destructible Walls", player),
+        lambda state: can_reach_earth_temple_right_path(state, player) and has_mirror_shield(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Chest In Three Blocks Room", player),
+        lambda state: can_reach_earth_temple_left_path(state, player)
+        and has_fire_arrows(state, player)
+        and state.has("Power Bracelets", player)
+        and can_defeat_floormasters(state, player)
+        and (can_play_command_melody(state, player) or can_aim_mirror_shield(state, player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Chest Behind Statues", player),
+        lambda state: can_reach_earth_temple_moblins_and_poes_room(state, player)
+        and (can_play_command_melody(state, player) or can_aim_mirror_shield(state, player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Casket in Second Crypt", player),
+        lambda state: can_reach_earth_temple_moblins_and_poes_room(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Stalfos Miniboss Room", player),
+        lambda state: can_access_earth_temple_miniboss_arena(state, player)
+        and (can_defeat_stalfos(state, player) or state.has("Hookshot", player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Tingle Statue Chest", player),
+        lambda state: can_reach_earth_temple_basement(state, player) and has_tingle_bombs(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - End of Foggy Room With Floormasters", player),
+        lambda state: can_reach_earth_temple_redead_hub_room(state, player)
+        and (can_play_command_melody(state, player) or can_aim_mirror_shield(state, player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Kill All Floormasters in Foggy Room", player),
+        lambda state: can_reach_earth_temple_redead_hub_room(state, player)
+        and (can_play_command_melody(state, player) or can_aim_mirror_shield(state, player))
+        and can_defeat_floormasters(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Behind Curtain Next to Hammer Button", player),
+        lambda state: can_reach_earth_temple_redead_hub_room(state, player)
+        and (can_play_command_melody(state, player) or can_aim_mirror_shield(state, player))
+        and has_fire_arrows(state, player)
+        and (state.has("Boomerang", player) or state.has("Hookshot", player)),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Chest in Third Crypt", player),
+        lambda state: can_reach_earth_temple_third_crypt(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Many Mirrors Room Right Chest", player),
+        lambda state: can_reach_earth_temple_many_mirrors_room(state, player)
+        and can_play_command_melody(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Many Mirrors Room Left Chest", player),
+        lambda state: can_reach_earth_temple_many_mirrors_room(state, player)
+        and state.has("Power Bracelets", player)
+        and can_play_command_melody(state, player)
+        and can_aim_mirror_shield(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Stalfos Crypt Room", player),
+        lambda state: can_reach_earth_temple_many_mirrors_room(state, player) and can_defeat_stalfos(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Big Key Chest", player),
+        lambda state: can_reach_earth_temple_many_mirrors_room(state, player)
+        and state.has("Power Bracelets", player)
+        and can_play_command_melody(state, player)
+        and can_aim_mirror_shield(state, player)
+        and (
+            can_defeat_blue_bubbles(state, player)
+            or (has_heros_bow(state, player) and state._tww_obscure_1(player))
+            or (
+                (
+                    has_heros_sword(state, player)
+                    or has_any_master_sword(state, player)
+                    or state.has("Skull Hammer", player)
+                )
+                and state._tww_obscure_1(player)
+                and state._tww_precise_1(player)
+            )
+        )
+        and can_defeat_darknuts(state, player),
+    )
+    set_rule(
+        world.get_location("Earth Temple - Jalhalla Heart Container", player),
+        lambda state: can_access_jalhalla_boss_arena(state, player) and can_defeat_jalhalla(state, player),
+    )
 
-    set_rule(world.get_entrance("Ganons Tower Entrance", player), lambda state: state.has("Progressive Sword", player, 4) and (state.has("Deku Leaf", player) or state.has("Hookshot", player)))
+    # Wind Temple
+    set_rule(
+        world.get_location("Wind Temple - Chest Between Two Dirt Patches", player),
+        lambda state: can_access_wind_temple(state, player) and can_play_command_melody(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Behind Stone Head in Hidden Upper Room", player),
+        lambda state: can_access_wind_temple(state, player)
+        and can_play_command_melody(state, player)
+        and state.has("Iron Boots", player)
+        and can_fly_with_deku_leaf_indoors(state, player)
+        and state.has("Hookshot", player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Tingle Statue Chest", player),
+        lambda state: can_reach_wind_temple_kidnapping_room(state, player) and has_tingle_bombs(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest Behind Stone Head", player),
+        lambda state: can_reach_wind_temple_kidnapping_room(state, player)
+        and state.has("Iron Boots", player)
+        and state.has("Hookshot", player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest in Left Alcove", player),
+        lambda state: can_reach_wind_temple_kidnapping_room(state, player)
+        and state.has("Iron Boots", player)
+        and can_fan_with_deku_leaf(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Big Key Chest", player),
+        lambda state: can_reach_wind_temple_kidnapping_room(state, player)
+        and state.has("Iron Boots", player)
+        and can_fan_with_deku_leaf(state, player)
+        and can_play_wind_gods_aria(state, player)
+        and can_defeat_darknuts(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest In Many Cyclones Room", player),
+        lambda state: can_reach_wind_temple_kidnapping_room(state, player)
+        and (
+            (
+                state.has("Iron Boots", player)
+                and can_fan_with_deku_leaf(state, player)
+                and can_fly_with_deku_leaf_indoors(state, player)
+                and (can_cut_grass(state, player) or has_magic_meter_upgrade(state, player))
+            )
+            or (
+                state.has("Hookshot", player)
+                and can_defeat_blue_bubbles(state, player)
+                and can_fly_with_deku_leaf_indoors(state, player)
+            )
+            or (
+                state.has("Hookshot", player)
+                and can_fly_with_deku_leaf_indoors(state, player)
+                and state._tww_obscure_1(player)
+                and state._tww_precise_2(player)
+            )
+        ),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Behind Stone Head in Many Cyclones Room", player),
+        lambda state: can_reach_end_of_wind_temple_many_cyclones_room(state, player) and state.has("Hookshot", player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest In Middle Of Hub Room", player),
+        lambda state: can_open_wind_temple_upper_giant_grate(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Spike Wall Room - First Chest", player),
+        lambda state: can_open_wind_temple_upper_giant_grate(state, player) and state.has("Iron Boots", player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Spike Wall Room - Destroy All Cracked Floors", player),
+        lambda state: can_open_wind_temple_upper_giant_grate(state, player) and state.has("Iron Boots", player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Wizzrobe Miniboss Room", player),
+        lambda state: can_access_wind_temple_miniboss_arena(state, player)
+        and can_defeat_darknuts(state, player)
+        and can_remove_peahat_armor(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest at Top of Hub Room", player),
+        lambda state: can_activate_wind_temple_giant_fan(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Chest Behind Seven Armos", player),
+        lambda state: can_activate_wind_temple_giant_fan(state, player) and can_defeat_armos(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Kill All Enemies in Tall Basement Room", player),
+        lambda state: can_reach_wind_temple_tall_basement_room(state, player)
+        and can_defeat_stalfos(state, player)
+        and can_defeat_wizzrobes(state, player)
+        and can_defeat_morths(state, player),
+    )
+    set_rule(
+        world.get_location("Wind Temple - Molgera Heart Container", player),
+        lambda state: can_access_molgera_boss_arena(state, player) and can_defeat_molgera(state, player),
+    )
 
-    set_rule(world.get_location("Great Sea - Defeat Cyclos", player), lambda state: state.has("Progressive Bow", player))
-    set_rule(world.get_location("Great Sea - Withered Trees", player), lambda state: state._ww_withered_trees(player))
-    set_rule(world.get_location("Great Sea - Ghost Ship", player), lambda state: state.has("Ghost Ship Chart", player) and state.has("Deku Leaf", player) and state._ww_can_defeat_enemies(player))
+    # Ganon's Tower
+    set_rule(
+        world.get_location("Ganon's Tower - Maze Chest", player),
+        lambda state: can_reach_ganons_tower_phantom_ganon_room(state, player)
+        and can_defeat_phantom_ganon(state, player),
+    )
 
-    set_rule(world.get_location("Private Oasis - Top of Waterfall", player), lambda state: state._ww_get_over_small_gap(player))
-    set_rule(world.get_entrance("Cabana Labyrinth Entrance", player), lambda state: state.has("Delivery Bag", player) and state.has("Cabana Deed", player) and \
-                                                                                    state.has("Grappling Hook", player) and state.has("Skull Hammer", player))
-    #set_rule(world.get_location("Private Oasis - Big Octo", player), lambda state: state._ww_defeat_big_octos(player))
-    set_rule(world.get_location("Cabana Labyrinth - Upper", player), lambda state: state.has("Wind Waker", player) and state.has("Winds Requiem", player))
+    # Mailbox
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Hoskit's Girlfriend", player),
+    #     lambda state: state.has("Spoils Bag", player)
+    #     and can_farm_golden_feathers(state, player)
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Baito's Mother", player),
+    #     lambda state: state.has("Delivery Bag", player)
+    #     and state.has("Note to Mom", player)
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Baito", player),
+    #     lambda state: state.has("Delivery Bag", player)
+    #     and state.has("Note to Mom", player)
+    #     and state.can_reach("Earth Temple - Jalhalla Heart Container", "Location", player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Komali's Father", player),
+    #     lambda state: state.has("Farore's Pearl", player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter Advertising Bombs in Beedle's Shop", player),
+    #     lambda state: state.has("Bombs", player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter Advertising Rock Spire Shop Ship", player),
+    #     lambda state: has_any_wallet_upgrade(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Beedle's Silver Membership Reward", player),
+    #     lambda state: (
+    #         state.has("Bait Bag", player)
+    #         or state.has("Bombs", player)
+    #         or has_heros_bow(state, player)
+    #         or state.has("Empty Bottle", player)
+    #     )
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Beedle's Gold Membership Reward", player),
+    #     lambda state: (
+    #         state.has("Bait Bag", player)
+    #         or state.has("Bombs", player)
+    #         or has_heros_bow(state, player)
+    #         or state.has("Empty Bottle", player)
+    #     )
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Orca", player),
+    #     lambda state: state.can_reach("Forbidden Woods - Kalle Demos Heart Container", "Location", player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Grandma", player),
+    #     lambda state: state.has("Empty Bottle", player)
+    #     and can_get_fairies(state, player)
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Aryll", player),
+    #     lambda state: state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
+    #     and can_play_song_of_passing(state, player),
+    # )
+    # set_rule(
+    #     world.get_location("Mailbox - Letter from Tingle", player),
+    #     lambda state: rescued_tingle(state, player)
+    #     and has_any_wallet_upgrade(state, player)
+    #     and state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
+    #     and can_play_song_of_passing(state, player),
+    # )
 
-    set_rule(world.get_location("Needle Rock - Chest in Ring of Fire", player), lambda state: state.has("Bait Bag", player))
-    set_rule(world.get_entrance("Needle Rock Cave Entrance", player), lambda state: state.has("Progressive Bow", player, 2))
-    #set_rule(world.get_location("Needle Rock - Golden Gunboat", player), lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player))
+    # The Great Sea
+    # set_rule(world.get_location("The Great Sea - Beedle's Shop Ship - 20 Rupee Item", player), lambda state: True)
+    # set_rule(world.get_location("The Great Sea - Salvage Corp Gift", player), lambda state: True)
+    set_rule(world.get_location("The Great Sea - Cyclos", player), lambda state: has_heros_bow(state, player))
+    # set_rule(
+    #     world.get_location("The Great Sea - Goron Trading Reward", player),
+    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    # )
+    set_rule(
+        world.get_location("The Great Sea - Withered Trees", player),
+        lambda state: can_access_forest_haven(state, player)
+        and state.has("Empty Bottle", player)
+        and can_play_ballad_of_gales(state, player)
+        and state.can_reach("Cliff Plateau Isles - Highest Isle", "Location", player),
+    )
+    set_rule(
+        world.get_location("The Great Sea - Ghost Ship", player),
+        lambda state: state.has("Ghost Ship Chart", player)
+        and can_play_ballad_of_gales(state, player)
+        and can_defeat_wizzrobes(state, player)
+        and can_defeat_poes(state, player)
+        and can_defeat_redeads(state, player)
+        and can_defeat_stalfos(state, player),
+    )
 
-    set_rule(world.get_location("Angular - Cave", player), lambda state: state.has("Progressive Shield", player, 2) and (state.has("Hookshot", player) or state.has("Deku Leaf", player)))
+    # Private Oasis
+    set_rule(
+        world.get_location("Private Oasis - Chest at Top of Waterfall", player),
+        lambda state: state.has("Hookshot", player) or can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(
+        world.get_location("Private Oasis - Cabana Labyrinth - Lower Floor Chest", player),
+        lambda state: can_access_cabana_labyrinth(state, player) and state.has("Skull Hammer", player),
+    )
+    set_rule(
+        world.get_location("Private Oasis - Cabana Labyrinth - Upper Floor Chest", player),
+        lambda state: can_access_cabana_labyrinth(state, player)
+        and state.has("Skull Hammer", player)
+        and can_play_winds_requiem(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Private Oasis - Big Octo", player),
+    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("Boating Course - Cave", player), lambda state: state._ww_get_over_small_gap(player) and (state._ww_can_defeat_enemies(player) or state.has("Boomerang", player)) and \
-                                                                               (state.has("Boomerang", player) or state.has("Hookshot", player) or state.has("Progressive Bow", player)))
+    # Spectacle Island
+    # set_rule(world.get_location("Spectacle Island - Barrel Shooting - First Prize", player), lambda state: True)
+    # set_rule(world.get_location("Spectacle Island - Barrel Shooting - Second Prize", player), lambda state: True)
 
-    set_rule(world.get_location("Stone Watcher - Cave", player), lambda state: state.has("Power Bracelets", player) and state.has("Wind Waker", player) and state.has("Winds Requiem", player) and \
-                                                                              (state.has("Progressive Sword", player) or state.has("Progressive Bow", player, 3) or state.has("Skull Hammer", player)))
-    set_rule(world.get_location("Stone Watcher - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
+    # Needle Rock Isle
+    set_rule(
+        world.get_location("Needle Rock Isle - Chest", player),
+        lambda state: state.has("Bait Bag", player) and can_buy_hyoi_pears(state, player),
+    )
+    set_rule(
+        world.get_location("Needle Rock Isle - Cave", player),
+        lambda state: can_access_needle_rock_isle_secret_cave(state, player) and has_fire_arrows(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Needle Rock Isle - Golden Gunboat", player),
+    #     lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("Islet of Steel - Cave", player), lambda state: state.has("Wind Waker", player) and state.has("Winds Requiem", player) and state.has("Bombs", player))
-    set_rule(world.get_location("Islet of Steel - Enemy Platform", player), lambda state: state.has("Progressive Bow", player) or state.has("Hookshot", player))
-    
-    set_rule(world.get_location("Overlook - Cave", player), lambda state: state.has("Hookshot", player) and (state.has("Progressive Sword", player) or state.has("Progressive Bow", player, 3) or \
-                                                                          state.has("Skull Hammer", player)) and state.has("Wind Waker", player) and state.has("Winds Requiem", player))
+    # Angular Isles
+    set_rule(world.get_location("Angular Isles - Peak", player), lambda state: True)
+    set_rule(
+        world.get_location("Angular Isles - Cave", player),
+        lambda state: can_access_angular_isles_secret_cave(state, player)
+        and can_aim_mirror_shield(state, player)
+        and (can_fly_with_deku_leaf_indoors(state, player) or state.has("Hookshot", player)),
+    )
 
-    set_rule(world.get_location("Birds Peak Rock - Cave", player), lambda state: state.has("Bait Bag", player) and state.has("Wind Waker", player) and state.has("Winds Requiem", player))
+    # Boating Course
+    set_rule(world.get_location("Boating Course - Raft", player), lambda state: True)
+    set_rule(
+        world.get_location("Boating Course - Cave", player),
+        lambda state: can_access_boating_course_secret_cave(state, player)
+        and can_hit_diamond_switches_at_range(state, player)
+        and (can_defeat_miniblins_easily(state, player) or state._tww_precise_2(player)),
+    )
 
-    set_rule(world.get_location("Pawprint - Chu Cave - Left Boulder", player), lambda state: state.has("Bombs", player) or state.has("Power Bracelets", player))
-    set_rule(world.get_location("Pawprint - Chu Cave - Right Boulder", player), lambda state: state.has("Bombs", player) or state.has("Power Bracelets", player))
-    set_rule(world.get_location("Pawprint - Chu Cave - Scale Wall", player), lambda state: state.has("Grappling Hook", player))
-    set_rule(world.get_location("Pawprint - Wizzrobe Cave", player), lambda state: state._ww_wizzrobe_cave1(player) and state._ww_wizzrobe_cave2(player))
+    # Stone Watcher Island
+    set_rule(
+        world.get_location("Stone Watcher Island - Cave", player),
+        lambda state: can_access_stone_watcher_island_secret_cave(state, player)
+        and can_defeat_armos(state, player)
+        and can_defeat_wizzrobes(state, player)
+        and can_defeat_darknuts(state, player)
+        and can_play_winds_requiem(state, player),
+    )
+    set_rule(world.get_location("Stone Watcher Island - Lookout Platform Chest", player), lambda state: True)
+    set_rule(
+        world.get_location("Stone Watcher Island - Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
 
-    set_rule(world.get_location("Thorned Fairy - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
-    set_rule(world.get_location("Thorned Fairy - Enemy Platform", player), lambda state: state.has("Deku Leaf", player))
-    set_rule(world.get_location("Eastern Fairy - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
-    set_rule(world.get_location("Southern Fairy - NW Cannon Platform", player), lambda state: state._ww_destroy_cannons(player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("Southern Fairy - SE Cannon Platform", player), lambda state: state._ww_destroy_cannons(player) and state.has("Deku Leaf", player))
+    # Islet of Steel
+    set_rule(
+        world.get_location("Islet of Steel - Interior", player),
+        lambda state: state.has("Bombs", player) and can_play_winds_requiem(state, player),
+    )
+    set_rule(
+        world.get_location("Islet of Steel - Lookout Platform - Defeat the Enemies", player),
+        lambda state: can_defeat_wizzrobes_at_range(state, player),
+    )
 
-    #set_rule(world.get_location("Tingle Island - Big Octo", player), lambda state: (state.has("Bombs", player) or state.has("Boomerang", player) or state.has("Progressive Bow", player, 3) or \
-    #                                                                       (state.has("Progressive Bow", player) and state.has("Quiver Upgrade", player))) and state.has("Grappling Hook", player))
+    # Overlook Island
+    set_rule(
+        world.get_location("Overlook Island - Cave", player),
+        lambda state: can_access_overlook_island_secret_cave(state, player)
+        and can_defeat_stalfos(state, player)
+        and can_defeat_wizzrobes(state, player)
+        and can_defeat_red_chuchus(state, player)
+        and can_defeat_green_chuchus(state, player)
+        and can_defeat_keese(state, player)
+        and can_defeat_fire_keese(state, player)
+        and can_defeat_morths(state, player)
+        and can_defeat_kargarocs(state, player)
+        and can_defeat_darknuts(state, player)
+        and can_play_winds_requiem(state, player),
+    )
 
-    set_rule(world.get_entrance("Diamond Steppe Cave Entrance", player), lambda state: state.has("Hookshot", player))
-    #set_rule(world.get_location("Diamond Steppe - Big Octo", player), lambda state: state._ww_defeat_big_octos(player))
+    # Bird's Peak Rock
+    set_rule(
+        world.get_location("Bird's Peak Rock - Cave", player),
+        lambda state: can_access_birds_peak_rock_secret_cave(state, player) and can_play_winds_requiem(state, player),
+    )
 
-    set_rule(world.get_location("Bomb Island - Cave", player), lambda state: (state._ww_hs_sub(player) or state.has("Bombs", player) or state.has("Hookshot", player)) and \
-                                                                             (state.has("Bombs", player) or state.has("Power Bracelets", player)))
+    # Pawprint Isle
+    set_rule(
+        world.get_location("Pawprint Isle - Chuchu Cave - Chest", player),
+        lambda state: can_access_pawprint_isle_chuchu_cave(state, player),
+    )
+    set_rule(
+        world.get_location("Pawprint Isle - Chuchu Cave - Behind Left Boulder", player),
+        lambda state: can_access_pawprint_isle_chuchu_cave(state, player) and can_move_boulders(state, player),
+    )
+    set_rule(
+        world.get_location("Pawprint Isle - Chuchu Cave - Behind Right Boulder", player),
+        lambda state: can_access_pawprint_isle_chuchu_cave(state, player) and can_move_boulders(state, player),
+    )
+    set_rule(
+        world.get_location("Pawprint Isle - Chuchu Cave - Scale the Wall", player),
+        lambda state: can_access_pawprint_isle_chuchu_cave(state, player) and state.has("Grappling Hook", player),
+    )
+    set_rule(
+        world.get_location("Pawprint Isle - Wizzrobe Cave", player),
+        lambda state: can_access_pawprint_isle_wizzrobe_cave(state, player)
+        and can_defeat_wizzrobes_at_range(state, player)
+        and can_defeat_fire_keese(state, player)
+        and can_defeat_magtails(state, player)
+        and can_defeat_red_chuchus(state, player)
+        and can_defeat_green_chuchus(state, player)
+        and can_defeat_yellow_chuchus(state, player)
+        and can_defeat_red_bubbles(state, player)
+        and can_remove_peahat_armor(state, player),
+    )
+    set_rule(world.get_location("Pawprint Isle - Lookout Platform - Defeat the Enemies", player), lambda state: True)
 
-    set_rule(world.get_location("Rock Spire - Cave", player), lambda state: state.has("Bombs", player))
-    set_rule(world.get_entrance("Expensive Beedle Ship Entrance", player), lambda state: state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Rock Spire - Western Cannon Platform", player), lambda state: state._ww_destroy_cannons(player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("Rock Spire - Eastern Cannon Platform", player), lambda state: state._ww_destroy_cannons(player) and state.has("Deku Leaf", player))
-    #set_rule(world.get_location("Rock Spire - Southeast Gunboat", player), lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player))
+    # Thorned Fairy Island
+    # set_rule(
+    #     world.get_location("Thorned Fairy Island - Great Fairy", player),
+    #     lambda state: can_access_thorned_fairy_fountain(state, player),
+    # )
+    set_rule(
+        world.get_location("Thorned Fairy Island - Northeastern Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
+    set_rule(
+        world.get_location("Thorned Fairy Island - Southwestern Lookout Platform - Defeat the Enemies", player),
+        lambda state: can_fly_with_deku_leaf_outdoors(state, player),
+    )
 
-    set_rule(world.get_location("Shark Island - Cave", player), lambda state: state.has("Iron Boots", player) and state.has("Skull Hammer", player))
+    # Eastern Fairy Island
+    # set_rule(
+    #     world.get_location("Eastern Fairy Island - Great Fairy", player),
+    #     lambda state: can_access_eastern_fairy_fountain(state, player),
+    # )
+    set_rule(
+        world.get_location("Eastern Fairy Island - Lookout Platform - Defeat the Cannons and Enemies", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
 
-    set_rule(world.get_location("Cliff Plateau - Cave", player), lambda state: state._ww_cliff_plateau_cave(player))
-    set_rule(world.get_location("Cliff Plateau - Upper", player), lambda state: state._ww_cliff_upper(player))
+    # Western Fairy Island
+    # set_rule(
+    #     world.get_location("Western Fairy Island - Great Fairy", player),
+    #     lambda state: can_access_western_fairy_fountain(state, player),
+    # )
+    set_rule(world.get_location("Western Fairy Island - Lookout Platform", player), lambda state: True)
 
-    set_rule(world.get_location("Crescent Moon - Submarine", player), lambda state: state._ww_hs_sub(player) or state.has("Bombs", player))
+    # Southern Fairy Island
+    # set_rule(
+    #     world.get_location("Southern Fairy Island - Great Fairy", player),
+    #     lambda state: can_access_southern_fairy_fountain(state, player),
+    # )
+    set_rule(
+        world.get_location("Southern Fairy Island - Lookout Platform - Destroy the Northwest Cannons", player),
+        lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(
+        world.get_location("Southern Fairy Island - Lookout Platform - Destroy the Southeast Cannons", player),
+        lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
 
-    set_rule(world.get_location("Horseshoe - Play Golf", player), lambda state: state.has("Deku Leaf", player))
-    set_rule(world.get_location("Horseshoe - Cave", player), lambda state: state._ww_can_defeat_enemies_wo_upgrades(player) and state.has("Deku Leaf", player))
+    # Northern Fairy Island
+    # set_rule(
+    #     world.get_location("Northern Fairy Island - Great Fairy", player),
+    #     lambda state: can_access_northern_fairy_fountain(state, player),
+    # )
+    set_rule(world.get_location("Northern Fairy Island - Submarine", player), lambda state: True)
 
-    set_rule(world.get_location("Flight Control - Submarine", player), lambda state: state._ww_fc_sub(player))
+    # Tingle Island
+    # set_rule(
+    #     world.get_location("Tingle Island - Ankle - Reward for All Tingle Statues", player),
+    #     lambda state: state.has_group("tingle_statues", player, 5),
+    # )
+    # set_rule(
+    #     world.get_location("Tingle Island - Big Octo", player),
+    #     lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("Star Island - Cave", player), lambda state: state._ww_can_remove_rock(player) and (state._ww_hs_sub(player) or state.has("Bombs", player) or state.has("Grappling Hook", player)))
+    # Diamond Steppe Island
+    set_rule(
+        world.get_location("Diamond Steppe Island - Warp Maze Cave - First Chest", player),
+        lambda state: can_access_diamond_steppe_island_warp_maze_cave(state, player),
+    )
+    set_rule(
+        world.get_location("Diamond Steppe Island - Warp Maze Cave - Second Chest", player),
+        lambda state: can_access_diamond_steppe_island_warp_maze_cave(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Diamond Steppe Island - Big Octo", player),
+    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("5 Star - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
-    set_rule(world.get_location("7 Star - Southern Platform", player), lambda state: state.has("Progressive Bow", player) or state.has("Hookshot", player))
-    #set_rule(world.get_location("7 Star - Big Octo", player), lambda state: (state.has("Bombs", player) or state.has("Boomerang", player) or state.has("Progressive Bow", player, 3) or \
-    #                                                                        (state.has("Progressive Bow", player) and state.has("Quiver Upgrade", player))) and state.has("Grappling Hook", player))
+    # Bomb Island
+    set_rule(
+        world.get_location("Bomb Island - Cave", player),
+        lambda state: can_access_bomb_island_secret_cave(state, player) and can_stun_magtails(state, player),
+    )
+    set_rule(world.get_location("Bomb Island - Lookout Platform - Defeat the Enemies", player), lambda state: True)
+    set_rule(world.get_location("Bomb Island - Submarine", player), lambda state: True)
 
-    set_rule(world.get_location("1 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("2 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("2 Eye Reef - Big Octo Fairy", player), lambda state: state.has("Progressive Bow", player) or state.has("Boomerang", player) or state.has("Bombs", player))
-    set_rule(world.get_location("3 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("4 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("5 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("6 Eye Reef - Top of Eye", player), lambda state: state.has("Bombs", player) and state.has("Deku Leaf", player))
-    set_rule(world.get_location("6 Eye Reef - Cannon Platform", player), lambda state: state._ww_destroy_cannons(player))
+    # Rock Spire Isle
+    set_rule(
+        world.get_location("Rock Spire Isle - Cave", player),
+        lambda state: can_access_rock_spire_isle_secret_cave(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Beedle's Special Shop Ship - 500 Rupee Item", player),
+        lambda state: has_any_wallet_upgrade(state, player) and can_farm_lots_of_rupees(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Beedle's Special Shop Ship - 950 Rupee Item", player),
+        lambda state: has_any_wallet_upgrade(state, player) and can_farm_lots_of_rupees(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Beedle's Special Shop Ship - 900 Rupee Item", player),
+        lambda state: has_any_wallet_upgrade(state, player) and can_farm_lots_of_rupees(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Western Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Eastern Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(world.get_location("Rock Spire Isle - Center Lookout Platform", player), lambda state: True)
+    # set_rule(
+    #     world.get_location("Rock Spire Isle - Southeast Gunboat", player),
+    #     lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
+    # )
 
-    set_rule(world.get_location("Treasure Chart 1 Salvage", player), lambda state: state.has("Treasure Chart 1", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 2 Salvage", player), lambda state: state.has("Treasure Chart 2", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 3 Salvage", player), lambda state: state.has("Treasure Chart 3", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 4 Salvage", player), lambda state: state.has("Treasure Chart 4", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 5 Salvage", player), lambda state: state.has("Treasure Chart 5", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 6 Salvage", player), lambda state: state.has("Treasure Chart 6", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 7 Salvage", player), lambda state: state.has("Treasure Chart 7", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 8 Salvage", player), lambda state: state.has("Treasure Chart 8", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 9 Salvage", player), lambda state: state.has("Treasure Chart 9", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 10 Salvage", player), lambda state: state.has("Treasure Chart 10", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 11 Salvage", player), lambda state: state.has("Treasure Chart 11", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 12 Salvage", player), lambda state: state.has("Treasure Chart 12", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 13 Salvage", player), lambda state: state.has("Treasure Chart 13", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 14 Salvage", player), lambda state: state.has("Treasure Chart 14", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 15 Salvage", player), lambda state: state.has("Treasure Chart 15", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 16 Salvage", player), lambda state: state.has("Treasure Chart 16", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 17 Salvage", player), lambda state: state.has("Treasure Chart 17", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 18 Salvage", player), lambda state: state.has("Treasure Chart 18", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 19 Salvage", player), lambda state: state.has("Treasure Chart 19", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 20 Salvage", player), lambda state: state.has("Treasure Chart 20", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 21 Salvage", player), lambda state: state.has("Treasure Chart 21", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 22 Salvage", player), lambda state: state.has("Treasure Chart 22", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 23 Salvage", player), lambda state: state.has("Treasure Chart 23", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 24 Salvage", player), lambda state: state.has("Treasure Chart 24", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 25 Salvage", player), lambda state: state.has("Treasure Chart 25", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 26 Salvage", player), lambda state: state.has("Treasure Chart 26", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 27 Salvage", player), lambda state: state.has("Treasure Chart 27", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 28 Salvage", player), lambda state: state.has("Treasure Chart 28", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 29 Salvage", player), lambda state: state.has("Treasure Chart 29", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 30 Salvage", player), lambda state: state.has("Treasure Chart 30", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 31 Salvage", player), lambda state: state.has("Treasure Chart 31", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 32 Salvage", player), lambda state: state.has("Treasure Chart 32", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 33 Salvage", player), lambda state: state.has("Treasure Chart 33", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 34 Salvage", player), lambda state: state.has("Treasure Chart 34", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 35 Salvage", player), lambda state: state.has("Treasure Chart 35", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 36 Salvage", player), lambda state: state.has("Treasure Chart 36", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 37 Salvage", player), lambda state: state.has("Treasure Chart 37", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 38 Salvage", player), lambda state: state.has("Treasure Chart 38", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 39 Salvage", player), lambda state: state.has("Treasure Chart 39", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 40 Salvage", player), lambda state: state.has("Treasure Chart 40", player) and state.has("Grappling Hook", player))
-    set_rule(world.get_location("Treasure Chart 41 Salvage", player), lambda state: state.has("Treasure Chart 41", player) and state.has("Grappling Hook", player))
+    # Shark Island
+    set_rule(
+        world.get_location("Shark Island - Cave", player),
+        lambda state: can_access_shark_island_secret_cave(state, player) and can_defeat_miniblins(state, player),
+    )
 
-    set_rule(world.get_location("Triforce Chart 1 Salvage", player), lambda state: state.has("Triforce Chart 1", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 2 Salvage", player), lambda state: state.has("Triforce Chart 2", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 3 Salvage", player), lambda state: state.has("Triforce Chart 3", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 4 Salvage", player), lambda state: state.has("Triforce Chart 4", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 5 Salvage", player), lambda state: state.has("Triforce Chart 5", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 6 Salvage", player), lambda state: state.has("Triforce Chart 6", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 7 Salvage", player), lambda state: state.has("Triforce Chart 7", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    set_rule(world.get_location("Triforce Chart 8 Salvage", player), lambda state: state.has("Triforce Chart 8", player) and state.has("Grappling Hook", player) and state.has("Wallet Upgrade", player))
-    
-    set_rule(world.get_location("Victory", player), lambda state: state._ww_can_beat_ganon(player))
+    # Cliff Plateau Isles
+    set_rule(
+        world.get_location("Cliff Plateau Isles - Cave", player),
+        lambda state: can_access_cliff_plateau_isles_secret_cave(state, player)
+        and (
+            can_defeat_boko_babas(state, player)
+            or (state.has("Grappling Hook", player) and state._tww_obscure_1(player) and state._tww_precise_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Cliff Plateau Isles - Highest Isle", player),
+        lambda state: can_access_cliff_plateau_isles_inner_cave(state, player),
+    )
+    set_rule(world.get_location("Cliff Plateau Isles - Lookout Platform", player), lambda state: True)
 
-def completion_rules(world: MultiWorld, player: int):
-    requirements = lambda state: state._ww_can_beat_ganon(player)
-    world.completion_condition[player] = lambda state: requirements(state)
+    # Crescent Moon Island
+    set_rule(world.get_location("Crescent Moon Island - Chest", player), lambda state: True)
+    set_rule(
+        world.get_location("Crescent Moon Island - Submarine", player),
+        lambda state: can_defeat_miniblins(state, player),
+    )
+
+    # Horseshoe Island
+    set_rule(
+        world.get_location("Horseshoe Island - Play Golf", player),
+        lambda state: can_fan_with_deku_leaf(state, player)
+        and (can_fly_with_deku_leaf_outdoors(state, player) or state.has("Hookshot", player)),
+    )
+    set_rule(
+        world.get_location("Horseshoe Island - Cave", player),
+        lambda state: can_access_horseshoe_island_secret_cave(state, player)
+        and can_defeat_mothulas(state, player)
+        and can_defeat_winged_mothulas(state, player),
+    )
+    set_rule(world.get_location("Horseshoe Island - Northwestern Lookout Platform", player), lambda state: True)
+    set_rule(world.get_location("Horseshoe Island - Southeastern Lookout Platform", player), lambda state: True)
+
+    # Flight Control Platform
+    # set_rule(
+    #     world.get_location("Flight Control Platform - Bird-Man Contest - First Prize", player),
+    #     lambda state: can_fly_with_deku_leaf_outdoors(state, player) and has_magic_meter_upgrade(state, player),
+    # )
+    set_rule(
+        world.get_location("Flight Control Platform - Submarine", player),
+        lambda state: can_defeat_wizzrobes(state, player)
+        and can_defeat_red_chuchus(state, player)
+        and can_defeat_green_chuchus(state, player)
+        and can_defeat_miniblins(state, player)
+        and can_defeat_wizzrobes_at_range(state, player),
+    )
+
+    # Star Island
+    set_rule(
+        world.get_location("Star Island - Cave", player),
+        lambda state: can_access_star_island_secret_cave(state, player) and can_defeat_magtails(state, player),
+    )
+    set_rule(world.get_location("Star Island - Lookout Platform", player), lambda state: True)
+
+    # Star Belt Archipelago
+    set_rule(world.get_location("Star Belt Archipelago - Lookout Platform", player), lambda state: True)
+
+    # Five-Star Isles
+    set_rule(
+        world.get_location("Five-Star Isles - Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
+    set_rule(world.get_location("Five-Star Isles - Raft", player), lambda state: True)
+    set_rule(world.get_location("Five-Star Isles - Submarine", player), lambda state: True)
+
+    # Seven-Star Isles
+    set_rule(world.get_location("Seven-Star Isles - Center Lookout Platform", player), lambda state: True)
+    set_rule(world.get_location("Seven-Star Isles - Northern Lookout Platform", player), lambda state: True)
+    set_rule(
+        world.get_location("Seven-Star Isles - Southern Lookout Platform", player),
+        lambda state: can_defeat_wizzrobes_at_range(state, player),
+    )
+    # set_rule(
+    #     world.get_location("Seven-Star Isles - Big Octo", player),
+    #     lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
+    # )
+
+    # Cyclops Reef
+    set_rule(
+        world.get_location("Cyclops Reef - Destroy the Cannons and Gunboats", player),
+        lambda state: state.has("Bombs", player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(world.get_location("Cyclops Reef - Lookout Platform - Defeat the Enemies", player), lambda state: True)
+
+    # Two-Eye Reef
+    set_rule(
+        world.get_location("Two-Eye Reef - Destroy the Cannons and Gunboats", player),
+        lambda state: state.has("Bombs", player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(world.get_location("Two-Eye Reef - Lookout Platform", player), lambda state: True)
+    set_rule(
+        world.get_location("Two-Eye Reef - Big Octo Great Fairy", player),
+        lambda state: can_defeat_big_octos(state, player),
+    )
+
+    # Three-Eye Reef
+    set_rule(
+        world.get_location("Three-Eye Reef - Destroy the Cannons and Gunboats", player),
+        lambda state: state.has("Bombs", player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+
+    # Four-Eye Reef
+    set_rule(
+        world.get_location("Four-Eye Reef - Destroy the Cannons and Gunboats", player),
+        lambda state: state.has("Bombs", player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+
+    # Five-Eye Reef
+    set_rule(
+        world.get_location("Five-Eye Reef - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(world.get_location("Five-Eye Reef - Lookout Platform", player), lambda state: True)
+
+    # Six-Eye Reef
+    set_rule(
+        world.get_location("Six-Eye Reef - Destroy the Cannons and Gunboats", player),
+        lambda state: state.has("Bombs", player) and can_fly_with_deku_leaf_outdoors(state, player),
+    )
+    set_rule(
+        world.get_location("Six-Eye Reef - Lookout Platform - Destroy the Cannons", player),
+        lambda state: can_destroy_cannons(state, player),
+    )
+    set_rule(world.get_location("Six-Eye Reef - Submarine", player), lambda state: True)
+
+    # Sunken Treasure
+    set_rule(
+        world.get_location("Forsaken Fortress Sector - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_1(state, player),
+    )
+    set_rule(
+        world.get_location("Star Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_2(state, player),
+    )
+    set_rule(
+        world.get_location("Northern Fairy Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_3(state, player),
+    )
+    set_rule(
+        world.get_location("Gale Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_4(state, player),
+    )
+    set_rule(
+        world.get_location("Crescent Moon Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_5(state, player),
+    )
+    set_rule(
+        world.get_location("Seven-Star Isles - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_6(state, player)
+        and (state.has("Bombs", player) or state._tww_precise_1(player)),
+    )
+    set_rule(
+        world.get_location("Overlook Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_7(state, player),
+    )
+    set_rule(
+        world.get_location("Four-Eye Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_8(state, player)
+        and (
+            state.has("Bombs", player)
+            or state._tww_precise_1(player)
+            or (can_use_magic_armor(state, player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Mother and Child Isles - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_9(state, player),
+    )
+    set_rule(
+        world.get_location("Spectacle Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_10(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_11(state, player),
+    )
+    set_rule(
+        world.get_location("Pawprint Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_12(state, player),
+    )
+    set_rule(
+        world.get_location("Dragon Roost Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_13(state, player),
+    )
+    set_rule(
+        world.get_location("Flight Control Platform - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_14(state, player),
+    )
+    set_rule(
+        world.get_location("Western Fairy Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_15(state, player),
+    )
+    set_rule(
+        world.get_location("Rock Spire Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_16(state, player),
+    )
+    set_rule(
+        world.get_location("Tingle Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_17(state, player),
+    )
+    set_rule(
+        world.get_location("Northern Triangle Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_18(state, player),
+    )
+    set_rule(
+        world.get_location("Eastern Fairy Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_19(state, player),
+    )
+    set_rule(
+        world.get_location("Fire Mountain - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_20(state, player),
+    )
+    set_rule(
+        world.get_location("Star Belt Archipelago - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_21(state, player),
+    )
+    set_rule(
+        world.get_location("Three-Eye Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_22(state, player)
+        and (
+            state.has("Bombs", player)
+            or state._tww_precise_1(player)
+            or (can_use_magic_armor(state, player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Greatfish Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_23(state, player),
+    )
+    set_rule(
+        world.get_location("Cyclops Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_24(state, player)
+        and (
+            state.has("Bombs", player)
+            or state._tww_precise_1(player)
+            or (can_use_magic_armor(state, player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Six-Eye Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_25(state, player)
+        and (
+            state.has("Bombs", player)
+            or state._tww_precise_1(player)
+            or (can_use_magic_armor(state, player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Tower of the Gods Sector - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_26(state, player),
+    )
+    set_rule(
+        world.get_location("Eastern Triangle Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_27(state, player),
+    )
+    set_rule(
+        world.get_location("Thorned Fairy Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_28(state, player),
+    )
+    set_rule(
+        world.get_location("Needle Rock Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_29(state, player),
+    )
+    set_rule(
+        world.get_location("Islet of Steel - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_30(state, player),
+    )
+    set_rule(
+        world.get_location("Stone Watcher Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_31(state, player),
+    )
+    set_rule(
+        world.get_location("Southern Triangle Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_32(state, player)
+        and (can_defeat_seahats(state, player) or state._tww_precise_1(player)),
+    )
+    set_rule(
+        world.get_location("Private Oasis - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_33(state, player),
+    )
+    set_rule(
+        world.get_location("Bomb Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_34(state, player),
+    )
+    set_rule(
+        world.get_location("Bird's Peak Rock - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_35(state, player),
+    )
+    set_rule(
+        world.get_location("Diamond Steppe Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_36(state, player),
+    )
+    set_rule(
+        world.get_location("Five-Eye Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_37(state, player)
+        and can_destroy_cannons(state, player),
+    )
+    set_rule(
+        world.get_location("Shark Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_38(state, player),
+    )
+    set_rule(
+        world.get_location("Southern Fairy Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_39(state, player),
+    )
+    set_rule(
+        world.get_location("Ice Ring Isle - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_40(state, player),
+    )
+    set_rule(
+        world.get_location("Forest Haven - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_41(state, player),
+    )
+    set_rule(
+        world.get_location("Cliff Plateau Isles - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_42(state, player),
+    )
+    set_rule(
+        world.get_location("Horseshoe Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_43(state, player),
+    )
+    set_rule(
+        world.get_location("Outset Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_44(state, player),
+    )
+    set_rule(
+        world.get_location("Headstone Island - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_45(state, player),
+    )
+    set_rule(
+        world.get_location("Two-Eye Reef - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player)
+        and has_chart_for_island_46(state, player)
+        and (
+            state.has("Bombs", player)
+            or state._tww_precise_1(player)
+            or (can_use_magic_armor(state, player) and state._tww_obscure_1(player))
+        ),
+    )
+    set_rule(
+        world.get_location("Angular Isles - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_47(state, player),
+    )
+    set_rule(
+        world.get_location("Boating Course - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_48(state, player),
+    )
+    set_rule(
+        world.get_location("Five-Star Isles - Sunken Treasure", player),
+        lambda state: state.has("Grappling Hook", player) and has_chart_for_island_49(state, player),
+    )
+
+    set_rule(
+        world.get_location("Defeat Ganondorf", player), lambda state: can_reach_and_defeat_ganondorf(state, player)
+    )
+
+    world.completion_condition[player] = lambda state: state.has("Victory", player)

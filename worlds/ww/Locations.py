@@ -1,383 +1,1187 @@
-from BaseClasses import Location
-from typing import NamedTuple, Optional, Callable, Dict
+from enum import Enum, Flag, auto
+from typing import NamedTuple
+
+from BaseClasses import Location, Region
 
 
-class AchievementData(NamedTuple):
-    id: Optional[int]
+class TWWFlag(Flag):
+    ALWAYS = auto()
+    DUNGEON = auto()
+    TNGL_CT = auto()
+    DG_SCRT = auto()
+    PZL_CVE = auto()
+    CBT_CVE = auto()
+    SAVAGE = auto()
+    GRT_FRY = auto()
+    SHRT_SQ = auto()
+    LONG_SQ = auto()
+    SPOILS = auto()
+    MINIGME = auto()
+    SPLOOSH = auto()
+    FREE_GF = auto()
+    MAILBOX = auto()
+    PLTFRMS = auto()
+    SUBMRIN = auto()
+    EYE_RFS = auto()
+    BG_OCTO = auto()
+    TRI_CHT = auto()
+    TRE_CHT = auto()
+    XPENSVE = auto()
+    ISLND_P = auto()
+    MISCELL = auto()
+    OTHER = auto()
+
+
+class TWWLocationType(Enum):
+    CHART = auto()
+    CHEST = auto()
+    SWTCH = auto()
+    PCKUP = auto()
+    SPECL = auto()
+
+
+class TWWLocationData(NamedTuple):
+    code: int | None
+    flags: TWWFlag
     region: str
+    stage_id: int
+    type: TWWLocationType
+    bit: int
 
 
-class WindWakerAchievement(Location):
-    game: str = "Wind Waker"
+class TWWLocation(Location):
+    game: str = "The Wind Waker"
+
+    def __init__(self, player: int, name: str, parent: Region, data: TWWLocationData):
+        super(TWWLocation, self).__init__(player, name, address=data.code, parent=parent)
+        self.code = data.code
+        self.flags = data.flags
+        self.region = data.region
+        self.stage_id = data.stage_id
+        self.type = data.type
+        self.bit = data.bit
 
 
-achievement_table: Dict[str, AchievementData] = {
-    "Outset - Under Link's House": AchievementData(0x238000, "Outset - Under Grandmas House"),
-    "Outset - Grasscutter House": AchievementData(0x238001, "Outset - Grasscutters House"),
-    "Outset - Jabun's Cave": AchievementData(0x238002, "Outset - Jabuns Cave"),
-    "Outset - Big Pig": AchievementData(0x238003, "The Great Sea"),
-    "Outset - Savage Labyrinth Floor 30": AchievementData(0x238004, "Outset - Savage Labyrinth First"),
-    "Outset - Savage Labyrinth Floor 50": AchievementData(0x238005, "Savage Labyrinth Second"),
-    "Outset - Give Orca 10 Knights Crest": AchievementData(0x238006, "Outset - Orcas House"),
+base_id = 2326528
 
-    "Windfall - Tingles Gift 1": AchievementData(0x238007, "Windfall - Jail"),
-    "Windfall - Tingles Gift 2": AchievementData(0x238008, "Windfall - Jail"),
-    "Windfall - Jail Maze": AchievementData(0x238009, "Windfall - Jail"),
-    "Windfall - Lenzo Left": AchievementData(0x23800A, "Windfall - Lenzo Upper"),
-    "Windfall - Lenzo Right": AchievementData(0x23800B, "Windfall - Lenzo Upper"),
-    "Windfall - Win Sploosh Kaboom Once": AchievementData(0x23800C, "Windfall - Sploosh Kaboom"),
-    "Windfall - Win Sploosh Kaboom Twice": AchievementData(0x23800D, "Windfall - Sploosh Kaboom"),
-    "Windfall - House of Wealth Chest": AchievementData(0x23800E, "Windfall - Maggie Room"),
-    "Windfall - Green Potion Brewery": AchievementData(0x23800F, "Windfall - Potion Shop"),
-    "Windfall - Blue Potion Brewery": AchievementData(0x238010, "Windfall - Potion Shop"),
-    "Windfall - Light the Lighthouse": AchievementData(0x238011, "The Great Sea"),
-    "Windfall - Transparent Chest": AchievementData(0x238012, "The Great Sea"),
-    "Windfall - Pirate Ship Chest": AchievementData(0x238013, "Windfall - Pirate Ship"),
+LOCATION_TABLE: dict[str, TWWLocationData] = {
+    # Outset Island
+    "Outset Island - Underneath Link's House": TWWLocationData(
+        base_id + 0, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 5
+    ),
+    "Outset Island - Mesa the Grasscutter's House": TWWLocationData(
+        base_id + 1, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 4
+    ),
+    "Outset Island - Orca - Give 10 Knight's Crests": TWWLocationData(
+        base_id + 2, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    # "Outset Island - Orca - Hit 500 Times": TWWLocationData(
+    #     base_id + 3, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Outset Island - Great Fairy": TWWLocationData(
+    #     base_id + 4, TWWFlag.GRT_FRY, "The Great Sea"
+    # ),
+    "Outset Island - Jabun's Cave": TWWLocationData(
+        base_id + 5, TWWFlag.ISLND_P, "The Great Sea", 0xB, TWWLocationType.CHEST, 6
+    ),
+    "Outset Island - Dig up Black Soil": TWWLocationData(
+        base_id + 6, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.PCKUP, 2
+    ),
+    "Outset Island - Savage Labyrinth - Floor 30": TWWLocationData(
+        base_id + 7, TWWFlag.SAVAGE, "Savage Labyrinth", 0xD, TWWLocationType.CHEST, 11
+    ),
+    "Outset Island - Savage Labyrinth - Floor 50": TWWLocationData(
+        base_id + 8, TWWFlag.SAVAGE, "Savage Labyrinth", 0xD, TWWLocationType.CHEST, 12
+    ),
 
-    "DRI - Wind Shrine": AchievementData(0x238014, "The Great Sea"),
-    "DRI - Top of Boulder": AchievementData(0x238015, "The Great Sea"),
-    "DRI - Fly Around Island": AchievementData(0x238016, "Fly Around Island"),
-    "DRI - Mail Game": AchievementData(0x238017, "DRI Rito Hub"),
-    "DRI - Secret Cave": AchievementData(0x238018, "DRI Secret Cave"),
+    # Windfall Island
+    "Windfall Island - Jail - Tingle - First Gift": TWWLocationData(
+        base_id + 9, TWWFlag.FREE_GF, "The Great Sea", 0xB, TWWLocationType.SWTCH, 53
+    ),
+    "Windfall Island - Jail - Tingle - Second Gift": TWWLocationData(
+        base_id + 10, TWWFlag.FREE_GF, "The Great Sea", 0xB, TWWLocationType.SWTCH, 54
+    ),
+    "Windfall Island - Jail - Maze Chest": TWWLocationData(
+        base_id + 11, TWWFlag.ISLND_P, "The Great Sea", 0xB, TWWLocationType.CHEST, 0
+    ),
+    "Windfall Island - Chu Jelly Juice Shop - Give 15 Green Chu Jelly": TWWLocationData(
+        base_id + 12, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    "Windfall Island - Chu Jelly Juice Shop - Give 15 Blue Chu Jelly": TWWLocationData(
+        base_id + 13, TWWFlag.SPOILS | TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    # "Windfall Island - Ivan - Catch Killer Bees": TWWLocationData(
+    #     base_id + 14, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Mrs. Marie - Catch Killer Bees": TWWLocationData(
+    #     base_id + 15, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Mrs. Marie - Give 1 Joy Pendant": TWWLocationData(
+    #     base_id + 16, TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    # "Windfall Island - Mrs. Marie - Give 21 Joy Pendants": TWWLocationData(
+    #     base_id + 17, TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    # "Windfall Island - Mrs. Marie - Give 40 Joy Pendants": TWWLocationData(
+    #     base_id + 18, TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    "Windfall Island - Lenzo's House - Left Chest": TWWLocationData(
+        base_id + 19, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.CHEST, 1
+    ),
+    "Windfall Island - Lenzo's House - Right Chest": TWWLocationData(
+        base_id + 20, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.CHEST, 2
+    ),
+    # "Windfall Island - Lenzo's House - Become Lenzo's Assistant": TWWLocationData(
+    #     base_id + 21, TWWFlag.LONG_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Lenzo's House - Bring Forest Firefly": TWWLocationData(
+    #     base_id + 22, TWWFlag.LONG_SQ, "The Great Sea"
+    # ),
+    "Windfall Island - House of Wealth Chest": TWWLocationData(
+        base_id + 23, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 3
+    ),
+    # "Windfall Island - Maggie's Father - Give 20 Skull Necklaces": TWWLocationData(
+    #     base_id + 24, TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    # "Windfall Island - Maggie - Free Item": TWWLocationData(
+    #     base_id + 25, TWWFlag.FREE_GF, "The Great Sea"
+    # ),
+    # "Windfall Island - Maggie - Delivery Reward": TWWLocationData(
+    #     base_id + 26, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Cafe Bar - Postman": TWWLocationData(
+    #     base_id + 27, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    "Windfall Island - Kreeb - Light Up Lighthouse": TWWLocationData(
+        # TODO: find the flag for the Kreeb item, currently using lit lighthouse flag
+        base_id + 28, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.SWTCH, 13
+    ),
+    "Windfall Island - Transparent Chest": TWWLocationData(
+        base_id + 29, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.CHEST, 10
+    ),
+    # "Windfall Island - Tott - Teach Rhythm": TWWLocationData(
+    #     base_id + 30, TWWFlag.FREE_GF, "The Great Sea"
+    # ),
+    "Windfall Island - Pirate Ship": TWWLocationData(
+        base_id + 31, TWWFlag.MINIGME, "The Great Sea", 0xD, TWWLocationType.CHEST, 5
+    ),
+    # "Windfall Island - 5 Rupee Auction": TWWLocationData(
+    #     base_id + 32, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    # "Windfall Island - 40 Rupee Auction": TWWLocationData(
+    #     base_id + 33, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    # "Windfall Island - 60 Rupee Auction": TWWLocationData(
+    #     base_id + 34, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    # "Windfall Island - 80 Rupee Auction": TWWLocationData(
+    #     base_id + 35, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    # "Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop": TWWLocationData(
+    #     base_id + 36, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Sam - Decorate the Town": TWWLocationData(
+    #     base_id + 37, TWWFlag.LONG_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Kane - Place Shop Guru Statue on Gate": TWWLocationData(
+    #     base_id + 38, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Windfall Island - Kane - Place Postman Statue on Gate": TWWLocationData(
+    #     base_id + 39, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Windfall Island - Kane - Place Six Flags on Gate": TWWLocationData(
+    #     base_id + 40, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Windfall Island - Kane - Place Six Idols on Gate": TWWLocationData(
+    #     base_id + 41, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Windfall Island - Mila - Follow the Thief": TWWLocationData(
+    #     base_id + 42, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    "Windfall Island - Battlesquid - First Prize": TWWLocationData(
+        base_id + 43, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    "Windfall Island - Battlesquid - Second Prize": TWWLocationData(
+        base_id + 44, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    "Windfall Island - Battlesquid - Under 20 Shots Prize": TWWLocationData(
+        base_id + 45, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    # "Windfall Island - Pompie and Vera - Secret Meeting Photo": TWWLocationData(
+    #     base_id + 46, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Kamo - Full Moon Photo": TWWLocationData(
+    #     base_id + 47, TWWFlag.LONG_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Minenco - Miss Windfall Photo": TWWLocationData(
+    #     base_id + 48, TWWFlag.SHRT_SQ, "The Great Sea"
+    # ),
+    # "Windfall Island - Linda and Anton": TWWLocationData(
+    #     base_id + 49, TWWFlag.LONG_SQ, "The Great Sea"
+    # ),
 
-    "DRC - First Chest": AchievementData(0x238019, "DRC - First Room"),
-    "DRC - Water Jug Alcove": AchievementData(0x23801A, "DRC - HUB Room"),
-    "DRC - Behind Boards": AchievementData(0x23801B, "DRC - HUB Room"),
-    "DRC - Across Lava Pit": AchievementData(0x23801C, "DRC - Past 1st Locked Door"),
-    "DRC - Rat Room": AchievementData(0x23801D, "DRC - Past 1st Locked Door"),
-    "DRC - Rat Room Boarded Chest": AchievementData(0x23801E, "DRC - Past 1st Locked Door"),
-    "DRC - Birds Nest": AchievementData(0x23801F, "DRC - Outside Rat Room"),
-    "DRC - Dark Room Chest": AchievementData(0x238020, "DRC - Dark Room"),
-    "DRC - Tingle Chest in DRC HUB": AchievementData(0x238021, "DRC - Dark Room"),
-    "DRC - Pot Room": AchievementData(0x238022, "DRC - Dark Room"),
-    "DRC - Mini-Boss Fight": AchievementData(0x238023, "DRC - Dark Room"),
-    "DRC - Under Bridge": AchievementData(0x238024, "DRC - Dark Room"),
-    "DRC - Tingle Chest in DRC Basement": AchievementData(0x238025, "DRC - Basement"),
-    "DRC - Big Key Chest": AchievementData(0x238026, "DRC - Basement"),
-    "DRC - Outside Boss Door Left": AchievementData(0x238027, "DRC - Dark Room"),
-    "DRC - Outside Boss Door Right": AchievementData(0x238028, "DRC - Dark Room"),
-    "DRC - Gohma Heart Container": AchievementData(0x238029, "DRC - Boss Fight Arena"),
+    # Dragon Roost Island
+    "Dragon Roost Island - Wind Shrine": TWWLocationData(
+        base_id + 50, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.SWTCH, 32
+    ),
+    # "Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers": TWWLocationData(
+    #     base_id + 51, TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    "Dragon Roost Island - Chest on Top of Boulder": TWWLocationData(
+        base_id + 52, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 8
+    ),
+    "Dragon Roost Island - Fly Across Platforms Around Island": TWWLocationData(
+        base_id + 53, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 9
+    ),
+    "Dragon Roost Island - Rito Aerie - Mail Sorting": TWWLocationData(
+        # TODO: find the flag for the Baito item, currently using bits for mail sorting with Rito postman
+        base_id + 54, TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    "Dragon Roost Island - Secret Cave": TWWLocationData(
+        base_id + 55, TWWFlag.CBT_CVE, "Dragon Roost Island Secret Cave", 0xD, TWWLocationType.CHEST, 0
+    ),
 
-    "Forest Haven - On Tree Branch": AchievementData(0x23802A, "Forest Haven"),
-    "Forest Haven - On Small Island": AchievementData(0x23802B, "The Great Sea"),
+    # Dragon Roost Cavern
+    "Dragon Roost Cavern - First Room": TWWLocationData(
+        base_id + 56, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 0
+    ),
+    "Dragon Roost Cavern - Alcove With Water Jugs": TWWLocationData(
+        base_id + 57, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 2
+    ),
+    "Dragon Roost Cavern - Water Jug on Upper Shelf": TWWLocationData(
+        base_id + 58, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Dragon Roost Cavern", 0x3, TWWLocationType.PCKUP, 1
+    ),
+    "Dragon Roost Cavern - Boarded Up Chest": TWWLocationData(
+        base_id + 59, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 1
+    ),
+    "Dragon Roost Cavern - Chest Across Lava Pit": TWWLocationData(
+        base_id + 60, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 13
+    ),
+    "Dragon Roost Cavern - Rat Room": TWWLocationData(
+        base_id + 61, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 14
+    ),
+    "Dragon Roost Cavern - Rat Room Boarded Up Chest": TWWLocationData(
+        base_id + 62, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 3
+    ),
+    "Dragon Roost Cavern - Bird's Nest": TWWLocationData(
+        base_id + 63, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.PCKUP, 3
+    ),
+    "Dragon Roost Cavern - Dark Room": TWWLocationData(
+        base_id + 64, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 4
+    ),
+    "Dragon Roost Cavern - Tingle Chest in Hub Room": TWWLocationData(
+        base_id + 65, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 16
+    ),
+    "Dragon Roost Cavern - Pot on Upper Shelf in Pot Room": TWWLocationData(
+        base_id + 66, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Dragon Roost Cavern", 0x3, TWWLocationType.PCKUP, 0
+    ),
+    "Dragon Roost Cavern - Pot Room Chest": TWWLocationData(
+        base_id + 67, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 6
+    ),
+    "Dragon Roost Cavern - Miniboss": TWWLocationData(
+        base_id + 68, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 17
+    ),
+    "Dragon Roost Cavern - Under Rope Bridge": TWWLocationData(
+        base_id + 69, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 7
+    ),
+    "Dragon Roost Cavern - Tingle Statue Chest": TWWLocationData(
+        base_id + 70, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 15
+    ),
+    "Dragon Roost Cavern - Big Key Chest": TWWLocationData(
+        base_id + 71, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 12
+    ),
+    "Dragon Roost Cavern - Boss Stairs Right Chest": TWWLocationData(
+        base_id + 72, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 11
+    ),
+    "Dragon Roost Cavern - Boss Stairs Left Chest": TWWLocationData(
+        base_id + 73, TWWFlag.DUNGEON, "Dragon Roost Cavern", 0x3, TWWLocationType.CHEST, 10
+    ),
+    "Dragon Roost Cavern - Boss Stairs Right Pot": TWWLocationData(
+        base_id + 74, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Dragon Roost Cavern", 0x3, TWWLocationType.PCKUP, 6
+    ),
+    "Dragon Roost Cavern - Gohma Heart Container": TWWLocationData(
+        base_id + 75, TWWFlag.DUNGEON, "Gohma Boss Arena", 0x3, TWWLocationType.PCKUP, 21
+    ),
 
-    "Forbidden Woods - 1st Chest": AchievementData(0x23802C, "Forbidden Woods - Pre HUB Room"),
-    "Forbidden Woods - In Bottom Tree": AchievementData(0x23802D, "Forbidden Woods - Pre HUB Room"),
-    "Forbidden Woods - Climb to Top": AchievementData(0x23802E, "Forbidden Woods - Pre HUB Room"),
-    "Forbidden Woods - Hole in Tree": AchievementData(0x23802F, "Forbidden Woods - Pre HUB Room"),
-    "Forbidden Woods - In Morths Pit": AchievementData(0x238030, "Forbidden Woods - HUB Room"),
-    "Forbidden Woods - Vine Maze Left": AchievementData(0x238031, "Forbidden Woods - HUB Room"),
-    "Forbidden Woods - Vine Maze Right": AchievementData(0x238032, "Forbidden Woods - HUB Room"),
-    "Forbidden Woods - Tall Room Before Mini-Boss": AchievementData(0x238033, "Forbidden Woods - Past Locked Door"),
-    "Forbidden Woods - Mini-Boss": AchievementData(0x238034, "Forbidden Woods - Past Locked Door"),
-    "Forbidden Woods - Past Hanging Vines": AchievementData(0x238035, "Forbidden Woods - Past Locked Door"),
-    "Forbidden Woods - Across the Flower": AchievementData(0x238036, "Forbidden Woods - Basement"),
-    "Forbidden Woods - Tingle Chest": AchievementData(0x238037, "Forbidden Woods - Basement"),
-    "Forbidden Woods - Locked in Basement Trunk": AchievementData(0x238038, "Forbidden Woods - Basement"),
-    "Forbidden Woods - Big Key Chest": AchievementData(0x238039, "Forbidden Woods - Basement"),
-    "Forbidden Woods - Double Mothula": AchievementData(0x23803A, "Forbidden Woods - Boss Arena"),
-    "Forbidden Woods - Kalle Demos Heart Container": AchievementData(0x23803B, "Forbidden Woods - Boss Arena"),
+    # Forest Haven
+    "Forest Haven - On Tree Branch": TWWLocationData(
+        base_id + 76, TWWFlag.ISLND_P, "The Great Sea", 0xB, TWWLocationType.PCKUP, 2
+    ),
+    "Forest Haven - Small Island Chest": TWWLocationData(
+        base_id + 77, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 7
+    ),
 
-    "Greatfish - Hidden Chest": AchievementData(0x23803C, "The Great Sea"),
+    # Forbidden Woods
+    "Forbidden Woods - First Room": TWWLocationData(
+        base_id + 78, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 0
+    ),
+    "Forbidden Woods - Inside Hollow Tree's Mouth": TWWLocationData(
+        base_id + 79, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 1
+    ),
+    "Forbidden Woods - Climb to Top Using Boko Baba Bulbs": TWWLocationData(
+        base_id + 80, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 2
+    ),
+    "Forbidden Woods - Pot High Above Hollow Tree": TWWLocationData(
+        base_id + 81, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Forbidden Woods", 0x4, TWWLocationType.PCKUP, 1
+    ),
+    "Forbidden Woods - Hole in Tree": TWWLocationData(
+        base_id + 82, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 6
+    ),
+    "Forbidden Woods - Morth Pit": TWWLocationData(
+        base_id + 83, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 8
+    ),
+    "Forbidden Woods - Vine Maze Left Chest": TWWLocationData(
+        base_id + 84, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 7
+    ),
+    "Forbidden Woods - Vine Maze Right Chest": TWWLocationData(
+        base_id + 85, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 5
+    ),
+    "Forbidden Woods - Highest Pot in Vine Maze": TWWLocationData(
+        base_id + 86, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Forbidden Woods", 0x4, TWWLocationType.PCKUP, 22
+    ),
+    "Forbidden Woods - Tall Room Before Miniboss": TWWLocationData(
+        base_id + 87, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 12
+    ),
+    "Forbidden Woods - Mothula Miniboss Room": TWWLocationData(
+        base_id + 88, TWWFlag.DUNGEON, "Forbidden Woods Miniboss Arena", 0x4, TWWLocationType.CHEST, 10
+    ),
+    "Forbidden Woods - Past Seeds Hanging by Vines": TWWLocationData(
+        base_id + 89, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 3
+    ),
+    "Forbidden Woods - Chest Across Red Hanging Flower": TWWLocationData(
+        base_id + 90, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 11
+    ),
+    "Forbidden Woods - Tingle Statue Chest": TWWLocationData(
+        base_id + 91, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 15
+    ),
+    "Forbidden Woods - Chest in Locked Tree Trunk": TWWLocationData(
+        base_id + 92, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 9
+    ),
+    "Forbidden Woods - Big Key Chest": TWWLocationData(
+        base_id + 93, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 4
+    ),
+    "Forbidden Woods - Double Mothula Room": TWWLocationData(
+        base_id + 94, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 14
+    ),
+    "Forbidden Woods - Kalle Demos Heart Container": TWWLocationData(
+        base_id + 95, TWWFlag.DUNGEON, "Kalle Demos Boss Arena", 0x4, TWWLocationType.PCKUP, 21
+    ),
 
-    "Tower of Gods - Light Torches": AchievementData(0x23803D, "Tower of Gods - Left Side"),
-    "Tower of Gods - Skull Room": AchievementData(0x23803E, "Tower of Gods - Left Side"),
-    "Tower of Gods - Skull Room Shoot The Eye": AchievementData(0x23803F, "Tower of Gods - Left Side"),
-    "Tower of Gods - Behind Bombable Wall": AchievementData(0x238040, "Tower of Gods - 1st Floor"),
-    "Tower of Gods - Hop Across Boxes": AchievementData(0x238041, "Tower of Gods - 1st Floor"),
-    "Tower of Gods - Tingle Chest": AchievementData(0x238042, "Tower of Gods - Until Stone Tablet"),
-    "Tower of Gods - First Chest Guarded": AchievementData(0x238043, "Tower of Gods - Until Stone Tablet"),
-    "Tower of Gods - Stone Tablet": AchievementData(0x238044, "Tower of Gods - Until Stone Tablet"),
-    "Tower of Gods - Mini-Boss": AchievementData(0x238045, "Tower of Gods - Mini Boss Arena"),
-    "Tower of Gods - Second Chest Guarded": AchievementData(0x238046, "Tower of Gods - Before Locked Door"),
-    "Tower of Gods - Flying Platforms 1": AchievementData(0x238047, "Tower of Gods - Before Locked Door"),
-    "Tower of Gods - Flying Platforms 2": AchievementData(0x238048, "Tower of Gods - Before Locked Door"),
-    "Tower of Gods - Big Key Chest": AchievementData(0x238049, "Tower of Gods - Past Locked Door"),
-    "Tower of Gods - Gohdan Heart Container": AchievementData(0x23804A, "Tower of Gods - Boss Arena"),
+    # Greatfish Isle
+    "Greatfish Isle - Hidden Chest": TWWLocationData(
+        base_id + 96, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 6
+    ),
 
-    "Hyrule - Master Sword Chamber": AchievementData(0x23804B, "Master Sword Chamber"),
+    # Tower of the Gods
+    "Tower of the Gods - Chest Behind Bombable Walls": TWWLocationData(
+        base_id + 97, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 2
+    ),
+    "Tower of the Gods - Pot Behind Bombable Walls": TWWLocationData(
+        base_id + 98, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Tower of the Gods", 0x5, TWWLocationType.PCKUP, 0
+    ),
+    "Tower of the Gods - Hop Across Floating Boxes": TWWLocationData(
+        base_id + 99, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 1
+    ),
+    "Tower of the Gods - Light Two Torches": TWWLocationData(
+        base_id + 100, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 10
+    ),
+    "Tower of the Gods - Skulls Room Chest": TWWLocationData(
+        base_id + 101, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 3
+    ),
+    "Tower of the Gods - Shoot Eye Above Skulls Room Chest": TWWLocationData(
+        base_id + 102, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 9
+    ),
+    "Tower of the Gods - Tingle Statue Chest": TWWLocationData(
+        base_id + 103, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 15
+    ),
+    "Tower of the Gods - First Chest Guarded by Armos Knights": TWWLocationData(
+        base_id + 104, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 6
+    ),
+    "Tower of the Gods - Stone Tablet": TWWLocationData(
+        base_id + 105, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.SWTCH, 25
+    ),
+    "Tower of the Gods - Darknut Miniboss Room": TWWLocationData(
+        base_id + 106, TWWFlag.DUNGEON, "Tower of the Gods Miniboss Arena", 0x5, TWWLocationType.CHEST, 5
+    ),
+    "Tower of the Gods - Second Chest Guarded by Armos Knights": TWWLocationData(
+        base_id + 107, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 8
+    ),
+    "Tower of the Gods - Floating Platforms Room": TWWLocationData(
+        base_id + 108, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 4
+    ),
+    "Tower of the Gods - Top of Floating Platforms Room": TWWLocationData(
+        base_id + 109, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 11
+    ),
+    "Tower of the Gods - Eastern Pot in Big Key Chest Room": TWWLocationData(
+        base_id + 110, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Tower of the Gods", 0x5, TWWLocationType.PCKUP, 1
+    ),
+    "Tower of the Gods - Big Key Chest": TWWLocationData(
+        base_id + 111, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 0
+    ),
+    "Tower of the Gods - Gohdan Heart Container": TWWLocationData(
+        base_id + 112, TWWFlag.DUNGEON, "Gohdan Boss Arena", 0x5, TWWLocationType.PCKUP, 21
+    ),
 
-    "Forsaken Fortress - Phantom Ganon": AchievementData(0x23804C, "Forsaken Fortress Interior"),
-    "Forsaken Fortress - Upper Jail": AchievementData(0x23804D, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Lower Jail": AchievementData(0x23804E, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Chest Guarded by Bokoblin": AchievementData(0x23804F, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Chest on Bed": AchievementData(0x238050, "Forsaken Fortress - Within the Walls"),
-    "Forsaken Fortress - Helmaroc King Heart Container": AchievementData(0x238051,
-                                                                         "Forsaken Fortress - Within the Walls"),
+    # Hyrule
+    "Hyrule - Master Sword Chamber": TWWLocationData(
+        base_id + 113, TWWFlag.DUNGEON, "Master Sword Chamber", 0x9, TWWLocationType.CHEST, 0
+    ),
 
-    "Mother & Child - Interior": AchievementData(0x238052, "Inside Mother & Child"),
+    # Forsaken Fortress
+    "Forsaken Fortress - Phantom Ganon": TWWLocationData(
+        base_id + 114, TWWFlag.DUNGEON, "The Great Sea", 0x0, TWWLocationType.CHEST, 16
+    ),
+    "Forsaken Fortress - Chest Outside Upper Jail Cell": TWWLocationData(
+        base_id + 115, TWWFlag.DUNGEON, "The Great Sea", 0x2, TWWLocationType.CHEST, 0
+    ),
+    "Forsaken Fortress - Chest Inside Lower Jail Cell": TWWLocationData(
+        base_id + 116, TWWFlag.DUNGEON, "The Great Sea", 0x2, TWWLocationType.CHEST, 3
+    ),
+    "Forsaken Fortress - Chest Guarded By Bokoblin": TWWLocationData(
+        base_id + 117, TWWFlag.DUNGEON, "The Great Sea", 0x2, TWWLocationType.CHEST, 2
+    ),
+    "Forsaken Fortress - Chest on Bed": TWWLocationData(
+        base_id + 118, TWWFlag.DUNGEON, "The Great Sea", 0x2, TWWLocationType.CHEST, 1
+    ),
+    "Forsaken Fortress - Helmaroc King Heart Container": TWWLocationData(
+        base_id + 119, TWWFlag.DUNGEON, "Helmaroc King Boss Arena", 0x2, TWWLocationType.PCKUP, 21
+    ),
 
-    "Fire Mountain - Cave": AchievementData(0x238053, "Fire Mountain Cave"),
-    "Fire Mountain - Free Platform": AchievementData(0x238054, "The Great Sea"),
-    "Fire Mountain - Cannon Platform": AchievementData(0x238055, "The Great Sea"),
-    # "Fire Mountain - Big Octo": AchievementData(0x238056, "The Great Sea"),
+    # Mother and Child Isles
+    "Mother and Child Isles - Inside Mother Isle": TWWLocationData(
+        base_id + 120, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.CHEST, 28
+    ),
 
-    "Ice Ring - Frozen Chest": AchievementData(0x238057, "Ice Ring Cave"),
-    "Ice Ring - Cave": AchievementData(0x238058, "Ice Ring Cave"),
-    "Ice Ring - Inner Cave": AchievementData(0x238059, "Ice Ring Inner Cave"),
+    # Fire Mountain
+    "Fire Mountain - Cave - Chest": TWWLocationData(
+        base_id + 121, TWWFlag.PZL_CVE | TWWFlag.CBT_CVE, "Fire Mountain Secret Cave", 0xC, TWWLocationType.CHEST, 0
+    ),
+    "Fire Mountain - Lookout Platform Chest": TWWLocationData(
+        base_id + 122, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 1
+    ),
+    "Fire Mountain - Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 123, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 0
+    ),
+    # "Fire Mountain - Big Octo": TWWLocationData(
+    #     base_id + 124, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 63
+    # ),
 
-    "Headstone Island - Top of Island": AchievementData(0x23805A, "The Great Sea"),
-    "Headstone Island - Submarine": AchievementData(0x23805B, "Headstone Submarine"),
+    # Ice Ring Isle
+    "Ice Ring Isle - Frozen Chest": TWWLocationData(
+        base_id + 125, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 18
+    ),
+    "Ice Ring Isle - Cave - Chest": TWWLocationData(
+        base_id + 126, TWWFlag.PZL_CVE, "Ice Ring Isle Secret Cave", 0xC, TWWLocationType.CHEST, 1
+    ),
+    "Ice Ring Isle - Inner Cave - Chest": TWWLocationData(
+        base_id + 127, TWWFlag.PZL_CVE | TWWFlag.CBT_CVE, "Ice Ring Isle Inner Cave", 0xC, TWWLocationType.CHEST, 21
+    ),
 
-    "Earth Temple - First Room": AchievementData(0x23805C, "Earth Temple - First Rooms"),
-    "Earth Temple - Transparent Chest in 1st Crypt": AchievementData(0x23805D, "Earth Temple - First Rooms"),
-    "Earth Temple - Behind Destructable Walls": AchievementData(0x23805E, "Earth Temple - First Rooms"),
-    "Earth Temple - 3 Blocks Room": AchievementData(0x23805F, "Earth Temple - Left Side"),
-    "Earth Temple - Behind Statues": AchievementData(0x238060, "Earth Temple - Left Side"),
-    "Earth Temple - Casket in 2nd Crypt": AchievementData(0x238061, "Earth Temple - Left Side"),
-    "Earth Temple - Staflos Mini Boss": AchievementData(0x238062, "Earth Temple - Left Side"),
-    "Earth Temple - Tingle Chest": AchievementData(0x238063, "Earth Temple - Basement"),
-    "Earth Temple - Floormaster Room Free": AchievementData(0x238064, "Earth Temple - Past Song Stone"),
-    "Earth Temple - Floormaster Room Fight": AchievementData(0x238065, "Earth Temple - Past Song Stone"),
-    "Earth Temple - 3rd Crypt Chest": AchievementData(0x238066, "Earth Temple - Past 2nd Locked Door"),
-    "Earth Temple - Many Mirrors Left": AchievementData(0x238067, "Earth Temple - Past 2nd Locked Door"),
-    "Earth Temple - Many Mirrors Right": AchievementData(0x238068, "Earth Temple - Past 2nd Locked Door"),
-    "Earth Temple - Staflos Crypt Room": AchievementData(0x238069, "Earth Temple - Past 2nd Locked Door"),
-    "Earth Temple - Big Key Chest": AchievementData(0x23806A, "Earth Temple - Past 2nd Locked Door"),
-    "Earth Temple - Jalhalla Heart Container": AchievementData(0x23806B, "Earth Temple - Boss Arena"),
+    # Headstone Island
+    "Headstone Island - Top of the Island": TWWLocationData(
+        base_id + 128, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.PCKUP, 8
+    ),
+    "Headstone Island - Submarine": TWWLocationData(
+        base_id + 129, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 4
+    ),
 
-    "Wind Temple - Two Dirt Patches": AchievementData(0x23806C, "Wind Temple - First Room"),
-    "Wind Temple - Tingle Chest": AchievementData(0x23806D, "Wind Temple - HUB Room"),
-    "Wind Temple - Behind Stone Head": AchievementData(0x23806E, "Wind Temple - HUB Room"),
-    "Wind Temple - Left Alcove": AchievementData(0x23806F, "Wind Temple - HUB Room"),
-    "Wind Temple - Big Key Chest": AchievementData(0x238070, "Wind Temple - HUB Room"),
-    "Wind Temple - Many Cyclones Room": AchievementData(0x238071, "Wind Temple - HUB Room"),
-    "Wind Temple - Middle of HUB Room": AchievementData(0x238072, "Wind Temple - HUB Room"),
-    "Wind Temple - Spike Room - Free Chest": AchievementData(0x238073, "Wind Temple - HUB Room"),
-    "Wind Temple - Spike Room - Break All Floors": AchievementData(0x238074, "Wind Temple - HUB Room"),
-    "Wind Temple - Wizzrobe Mini Boss": AchievementData(0x238075, "Wind Temple - HUB Room"),
-    "Wind Temple - Top of HUB Room": AchievementData(0x238076, "Wind Temple - HUB Room"),
-    "Wind Temple - Behind 7 Armos": AchievementData(0x238077, "Wind Temple - HUB Room"),
-    "Wind Temple - Kill Enemies in Basement": AchievementData(0x238078, "Wind Temple - Basement"),
-    "Wind Temple - Molgera Heart Container": AchievementData(0x238079, "Wind Temple - Boss Arena"),
+    # Earth Temple
+    "Earth Temple - Transparent Chest In Warp Pot Room": TWWLocationData(
+        base_id + 130, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 0
+    ),
+    "Earth Temple - Behind Curtain In Warp Pot Room": TWWLocationData(
+        base_id + 131, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Earth Temple", 0x6, TWWLocationType.PCKUP, 0
+    ),
+    "Earth Temple - Transparent Chest in First Crypt": TWWLocationData(
+        base_id + 132, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 1
+    ),
+    "Earth Temple - Chest Behind Destructible Walls": TWWLocationData(
+        base_id + 133, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 12
+    ),
+    "Earth Temple - Chest In Three Blocks Room": TWWLocationData(
+        base_id + 134, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 2
+    ),
+    "Earth Temple - Chest Behind Statues": TWWLocationData(
+        base_id + 135, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 3
+    ),
+    "Earth Temple - Casket in Second Crypt": TWWLocationData(
+        base_id + 136, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.PCKUP, 14
+    ),
+    "Earth Temple - Stalfos Miniboss Room": TWWLocationData(
+        base_id + 137, TWWFlag.DUNGEON, "Earth Temple Miniboss Arena", 0x6, TWWLocationType.CHEST, 7
+    ),
+    "Earth Temple - Tingle Statue Chest": TWWLocationData(
+        base_id + 138, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 15
+    ),
+    "Earth Temple - End of Foggy Room With Floormasters": TWWLocationData(
+        base_id + 139, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 4
+    ),
+    "Earth Temple - Kill All Floormasters in Foggy Room": TWWLocationData(
+        base_id + 140, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 11
+    ),
+    "Earth Temple - Behind Curtain Next to Hammer Button": TWWLocationData(
+        base_id + 141, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Earth Temple", 0x6, TWWLocationType.PCKUP, 1
+    ),
+    "Earth Temple - Chest in Third Crypt": TWWLocationData(
+        base_id + 142, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 5
+    ),
+    "Earth Temple - Many Mirrors Room Right Chest": TWWLocationData(
+        base_id + 143, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 10
+    ),
+    "Earth Temple - Many Mirrors Room Left Chest": TWWLocationData(
+        base_id + 144, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 9
+    ),
+    "Earth Temple - Stalfos Crypt Room": TWWLocationData(
+        base_id + 145, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 14
+    ),
+    "Earth Temple - Big Key Chest": TWWLocationData(
+        base_id + 146, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 6
+    ),
+    "Earth Temple - Jalhalla Heart Container": TWWLocationData(
+        base_id + 147, TWWFlag.DUNGEON, "Jalhalla Boss Arena", 0x6, TWWLocationType.PCKUP, 21
+    ),
 
-    "Ganons Tower - Maze Chest": AchievementData(0x23807A, "Ganons Tower"),
+    # Wind Temple
+    "Wind Temple - Chest Between Two Dirt Patches": TWWLocationData(
+        base_id + 148, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 0
+    ),
+    "Wind Temple - Behind Stone Head in Hidden Upper Room": TWWLocationData(
+        base_id + 149, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Wind Temple", 0x7, TWWLocationType.PCKUP, 0
+    ),
+    "Wind Temple - Tingle Statue Chest": TWWLocationData(
+        base_id + 150, TWWFlag.TNGL_CT | TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 15
+    ),
+    "Wind Temple - Chest Behind Stone Head": TWWLocationData(
+        base_id + 151, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 3
+    ),
+    "Wind Temple - Chest in Left Alcove": TWWLocationData(
+        base_id + 152, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 7
+    ),
+    "Wind Temple - Big Key Chest": TWWLocationData(
+        base_id + 153, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 8
+    ),
+    "Wind Temple - Chest In Many Cyclones Room": TWWLocationData(
+        base_id + 154, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 11
+    ),
+    "Wind Temple - Behind Stone Head in Many Cyclones Room": TWWLocationData(
+        base_id + 155, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Wind Temple", 0x7, TWWLocationType.PCKUP, 1
+    ),
+    "Wind Temple - Chest In Middle Of Hub Room": TWWLocationData(
+        base_id + 156, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 13
+    ),
+    "Wind Temple - Spike Wall Room - First Chest": TWWLocationData(
+        base_id + 157, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 9
+    ),
+    "Wind Temple - Spike Wall Room - Destroy All Cracked Floors": TWWLocationData(
+        base_id + 158, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 10
+    ),
+    "Wind Temple - Wizzrobe Miniboss Room": TWWLocationData(
+        base_id + 159, TWWFlag.DUNGEON, "Wind Temple Miniboss Arena", 0x7, TWWLocationType.CHEST, 5
+    ),
+    "Wind Temple - Chest at Top of Hub Room": TWWLocationData(
+        base_id + 160, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 2
+    ),
+    "Wind Temple - Chest Behind Seven Armos": TWWLocationData(
+        base_id + 161, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 4
+    ),
+    "Wind Temple - Kill All Enemies in Tall Basement Room": TWWLocationData(
+        base_id + 162, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 12
+    ),
+    "Wind Temple - Molgera Heart Container": TWWLocationData(
+        base_id + 163, TWWFlag.DUNGEON, "Molgera Boss Arena", 0x7, TWWLocationType.PCKUP, 21
+    ),
 
-    "Great Sea - Defeat Cyclos": AchievementData(0x23807B, "The Great Sea"),
-    "Great Sea - Withered Trees": AchievementData(0x23807C, "The Great Sea"),
-    "Great Sea - Ghost Ship": AchievementData(0x23807D, "The Great Sea"),
+    # Ganon's Tower
+    "Ganon's Tower - Maze Chest": TWWLocationData(
+        base_id + 164, TWWFlag.DUNGEON, "The Great Sea", 0x8, TWWLocationType.CHEST, 0
+    ),
 
-    "Private Oasis - Top of Waterfall": AchievementData(0x23807E, "The Great Sea"),
-    "Cabana Labyrinth - Lower": AchievementData(0x23807F, "Cabana Labyrinth"),
-    "Cabana Labyrinth - Upper": AchievementData(0x238080, "Cabana Labyrinth"),
-    # "Private Oasis - Big Octo": AchievementData(0x238081, "The Great Sea"),
+    # Mailbox
+    # "Mailbox - Letter from Hoskit's Girlfriend": TWWLocationData(
+    #     base_id + 165, TWWFlag.MAILBOX | TWWFlag.SPOILS, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Baito's Mother": TWWLocationData(
+    #     base_id + 166, TWWFlag.MAILBOX, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Baito": TWWLocationData(
+    #     base_id + 167, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Komali's Father": TWWLocationData(
+    #     base_id + 168, TWWFlag.MAILBOX, "The Great Sea"
+    # ),
+    # "Mailbox - Letter Advertising Bombs in Beedle's Shop": TWWLocationData(
+    #     base_id + 169, TWWFlag.MAILBOX, "The Great Sea"
+    # ),
+    # "Mailbox - Letter Advertising Rock Spire Shop Ship": TWWLocationData(
+    #     base_id + 170, TWWFlag.MAILBOX, "The Great Sea"
+    # ),
+    # "Mailbox - Beedle's Silver Membership Reward": TWWLocationData(
+    #     base_id + 171, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Mailbox - Beedle's Gold Membership Reward": TWWLocationData(
+    #     base_id + 172, TWWFlag.OTHER, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Orca": TWWLocationData(
+    #     base_id + 173, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Grandma": TWWLocationData(
+    #     base_id + 174, TWWFlag.MAILBOX, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Aryll": TWWLocationData(
+    #     base_id + 175, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
+    # ),
+    # "Mailbox - Letter from Tingle": TWWLocationData(
+    #     base_id + 176, TWWFlag.MAILBOX | TWWFlag.DUNGEON | TWWFlag.XPENSVE, "The Great Sea"
+    # ),
 
-    "Needle Rock - Chest in Ring of Fire": AchievementData(0x238082, "The Great Sea"),
-    "Needle Rock - Cave": AchievementData(0x238083, "Needle Rock Cave"),
-    # "Needle Rock - Golden Gunboat": AchievementData(0x238084, "The Great Sea"),
+    # The Great Sea
+    # "The Great Sea - Beedle's Shop Ship - 20 Rupee Item": TWWLocationData(
+    #     base_id + 177, TWWFlag.MISCELL, "The Great Sea"
+    # ),
+    # "The Great Sea - Salvage Corp Gift": TWWLocationData(
+    #     base_id + 178, TWWFlag.FREE_GF, "The Great Sea"
+    # ),
+    "The Great Sea - Cyclos": TWWLocationData(
+        base_id + 179, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.SPECL, 0
+    ),
+    # "The Great Sea - Goron Trading Reward": TWWLocationData(
+    #     base_id + 180, TWWFlag.LONG_SQ | TWWFlag.XPENSVE, "The Great Sea"
+    # ),
+    "The Great Sea - Withered Trees": TWWLocationData(
+        base_id + 181, TWWFlag.LONG_SQ, "The Great Sea", 0x0, TWWLocationType.SPECL, 0
+    ),
+    "The Great Sea - Ghost Ship": TWWLocationData(
+        base_id + 182, TWWFlag.MISCELL, "The Great Sea", 0xA, TWWLocationType.CHEST, 23
+    ),
 
-    "Angular - Peak": AchievementData(0x238085, "The Great Sea"),
-    "Angular - Cave": AchievementData(0x238086, "Angular Cave"),
+    # Private Oasis
+    "Private Oasis - Chest at Top of Waterfall": TWWLocationData(
+        base_id + 183, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 19
+    ),
+    "Private Oasis - Cabana Labyrinth - Lower Floor Chest": TWWLocationData(
+        base_id + 184, TWWFlag.PZL_CVE, "Cabana Labyrinth", 0xC, TWWLocationType.CHEST, 22
+    ),
+    "Private Oasis - Cabana Labyrinth - Upper Floor Chest": TWWLocationData(
+        base_id + 185, TWWFlag.PZL_CVE, "Cabana Labyrinth", 0xC, TWWLocationType.CHEST, 17
+    ),
+    # "Private Oasis - Big Octo": TWWLocationData(
+    #     base_id + 186, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 64
+    # ),
 
-    "Boating Course - Raft": AchievementData(0x238087, "The Great Sea"),
-    "Boating Course - Cave": AchievementData(0x238088, "Boating Course Cave"),
+    # Spectacle Island
+    # "Spectacle Island - Barrel Shooting - First Prize": TWWLocationData(
+    #     base_id + 187, TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    # "Spectacle Island - Barrel Shooting - Second Prize": TWWLocationData(
+    #     base_id + 188, TWWFlag.MINIGME, "The Great Sea"
+    # ),
 
-    "Stone Watcher - Cave": AchievementData(0x238089, "Stone Watcher Cave"),
-    "Stone Watcher - Free Platform": AchievementData(0x23808A, "The Great Sea"),
-    "Stone Watcher - Cannon Platform": AchievementData(0x23808B, "The Great Sea"),
+    # Needle Rock Isle
+    "Needle Rock Isle - Chest": TWWLocationData(
+        base_id + 189, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 3
+    ),
+    "Needle Rock Isle - Cave": TWWLocationData(
+        base_id + 190, TWWFlag.PZL_CVE, "Needle Rock Isle Secret Cave", 0xD, TWWLocationType.CHEST, 9
+    ),
+    # "Needle Rock Isle - Golden Gunboat": TWWLocationData(
+    #     base_id + 191, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 71
+    # ),
 
-    "Islet of Steel - Cave": AchievementData(0x23808C, "Islet of Steel"),
-    "Islet of Steel - Enemy Platform": AchievementData(0x23808D, "The Great Sea"),
+    # Angular Isles
+    "Angular Isles - Peak": TWWLocationData(
+        base_id + 192, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 0
+    ),
+    "Angular Isles - Cave": TWWLocationData(
+        base_id + 193, TWWFlag.PZL_CVE, "Angular Isles Secret Cave", 0xD, TWWLocationType.CHEST, 6
+    ),
 
-    "Overlook - Cave": AchievementData(0x23808E, "Overlook Cave"),
+    # Boating Course
+    "Boating Course - Raft": TWWLocationData(
+        base_id + 194, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 21
+    ),
+    "Boating Course - Cave": TWWLocationData(
+        base_id + 195, TWWFlag.PZL_CVE | TWWFlag.CBT_CVE, "Boating Course Secret Cave", 0xD, TWWLocationType.CHEST, 15
+    ),
 
-    "Birds Peak Rock - Cave": AchievementData(0x23808F, "Birds Peak Rock Cave"),
+    # Stone Watcher Island
+    "Stone Watcher Island - Cave": TWWLocationData(
+        base_id + 196, TWWFlag.CBT_CVE, "Stone Watcher Island Secret Cave", 0xC, TWWLocationType.CHEST, 10
+    ),
+    "Stone Watcher Island - Lookout Platform Chest": TWWLocationData(
+        base_id + 197, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 18
+    ),
+    "Stone Watcher Island - Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 198, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 20
+    ),
 
-    "Pawprint - Chu Cave - Chest": AchievementData(0x238090, "Pawprint Chu Cave"),
-    "Pawprint - Chu Cave - Left Boulder": AchievementData(0x238091, "Pawprint Chu Cave"),
-    "Pawprint - Chu Cave - Right Boulder": AchievementData(0x238092, "Pawprint Chu Cave"),
-    "Pawprint - Chu Cave - Scale Wall": AchievementData(0x238093, "Pawprint Chu Cave"),
-    "Pawprint - Wizzrobe Cave": AchievementData(0x238094, "Pawprint Wizzrobe Cave"),
-    "Pawprint - Free Platform": AchievementData(0x238095, "The Great Sea"),
+    # Islet of Steel
+    "Islet of Steel - Interior": TWWLocationData(
+        base_id + 199, TWWFlag.MISCELL, "The Great Sea", 0xC, TWWLocationType.CHEST, 4
+    ),
+    "Islet of Steel - Lookout Platform - Defeat the Enemies": TWWLocationData(
+        base_id + 200, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 16
+    ),
 
-    "Thorned Fairy - Cannon Platform": AchievementData(0x238096, "The Great Sea"),
-    "Thorned Fairy - Enemy Platform": AchievementData(0x238097, "The Great Sea"),
-    "Eastern Fairy - Cannon Platform": AchievementData(0x238098, "The Great Sea"),
-    "Western Fairy - Free Platform": AchievementData(0x238099, "The Great Sea"),
-    "Southern Fairy - NW Cannon Platform": AchievementData(0x23809A, "The Great Sea"),
-    "Southern Fairy - SE Cannon Platform": AchievementData(0x23809B, "The Great Sea"),
-    "Northern Fairy - Submarine": AchievementData(0x23809C, "Northern Fairy Submarine"),
+    # Overlook Island
+    "Overlook Island - Cave": TWWLocationData(
+        base_id + 201, TWWFlag.CBT_CVE, "Overlook Island Secret Cave", 0xC, TWWLocationType.CHEST, 11
+    ),
 
-    # "Tingle Island - Big Octo": AchievementData(0x23809D, "The Great Sea"),
+    # Bird's Peak Rock
+    "Bird's Peak Rock - Cave": TWWLocationData(
+        base_id + 202, TWWFlag.PZL_CVE, "Bird's Peak Rock Secret Cave", 0xC, TWWLocationType.CHEST, 16
+    ),
 
-    "Diamond Steppe - Warp Maze 1st": AchievementData(0x23809E, "Diamond Steppe Cave"),
-    "Diamond Steppe - Warp Maze 2nd": AchievementData(0x23809F, "Diamond Steppe Cave"),
-    # "Diamond Steppe - Big Octo": AchievementData(0x2380A0, "The Great Sea"),
+    # Pawprint Isle
+    "Pawprint Isle - Chuchu Cave - Chest": TWWLocationData(
+        base_id + 203, TWWFlag.PZL_CVE, "Pawprint Isle Chuchu Cave", 0xC, TWWLocationType.CHEST, 26
+    ),
+    "Pawprint Isle - Chuchu Cave - Behind Left Boulder": TWWLocationData(
+        base_id + 204, TWWFlag.PZL_CVE, "Pawprint Isle Chuchu Cave", 0xC, TWWLocationType.CHEST, 24
+    ),
+    "Pawprint Isle - Chuchu Cave - Behind Right Boulder": TWWLocationData(
+        base_id + 205, TWWFlag.PZL_CVE, "Pawprint Isle Chuchu Cave", 0xC, TWWLocationType.CHEST, 25
+    ),
+    "Pawprint Isle - Chuchu Cave - Scale the Wall": TWWLocationData(
+        base_id + 206, TWWFlag.PZL_CVE, "Pawprint Isle Chuchu Cave", 0xC, TWWLocationType.CHEST, 2
+    ),
+    "Pawprint Isle - Wizzrobe Cave": TWWLocationData(
+        base_id + 207, TWWFlag.CBT_CVE, "Pawprint Isle Wizzrobe Cave", 0xD, TWWLocationType.CHEST, 2
+    ),
+    "Pawprint Isle - Lookout Platform - Defeat the Enemies": TWWLocationData(
+        base_id + 208, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 5
+    ),
 
-    "Bomb Island - Cave": AchievementData(0x2380A1, "Bomb Island Cave"),
-    "Bomb Island - Free Platform": AchievementData(0x2380A2, "The Great Sea"),
-    "Bomb Island - Submarine": AchievementData(0x2380A3, "Bomb Island Submarine"),
+    # Thorned Fairy Island
+    # "Thorned Fairy Island - Great Fairy": TWWLocationData(
+    #     base_id + 209, TWWFlag.GRT_FRY, "Thorned Fairy Fountain"
+    # ),
+    "Thorned Fairy Island - Northeastern Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 210, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 14
+    ),
+    "Thorned Fairy Island - Southwestern Lookout Platform - Defeat the Enemies": TWWLocationData(
+        base_id + 211, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 15
+    ),
 
-    "Rock Spire - Cave": AchievementData(0x2380A4, "Rock Spire Cave"),
-    "Expensive Beedle - 500 Item": AchievementData(0x2380A5, "Expensive Beedle Ship"),
-    "Expensive Beedle - 900 Item": AchievementData(0x2380A6, "Expensive Beedle Ship"),
-    "Expensive Beedle - 950 Item": AchievementData(0x2380A7, "Expensive Beedle Ship"),
-    "Rock Spire - Western Cannon Platform": AchievementData(0x2380A8, "The Great Sea"),
-    "Rock Spire - Eastern Cannon Platform": AchievementData(0x2380A9, "The Great Sea"),
-    "Rock Spire - Center Platform": AchievementData(0x2380AA, "The Great Sea"),
-    # "Rock Spire - Southeast Gunboat": AchievementData(0x2380AB, "The Great Sea"),
+    # Eastern Fairy Island
+    # "Eastern Fairy Island - Great Fairy": TWWLocationData(
+    #     base_id + 212, TWWFlag.GRT_FRY, "Eastern Fairy Fountain"
+    # ),
+    "Eastern Fairy Island - Lookout Platform - Defeat the Cannons and Enemies": TWWLocationData(
+        base_id + 213, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 10
+    ),
 
-    "Shark Island - Cave": AchievementData(0x2380AC, "Shark Island Cave"),
+    # Western Fairy Island
+    # "Western Fairy Island - Great Fairy": TWWLocationData(
+    #     base_id + 214, TWWFlag.GRT_FRY, "Western Fairy Fountain"
+    # ),
+    "Western Fairy Island - Lookout Platform": TWWLocationData(
+        base_id + 215, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 6
+    ),
 
-    "Cliff Plateau - Cave": AchievementData(0x2380AD, "Cliff Plateau Cave"),
-    "Cliff Plateau - Upper": AchievementData(0x2380AE, "Cliff Plateau Upper"),
-    "Cliff Plateau - Free Platform": AchievementData(0x2380AF, "The Great Sea"),
+    # Southern Fairy Island
+    # "Southern Fairy Island - Great Fairy": TWWLocationData(
+    #     base_id + 216, TWWFlag.GRT_FRY, "Southern Fairy Fountain"
+    # ),
+    "Southern Fairy Island - Lookout Platform - Destroy the Northwest Cannons": TWWLocationData(
+        base_id + 217, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 23
+    ),
+    "Southern Fairy Island - Lookout Platform - Destroy the Southeast Cannons": TWWLocationData(
+        base_id + 218, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 17
+    ),
 
-    "Crescent Moon - Chest": AchievementData(0x2380B0, "The Great Sea"),
-    "Crescent Moon - Submarine": AchievementData(0x2380B1, "Crescent Moon Submarine"),
+    # Northern Fairy Island
+    # "Northern Fairy Island - Great Fairy": TWWLocationData(
+    #     base_id + 219, TWWFlag.GRT_FRY, "Northern Fairy Fountain"
+    # ),
+    "Northern Fairy Island - Submarine": TWWLocationData(
+        base_id + 220, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 6
+    ),
 
-    "Horseshoe - Play Golf": AchievementData(0x2380B2, "The Great Sea"),
-    "Horseshoe - Cave": AchievementData(0x2380B3, "Horseshoe Cave"),
-    "Horseshoe - NW Free Platform": AchievementData(0x2380B4, "The Great Sea"),
-    "Horseshoe - SE Free Platform": AchievementData(0x2380B5, "The Great Sea"),
+    # Tingle Island
+    # "Tingle Island - Ankle - Reward for All Tingle Statues": TWWLocationData(
+    #     base_id + 221, TWWFlag.MISCELL, "The Great Sea"
+    # ),
+    # "Tingle Island - Big Octo": TWWLocationData(
+    #     base_id + 222, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 62
+    # ),
 
-    "Flight Control - Submarine": AchievementData(0x2380B6, "Flight Control Submarine"),
+    # Diamond Steppe Island
+    "Diamond Steppe Island - Warp Maze Cave - First Chest": TWWLocationData(
+        base_id + 223, TWWFlag.PZL_CVE, "Diamond Steppe Island Warp Maze Cave", 0xC, TWWLocationType.CHEST, 23
+    ),
+    "Diamond Steppe Island - Warp Maze Cave - Second Chest": TWWLocationData(
+        base_id + 224, TWWFlag.PZL_CVE, "Diamond Steppe Island Warp Maze Cave", 0xC, TWWLocationType.CHEST, 3
+    ),
+    # "Diamond Steppe Island - Big Octo": TWWLocationData(
+    #     base_id + 225, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 65
+    # ),
 
-    "Star Island - Cave": AchievementData(0x2380B7, "Star Island Cave"),
-    "Star Island - Free Platform": AchievementData(0x2380B8, "The Great Sea"),
+    # Bomb Island
+    "Bomb Island - Cave": TWWLocationData(
+        base_id + 226, TWWFlag.PZL_CVE, "Bomb Island Secret Cave", 0xC, TWWLocationType.CHEST, 5
+    ),
+    "Bomb Island - Lookout Platform - Defeat the Enemies": TWWLocationData(
+        base_id + 227, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 3
+    ),
+    "Bomb Island - Submarine": TWWLocationData(
+        base_id + 228, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 2
+    ),
 
-    "Star Belt - Free Platform": AchievementData(0x2380B9, "The Great Sea"),
+    # Rock Spire Isle
+    "Rock Spire Isle - Cave": TWWLocationData(
+        base_id + 229, TWWFlag.CBT_CVE, "Rock Spire Isle Secret Cave", 0xC, TWWLocationType.CHEST, 8
+    ),
+    "Rock Spire Isle - Beedle's Special Shop Ship - 500 Rupee Item": TWWLocationData(
+        base_id + 230, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+    ),
+    "Rock Spire Isle - Beedle's Special Shop Ship - 950 Rupee Item": TWWLocationData(
+        base_id + 231, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+    ),
+    "Rock Spire Isle - Beedle's Special Shop Ship - 900 Rupee Item": TWWLocationData(
+        base_id + 232, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+    ),
+    "Rock Spire Isle - Western Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 233, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 23
+    ),
+    "Rock Spire Isle - Eastern Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 234, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 24
+    ),
+    "Rock Spire Isle - Center Lookout Platform": TWWLocationData(
+        base_id + 235, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 25
+    ),
+    # "Rock Spire Isle - Southeast Gunboat": TWWLocationData(
+    #     base_id + 236, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 68
+    # ),
 
-    "5 Star - Cannon Platform": AchievementData(0x2380BA, "The Great Sea"),
-    "5 Star - Raft": AchievementData(0x2380BB, "The Great Sea"),
-    "5 Star - Submarine": AchievementData(0x2380BC, "5 Star Submarine"),
+    # Shark Island
+    "Shark Island - Cave": TWWLocationData(
+        base_id + 237, TWWFlag.CBT_CVE, "Shark Island Secret Cave", 0xD, TWWLocationType.CHEST, 22
+    ),
 
-    "7 Star - Center Platform": AchievementData(0x2380BD, "The Great Sea"),
-    "7 Star - Northern Platform": AchievementData(0x2380BE, "The Great Sea"),
-    "7 Star - Southern Platform": AchievementData(0x2380BF, "The Great Sea"),
-    # "7 Star - Big Octo": AchievementData(0x2380C0, "The Great Sea"),
+    # Cliff Plateau Isles
+    "Cliff Plateau Isles - Cave": TWWLocationData(
+        base_id + 238, TWWFlag.PZL_CVE, "Cliff Plateau Isles Secret Cave", 0xC, TWWLocationType.CHEST, 7
+    ),
+    "Cliff Plateau Isles - Highest Isle": TWWLocationData(
+        base_id + 239, TWWFlag.PZL_CVE, "Cliff Plateau Isles Inner Cave", 0x0, TWWLocationType.CHEST, 1
+    ),
+    "Cliff Plateau Isles - Lookout Platform": TWWLocationData(
+        base_id + 240, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 19
+    ),
 
-    "1 Eye Reef - Top of Eye": AchievementData(0x2380C1, "The Great Sea"),
-    "1 Eye Reef - Enemy Platform": AchievementData(0x2380C2, "The Great Sea"),
+    # Crescent Moon Island
+    "Crescent Moon Island - Chest": TWWLocationData(
+        base_id + 241, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.CHEST, 4
+    ),
+    "Crescent Moon Island - Submarine": TWWLocationData(
+        base_id + 242, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 7
+    ),
 
-    "2 Eye Reef - Top of Eye": AchievementData(0x2380C3, "The Great Sea"),
-    "2 Eye Reef - Free Platform": AchievementData(0x2380C4, "The Great Sea"),
-    "2 Eye Reef - Big Octo Fairy": AchievementData(0x2380C5, "The Great Sea"),
+    # Horseshoe Island
+    "Horseshoe Island - Play Golf": TWWLocationData(
+        base_id + 243, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 5
+    ),
+    "Horseshoe Island - Cave": TWWLocationData(
+        base_id + 244, TWWFlag.CBT_CVE, "Horseshoe Island Secret Cave", 0xD, TWWLocationType.CHEST, 1
+    ),
+    "Horseshoe Island - Northwestern Lookout Platform": TWWLocationData(
+        base_id + 245, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 26
+    ),
+    "Horseshoe Island - Southeastern Lookout Platform": TWWLocationData(
+        base_id + 246, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 27
+    ),
 
-    "3 Eye Reef - Top of Eye": AchievementData(0x2380C6, "The Great Sea"),
-    "4 Eye Reef - Top of Eye": AchievementData(0x2380C7, "The Great Sea"),
-    "5 Eye Reef - Top of Eye": AchievementData(0x2380C8, "The Great Sea"),
-    "5 Eye Reef - Free Platform": AchievementData(0x2380C9, "The Great Sea"),
+    # Flight Control Platform
+    # "Flight Control Platform - Bird-Man Contest - First Prize": TWWLocationData(
+    #     base_id + 247, TWWFlag.MINIGME, "The Great Sea"
+    # ),
+    "Flight Control Platform - Submarine": TWWLocationData(
+        base_id + 248, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 3
+    ),
 
-    "6 Eye Reef - Top of Eye": AchievementData(0x2380CA, "The Great Sea"),
-    "6 Eye Reef - Cannon Platform": AchievementData(0x2380CB, "The Great Sea"),
-    "6 Eye Reef - Submarine": AchievementData(0x2380CC, "6 Eye Reef Submarine"),
+    # Star Island
+    "Star Island - Cave": TWWLocationData(
+        base_id + 249, TWWFlag.CBT_CVE, "Star Island Secret Cave", 0xC, TWWLocationType.CHEST, 6
+    ),
+    "Star Island - Lookout Platform": TWWLocationData(
+        base_id + 250, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 4
+    ),
 
-    "Treasure Chart 1 Salvage": AchievementData(0x2380CD, "The Great Sea"),
-    "Treasure Chart 2 Salvage": AchievementData(0x2380CE, "The Great Sea"),
-    "Treasure Chart 3 Salvage": AchievementData(0x2380CF, "The Great Sea"),
-    "Treasure Chart 4 Salvage": AchievementData(0x2380D0, "The Great Sea"),
-    "Treasure Chart 5 Salvage": AchievementData(0x2380D1, "The Great Sea"),
-    "Treasure Chart 6 Salvage": AchievementData(0x2380D2, "The Great Sea"),
-    "Treasure Chart 7 Salvage": AchievementData(0x2380D3, "The Great Sea"),
-    "Treasure Chart 8 Salvage": AchievementData(0x2380D4, "The Great Sea"),
-    "Treasure Chart 9 Salvage": AchievementData(0x2380D5, "The Great Sea"),
-    "Treasure Chart 10 Salvage": AchievementData(0x2380D6, "The Great Sea"),
-    "Treasure Chart 11 Salvage": AchievementData(0x2380D7, "The Great Sea"),
-    "Treasure Chart 12 Salvage": AchievementData(0x2380D8, "The Great Sea"),
-    "Treasure Chart 13 Salvage": AchievementData(0x2380D9, "The Great Sea"),
-    "Treasure Chart 14 Salvage": AchievementData(0x2380DA, "The Great Sea"),
-    "Treasure Chart 15 Salvage": AchievementData(0x2380DB, "The Great Sea"),
-    "Treasure Chart 16 Salvage": AchievementData(0x2380DC, "The Great Sea"),
-    "Treasure Chart 17 Salvage": AchievementData(0x2380DD, "The Great Sea"),
-    "Treasure Chart 18 Salvage": AchievementData(0x2380DE, "The Great Sea"),
-    "Treasure Chart 19 Salvage": AchievementData(0x2380DF, "The Great Sea"),
-    "Treasure Chart 20 Salvage": AchievementData(0x2380E0, "The Great Sea"),
-    "Treasure Chart 21 Salvage": AchievementData(0x2380E1, "The Great Sea"),
-    "Treasure Chart 22 Salvage": AchievementData(0x2380E2, "The Great Sea"),
-    "Treasure Chart 23 Salvage": AchievementData(0x2380E3, "The Great Sea"),
-    "Treasure Chart 24 Salvage": AchievementData(0x2380E4, "The Great Sea"),
-    "Treasure Chart 25 Salvage": AchievementData(0x2380E5, "The Great Sea"),
-    "Treasure Chart 26 Salvage": AchievementData(0x2380E6, "The Great Sea"),
-    "Treasure Chart 27 Salvage": AchievementData(0x2380E7, "The Great Sea"),
-    "Treasure Chart 28 Salvage": AchievementData(0x2380E8, "The Great Sea"),
-    "Treasure Chart 29 Salvage": AchievementData(0x2380E9, "The Great Sea"),
-    "Treasure Chart 30 Salvage": AchievementData(0x2380EA, "The Great Sea"),
-    "Treasure Chart 31 Salvage": AchievementData(0x2380EB, "The Great Sea"),
-    "Treasure Chart 32 Salvage": AchievementData(0x2380EC, "The Great Sea"),
-    "Treasure Chart 33 Salvage": AchievementData(0x2380ED, "The Great Sea"),
-    "Treasure Chart 34 Salvage": AchievementData(0x2380EE, "The Great Sea"),
-    "Treasure Chart 35 Salvage": AchievementData(0x2380EF, "The Great Sea"),
-    "Treasure Chart 36 Salvage": AchievementData(0x2380F0, "The Great Sea"),
-    "Treasure Chart 37 Salvage": AchievementData(0x2380F1, "The Great Sea"),
-    "Treasure Chart 38 Salvage": AchievementData(0x2380F2, "The Great Sea"),
-    "Treasure Chart 39 Salvage": AchievementData(0x2380F3, "The Great Sea"),
-    "Treasure Chart 40 Salvage": AchievementData(0x2380F4, "The Great Sea"),
-    "Treasure Chart 41 Salvage": AchievementData(0x2380F5, "The Great Sea"),
+    # Star Belt Archipelago
+    "Star Belt Archipelago - Lookout Platform": TWWLocationData(
+        base_id + 251, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 11
+    ),
 
-    "Triforce Chart 1 Salvage": AchievementData(0x2380F6, "The Great Sea"),
-    "Triforce Chart 2 Salvage": AchievementData(0x2380F7, "The Great Sea"),
-    "Triforce Chart 3 Salvage": AchievementData(0x2380F8, "The Great Sea"),
-    "Triforce Chart 4 Salvage": AchievementData(0x2380F9, "The Great Sea"),
-    "Triforce Chart 5 Salvage": AchievementData(0x2380FA, "The Great Sea"),
-    "Triforce Chart 6 Salvage": AchievementData(0x2380FB, "The Great Sea"),
-    "Triforce Chart 7 Salvage": AchievementData(0x2380FC, "The Great Sea"),
-    "Triforce Chart 8 Salvage": AchievementData(0x2380FD, "The Great Sea"),
+    # Five-Star Isles
+    "Five-Star Isles - Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 252, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 2
+    ),
+    "Five-Star Isles - Raft": TWWLocationData(
+        base_id + 253, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 2
+    ),
+    "Five-Star Isles - Submarine": TWWLocationData(
+        base_id + 254, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 1
+    ),
 
-    "Victory": AchievementData(None, "Ganons Tower"),
+    # Seven-Star Isles
+    "Seven-Star Isles - Center Lookout Platform": TWWLocationData(
+        base_id + 255, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 8
+    ),
+    "Seven-Star Isles - Northern Lookout Platform": TWWLocationData(
+        base_id + 256, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 7
+    ),
+    "Seven-Star Isles - Southern Lookout Platform": TWWLocationData(
+        base_id + 257, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 22
+    ),
+    # "Seven-Star Isles - Big Octo": TWWLocationData(
+    #     base_id + 258, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 61
+    # ),
+
+    # Cyclops Reef
+    "Cyclops Reef - Destroy the Cannons and Gunboats": TWWLocationData(
+        base_id + 259, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 11
+    ),
+    "Cyclops Reef - Lookout Platform - Defeat the Enemies": TWWLocationData(
+        base_id + 260, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 12
+    ),
+
+    # Two-Eye Reef
+    "Two-Eye Reef - Destroy the Cannons and Gunboats": TWWLocationData(
+        base_id + 261, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 13
+    ),
+    "Two-Eye Reef - Lookout Platform": TWWLocationData(
+        base_id + 262, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 21
+    ),
+    "Two-Eye Reef - Big Octo Great Fairy": TWWLocationData(
+        base_id + 263, TWWFlag.BG_OCTO | TWWFlag.GRT_FRY, "The Great Sea", 0x0, TWWLocationType.SWTCH, 52
+    ),
+
+    # Three-Eye Reef
+    "Three-Eye Reef - Destroy the Cannons and Gunboats": TWWLocationData(
+        base_id + 264, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 12
+    ),
+
+    # Four-Eye Reef
+    "Four-Eye Reef - Destroy the Cannons and Gunboats": TWWLocationData(
+        base_id + 265, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 14
+    ),
+
+    # Five-Eye Reef
+    "Five-Eye Reef - Destroy the Cannons": TWWLocationData(
+        base_id + 266, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 15
+    ),
+    "Five-Eye Reef - Lookout Platform": TWWLocationData(
+        base_id + 267, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 20
+    ),
+
+    # Six-Eye Reef
+    "Six-Eye Reef - Destroy the Cannons and Gunboats": TWWLocationData(
+        base_id + 268, TWWFlag.EYE_RFS, "The Great Sea", 0x0, TWWLocationType.CHEST, 17
+    ),
+    "Six-Eye Reef - Lookout Platform - Destroy the Cannons": TWWLocationData(
+        base_id + 269, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 13
+    ),
+    "Six-Eye Reef - Submarine": TWWLocationData(
+        base_id + 270, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 0
+    ),
+
+    # Sunken Treasure
+    "Forsaken Fortress Sector - Sunken Treasure": TWWLocationData(
+        base_id + 271, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 8
+    ),
+    "Star Island - Sunken Treasure": TWWLocationData(
+        base_id + 272, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 18
+    ),
+    "Northern Fairy Island - Sunken Treasure": TWWLocationData(
+        base_id + 273, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 51
+    ),
+    "Gale Isle - Sunken Treasure": TWWLocationData(
+        base_id + 274, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 33
+    ),
+    "Crescent Moon Island - Sunken Treasure": TWWLocationData(
+        base_id + 275, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 40
+    ),
+    "Seven-Star Isles - Sunken Treasure": TWWLocationData(
+        base_id + 276, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 38
+    ),
+    "Overlook Island - Sunken Treasure": TWWLocationData(
+        base_id + 277, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 15
+    ),
+    "Four-Eye Reef - Sunken Treasure": TWWLocationData(
+        base_id + 278, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 12
+    ),
+    "Mother and Child Isles - Sunken Treasure": TWWLocationData(
+        base_id + 279, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 56
+    ),
+    "Spectacle Island - Sunken Treasure": TWWLocationData(
+        base_id + 280, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 5
+    ),
+    "Windfall Island - Sunken Treasure": TWWLocationData(
+        base_id + 281, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 58
+    ),
+    "Pawprint Isle - Sunken Treasure": TWWLocationData(
+        base_id + 282, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 42
+    ),
+    "Dragon Roost Island - Sunken Treasure": TWWLocationData(
+        base_id + 283, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 50
+    ),
+    "Flight Control Platform - Sunken Treasure": TWWLocationData(
+        base_id + 284, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 13
+    ),
+    "Western Fairy Island - Sunken Treasure": TWWLocationData(
+        base_id + 285, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 10
+    ),
+    "Rock Spire Isle - Sunken Treasure": TWWLocationData(
+        base_id + 286, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 48
+    ),
+    "Tingle Island - Sunken Treasure": TWWLocationData(
+        base_id + 287, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 0
+    ),
+    "Northern Triangle Island - Sunken Treasure": TWWLocationData(
+        base_id + 288, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 11
+    ),
+    "Eastern Fairy Island - Sunken Treasure": TWWLocationData(
+        base_id + 289, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 62
+    ),
+    "Fire Mountain - Sunken Treasure": TWWLocationData(
+        base_id + 290, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 9
+    ),
+    "Star Belt Archipelago - Sunken Treasure": TWWLocationData(
+        base_id + 291, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 17
+    ),
+    "Three-Eye Reef - Sunken Treasure": TWWLocationData(
+        base_id + 292, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 49
+    ),
+    "Greatfish Isle - Sunken Treasure": TWWLocationData(
+        base_id + 293, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 32
+    ),
+    "Cyclops Reef - Sunken Treasure": TWWLocationData(
+        base_id + 294, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 16
+    ),
+    "Six-Eye Reef - Sunken Treasure": TWWLocationData(
+        base_id + 295, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 52
+    ),
+    "Tower of the Gods Sector - Sunken Treasure": TWWLocationData(
+        base_id + 296, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 1
+    ),
+    "Eastern Triangle Island - Sunken Treasure": TWWLocationData(
+        base_id + 297, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 57
+    ),
+    "Thorned Fairy Island - Sunken Treasure": TWWLocationData(
+        base_id + 298, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 44
+    ),
+    "Needle Rock Isle - Sunken Treasure": TWWLocationData(
+        base_id + 299, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 60
+    ),
+    "Islet of Steel - Sunken Treasure": TWWLocationData(
+        base_id + 300, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 54
+    ),
+    "Stone Watcher Island - Sunken Treasure": TWWLocationData(
+        base_id + 301, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 34
+    ),
+    "Southern Triangle Island - Sunken Treasure": TWWLocationData(
+        base_id + 302, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 37
+    ),
+    "Private Oasis - Sunken Treasure": TWWLocationData(
+        base_id + 303, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 55
+    ),
+    "Bomb Island - Sunken Treasure": TWWLocationData(
+        base_id + 304, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 43
+    ),
+    "Bird's Peak Rock - Sunken Treasure": TWWLocationData(
+        base_id + 305, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 6
+    ),
+    "Diamond Steppe Island - Sunken Treasure": TWWLocationData(
+        base_id + 306, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 45
+    ),
+    "Five-Eye Reef - Sunken Treasure": TWWLocationData(
+        base_id + 307, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 53
+    ),
+    "Shark Island - Sunken Treasure": TWWLocationData(
+        base_id + 308, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 59
+    ),
+    "Southern Fairy Island - Sunken Treasure": TWWLocationData(
+        base_id + 309, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 61
+    ),
+    "Ice Ring Isle - Sunken Treasure": TWWLocationData(
+        base_id + 310, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 7
+    ),
+    "Forest Haven - Sunken Treasure": TWWLocationData(
+        base_id + 311, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 46
+    ),
+    "Cliff Plateau Isles - Sunken Treasure": TWWLocationData(
+        base_id + 312, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 36
+    ),
+    "Horseshoe Island - Sunken Treasure": TWWLocationData(
+        base_id + 313, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 4
+    ),
+    "Outset Island - Sunken Treasure": TWWLocationData(
+        base_id + 314, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 35
+    ),
+    "Headstone Island - Sunken Treasure": TWWLocationData(
+        base_id + 315, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 63
+    ),
+    "Two-Eye Reef - Sunken Treasure": TWWLocationData(
+        base_id + 316, TWWFlag.TRI_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 39
+    ),
+    "Angular Isles - Sunken Treasure": TWWLocationData(
+        base_id + 317, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 41
+    ),
+    "Boating Course - Sunken Treasure": TWWLocationData(
+        base_id + 318, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 14
+    ),
+    "Five-Star Isles - Sunken Treasure": TWWLocationData(
+        base_id + 319, TWWFlag.TRE_CHT, "The Great Sea", 0x0, TWWLocationType.CHART, 47
+    ),
+
+    # Defeat Ganondorf
+    "Defeat Ganondorf": TWWLocationData(
+        None, TWWFlag.ALWAYS, "The Great Sea", 0x8, TWWLocationType.SWTCH, 64
+    ),
 }
 
-lookup_id_to_name: Dict[int, str] = {loc_data.id: loc_name for loc_name, loc_data in achievement_table.items() if
-                                     loc_data.id}
-location_name_groups = {
-    "Dragon Roost Cavern": {"DRC - First Chest", "DRC - Water Jug Alcove", "DRC - Behind Boards",
-                            "DRC - Across Lava Pit", "DRC - Rat Room", "DRC - Rat Room Boarded Chest",
-                            "DRC - Birds Nest", "DRC - Dark Room Chest", "DRC - Tingle Chest in DRC HUB",
-                            "DRC - Pot Room", "DRC - Mini-Boss Fight", "DRC - Under Bridge",
-                            "DRC - Tingle Chest in DRC Basement", "DRC - Big Key Chest", "DRC - Outside Boss Door Left",
-                            "DRC - Outside Boss Door Right", "DRC - Gohma Heart Container"},
-    "Forbidden Woods": {"Forbidden Woods - 1st Chest", "Forbidden Woods - In Bottom Tree",
-                        "Forbidden Woods - Climb to Top", "Forbidden Woods - Hole in Tree",
-                        "Forbidden Woods - In Morths Pit", "Forbidden Woods - Vine Maze Left",
-                        "Forbidden Woods - Vine Maze Right", "Forbidden Woods - Tall Room Before Mini-Boss",
-                        "Forbidden Woods - Mini-Boss", "Forbidden Woods - Past Hanging Vines",
-                        "Forbidden Woods - Across the Flower", "Forbidden Woods - Tingle Chest",
-                        "Forbidden Woods - Locked in Basement Trunk", "Forbidden Woods - Big Key Chest",
-                        "Forbidden Woods - Double Mothula", "Forbidden Woods - Kalle Demos Heart Container"},
-    "Forsaken Fortress": {"Forsaken Fortress - Phantom Ganon", "Forsaken Fortress - Upper Jail",
-                          "Forsaken Fortress - Lower Jail", "Forsaken Fortress - Chest Guarded by Bokoblin",
-                          "Forsaken Fortress - Chest on Bed", "Forsaken Fortress - Helmaroc King Heart Container"},
-    "Wind Temple": {"Wind Temple - Two Dirt Patches", "Wind Temple - Tingle Chest", "Wind Temple - Behind Stone Head",
-                    "Wind Temple - Left Alcove", "Wind Temple - Big Key Chest", "Wind Temple - Many Cyclones Room",
-                    "Wind Temple - Middle of HUB Room", "Wind Temple - Spike Room - Free Chest",
-                    "Wind Temple - Spike Room - Break All Floors", "Wind Temple - Wizzrobe Mini Boss",
-                    "Wind Temple - Top of HUB Room", "Wind Temple - Behind 7 Armos",
-                    "Wind Temple - Kill Enemies in Basement", "Wind Temple - Molgera Heart Container"},
-    "Earth Temple": {"Earth Temple - First Room", "Earth Temple - Transparent Chest in 1st Crypt",
-                     "Earth Temple - Behind Destructable Walls", "Earth Temple - 3 Blocks Room",
-                     "Earth Temple - Behind Statues", "Earth Temple - Casket in 2nd Crypt",
-                     "Earth Temple - Staflos Mini Boss", "Earth Temple - Tingle Chest",
-                     "Earth Temple - Floormaster Room Free", "Earth Temple - Floormaster Room Fight",
-                     "Earth Temple - 3rd Crypt Chest", "Earth Temple - Many Mirrors Left",
-                     "Earth Temple - Many Mirrors Right", "Earth Temple - Staflos Crypt Room",
-                     "Earth Temple - Big Key Chest", "Earth Temple - Jalhalla Heart Container"},
-    "Tower of the Gods": {"Tower of Gods - Light Torches", "Tower of Gods - Skull Room",
-                          "Tower of Gods - Skull Room Shoot The Eye", "Tower of Gods - Behind Bombable Wall",
-                          "Tower of Gods - Hop Across Boxes", "Tower of Gods - Tingle Chest",
-                          "Tower of Gods - First Chest Guarded", "Tower of Gods - Stone Tablet",
-                          "Tower of Gods - Mini-Boss", "Tower of Gods - Second Chest Guarded",
-                          "Tower of Gods - Flying Platforms 1", "Tower of Gods - Flying Platforms 2",
-                          "Tower of Gods - Big Key Chest", "Tower of Gods - Gohdan Heart Container"
-                          },
-    "Treasure Salvaging": {"Treasure Chart 1 Salvage", "Treasure Chart 2 Salvage", "Treasure Chart 3 Salvage",
-                           "Treasure Chart 4 Salvage", "Treasure Chart 5 Salvage", "Treasure Chart 6 Salvage",
-                           "Treasure Chart 7 Salvage", "Treasure Chart 8 Salvage", "Treasure Chart 9 Salvage",
-                           "Treasure Chart 10 Salvage", "Treasure Chart 11 Salvage", "Treasure Chart 12 Salvage",
-                           "Treasure Chart 13 Salvage", "Treasure Chart 14 Salvage", "Treasure Chart 15 Salvage",
-                           "Treasure Chart 16 Salvage", "Treasure Chart 17 Salvage", "Treasure Chart 18 Salvage",
-                           "Treasure Chart 19 Salvage", "Treasure Chart 20 Salvage", "Treasure Chart 21 Salvage",
-                           "Treasure Chart 22 Salvage", "Treasure Chart 23 Salvage", "Treasure Chart 24 Salvage",
-                           "Treasure Chart 25 Salvage", "Treasure Chart 26 Salvage", "Treasure Chart 27 Salvage",
-                           "Treasure Chart 28 Salvage", "Treasure Chart 29 Salvage", "Treasure Chart 30 Salvage",
-                           "Treasure Chart 31 Salvage", "Treasure Chart 32 Salvage", "Treasure Chart 33 Salvage",
-                           "Treasure Chart 34 Salvage", "Treasure Chart 35 Salvage", "Treasure Chart 36 Salvage",
-                           "Treasure Chart 37 Salvage", "Treasure Chart 38 Salvage", "Treasure Chart 39 Salvage",
-                           "Treasure Chart 40 Salvage", "Treasure Chart 41 Salvage"
-                           },
-    "Triforce Salvaging": {"Triforce Chart 1 Salvage", "Triforce Chart 2 Salvage", "Triforce Chart 3 Salvage",
-                           "Triforce Chart 4 Salvage", "Triforce Chart 5 Salvage", "Triforce Chart 6 Salvage",
-                           "Triforce Chart 7 Salvage", "Triforce Chart 8 Salvage"}
-}
+VANILLA_DUNGEON_ITEM_LOCATIONS: dict[str, list[str]] = {
+    "DRC Small Key": [
+        "Dragon Roost Cavern - First Room",
+        "Dragon Roost Cavern - Boarded Up Chest",
+        "Dragon Roost Cavern - Rat Room Boarded Up Chest",
+        "Dragon Roost Cavern - Bird's Nest",
+    ],
+    "FW Small Key": [
+        "Forbidden Woods - Vine Maze Right Chest"
+    ],
+    "TotG Small Key": [
+        "Tower of the Gods - Hop Across Floating Boxes",
+        "Tower of the Gods - Floating Platforms Room"
+    ],
+    "ET Small Key": [
+        "Earth Temple - Transparent Chest in First Crypt",
+        "Earth Temple - Casket in Second Crypt",
+        "Earth Temple - End of Foggy Room With Floormasters",
+    ],
+    "WT Small Key": [
+        "Wind Temple - Spike Wall Room - First Chest",
+        "Wind Temple - Chest Behind Seven Armos"
+    ],
 
-location_name_groups["Salvaging"] = location_name_groups["Triforce Salvaging"] | location_name_groups[
-    "Treasure Salvaging"]
+    "DRC Big Key": ["Dragon Roost Cavern - Big Key Chest"],
+    "FW Big Key": ["Forbidden Woods - Big Key Chest"],
+    "TotG Big Key": ["Tower of the Gods - Big Key Chest"],
+    "ET Big Key": ["Earth Temple - Big Key Chest"],
+    "WT Big Key": ["Wind Temple - Big Key Chest"],
+
+    "DRC Dungeon Map": ["Dragon Roost Cavern - Alcove With Water Jugs"],
+    "FW Dungeon Map": ["Forbidden Woods - First Room"],
+    "TotG Dungeon Map": ["Tower of the Gods - Chest Behind Bombable Walls"],
+    "FF Dungeon Map": ["Forsaken Fortress - Chest Outside Upper Jail Cell"],
+    "ET Dungeon Map": ["Earth Temple - Transparent Chest In Warp Pot Room"],
+    "WT Dungeon Map": ["Wind Temple - Chest In Many Cyclones Room"],
+
+    "DRC Compass": ["Dragon Roost Cavern - Rat Room"],
+    "FW Compass": ["Forbidden Woods - Vine Maze Left Chest"],
+    "TotG Compass": ["Tower of the Gods - Skulls Room Chest"],
+    "FF Compass": ["Forsaken Fortress - Chest Guarded By Bokoblin"],
+    "ET Compass": ["Earth Temple - Chest In Three Blocks Room"],
+    "WT Compass": ["Wind Temple - Chest In Middle Of Hub Room"],
+}
