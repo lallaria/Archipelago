@@ -69,10 +69,10 @@ def set_rules(world: MultiWorld, player: int):
     #     world.get_location("Outset Island - Orca - Hit 500 Times", player),
     #     lambda state: can_sword_fight_with_orca(state, player),
     # )
-    # set_rule(
-    #     world.get_location("Outset Island - Great Fairy", player),
-    #     lambda state: can_access_outset_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Outset Island - Great Fairy", player),
+        lambda state: can_access_outset_fairy_fountain(state, player),
+    )
     set_rule(world.get_location("Outset Island - Jabun's Cave", player), lambda state: state.has("Bombs", player))
     set_rule(
         world.get_location("Outset Island - Dig up Black Soil", player),
@@ -127,20 +127,20 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Windfall Island - Chu Jelly Juice Shop - Give 15 Blue Chu Jelly", player),
         lambda state: can_obtain_15_blue_chu_jelly(state, player),
     )
-    # set_rule(world.get_location("Windfall Island - Ivan - Catch Killer Bees", player), lambda state: True)
-    # set_rule(world.get_location("Windfall Island - Mrs. Marie - Catch Killer Bees", player), lambda state: True)
-    # set_rule(
-    #     world.get_location("Windfall Island - Mrs. Marie - Give 1 Joy Pendant", player),
-    #     lambda state: state.has("Spoils Bag", player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Mrs. Marie - Give 21 Joy Pendants", player),
-    #     lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Mrs. Marie - Give 40 Joy Pendants", player),
-    #     lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
-    # )
+    set_rule(world.get_location("Windfall Island - Ivan - Catch Killer Bees", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - Mrs. Marie - Catch Killer Bees", player), lambda state: True)
+    set_rule(
+        world.get_location("Windfall Island - Mrs. Marie - Give 1 Joy Pendant", player),
+        lambda state: state.has("Spoils Bag", player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Mrs. Marie - Give 21 Joy Pendants", player),
+        lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Mrs. Marie - Give 40 Joy Pendants", player),
+        lambda state: state.has("Spoils Bag", player) and can_farm_joy_pendants(state, player),
+    )
     set_rule(
         world.get_location("Windfall Island - Lenzo's House - Left Chest", player),
         lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
@@ -149,38 +149,38 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Windfall Island - Lenzo's House - Right Chest", player),
         lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
     )
-    # set_rule(
-    #     world.get_location("Windfall Island - Lenzo's House - Become Lenzo's Assistant", player),
-    #     lambda state: has_picto_box(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Lenzo's House - Bring Forest Firefly", player),
-    #     lambda state: has_picto_box(state, player)
-    #     and state.has("Empty Bottle", player)
-    #     and can_access_forest_haven(state, player),
-    # )
+    set_rule(
+        world.get_location("Windfall Island - Lenzo's House - Become Lenzo's Assistant", player),
+        lambda state: has_picto_box(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Lenzo's House - Bring Forest Firefly", player),
+        lambda state: has_picto_box(state, player)
+        and state.has("Empty Bottle", player)
+        and can_access_forest_haven(state, player),
+    )
     set_rule(world.get_location("Windfall Island - House of Wealth Chest", player), lambda state: True)
-    # set_rule(
-    #     world.get_location("Windfall Island - Maggie's Father - Give 20 Skull Necklaces", player),
-    #     lambda state: rescued_aryll(state, player)
-    #     and state.has("Spoils Bag", player)
-    #     and can_farm_skull_necklaces(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Maggie - Free Item", player), lambda state: rescued_aryll(state, player)
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Maggie - Delivery Reward", player),
-    #     lambda state: rescued_aryll(state, player)
-    #     and state.has("Delivery Bag", player)
-    #     and state.has("Moblin's Letter", player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Cafe Bar - Postman", player),
-    #     lambda state: rescued_aryll(state, player)
-    #     and state.has("Delivery Bag", player)
-    #     and state.has("Maggie's Letter", player),
-    # )
+    set_rule(
+        world.get_location("Windfall Island - Maggie's Father - Give 20 Skull Necklaces", player),
+        lambda state: rescued_aryll(state, player)
+        and state.has("Spoils Bag", player)
+        and can_farm_skull_necklaces(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Maggie - Free Item", player), lambda state: rescued_aryll(state, player)
+    )
+    set_rule(
+        world.get_location("Windfall Island - Maggie - Delivery Reward", player),
+        lambda state: rescued_aryll(state, player)
+        and state.has("Delivery Bag", player)
+        and state.has("Moblin's Letter", player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Cafe Bar - Postman", player),
+        lambda state: rescued_aryll(state, player)
+        and state.has("Delivery Bag", player)
+        and state.has("Maggie's Letter", player),
+    )
     set_rule(
         world.get_location("Windfall Island - Kreeb - Light Up Lighthouse", player),
         lambda state: can_play_winds_requiem(state, player) and has_fire_arrows(state, player),
@@ -191,23 +191,23 @@ def set_rules(world: MultiWorld, player: int):
         and has_fire_arrows(state, player)
         and (can_fly_with_deku_leaf_outdoors(state, player) or state.has("Hookshot", player)),
     )
-    # set_rule(
-    #     world.get_location("Windfall Island - Tott - Teach Rhythm", player),
-    #     lambda state: state.has("Wind Waker", player),
-    # )
+    set_rule(
+        world.get_location("Windfall Island - Tott - Teach Rhythm", player),
+        lambda state: state.has("Wind Waker", player),
+    )
     set_rule(world.get_location("Windfall Island - Pirate Ship", player), lambda state: True)
-    # set_rule(world.get_location("Windfall Island - 5 Rupee Auction", player), lambda state: True)
-    # set_rule(world.get_location("Windfall Island - 40 Rupee Auction", player), lambda state: True)
-    # set_rule(world.get_location("Windfall Island - 60 Rupee Auction", player), lambda state: True)
-    # set_rule(world.get_location("Windfall Island - 80 Rupee Auction", player), lambda state: True)
-    # set_rule(
-    #     world.get_location("Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop", player),
-    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Sam - Decorate the Town", player),
-    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
-    # )
+    set_rule(world.get_location("Windfall Island - 5 Rupee Auction", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - 40 Rupee Auction", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - 60 Rupee Auction", player), lambda state: True)
+    set_rule(world.get_location("Windfall Island - 80 Rupee Auction", player), lambda state: True)
+    set_rule(
+        world.get_location("Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop", player),
+        lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Sam - Decorate the Town", player),
+        lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    )
     # set_rule(
     #     world.get_location("Windfall Island - Kane - Place Shop Guru Statue on Gate", player),
     #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
@@ -224,38 +224,38 @@ def set_rules(world: MultiWorld, player: int):
     #     world.get_location("Windfall Island - Kane - Place Six Idols on Gate", player),
     #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
     # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Mila - Follow the Thief", player),
-    #     lambda state: rescued_aryll(state, player),
-    # )
+    set_rule(
+        world.get_location("Windfall Island - Mila - Follow the Thief", player),
+        lambda state: rescued_aryll(state, player),
+    )
     set_rule(world.get_location("Windfall Island - Battlesquid - First Prize", player), lambda state: True)
     set_rule(world.get_location("Windfall Island - Battlesquid - Second Prize", player), lambda state: True)
     set_rule(world.get_location("Windfall Island - Battlesquid - Under 20 Shots Prize", player), lambda state: True)
-    # set_rule(
-    #     world.get_location("Windfall Island - Pompie and Vera - Secret Meeting Photo", player),
-    #     lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Kamo - Full Moon Photo", player),
-    #     lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Minenco - Miss Windfall Photo", player),
-    #     lambda state: has_deluxe_picto_box(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Windfall Island - Linda and Anton", player),
-    #     lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
-    # )
+    set_rule(
+        world.get_location("Windfall Island - Pompie and Vera - Secret Meeting Photo", player),
+        lambda state: can_play_winds_requiem(state, player) and has_picto_box(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Kamo - Full Moon Photo", player),
+        lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Minenco - Miss Windfall Photo", player),
+        lambda state: has_deluxe_picto_box(state, player),
+    )
+    set_rule(
+        world.get_location("Windfall Island - Linda and Anton", player),
+        lambda state: has_deluxe_picto_box(state, player) and can_play_song_of_passing(state, player),
+    )
 
     # Dragon Roost Island
     set_rule(
         world.get_location("Dragon Roost Island - Wind Shrine", player), lambda state: state.has("Wind Waker", player)
     )
-    # set_rule(
-    #     world.get_location("Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers", player),
-    #     lambda state: state.has("Spoils Bag", player) and can_farm_golden_feathers(state, player),
-    # )
+    set_rule(
+        world.get_location("Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers", player),
+        lambda state: state.has("Spoils Bag", player) and can_farm_golden_feathers(state, player),
+    )
     set_rule(
         world.get_location("Dragon Roost Island - Chest on Top of Boulder", player),
         lambda state: has_heros_bow(state, player)
@@ -671,10 +671,10 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Fire Mountain - Lookout Platform - Destroy the Cannons", player),
         lambda state: can_destroy_cannons(state, player),
     )
-    # set_rule(
-    #     world.get_location("Fire Mountain - Big Octo", player),
-    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Fire Mountain - Big Octo", player),
+        lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    )
 
     # Ice Ring Isle
     set_rule(world.get_location("Ice Ring Isle - Frozen Chest", player), lambda state: has_fire_arrows(state, player))
@@ -918,36 +918,36 @@ def set_rules(world: MultiWorld, player: int):
     )
 
     # Mailbox
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Hoskit's Girlfriend", player),
-    #     lambda state: state.has("Spoils Bag", player)
-    #     and can_farm_golden_feathers(state, player)
-    #     and can_play_song_of_passing(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Baito's Mother", player),
-    #     lambda state: state.has("Delivery Bag", player)
-    #     and state.has("Note to Mom", player)
-    #     and can_play_song_of_passing(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Baito", player),
-    #     lambda state: state.has("Delivery Bag", player)
-    #     and state.has("Note to Mom", player)
-    #     and state.can_reach("Earth Temple - Jalhalla Heart Container", "Location", player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Komali's Father", player),
-    #     lambda state: state.has("Farore's Pearl", player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter Advertising Bombs in Beedle's Shop", player),
-    #     lambda state: state.has("Bombs", player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter Advertising Rock Spire Shop Ship", player),
-    #     lambda state: has_any_wallet_upgrade(state, player),
-    # )
+    set_rule(
+        world.get_location("Mailbox - Letter from Hoskit's Girlfriend", player),
+        lambda state: state.has("Spoils Bag", player)
+        and can_farm_golden_feathers(state, player)
+        and can_play_song_of_passing(state, player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Baito's Mother", player),
+        lambda state: state.has("Delivery Bag", player)
+        and state.has("Note to Mom", player)
+        and can_play_song_of_passing(state, player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Baito", player),
+        lambda state: state.has("Delivery Bag", player)
+        and state.has("Note to Mom", player)
+        and state.can_reach("Earth Temple - Jalhalla Heart Container", "Location", player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Komali's Father", player),
+        lambda state: state.has("Farore's Pearl", player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter Advertising Bombs in Beedle's Shop", player),
+        lambda state: state.has("Bombs", player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter Advertising Rock Spire Shop Ship", player),
+        lambda state: has_any_wallet_upgrade(state, player),
+    )
     # set_rule(
     #     world.get_location("Mailbox - Beedle's Silver Membership Reward", player),
     #     lambda state: (
@@ -968,37 +968,37 @@ def set_rules(world: MultiWorld, player: int):
     #     )
     #     and can_play_song_of_passing(state, player),
     # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Orca", player),
-    #     lambda state: state.can_reach("Forbidden Woods - Kalle Demos Heart Container", "Location", player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Grandma", player),
-    #     lambda state: state.has("Empty Bottle", player)
-    #     and can_get_fairies(state, player)
-    #     and can_play_song_of_passing(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Aryll", player),
-    #     lambda state: state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
-    #     and can_play_song_of_passing(state, player),
-    # )
-    # set_rule(
-    #     world.get_location("Mailbox - Letter from Tingle", player),
-    #     lambda state: rescued_tingle(state, player)
-    #     and has_any_wallet_upgrade(state, player)
-    #     and state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
-    #     and can_play_song_of_passing(state, player),
-    # )
+    set_rule(
+        world.get_location("Mailbox - Letter from Orca", player),
+        lambda state: state.can_reach("Forbidden Woods - Kalle Demos Heart Container", "Location", player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Grandma", player),
+        lambda state: state.has("Empty Bottle", player)
+        and can_get_fairies(state, player)
+        and can_play_song_of_passing(state, player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Aryll", player),
+        lambda state: state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
+        and can_play_song_of_passing(state, player),
+    )
+    set_rule(
+        world.get_location("Mailbox - Letter from Tingle", player),
+        lambda state: rescued_tingle(state, player)
+        and has_any_wallet_upgrade(state, player)
+        and state.can_reach("Forsaken Fortress - Helmaroc King Heart Container", "Location", player)
+        and can_play_song_of_passing(state, player),
+    )
 
     # The Great Sea
-    # set_rule(world.get_location("The Great Sea - Beedle's Shop Ship - 20 Rupee Item", player), lambda state: True)
-    # set_rule(world.get_location("The Great Sea - Salvage Corp Gift", player), lambda state: True)
+    set_rule(world.get_location("The Great Sea - Beedle's Shop Ship - 20 Rupee Item", player), lambda state: True)
+    set_rule(world.get_location("The Great Sea - Salvage Corp Gift", player), lambda state: True)
     set_rule(world.get_location("The Great Sea - Cyclos", player), lambda state: has_heros_bow(state, player))
-    # set_rule(
-    #     world.get_location("The Great Sea - Goron Trading Reward", player),
-    #     lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
-    # )
+    set_rule(
+        world.get_location("The Great Sea - Goron Trading Reward", player),
+        lambda state: rescued_aryll(state, player) and state.has("Delivery Bag", player),
+    )
     set_rule(
         world.get_location("The Great Sea - Withered Trees", player),
         lambda state: can_access_forest_haven(state, player)
@@ -1031,14 +1031,14 @@ def set_rules(world: MultiWorld, player: int):
         and state.has("Skull Hammer", player)
         and can_play_winds_requiem(state, player),
     )
-    # set_rule(
-    #     world.get_location("Private Oasis - Big Octo", player),
-    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Private Oasis - Big Octo", player),
+        lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    )
 
     # Spectacle Island
-    # set_rule(world.get_location("Spectacle Island - Barrel Shooting - First Prize", player), lambda state: True)
-    # set_rule(world.get_location("Spectacle Island - Barrel Shooting - Second Prize", player), lambda state: True)
+    set_rule(world.get_location("Spectacle Island - Barrel Shooting - First Prize", player), lambda state: True)
+    set_rule(world.get_location("Spectacle Island - Barrel Shooting - Second Prize", player), lambda state: True)
 
     # Needle Rock Isle
     set_rule(
@@ -1049,10 +1049,10 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Needle Rock Isle - Cave", player),
         lambda state: can_access_needle_rock_isle_secret_cave(state, player) and has_fire_arrows(state, player),
     )
-    # set_rule(
-    #     world.get_location("Needle Rock Isle - Golden Gunboat", player),
-    #     lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Needle Rock Isle - Golden Gunboat", player),
+        lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
+    )
 
     # Angular Isles
     set_rule(world.get_location("Angular Isles - Peak", player), lambda state: True)
@@ -1151,10 +1151,10 @@ def set_rules(world: MultiWorld, player: int):
     set_rule(world.get_location("Pawprint Isle - Lookout Platform - Defeat the Enemies", player), lambda state: True)
 
     # Thorned Fairy Island
-    # set_rule(
-    #     world.get_location("Thorned Fairy Island - Great Fairy", player),
-    #     lambda state: can_access_thorned_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Thorned Fairy Island - Great Fairy", player),
+        lambda state: can_access_thorned_fairy_fountain(state, player),
+    )
     set_rule(
         world.get_location("Thorned Fairy Island - Northeastern Lookout Platform - Destroy the Cannons", player),
         lambda state: can_destroy_cannons(state, player),
@@ -1165,27 +1165,27 @@ def set_rules(world: MultiWorld, player: int):
     )
 
     # Eastern Fairy Island
-    # set_rule(
-    #     world.get_location("Eastern Fairy Island - Great Fairy", player),
-    #     lambda state: can_access_eastern_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Eastern Fairy Island - Great Fairy", player),
+        lambda state: can_access_eastern_fairy_fountain(state, player),
+    )
     set_rule(
         world.get_location("Eastern Fairy Island - Lookout Platform - Defeat the Cannons and Enemies", player),
         lambda state: can_destroy_cannons(state, player),
     )
 
     # Western Fairy Island
-    # set_rule(
-    #     world.get_location("Western Fairy Island - Great Fairy", player),
-    #     lambda state: can_access_western_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Western Fairy Island - Great Fairy", player),
+        lambda state: can_access_western_fairy_fountain(state, player),
+    )
     set_rule(world.get_location("Western Fairy Island - Lookout Platform", player), lambda state: True)
 
     # Southern Fairy Island
-    # set_rule(
-    #     world.get_location("Southern Fairy Island - Great Fairy", player),
-    #     lambda state: can_access_southern_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Southern Fairy Island - Great Fairy", player),
+        lambda state: can_access_southern_fairy_fountain(state, player),
+    )
     set_rule(
         world.get_location("Southern Fairy Island - Lookout Platform - Destroy the Northwest Cannons", player),
         lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
@@ -1196,21 +1196,21 @@ def set_rules(world: MultiWorld, player: int):
     )
 
     # Northern Fairy Island
-    # set_rule(
-    #     world.get_location("Northern Fairy Island - Great Fairy", player),
-    #     lambda state: can_access_northern_fairy_fountain(state, player),
-    # )
+    set_rule(
+        world.get_location("Northern Fairy Island - Great Fairy", player),
+        lambda state: can_access_northern_fairy_fountain(state, player),
+    )
     set_rule(world.get_location("Northern Fairy Island - Submarine", player), lambda state: True)
 
     # Tingle Island
-    # set_rule(
-    #     world.get_location("Tingle Island - Ankle - Reward for All Tingle Statues", player),
-    #     lambda state: state.has_group("tingle_statues", player, 5),
-    # )
-    # set_rule(
-    #     world.get_location("Tingle Island - Big Octo", player),
-    #     lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Tingle Island - Ankle - Reward for All Tingle Statues", player),
+        lambda state: state.has_group("tingle_statues", player, 5),
+    )
+    set_rule(
+        world.get_location("Tingle Island - Big Octo", player),
+        lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
+    )
 
     # Diamond Steppe Island
     set_rule(
@@ -1221,10 +1221,10 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Diamond Steppe Island - Warp Maze Cave - Second Chest", player),
         lambda state: can_access_diamond_steppe_island_warp_maze_cave(state, player),
     )
-    # set_rule(
-    #     world.get_location("Diamond Steppe Island - Big Octo", player),
-    #     lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Diamond Steppe Island - Big Octo", player),
+        lambda state: can_defeat_big_octos(state, player) and state.has("Grappling Hook", player),
+    )
 
     # Bomb Island
     set_rule(
@@ -1260,10 +1260,10 @@ def set_rules(world: MultiWorld, player: int):
         lambda state: can_destroy_cannons(state, player) and can_fly_with_deku_leaf_outdoors(state, player),
     )
     set_rule(world.get_location("Rock Spire Isle - Center Lookout Platform", player), lambda state: True)
-    # set_rule(
-    #     world.get_location("Rock Spire Isle - Southeast Gunboat", player),
-    #     lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Rock Spire Isle - Southeast Gunboat", player),
+        lambda state: state.has("Bombs", player) and state.has("Grappling Hook", player),
+    )
 
     # Shark Island
     set_rule(
@@ -1309,10 +1309,10 @@ def set_rules(world: MultiWorld, player: int):
     set_rule(world.get_location("Horseshoe Island - Southeastern Lookout Platform", player), lambda state: True)
 
     # Flight Control Platform
-    # set_rule(
-    #     world.get_location("Flight Control Platform - Bird-Man Contest - First Prize", player),
-    #     lambda state: can_fly_with_deku_leaf_outdoors(state, player) and has_magic_meter_upgrade(state, player),
-    # )
+    set_rule(
+        world.get_location("Flight Control Platform - Bird-Man Contest - First Prize", player),
+        lambda state: can_fly_with_deku_leaf_outdoors(state, player) and has_magic_meter_upgrade(state, player),
+    )
     set_rule(
         world.get_location("Flight Control Platform - Submarine", player),
         lambda state: can_defeat_wizzrobes(state, player)
@@ -1347,10 +1347,10 @@ def set_rules(world: MultiWorld, player: int):
         world.get_location("Seven-Star Isles - Southern Lookout Platform", player),
         lambda state: can_defeat_wizzrobes_at_range(state, player),
     )
-    # set_rule(
-    #     world.get_location("Seven-Star Isles - Big Octo", player),
-    #     lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
-    # )
+    set_rule(
+        world.get_location("Seven-Star Isles - Big Octo", player),
+        lambda state: can_defeat_12_eye_big_octos(state, player) and state.has("Grappling Hook", player),
+    )
 
     # Cyclops Reef
     set_rule(

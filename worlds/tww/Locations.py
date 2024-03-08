@@ -34,9 +34,11 @@ class TWWFlag(Flag):
 
 class TWWLocationType(Enum):
     CHART = auto()
+    BOCTO = auto()
     CHEST = auto()
     SWTCH = auto()
     PCKUP = auto()
+    EVENT = auto()
     SPECL = auto()
 
 
@@ -47,6 +49,7 @@ class TWWLocationData(NamedTuple):
     stage_id: int
     type: TWWLocationType
     bit: int
+    address: int | None = None
 
 
 class TWWLocation(Location):
@@ -60,6 +63,7 @@ class TWWLocation(Location):
         self.stage_id = data.stage_id
         self.type = data.type
         self.bit = data.bit
+        self.address = self.address
 
 
 base_id = 2326528
@@ -73,14 +77,14 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         base_id + 1, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 4
     ),
     "Outset Island - Orca - Give 10 Knight's Crests": TWWLocationData(
-        base_id + 2, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 2, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 5, 0x803C5237
     ),
     # "Outset Island - Orca - Hit 500 Times": TWWLocationData(
     #     base_id + 3, TWWFlag.OTHER, "The Great Sea"
     # ),
-    # "Outset Island - Great Fairy": TWWLocationData(
-    #     base_id + 4, TWWFlag.GRT_FRY, "The Great Sea"
-    # ),
+    "Outset Island - Great Fairy": TWWLocationData(
+        base_id + 4, TWWFlag.GRT_FRY, "The Great Sea", 0xC, TWWLocationType.EVENT, 4, 0x803C525C
+    ),
     "Outset Island - Jabun's Cave": TWWLocationData(
         base_id + 5, TWWFlag.ISLND_P, "The Great Sea", 0xB, TWWLocationType.CHEST, 6
     ),
@@ -105,128 +109,128 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         base_id + 11, TWWFlag.ISLND_P, "The Great Sea", 0xB, TWWLocationType.CHEST, 0
     ),
     "Windfall Island - Chu Jelly Juice Shop - Give 15 Green Chu Jelly": TWWLocationData(
-        base_id + 12, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 12, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 2, 0x803C5239
     ),
     "Windfall Island - Chu Jelly Juice Shop - Give 15 Blue Chu Jelly": TWWLocationData(
-        base_id + 13, TWWFlag.SPOILS | TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 13, TWWFlag.SPOILS | TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 1, 0x803C5239
     ),
-    # "Windfall Island - Ivan - Catch Killer Bees": TWWLocationData(
-    #     base_id + 14, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Mrs. Marie - Catch Killer Bees": TWWLocationData(
-    #     base_id + 15, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Mrs. Marie - Give 1 Joy Pendant": TWWLocationData(
-    #     base_id + 16, TWWFlag.SPOILS, "The Great Sea"
-    # ),
-    # "Windfall Island - Mrs. Marie - Give 21 Joy Pendants": TWWLocationData(
-    #     base_id + 17, TWWFlag.SPOILS, "The Great Sea"
-    # ),
-    # "Windfall Island - Mrs. Marie - Give 40 Joy Pendants": TWWLocationData(
-    #     base_id + 18, TWWFlag.SPOILS, "The Great Sea"
-    # ),
+    "Windfall Island - Ivan - Catch Killer Bees": TWWLocationData(
+        base_id + 14, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 6, 0x803C523F
+    ),
+    "Windfall Island - Mrs. Marie - Catch Killer Bees": TWWLocationData(
+        base_id + 15, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 7, 0x803C524B
+    ),
+    "Windfall Island - Mrs. Marie - Give 1 Joy Pendant": TWWLocationData(
+        base_id + 16, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C52EC
+    ),
+    "Windfall Island - Mrs. Marie - Give 21 Joy Pendants": TWWLocationData(
+        base_id + 17, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 4, 0x803C52EC
+    ),
+    "Windfall Island - Mrs. Marie - Give 40 Joy Pendants": TWWLocationData(
+        base_id + 18, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 5, 0x803C52EC
+    ),
     "Windfall Island - Lenzo's House - Left Chest": TWWLocationData(
         base_id + 19, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.CHEST, 1
     ),
     "Windfall Island - Lenzo's House - Right Chest": TWWLocationData(
         base_id + 20, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.CHEST, 2
     ),
-    # "Windfall Island - Lenzo's House - Become Lenzo's Assistant": TWWLocationData(
-    #     base_id + 21, TWWFlag.LONG_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Lenzo's House - Bring Forest Firefly": TWWLocationData(
-    #     base_id + 22, TWWFlag.LONG_SQ, "The Great Sea"
-    # ),
+    "Windfall Island - Lenzo's House - Become Lenzo's Assistant": TWWLocationData(
+        base_id + 21, TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C52B5
+    ),
+    "Windfall Island - Lenzo's House - Bring Forest Firefly": TWWLocationData(
+        base_id + 22, TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 5, 0x803C5295
+    ),
     "Windfall Island - House of Wealth Chest": TWWLocationData(
         base_id + 23, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 3
     ),
-    # "Windfall Island - Maggie's Father - Give 20 Skull Necklaces": TWWLocationData(
-    #     base_id + 24, TWWFlag.SPOILS, "The Great Sea"
-    # ),
-    # "Windfall Island - Maggie - Free Item": TWWLocationData(
-    #     base_id + 25, TWWFlag.FREE_GF, "The Great Sea"
-    # ),
-    # "Windfall Island - Maggie - Delivery Reward": TWWLocationData(
-    #     base_id + 26, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Cafe Bar - Postman": TWWLocationData(
-    #     base_id + 27, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
+    "Windfall Island - Maggie's Father - Give 20 Skull Necklaces": TWWLocationData(
+        base_id + 24, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 4, 0x803C52F1
+    ),
+    "Windfall Island - Maggie - Free Item": TWWLocationData(
+        base_id + 25, TWWFlag.FREE_GF, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C5296
+    ),
+    "Windfall Island - Maggie - Delivery Reward": TWWLocationData(
+        # TODO: Where is the flag for this location. Using a temporary workaround for now.
+        base_id + 26, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+    ),
+    "Windfall Island - Cafe Bar - Postman": TWWLocationData(
+        base_id + 27, TWWFlag.SHRT_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 1, 0x803C5296
+    ),
     "Windfall Island - Kreeb - Light Up Lighthouse": TWWLocationData(
-        # TODO: find the flag for the Kreeb item, currently using lit lighthouse flag
-        base_id + 28, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.SWTCH, 13
+        base_id + 28, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 5, 0x803C5247
     ),
     "Windfall Island - Transparent Chest": TWWLocationData(
         base_id + 29, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.CHEST, 10
     ),
-    # "Windfall Island - Tott - Teach Rhythm": TWWLocationData(
-    #     base_id + 30, TWWFlag.FREE_GF, "The Great Sea"
-    # ),
+    "Windfall Island - Tott - Teach Rhythm": TWWLocationData(
+        base_id + 30, TWWFlag.FREE_GF, "The Great Sea", 0x0, TWWLocationType.EVENT, 6, 0x803C5238
+    ),
     "Windfall Island - Pirate Ship": TWWLocationData(
         base_id + 31, TWWFlag.MINIGME, "The Great Sea", 0xD, TWWLocationType.CHEST, 5
     ),
-    # "Windfall Island - 5 Rupee Auction": TWWLocationData(
-    #     base_id + 32, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
-    # ),
-    # "Windfall Island - 40 Rupee Auction": TWWLocationData(
-    #     base_id + 33, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
-    # ),
-    # "Windfall Island - 60 Rupee Auction": TWWLocationData(
-    #     base_id + 34, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
-    # ),
-    # "Windfall Island - 80 Rupee Auction": TWWLocationData(
-    #     base_id + 35, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea"
-    # ),
-    # "Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop": TWWLocationData(
-    #     base_id + 36, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Sam - Decorate the Town": TWWLocationData(
-    #     base_id + 37, TWWFlag.LONG_SQ, "The Great Sea"
-    # ),
+    "Windfall Island - 5 Rupee Auction": TWWLocationData(
+        base_id + 32, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.EVENT, 7, 0x803C523C
+    ),
+    "Windfall Island - 40 Rupee Auction": TWWLocationData(
+        base_id + 33, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C523B
+    ),
+    "Windfall Island - 60 Rupee Auction": TWWLocationData(
+        base_id + 34, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.EVENT, 6, 0x803C523C
+    ),
+    "Windfall Island - 80 Rupee Auction": TWWLocationData(
+        base_id + 35, TWWFlag.XPENSVE | TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.EVENT, 5, 0x803C523C
+    ),
+    "Windfall Island - Zunari - Stock Exotic Flower in Zunari's Shop": TWWLocationData(
+        base_id + 36, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 6, 0x803C5295
+    ),
+    "Windfall Island - Sam - Decorate the Town": TWWLocationData(
+        base_id + 37, TWWFlag.LONG_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 4, 0x803C5247
+    ),
     # "Windfall Island - Kane - Place Shop Guru Statue on Gate": TWWLocationData(
-    #     base_id + 38, TWWFlag.OTHER, "The Great Sea"
+    #     base_id + 38, TWWFlag.OTHER, "The Great Sea", 0x0, TWWLocationType.EVENT, 4, 0x803C5250
     # ),
     # "Windfall Island - Kane - Place Postman Statue on Gate": TWWLocationData(
-    #     base_id + 39, TWWFlag.OTHER, "The Great Sea"
+    #     base_id + 39, TWWFlag.OTHER, "The Great Sea", 0x0, TWWLocationType.EVENT, 3, 0x803C5250
     # ),
     # "Windfall Island - Kane - Place Six Flags on Gate": TWWLocationData(
-    #     base_id + 40, TWWFlag.OTHER, "The Great Sea"
+    #     base_id + 40, TWWFlag.OTHER, "The Great Sea", 0x0, TWWLocationType.EVENT, 2, 0x803C5250
     # ),
     # "Windfall Island - Kane - Place Six Idols on Gate": TWWLocationData(
-    #     base_id + 41, TWWFlag.OTHER, "The Great Sea"
+    #     base_id + 41, TWWFlag.OTHER, "The Great Sea", 0x0, TWWLocationType.EVENT, 1, 0x803C5250
     # ),
-    # "Windfall Island - Mila - Follow the Thief": TWWLocationData(
-    #     base_id + 42, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
+    "Windfall Island - Mila - Follow the Thief": TWWLocationData(
+        base_id + 42, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 3, 0x803C523A
+    ),
     "Windfall Island - Battlesquid - First Prize": TWWLocationData(
-        base_id + 43, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 43, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C532A
     ),
     "Windfall Island - Battlesquid - Second Prize": TWWLocationData(
-        base_id + 44, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 44, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.EVENT, 1, 0x803C532A
     ),
     "Windfall Island - Battlesquid - Under 20 Shots Prize": TWWLocationData(
-        base_id + 45, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 45, TWWFlag.SPLOOSH, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C532B
     ),
-    # "Windfall Island - Pompie and Vera - Secret Meeting Photo": TWWLocationData(
-    #     base_id + 46, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Kamo - Full Moon Photo": TWWLocationData(
-    #     base_id + 47, TWWFlag.LONG_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Minenco - Miss Windfall Photo": TWWLocationData(
-    #     base_id + 48, TWWFlag.SHRT_SQ, "The Great Sea"
-    # ),
-    # "Windfall Island - Linda and Anton": TWWLocationData(
-    #     base_id + 49, TWWFlag.LONG_SQ, "The Great Sea"
-    # ),
+    "Windfall Island - Pompie and Vera - Secret Meeting Photo": TWWLocationData(
+        base_id + 46, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 2, 0x803C5295
+    ),
+    "Windfall Island - Kamo - Full Moon Photo": TWWLocationData(
+        base_id + 47, TWWFlag.LONG_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 4, 0x803C5295
+    ),
+    "Windfall Island - Minenco - Miss Windfall Photo": TWWLocationData(
+        base_id + 48, TWWFlag.SHRT_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 3, 0x803C5295
+    ),
+    "Windfall Island - Linda and Anton": TWWLocationData(
+        base_id + 49, TWWFlag.LONG_SQ, "The Great Sea", 0xB, TWWLocationType.EVENT, 7, 0x803C524E
+    ),
 
     # Dragon Roost Island
     "Dragon Roost Island - Wind Shrine": TWWLocationData(
         base_id + 50, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.SWTCH, 32
     ),
-    # "Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers": TWWLocationData(
-    #     base_id + 51, TWWFlag.SPOILS, "The Great Sea"
-    # ),
+    "Dragon Roost Island - Rito Aerie - Give Hoskit 20 Golden Feathers": TWWLocationData(
+        base_id + 51, TWWFlag.SPOILS, "The Great Sea", 0xB, TWWLocationType.EVENT, 7, 0x803C524D
+    ),
     "Dragon Roost Island - Chest on Top of Boulder": TWWLocationData(
         base_id + 52, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 8
     ),
@@ -234,8 +238,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         base_id + 53, TWWFlag.ISLND_P, "The Great Sea", 0x0, TWWLocationType.CHEST, 9
     ),
     "Dragon Roost Island - Rito Aerie - Mail Sorting": TWWLocationData(
-        # TODO: find the flag for the Baito item, currently using bits for mail sorting with Rito postman
-        base_id + 54, TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.SPECL, 0
+        base_id + 54, TWWFlag.MINIGME, "The Great Sea", 0xB, TWWLocationType.EVENT, 0, 0x803C5253
     ),
     "Dragon Roost Island - Secret Cave": TWWLocationData(
         base_id + 55, TWWFlag.CBT_CVE, "Dragon Roost Island Secret Cave", 0xD, TWWLocationType.CHEST, 0
@@ -462,9 +465,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Fire Mountain - Lookout Platform - Destroy the Cannons": TWWLocationData(
         base_id + 123, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 0
     ),
-    # "Fire Mountain - Big Octo": TWWLocationData(
-    #     base_id + 124, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 63
-    # ),
+    "Fire Mountain - Big Octo": TWWLocationData(
+        base_id + 124, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C51F0
+    ),
 
     # Ice Ring Isle
     "Ice Ring Isle - Frozen Chest": TWWLocationData(
@@ -597,58 +600,59 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 
     # Mailbox
-    # "Mailbox - Letter from Hoskit's Girlfriend": TWWLocationData(
-    #     base_id + 165, TWWFlag.MAILBOX | TWWFlag.SPOILS, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Baito's Mother": TWWLocationData(
-    #     base_id + 166, TWWFlag.MAILBOX, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Baito": TWWLocationData(
-    #     base_id + 167, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Komali's Father": TWWLocationData(
-    #     base_id + 168, TWWFlag.MAILBOX, "The Great Sea"
-    # ),
-    # "Mailbox - Letter Advertising Bombs in Beedle's Shop": TWWLocationData(
-    #     base_id + 169, TWWFlag.MAILBOX, "The Great Sea"
-    # ),
-    # "Mailbox - Letter Advertising Rock Spire Shop Ship": TWWLocationData(
-    #     base_id + 170, TWWFlag.MAILBOX, "The Great Sea"
-    # ),
+    "Mailbox - Letter from Hoskit's Girlfriend": TWWLocationData(
+        base_id + 165, TWWFlag.MAILBOX | TWWFlag.SPOILS, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52DA
+    ),
+    "Mailbox - Letter from Baito's Mother": TWWLocationData(
+        base_id + 166, TWWFlag.MAILBOX, "The Great Sea", 0x0, TWWLocationType.SPECL, 0, 0x803C52D8
+    ),
+    "Mailbox - Letter from Baito": TWWLocationData(
+        base_id + 167, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52A8
+    ),
+    "Mailbox - Letter from Komali's Father": TWWLocationData(
+        base_id + 168, TWWFlag.MAILBOX, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52E1
+    ),
+    "Mailbox - Letter Advertising Bombs in Beedle's Shop": TWWLocationData(
+        base_id + 169, TWWFlag.MAILBOX, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52A9
+    ),
+    "Mailbox - Letter Advertising Rock Spire Shop Ship": TWWLocationData(
+        base_id + 170, TWWFlag.MAILBOX, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52A6
+    ),
     # "Mailbox - Beedle's Silver Membership Reward": TWWLocationData(
     #     base_id + 171, TWWFlag.OTHER, "The Great Sea"
     # ),
     # "Mailbox - Beedle's Gold Membership Reward": TWWLocationData(
     #     base_id + 172, TWWFlag.OTHER, "The Great Sea"
     # ),
-    # "Mailbox - Letter from Orca": TWWLocationData(
-    #     base_id + 173, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Grandma": TWWLocationData(
-    #     base_id + 174, TWWFlag.MAILBOX, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Aryll": TWWLocationData(
-    #     base_id + 175, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea"
-    # ),
-    # "Mailbox - Letter from Tingle": TWWLocationData(
-    #     base_id + 176, TWWFlag.MAILBOX | TWWFlag.DUNGEON | TWWFlag.XPENSVE, "The Great Sea"
-    # ),
+    "Mailbox - Letter from Orca": TWWLocationData(
+        base_id + 173, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52A7
+    ),
+    "Mailbox - Letter from Grandma": TWWLocationData(
+        base_id + 174, TWWFlag.MAILBOX, "The Great Sea", 0x0, TWWLocationType.SPECL, 0, 0x803C52C9
+    ),
+    "Mailbox - Letter from Aryll": TWWLocationData(
+        base_id + 175, TWWFlag.MAILBOX | TWWFlag.DUNGEON, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52B7
+    ),
+    "Mailbox - Letter from Tingle": TWWLocationData(
+        base_id + 176,
+        TWWFlag.MAILBOX | TWWFlag.DUNGEON | TWWFlag.XPENSVE, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52DE
+    ),
 
     # The Great Sea
-    # "The Great Sea - Beedle's Shop Ship - 20 Rupee Item": TWWLocationData(
-    #     base_id + 177, TWWFlag.MISCELL, "The Great Sea"
-    # ),
-    # "The Great Sea - Salvage Corp Gift": TWWLocationData(
-    #     base_id + 178, TWWFlag.FREE_GF, "The Great Sea"
-    # ),
-    "The Great Sea - Cyclos": TWWLocationData(
-        base_id + 179, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.SPECL, 0
+    "The Great Sea - Beedle's Shop Ship - 20 Rupee Item": TWWLocationData(
+        base_id + 177, TWWFlag.MISCELL, "The Great Sea",  0xA, TWWLocationType.EVENT, 1, 0x803C5295
     ),
-    # "The Great Sea - Goron Trading Reward": TWWLocationData(
-    #     base_id + 180, TWWFlag.LONG_SQ | TWWFlag.XPENSVE, "The Great Sea"
-    # ),
+    "The Great Sea - Salvage Corp Gift": TWWLocationData(
+        base_id + 178, TWWFlag.FREE_GF, "The Great Sea", 0x0, TWWLocationType.EVENT, 7, 0x803C5295
+    ),
+    "The Great Sea - Cyclos": TWWLocationData(
+        base_id + 179, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.EVENT, 4, 0x803C5253
+    ),
+    "The Great Sea - Goron Trading Reward": TWWLocationData(
+        base_id + 180, TWWFlag.LONG_SQ | TWWFlag.XPENSVE, "The Great Sea", 0x0, TWWLocationType.EVENT, 2, 0x803C526A
+    ),
     "The Great Sea - Withered Trees": TWWLocationData(
-        base_id + 181, TWWFlag.LONG_SQ, "The Great Sea", 0x0, TWWLocationType.SPECL, 0
+        base_id + 181, TWWFlag.LONG_SQ, "The Great Sea", 0x0, TWWLocationType.EVENT, 5, 0x803C525A
     ),
     "The Great Sea - Ghost Ship": TWWLocationData(
         base_id + 182, TWWFlag.MISCELL, "The Great Sea", 0xA, TWWLocationType.CHEST, 23
@@ -664,17 +668,17 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Private Oasis - Cabana Labyrinth - Upper Floor Chest": TWWLocationData(
         base_id + 185, TWWFlag.PZL_CVE, "Cabana Labyrinth", 0xC, TWWLocationType.CHEST, 17
     ),
-    # "Private Oasis - Big Octo": TWWLocationData(
-    #     base_id + 186, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 64
-    # ),
+    "Private Oasis - Big Octo": TWWLocationData(
+        base_id + 186, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C520A
+    ),
 
     # Spectacle Island
-    # "Spectacle Island - Barrel Shooting - First Prize": TWWLocationData(
-    #     base_id + 187, TWWFlag.MINIGME, "The Great Sea"
-    # ),
-    # "Spectacle Island - Barrel Shooting - Second Prize": TWWLocationData(
-    #     base_id + 188, TWWFlag.MINIGME, "The Great Sea"
-    # ),
+    "Spectacle Island - Barrel Shooting - First Prize": TWWLocationData(
+        base_id + 187, TWWFlag.MINIGME, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C52E3
+    ),
+    "Spectacle Island - Barrel Shooting - Second Prize": TWWLocationData(
+        base_id + 188, TWWFlag.MINIGME, "The Great Sea", 0x0, TWWLocationType.EVENT, 1, 0x803C52E3
+    ),
 
     # Needle Rock Isle
     "Needle Rock Isle - Chest": TWWLocationData(
@@ -683,9 +687,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Needle Rock Isle - Cave": TWWLocationData(
         base_id + 190, TWWFlag.PZL_CVE, "Needle Rock Isle Secret Cave", 0xD, TWWLocationType.CHEST, 9
     ),
-    # "Needle Rock Isle - Golden Gunboat": TWWLocationData(
-    #     base_id + 191, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 71
-    # ),
+    "Needle Rock Isle - Golden Gunboat": TWWLocationData(
+        base_id + 191, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 2, 0x803C5202
+    ),
 
     # Angular Isles
     "Angular Isles - Peak": TWWLocationData(
@@ -753,9 +757,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 
     # Thorned Fairy Island
-    # "Thorned Fairy Island - Great Fairy": TWWLocationData(
-    #     base_id + 209, TWWFlag.GRT_FRY, "Thorned Fairy Fountain"
-    # ),
+    "Thorned Fairy Island - Great Fairy": TWWLocationData(
+        base_id + 209, TWWFlag.GRT_FRY, "Thorned Fairy Fountain", 0xC, TWWLocationType.EVENT, 0, 0x803C525C
+    ),
     "Thorned Fairy Island - Northeastern Lookout Platform - Destroy the Cannons": TWWLocationData(
         base_id + 210, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 14
     ),
@@ -764,25 +768,25 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 
     # Eastern Fairy Island
-    # "Eastern Fairy Island - Great Fairy": TWWLocationData(
-    #     base_id + 212, TWWFlag.GRT_FRY, "Eastern Fairy Fountain"
-    # ),
+    "Eastern Fairy Island - Great Fairy": TWWLocationData(
+        base_id + 212, TWWFlag.GRT_FRY, "Eastern Fairy Fountain", 0xC, TWWLocationType.EVENT, 3, 0x803C525C
+    ),
     "Eastern Fairy Island - Lookout Platform - Defeat the Cannons and Enemies": TWWLocationData(
         base_id + 213, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 10
     ),
 
     # Western Fairy Island
-    # "Western Fairy Island - Great Fairy": TWWLocationData(
-    #     base_id + 214, TWWFlag.GRT_FRY, "Western Fairy Fountain"
-    # ),
+    "Western Fairy Island - Great Fairy": TWWLocationData(
+        base_id + 214, TWWFlag.GRT_FRY, "Western Fairy Fountain", 0xC, TWWLocationType.EVENT, 1, 0x803C525C
+    ),
     "Western Fairy Island - Lookout Platform": TWWLocationData(
         base_id + 215, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 6
     ),
 
     # Southern Fairy Island
-    # "Southern Fairy Island - Great Fairy": TWWLocationData(
-    #     base_id + 216, TWWFlag.GRT_FRY, "Southern Fairy Fountain"
-    # ),
+    "Southern Fairy Island - Great Fairy": TWWLocationData(
+        base_id + 216, TWWFlag.GRT_FRY, "Southern Fairy Fountain", 0xC, TWWLocationType.EVENT, 2, 0x803C525C
+    ),
     "Southern Fairy Island - Lookout Platform - Destroy the Northwest Cannons": TWWLocationData(
         base_id + 217, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 23
     ),
@@ -791,20 +795,20 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 
     # Northern Fairy Island
-    # "Northern Fairy Island - Great Fairy": TWWLocationData(
-    #     base_id + 219, TWWFlag.GRT_FRY, "Northern Fairy Fountain"
-    # ),
+    "Northern Fairy Island - Great Fairy": TWWLocationData(
+        base_id + 219, TWWFlag.GRT_FRY, "Northern Fairy Fountain", 0xC, TWWLocationType.EVENT, 5, 0x803C525C
+    ),
     "Northern Fairy Island - Submarine": TWWLocationData(
         base_id + 220, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 6
     ),
 
     # Tingle Island
-    # "Tingle Island - Ankle - Reward for All Tingle Statues": TWWLocationData(
-    #     base_id + 221, TWWFlag.MISCELL, "The Great Sea"
-    # ),
-    # "Tingle Island - Big Octo": TWWLocationData(
-    #     base_id + 222, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 62
-    # ),
+    "Tingle Island - Ankle - Reward for All Tingle Statues": TWWLocationData(
+        base_id + 221, TWWFlag.MISCELL, "The Great Sea", 0x0, TWWLocationType.EVENT, 1, 0x803C5249
+    ),
+    "Tingle Island - Big Octo": TWWLocationData(
+        base_id + 222, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C51EA
+    ),
 
     # Diamond Steppe Island
     "Diamond Steppe Island - Warp Maze Cave - First Chest": TWWLocationData(
@@ -813,9 +817,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Diamond Steppe Island - Warp Maze Cave - Second Chest": TWWLocationData(
         base_id + 224, TWWFlag.PZL_CVE, "Diamond Steppe Island Warp Maze Cave", 0xC, TWWLocationType.CHEST, 3
     ),
-    # "Diamond Steppe Island - Big Octo": TWWLocationData(
-    #     base_id + 225, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 65
-    # ),
+    "Diamond Steppe Island - Big Octo": TWWLocationData(
+        base_id + 225, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C5210
+    ),
 
     # Bomb Island
     "Bomb Island - Cave": TWWLocationData(
@@ -833,13 +837,13 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         base_id + 229, TWWFlag.CBT_CVE, "Rock Spire Isle Secret Cave", 0xC, TWWLocationType.CHEST, 8
     ),
     "Rock Spire Isle - Beedle's Special Shop Ship - 500 Rupee Item": TWWLocationData(
-        base_id + 230, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+        base_id + 230, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.EVENT, 5, 0x803C524C
     ),
     "Rock Spire Isle - Beedle's Special Shop Ship - 950 Rupee Item": TWWLocationData(
-        base_id + 231, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+        base_id + 231, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.EVENT, 4, 0x803C524C
     ),
     "Rock Spire Isle - Beedle's Special Shop Ship - 900 Rupee Item": TWWLocationData(
-        base_id + 232, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.SPECL, 0
+        base_id + 232, TWWFlag.XPENSVE, "The Great Sea", 0xA, TWWLocationType.EVENT, 3, 0x803C524C
     ),
     "Rock Spire Isle - Western Lookout Platform - Destroy the Cannons": TWWLocationData(
         base_id + 233, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 23
@@ -850,9 +854,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Rock Spire Isle - Center Lookout Platform": TWWLocationData(
         base_id + 235, TWWFlag.PLTFRMS, "The Great Sea", 0x1, TWWLocationType.CHEST, 25
     ),
-    # "Rock Spire Isle - Southeast Gunboat": TWWLocationData(
-    #     base_id + 236, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 68
-    # ),
+    "Rock Spire Isle - Southeast Gunboat": TWWLocationData(
+        base_id + 236, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C51E8
+    ),
 
     # Shark Island
     "Shark Island - Cave": TWWLocationData(
@@ -893,9 +897,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 
     # Flight Control Platform
-    # "Flight Control Platform - Bird-Man Contest - First Prize": TWWLocationData(
-    #     base_id + 247, TWWFlag.MINIGME, "The Great Sea"
-    # ),
+    "Flight Control Platform - Bird-Man Contest - First Prize": TWWLocationData(
+        base_id + 247, TWWFlag.MINIGME, "The Great Sea", 0x0, TWWLocationType.EVENT, 0, 0x803C5255
+    ),
     "Flight Control Platform - Submarine": TWWLocationData(
         base_id + 248, TWWFlag.SUBMRIN, "The Great Sea", 0xA, TWWLocationType.CHEST, 3
     ),
@@ -934,9 +938,9 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     "Seven-Star Isles - Southern Lookout Platform": TWWLocationData(
         base_id + 257, TWWFlag.PLTFRMS, "The Great Sea", 0x0, TWWLocationType.CHEST, 22
     ),
-    # "Seven-Star Isles - Big Octo": TWWLocationData(
-    #     base_id + 258, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.SWTCH, 61
-    # ),
+    "Seven-Star Isles - Big Octo": TWWLocationData(
+        base_id + 258, TWWFlag.BG_OCTO, "The Great Sea", 0x0, TWWLocationType.BOCTO, 0, 0x803C51D4
+    ),
 
     # Cyclops Reef
     "Cyclops Reef - Destroy the Cannons and Gunboats": TWWLocationData(

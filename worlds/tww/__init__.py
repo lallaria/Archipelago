@@ -1,10 +1,9 @@
 import os
 from dataclasses import fields
-from itertools import chain
 
 from BaseClasses import ItemClassification as IC
-from BaseClasses import Region, Tutorial
-from Fill import fill_restrictive
+from BaseClasses import MultiWorld, Region, Tutorial
+from Fill import FillError, fill_restrictive
 from worlds.AutoWorld import WebWorld, World
 from worlds.generic.Rules import add_item_rule
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
@@ -96,15 +95,15 @@ class TWWWorld(World):
         self.own_dungeon_item_names: set[str] = set()
         self.any_dungeon_item_names: set[str] = set()
 
+        self.num_progression_items = 0
+        self.num_progression_locations = 0
+
     def _get_access_rule(self, region):
         snake_case_region = region.lower().replace("'", "").replace(" ", "_")
         return f"can_access_{snake_case_region}"
 
-    def _get_locations(self):
-        return self.multiworld.get_locations(self.player)
-
-    def _get_unfilled_dungeon_locations(self):
-        dungeon_regions = ["Dragon Roost Cavern", "Forbidden Woods", "Tower of the Gods", "Earth Temple", "Wind Temple"]
+    def _get_dungeon_locations(self):
+        dungeon_regions = DUNGEON_EXITS.copy()
 
         # If miniboss entrances are not shuffled, include miniboss arenas as a dungeon regions
         if not self.options.randomize_miniboss_entrances:
@@ -125,25 +124,11 @@ class TWWWorld(World):
             "Forsaken Fortress - Chest on Bed",
         ]
 
-        unfilled_locations = self.multiworld.get_unfilled_locations(self.player)
-        is_dungeon_location = (
-            lambda location: location.name in ff_dungeon_locations or location.region in dungeon_regions
-        )
-        return [location for location in unfilled_locations if is_dungeon_location(location)]
-
-    def _get_unfilled_locations_in_dungeon(self, dungeon: str):
-        dungeon_regions: dict[str, str] = {
-            "DRC": "Dragon Roost Cavern",
-            "FW": "Forbidden Woods",
-            "TotG": "Tower of the Gods",
-            "FF": "Forsaken Fortress",
-            "ET": "Earth Temple",
-            "WT": "Wind Temple",
-        }
-
-        unfilled_locations = self._get_unfilled_dungeon_locations()
-        is_dungeon_location = lambda location: location.name.startswith(dungeon_regions[dungeon])
-        return [location for location in unfilled_locations if is_dungeon_location(location)]
+        return [
+            location
+            for location in self.multiworld.get_locations(self.player)
+            if location.name in ff_dungeon_locations or location.region in dungeon_regions
+        ]
 
     def _randomize_entrances(self):
         # Copy over the lists of entrances by type
@@ -167,28 +152,15 @@ class TWWWorld(World):
         # Retrieve the entrance randomization option
         options = [
             self.options.randomize_dungeon_entrances,
-            self.options.randomize_secret_cave_entrances,
             self.options.randomize_miniboss_entrances,
             self.options.randomize_boss_entrances,
+            self.options.randomize_secret_cave_entrances,
             self.options.randomize_secret_cave_inner_entrances,
             self.options.randomize_fairy_fountain_entrances,
         ]
 
         entrance_exit_pairs: list[tuple[Region, Region]] = []
-        if self.options.mix_entrances == "mix_dungeons":
-            # Flatten the lists of entrances/exits into two lists
-            all_entrances = list(chain.from_iterable(entrances))
-            all_exits = list(chain.from_iterable(exits))
-
-            # Shuffle both lists
-            self.multiworld.random.shuffle(all_entrances)
-            self.multiworld.random.shuffle(all_exits)
-
-            for entrance, exit in zip(all_entrances, all_exits):
-                entrance_region = self.multiworld.get_region(entrance, self.player)
-                exit_region = self.multiworld.get_region(exit, self.player)
-                entrance_exit_pairs.append((entrance_region, exit_region))
-        else:
+        if self.options.mix_entrances == "separate_pools":
             # Connect entrances to exits of the same type
             for option, entrance_group, exit_group in zip(options, entrances, exits):
                 # If the entrance group is randomized, shuffle their order
@@ -200,8 +172,77 @@ class TWWWorld(World):
                     entrance_region = self.multiworld.get_region(entrance, self.player)
                     exit_region = self.multiworld.get_region(exit, self.player)
                     entrance_exit_pairs.append((entrance_region, exit_region))
+        elif self.options.mix_entrances == "mix_pools":
+            # We do a bit of extra work here in order to prevent unreachable "islands" of regions.
+            # For example, DRC boss door leading to DRC. This will cause generation failures.
 
-        # TODO: verify that entrance randomization resulted in a valid world
+            # Gather all the entrances and exits for selected randomization pools
+            randomized_entrances: list[str] = []
+            randomized_exits: list[str] = []
+            non_randomized_exits: list[str] = ["The Great Sea"]
+            for option, entrance_group, exit_group in zip(options, entrances, exits):
+                if option:
+                    randomized_entrances += entrance_group
+                    randomized_exits += exit_group
+                else:
+                    # If not randomized, then just connect the entrance-exit pairs now
+                    for entrance, exit in zip(entrance_group, exit_group):
+                        non_randomized_exits.append(exit)
+                        entrance_region = self.multiworld.get_region(entrance, self.player)
+                        exit_region = self.multiworld.get_region(exit, self.player)
+                        entrance_exit_pairs.append((entrance_region, exit_region))
+
+            # Build a list of accessible randomized entrances, assuming the player has all items
+            accessible_entrances: list[str] = []
+            for exit, entrances in ENTRANCE_ACCESSIBILITY.items():
+                if exit in non_randomized_exits:
+                    accessible_entrances += [entrance for entrance in entrances if entrance in randomized_entrances]
+            non_accessible_entrances: list[str] = [
+                entrance for entrance in randomized_entrances if entrance not in accessible_entrances
+            ]
+
+            # Priotize exits that lead to more entrances first
+            priority_exits: list[str] = []
+            for exit, entrances in ENTRANCE_ACCESSIBILITY.items():
+                if exit == "The Great Sea":
+                    continue
+                if exit in randomized_exits and any(entrance in randomized_entrances for entrance in entrances):
+                    priority_exits.append(exit)
+
+            # Assign each priority exit to an accessible entrance
+            for exit in priority_exits:
+                # Choose an accessible entrance at random
+                self.multiworld.random.shuffle(accessible_entrances)
+                entrance = accessible_entrances.pop()
+
+                # Connect the pair
+                entrance_region = self.multiworld.get_region(entrance, self.player)
+                exit_region = self.multiworld.get_region(exit, self.player)
+                entrance_exit_pairs.append((entrance_region, exit_region))
+
+                # Remove the pair from the list of entrance/exits to be connected
+                randomized_entrances.remove(entrance)
+                randomized_exits.remove(exit)
+
+                # Consider entrances in that exit as accessible now
+                for newly_accessible_entrance in ENTRANCE_ACCESSIBILITY[exit]:
+                    if newly_accessible_entrance in non_accessible_entrances:
+                        accessible_entrances.append(newly_accessible_entrance)
+                        non_accessible_entrances.remove(newly_accessible_entrance)
+
+            # With all entrances either assigned or accessible, we should have an equal number of unassigned entrances
+            # and exits to pair
+            assert len(randomized_entrances) == len(randomized_exits)
+
+            # Join the remaining entrance/exits randomly
+            self.multiworld.random.shuffle(randomized_entrances)
+            self.multiworld.random.shuffle(randomized_exits)
+            for entrance, exit in zip(randomized_entrances, randomized_exits):
+                entrance_region = self.multiworld.get_region(entrance, self.player)
+                exit_region = self.multiworld.get_region(exit, self.player)
+                entrance_exit_pairs.append((entrance_region, exit_region))
+        else:
+            raise Exception(f"Invalid entrance randomization option: {self.options.mix_entrances}")
 
         return entrance_exit_pairs
 
@@ -254,6 +295,7 @@ class TWWWorld(World):
         if self.options.progression_misc:
             enabled_flags |= TWWFlag.MISCELL
 
+        self.num_progression_locations = len(self.multiworld.get_locations(self.player))
         for location in self.multiworld.get_locations(self.player):
             # If not all the flags for a location are set, then force that location to have a non-progress item
             if location.flags & enabled_flags != location.flags:
@@ -261,6 +303,7 @@ class TWWWorld(World):
                     location,
                     lambda item: item.classification == IC.useful or item.classification == IC.filler,
                 )
+                self.num_progression_locations -= 1
 
     def generate_early(self):
         # Handle randomization options for dungeon items
@@ -351,12 +394,16 @@ class TWWWorld(World):
 
         # Connect entrances to exits
         for entrance_region, exit_region in entrance_exit_pairs:
-            rule = lambda state, exit=exit_region.name: getattr(Macros, self._get_access_rule(exit))(state, self.player)
+            rule = lambda state, entrance=entrance_region.name: getattr(Macros, self._get_access_rule(entrance))(
+                state, self.player
+            )
             entrance_region.connect(exit_region, rule=rule)
 
     def create_item(self, item: str) -> TWWItem:
         # TODO: calculate nonprogress items dynamically
         set_non_progress = False
+        if not self.options.progression_dungeons and item.endswith(" Key"):
+            set_non_progress = True
         if not self.options.progression_triforce_charts and item.startswith("Triforce Chart"):
             set_non_progress = True
         if not self.options.progression_treasure_charts and item.startswith("Treasure Chart"):
@@ -370,122 +417,96 @@ class TWWWorld(World):
         # Set nonprogress location from options
         self._set_nonprogress_locations()
 
-        # Set up initial all_state
-        all_state_base = CollectionState(self.multiworld)
-        for item in self.itempool:
-            self.collect(all_state_base, item)
-        for item in self.get_pre_fill_items():
-            self.collect(all_state_base, item)
-        all_state_base.sweep_for_events()
+        # Validate that there are enough progression locations for the number of progression items
+        if self.num_progression_items > self.num_progression_locations:
+            raise FillError(
+                "There are more progression items than progression locations "
+                f"({self.num_progression_items} > {self.num_progression_locations}). "
+                "Ensure that the combination of options you have chosen allows for enough locations to "
+                "place progression items and try again."
+            )
 
-        # First, place small keys in their own dungeon
-        for dungeon in ["DRC", "FW", "TotG", "FF", "ET", "WT"]:
-            own_dungeon_small_keys = [
-                item
-                for item in self.pre_fill_items
-                if item.type == "SKey" and item.name in self.own_dungeon_item_names and item.name.startswith(dungeon)
+    @classmethod
+    def stage_pre_fill(cls, multiworld: MultiWorld):
+        # Reference: `fill_dungeons_restrictive()` from ALTTP
+        dungeon_shortnames: dict[str, str] = {
+            "Dragon Roost Cavern": "DRC",
+            "Forbidden Woods": "FW",
+            "Tower of the Gods": "TotG",
+            "Forsaken Fortress": "FF",
+            "Earth Temple": "ET",
+            "Wind Temple": "WT",
+        }
+
+        in_dungeon_items: list[TWWItem] = []
+        own_dungeon_items: set[tuple[int, str]] = set()
+        for subworld in multiworld.get_game_worlds("The Wind Waker"):
+            player = subworld.player
+            if player not in multiworld.groups:
+                in_dungeon_items += [item for item in subworld.pre_fill_items]
+                own_dungeon_items |= {(player, item_name) for item_name in subworld.own_dungeon_item_names}
+
+        if in_dungeon_items:
+            locations: list[TWWLocation] = [
+                location
+                for world in multiworld.get_game_worlds("The Wind Waker")
+                for location in world._get_dungeon_locations()
+                if not location.item
             ]
-            dungeon_locations = self._get_unfilled_locations_in_dungeon(dungeon)
-            self.multiworld.random.shuffle(dungeon_locations)
+
+            if own_dungeon_items:
+                for location in locations:
+                    dungeon = location.name.split(" - ")[0]
+                    orig_rule = location.item_rule
+                    location.item_rule = lambda item, dungeon=dungeon, orig_rule=orig_rule: (
+                        not (item.player, item.name) in own_dungeon_items
+                        or item.name.startswith(dungeon_shortnames[dungeon])
+                    ) and orig_rule(item)
+
+            multiworld.random.shuffle(locations)
+            # Dungeon-locked items have to be placed first, to not run out of spaces for dungeon-locked items
+            # subsort in the order Big Key, Small Key, Other before placing dungeon items
+
+            sort_order = {"BKey": 3, "SKey": 2}
+            in_dungeon_items.sort(
+                key=lambda item: sort_order.get(item.type, 1)
+                + (5 if (item.player, item.name) in own_dungeon_items else 0)
+            )
+
+            # Construct a partial all_state which contains only the items from get_pre_fill_items,
+            # which aren't in_dungeon
+            in_dungeon_player_ids = {item.player for item in in_dungeon_items}
+            all_state_base = CollectionState(multiworld)
+            for item in multiworld.itempool:
+                multiworld.worlds[item.player].collect(all_state_base, item)
+            pre_fill_items = []
+            for player in in_dungeon_player_ids:
+                pre_fill_items += multiworld.worlds[player].get_pre_fill_items()
+            for item in in_dungeon_items:
+                try:
+                    pre_fill_items.remove(item)
+                except ValueError:
+                    # pre_fill_items should be a subset of in_dungeon_items, but just in case
+                    pass
+            for item in pre_fill_items:
+                multiworld.worlds[item.player].collect(all_state_base, item)
+            all_state_base.sweep_for_events()
+
+            # Remove completion condition so that minimal-accessibility worlds place keys properly
+            for player in {item.player for item in in_dungeon_items}:
+                if all_state_base.has("Victory", player):
+                    all_state_base.remove(multiworld.worlds[player].create_item("Victory"))
+
             fill_restrictive(
-                self.multiworld,
+                multiworld,
                 all_state_base,
-                dungeon_locations,
-                own_dungeon_small_keys,
+                locations,
+                in_dungeon_items,
                 single_player_placement=True,
                 lock=True,
                 allow_excluded=True,
+                name="TWW Dungeon Items",
             )
-
-        # Next, place big keys in their own dungeon
-        for dungeon in ["DRC", "FW", "TotG", "FF", "ET", "WT"]:
-            own_dungeon_big_keys = [
-                item
-                for item in self.pre_fill_items
-                if item.type == "BKey" and item.name in self.own_dungeon_item_names and item.name.startswith(dungeon)
-            ]
-            dungeon_locations = self._get_unfilled_locations_in_dungeon(dungeon)
-            self.multiworld.random.shuffle(dungeon_locations)
-            fill_restrictive(
-                self.multiworld,
-                all_state_base,
-                dungeon_locations,
-                own_dungeon_big_keys,
-                single_player_placement=True,
-                lock=True,
-                allow_excluded=True,
-            )
-
-        # Next, place small keys in any dungeon
-        any_dungeon_small_keys = [
-            item for item in self.pre_fill_items if item.type == "SKey" and item.name in self.any_dungeon_item_names
-        ]
-        all_dungeon_locations = self._get_unfilled_dungeon_locations()
-        self.multiworld.random.shuffle(all_dungeon_locations)
-        fill_restrictive(
-            self.multiworld,
-            all_state_base,
-            all_dungeon_locations,
-            any_dungeon_small_keys,
-            single_player_placement=True,
-            lock=True,
-            allow_excluded=True,
-        )
-
-        # Next, place big keys in any dungeon
-        any_dungeon_big_keys = [
-            item for item in self.pre_fill_items if item.type == "BKey" and item.name in self.any_dungeon_item_names
-        ]
-        all_dungeon_locations = self._get_unfilled_dungeon_locations()
-        self.multiworld.random.shuffle(all_dungeon_locations)
-        fill_restrictive(
-            self.multiworld,
-            all_state_base,
-            all_dungeon_locations,
-            any_dungeon_big_keys,
-            single_player_placement=True,
-            lock=True,
-            allow_excluded=True,
-        )
-
-        # Now, place dungeon maps and compasses in their own dungeons
-        for dungeon in ["DRC", "FW", "TotG", "FF", "ET", "WT"]:
-            own_dungeon_mapcompass = [
-                item
-                for item in self.pre_fill_items
-                if item.type in ["Map", "Compass"]
-                and item.name in self.own_dungeon_item_names
-                and item.name.startswith(dungeon)
-            ]
-            dungeon_locations = self._get_unfilled_locations_in_dungeon(dungeon)
-            self.multiworld.random.shuffle(dungeon_locations)
-            fill_restrictive(
-                self.multiworld,
-                all_state_base,
-                dungeon_locations,
-                own_dungeon_mapcompass,
-                single_player_placement=True,
-                lock=True,
-                allow_excluded=True,
-            )
-
-        # Finally, place dungeon maps and compasses in any dungeon
-        any_dungeon_mapcompass = [
-            item
-            for item in self.pre_fill_items
-            if item.type in ["Map", "Compass"] and item.name in self.any_dungeon_item_names
-        ]
-        all_dungeon_locations = self._get_unfilled_dungeon_locations()
-        self.multiworld.random.shuffle(all_dungeon_locations)
-        fill_restrictive(
-            self.multiworld,
-            all_state_base,
-            all_dungeon_locations,
-            any_dungeon_mapcompass,
-            single_player_placement=True,
-            lock=True,
-            allow_excluded=True,
-        )
 
     def create_items(self):
         exclude = [item.name for item in self.multiworld.precollected_items[self.player]]
@@ -505,7 +526,24 @@ class TWWWorld(World):
                     else:
                         self.itempool.append(self.create_item(item))
 
+        # Calculate the number of additional filler items to create to fill all locations
+        n_locations = len(self.multiworld.get_unfilled_locations(self.player))
+        n_items = len(self.pre_fill_items) + len(self.itempool)
+        n_filler_items = n_locations - n_items
+
+        # Add filler items to the item pool. Use the same weights that are used in the base rando.
+        filler_consumables = ["Yellow Rupee", "Red Rupee", "Purple Rupee", "Orange Rupee", "Joy Pendant"]
+        filler_weights = [3, 7, 10, 15, 3]
+        for filler_item in self.multiworld.random.choices(filler_consumables, weights=filler_weights, k=n_filler_items):
+            self.itempool.append(self.create_item(filler_item))
+
         self.multiworld.itempool += self.itempool
+
+        # Count up the total number of progression items
+        self.num_progression_items = 0
+        for item in self.pre_fill_items + self.itempool:
+            if item.classification == IC.progression or item.classification == IC.progression_skip_balancing:
+                self.num_progression_items += 1
 
     def set_rules(self):
         set_rules(self.multiworld, self.player)
@@ -530,7 +568,10 @@ class TWWWorld(World):
         locations = self.multiworld.get_locations(self.player)
         for location in locations:
             if location.name != "Defeat Ganondorf":
-                output_file += f'    {location.name}: "{location.item.name}"\n'
+                if location.item:
+                    output_file += f'    {location.name}: "{location.item.name}"\n'
+                else:
+                    output_file += f'    {location.name}: "Nothing"\n'
         output_file += "\n\n"
 
         # Output the mapping of entrances to exits
@@ -546,4 +587,66 @@ class TWWWorld(World):
             f.write(output_file)
 
     def fill_slot_data(self):
-        return {"death_link": self.options.death_link.value}
+        return {
+            "progression_dungeons": self.options.progression_dungeons.value,
+            "progression_tingle_chests": self.options.progression_tingle_chests.value,
+            "progression_dungeon_secrets": self.options.progression_dungeon_secrets.value,
+            "progression_puzzle_secret_caves": self.options.progression_puzzle_secret_caves.value,
+            "progression_combat_secret_caves": self.options.progression_combat_secret_caves.value,
+            "progression_savage_labyrinth": self.options.progression_savage_labyrinth.value,
+            "progression_great_fairies": self.options.progression_great_fairies.value,
+            "progression_short_sidequests": self.options.progression_short_sidequests.value,
+            "progression_long_sidequests": self.options.progression_long_sidequests.value,
+            "progression_spoils_trading": self.options.progression_spoils_trading.value,
+            "progression_minigames": self.options.progression_minigames.value,
+            "progression_battlesquid": self.options.progression_battlesquid.value,
+            "progression_free_gifts": self.options.progression_free_gifts.value,
+            "progression_mail": self.options.progression_mail.value,
+            "progression_platforms_rafts": self.options.progression_platforms_rafts.value,
+            "progression_submarines": self.options.progression_submarines.value,
+            "progression_eye_reef_chests": self.options.progression_eye_reef_chests.value,
+            "progression_big_octos_gunboats": self.options.progression_big_octos_gunboats.value,
+            "progression_triforce_charts": self.options.progression_triforce_charts.value,
+            "progression_treasure_charts": self.options.progression_treasure_charts.value,
+            "progression_expensive_purchases": self.options.progression_expensive_purchases.value,
+            "progression_island_puzzles": self.options.progression_island_puzzles.value,
+            "progression_misc": self.options.progression_misc.value,
+            "randomize_mapcompass": self.options.randomize_mapcompass.value,
+            "randomize_smallkeys": self.options.randomize_smallkeys.value,
+            "randomize_bigkeys": self.options.randomize_bigkeys.value,
+            "sword_mode": self.options.sword_mode.value,
+            "required_bosses": self.options.required_bosses.value,
+            "num_required_bosses": self.options.num_required_bosses.value,
+            "chest_type_matches_contents": self.options.chest_type_matches_contents.value,
+            "trap_chests": self.options.trap_chests.value,
+            "hero_mode": self.options.hero_mode.value,
+            "logic_obscurity": self.options.logic_obscurity.value,
+            "logic_precision": self.options.logic_precision.value,
+            "randomize_dungeon_entrances": self.options.randomize_dungeon_entrances.value,
+            "randomize_secret_cave_entrances": self.options.randomize_secret_cave_entrances.value,
+            "randomize_miniboss_entrances": self.options.randomize_miniboss_entrances.value,
+            "randomize_boss_entrances": self.options.randomize_boss_entrances.value,
+            "randomize_secret_cave_inner_entrances": self.options.randomize_secret_cave_inner_entrances.value,
+            "randomize_fairy_fountain_entrances": self.options.randomize_fairy_fountain_entrances.value,
+            "mix_entrances": self.options.mix_entrances.value,
+            "randomize_enemies": self.options.randomize_enemies.value,
+            # "randomize_music": self.options.randomize_music.value,
+            "randomize_starting_island": self.options.randomize_starting_island.value,
+            "randomize_charts": self.options.randomize_charts.value,
+            "hoho_hints": self.options.hoho_hints.value,
+            "fishmen_hints": self.options.fishmen_hints.value,
+            "korl_hints": self.options.korl_hints.value,
+            "num_item_hints": self.options.num_item_hints.value,
+            "num_location_hints": self.options.num_location_hints.value,
+            "num_barren_hints": self.options.num_barren_hints.value,
+            "num_path_hints": self.options.num_path_hints.value,
+            "cryptic_hints": self.options.cryptic_hints.value,
+            "prioritize_remote_hints": self.options.prioritize_remote_hints.value,
+            "swift_sail": self.options.swift_sail.value,
+            "instant_text_boxes": self.options.instant_text_boxes.value,
+            "reveal_full_sea_chart": self.options.reveal_full_sea_chart.value,
+            "add_shortcut_warps_between_dungeons": self.options.add_shortcut_warps_between_dungeons.value,
+            "skip_rematch_bosses": self.options.skip_rematch_bosses.value,
+            "remove_music": self.options.remove_music.value,
+            "death_link": self.options.death_link.value,
+        }

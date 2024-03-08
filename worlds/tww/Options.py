@@ -247,7 +247,7 @@ class ChestTypeMatchesContents(Toggle):
     """Changes the chest type to reflect its contents. A metal chest has a progress item, a wooden chest has a
     non-progress item or a consumable, and a green chest has a potentially required dungeon key."""
 
-    display_name = "Chest type Matches Contents"
+    display_name = "Chest Type Matches Contents"
 
 
 class TrapChests(Toggle):
@@ -327,15 +327,13 @@ class RandomizeFairyFountainEntrances(Toggle):
 
 
 class MixEntrances(Choice):
-    """Controls whether dungeons should be separated from other randomized entrances, or if all types of randomized
-    entrances can lead into each other.
-    Separate Dungeons From Caves & Fountains: Dungeon entrances will only be randomized to lead into other dungeons.
-    Mix Dungeons & Caves & Fountains: Dungeon entrances may be randomized to lead into areas that are not dungeons
-    too."""
+    """Controls how different types (pools) of entrances should be randomized.
+    Separate Pools: Each pool of randomized entrances with shuffle into itself (e.g., dungeons into dungeons).
+    Mix Pools: Combine all pools of randomized entrances into one big pool and shuffle all entrances together."""
 
     display_name = "Mix Entrances"
-    option_separate_dungeons = 0
-    option_mix_dungeons = 1
+    option_separate_pools = 0
+    option_mix_pools = 1
     default = 0
 
 
@@ -360,7 +358,7 @@ class RandomizeStartingIsland(Toggle):
 class RandomizeCharts(Toggle):
     """Randomizes which sector is drawn on each Triforce/Treasure Chart."""
 
-    display_name = "RandomizeCharts"
+    display_name = "Randomize Charts"
 
 
 class HoHoHints(DefaultOnToggle):

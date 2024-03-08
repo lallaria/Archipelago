@@ -34,13 +34,11 @@ Refer to the [FAQ](https://lagolunatic.github.io/wwrando/faq/) first. If you are
 Waker thread (under `future-game-design`) in the Archipelago server.
 
 ## Known issues
-* If you reset the game without saving, or disconnect then reconnect, the server will attempt to send you the items you
-should have. However, you will lose the following types of items. Fortunately, most of these items are filler and
-unnecessary to beat the game:
-  * Spoils
-  * Bait
-  * Rupees
-  * Small Keys in dungeons
+* When there are more progression items than progression locations, the randomizer will fail with a `FillError`. In this
+case, you should put more locations into logic to ensure there are enough progression locations to place progression
+items.
+* When randomizing with different key shuffle options, generation may fail. Try again several times, and if it still
+fails, try a different key shuffle option.
 
 Feel free to report any other issues in the Wind Waker thread in the Archipelago server! I'll take a look and see what I
 can do. Suggestions for improvements are also welcome.
@@ -60,10 +58,11 @@ can do. Suggestions for improvements are also welcome.
 This randomizer would not be possible without the help from:
 * LagoLunatic: (base randomizer)
 * Dev5ter: (initial TWW AP implmentation)
-* CrainWWR: (multiworld and Dolphin memory assistance)
+* CrainWWR: (multiworld and Dolphin memory assistance, additional programming)
 * Celeste (Tia): (logic and typo fixes, additional programming)
 * DaemonHunter: (additional programming)
 * Ouro: (tracker support)
+* Tubamann: (additional programming)
 * Necrofitz: (additional documentation)
 * Gamma / SageOfMirrors: (additional programming)
 * Cyb3RGER: (reference for `TWWClient`)
