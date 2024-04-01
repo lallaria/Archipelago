@@ -2,25 +2,25 @@
 
 ## Required Software
 
-- [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases). Make sure to check the box for `SNI Client - Yoshi's Island Patch Setup`
+- [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases).
 
 
 - Hardware or software capable of loading and playing SNES ROM files
     - An emulator capable of connecting to SNI such as:
         - snes9x-rr from: [snes9x rr](https://github.com/gocha/snes9x-rr/releases),
         - BizHawk from: [TASVideos](https://tasvideos.org/BizHawk)
+        - snes9x-nwa from: [snes9x nwa](https://github.com/Skarsnik/snes9x-emunwa/releases)
+        
         NOTE: RetroArch and FXPakPro are not currently supported.
-- Your legally obtained Yoshi's Island ROM file, probably named `Super Mario World 2 - Yoshi's Island (U).sfc`
+- Your legally obtained Yoshi's Island English 1.0 ROM file, probably named `Super Mario World 2 - Yoshi's Island (U).sfc`
 
-## Optional Software
 
 ## Installation Procedures
 
 ### Windows Setup
 
-1. During the installation of Archipelago, you will have been asked to install the SNI Client. If you did not do this,
-   or you are on an older version, you may run the installer again to install the SNI Client.
-2. During setup, you will be asked to locate your base ROM file. This is your Yoshi's Island ROM file.
+1. Download and install Archipelago from the link above, making sure to install the most recent version.
+2. During generation/patching, you will be asked to locate your base ROM file. This is your Yoshi's Island ROM file.
 3. If you are using an emulator, you should assign your Lua capable emulator as your default program for launching ROM
    files.
     1. Extract your emulator's folder to your Desktop, or somewhere you will remember.
@@ -39,8 +39,8 @@ guide: [Basic Multiworld Setup Guide](/tutorial/Archipelago/setup/en)
 
 ### Where do I get a config file?
 
-The Player Settings page on the website allows you to configure your personal settings and export a config file from
-them. Player settings page: 
+The Player Options page on the website allows you to configure your personal settings and export a config file from
+them.
 
 ### Verifying your config file
 
