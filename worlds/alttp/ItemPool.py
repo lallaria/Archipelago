@@ -253,10 +253,8 @@ def generate_itempool(world):
         region.locations.append(loc)
 
         multiworld.push_item(loc, item_factory('Triforce', world), False)
-        loc.event = True
         loc.locked = True
 
-    multiworld.get_location('Ganon', player).event = True
     multiworld.get_location('Ganon', player).locked = True
     event_pairs = [
         ('Agahnim 1', 'Beat Agahnim 1'),
@@ -273,7 +271,7 @@ def generate_itempool(world):
         location = multiworld.get_location(location_name, player)
         event = item_factory(event_name, world)
         multiworld.push_item(location, event, False)
-        location.event = location.locked = True
+        location.locked = True
 
 
     # set up item pool
@@ -466,8 +464,6 @@ def generate_itempool(world):
             while len(items) > pool_count:
                 items_were_cut = False
                 for reduce_item in items_reduction_table:
-                    if len(items) <= pool_count:
-                        break
                     if len(reduce_item) == 2:
                         items_were_cut = items_were_cut or cut_item(items, *reduce_item)
                     elif len(reduce_item) == 4:
@@ -479,7 +475,10 @@ def generate_itempool(world):
                             items.remove(bottle)
                             removed_filler.append(bottle)
                             items_were_cut = True
-                assert items_were_cut, f"Failed to limit item pool size for player {player}"
+                    if items_were_cut:
+                        break
+                else:
+                    raise Exception(f"Failed to limit item pool size for player {player}")
     if len(items) < pool_count:
         items += removed_filler[len(items) - pool_count:]
 
@@ -686,12 +685,12 @@ def get_pool_core(world, player: int):
         if world.triforce_pieces_mode[player].value == TriforcePiecesMode.option_extra:
             triforce_pieces = world.triforce_pieces_available[player].value + world.triforce_pieces_extra[player].value
         elif world.triforce_pieces_mode[player].value == TriforcePiecesMode.option_percentage:
-            percentage = float(max(100, world.triforce_pieces_percentage[player].value)) / 100
-            triforce_pieces = int(round(world.triforce_pieces_required[player].value * percentage, 0))
+            percentage = float(world.triforce_pieces_percentage[player].value) / 100
+            triforce_pieces = round(world.triforce_pieces_required[player].value * percentage, 0)
         else:  # available
             triforce_pieces = world.triforce_pieces_available[player].value
 
-        triforce_pieces = max(triforce_pieces, world.triforce_pieces_required[player].value)
+        triforce_pieces = min(90, max(triforce_pieces, world.triforce_pieces_required[player].value))
 
         pieces_in_core = min(extraitems, triforce_pieces)
         additional_pieces_to_place = triforce_pieces - pieces_in_core
