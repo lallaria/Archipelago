@@ -4,11 +4,11 @@ from BaseClasses import Location, Item, ItemClassification
 
 
 class HatInTimeLocation(Location):
-    game: str = "A Hat in Time"
+    game = "A Hat in Time"
 
 
 class HatInTimeItem(Item):
-    game: str = "A Hat in Time"
+    game = "A Hat in Time"
 
 
 class HatType(IntEnum):
@@ -18,6 +18,13 @@ class HatType(IntEnum):
     ICE = 2
     DWELLER = 3
     TIME_STOP = 4
+
+
+class HitType(IntEnum):
+    none = 0
+    umbrella = 1
+    umbrella_or_brewing = 2
+    dweller_bell = 3
 
 
 class HatDLC(IntFlag):
@@ -56,13 +63,13 @@ class LocData(NamedTuple):
     paintings: Optional[int] = 0  # Paintings required for Subcon painting shuffle
     misc_required: Optional[List[str]] = []
 
-    # For UmbrellaLogic setting
-    umbrella: Optional[bool] = False  # Umbrella required for this check
-    hit_requirement: Optional[int] = 0  # Hit required. 1 = Umbrella/Brewing only, 2 = bypass w/Dweller Mask (bells)
+    # For UmbrellaLogic setting only.
+    hit_type: Optional[HitType] = HitType.none
 
     # Other
     act_event: Optional[bool] = False  # Only used for event locations. Copy access rule from act completion
     nyakuza_thug: Optional[str] = ""  # Name of Nyakuza thug NPC (for metro shops)
+    snatcher_coin: Optional[str] = ""  # Only for Snatcher Coin event locations, name of the Snatcher Coin item
 
 
 class ItemData(NamedTuple):

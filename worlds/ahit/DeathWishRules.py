@@ -1,26 +1,30 @@
-from worlds.AutoWorld import World, CollectionState
+from worlds.AutoWorld import CollectionState
 from .Rules import can_use_hat, can_use_hookshot, can_hit, zipline_logic, get_difficulty, has_paintings
-from .Types import HatType, Difficulty, HatInTimeLocation, HatInTimeItem, LocData
+from .Types import HatType, Difficulty, HatInTimeLocation, HatInTimeItem, LocData, HitType
 from .DeathWishLocations import dw_prereqs, dw_candles
 from BaseClasses import Entrance, Location, ItemClassification
 from worlds.generic.Rules import add_rule, set_rule
-from typing import List, Callable
+from typing import List, Callable, TYPE_CHECKING
 from .Regions import act_chapters
 from .Locations import zero_jumps, zero_jumps_expert, zero_jumps_hard, death_wishes
 
+if TYPE_CHECKING:
+    from . import HatInTimeWorld
+
+
 # Any speedruns expect the player to have Sprint Hat
 dw_requirements = {
-    "Beat the Heat": LocData(umbrella=True),
+    "Beat the Heat": LocData(hit_type=HitType.umbrella),
     "So You're Back From Outer Space": LocData(hookshot=True),
     "Mafia's Jumps": LocData(required_hats=[HatType.ICE]),
     "Vault Codes in the Wind": LocData(required_hats=[HatType.SPRINT]),
 
-    "Security Breach": LocData(hit_requirement=1),
+    "Security Breach": LocData(hit_type=HitType.umbrella_or_brewing),
     "10 Seconds until Self-Destruct": LocData(hookshot=True),
     "Community Rift: Rhythm Jump Studio": LocData(required_hats=[HatType.ICE]),
 
-    "Speedrun Well": LocData(hookshot=True, hit_requirement=1),
-    "Boss Rush": LocData(umbrella=True, hookshot=True),
+    "Speedrun Well": LocData(hookshot=True, hit_type=HitType.umbrella_or_brewing),
+    "Boss Rush": LocData(hit_type=HitType.umbrella, hookshot=True),
     "Community Rift: Twilight Travels": LocData(hookshot=True, required_hats=[HatType.DWELLER]),
 
     "Bird Sanctuary": LocData(hookshot=True),
@@ -98,14 +102,14 @@ required_snatcher_coins = {
 }
 
 
-def set_dw_rules(world: World):
-    if "Snatcher's Hit List" not in world.get_excluded_dws() \
-       or "Camera Tourist" not in world.get_excluded_dws():
+def set_dw_rules(world: "HatInTimeWorld"):
+    if "Snatcher's Hit List" not in world.excluded_dws \
+       or "Camera Tourist" not in world.excluded_dws:
         set_enemy_rules(world)
 
     dw_list: List[str] = []
     if world.options.DWShuffle.value > 0:
-        dw_list = world.get_dw_shuffle()
+        dw_list = world.dw_shuffle
     else:
         for name in death_wishes.keys():
             dw_list.append(name)
@@ -164,17 +168,21 @@ def set_dw_rules(world: World):
             for misc in data.misc_required:
                 add_rule(loc, lambda state, item=misc: state.has(item, world.player))
 
-            if data.umbrella and world.options.UmbrellaLogic.value > 0:
-                add_rule(loc, lambda state: state.has("Umbrella", world.player))
-
             if data.paintings > 0 and world.options.ShuffleSubconPaintings.value > 0:
                 add_rule(loc, lambda state, paintings=data.paintings: has_paintings(state, world, paintings))
 
-            if data.hit_requirement > 0:
-                if data.hit_requirement == 1:
-                    add_rule(loc, lambda state: can_hit(state, world))
-                elif data.hit_requirement == 2:  # Can bypass with Dweller Mask (dweller bells)
-                    add_rule(loc, lambda state: can_hit(state, world) or can_use_hat(state, world, HatType.DWELLER))
+            if data.hit_type is not HitType.none and world.options.UmbrellaLogic.value > 0:
+                if data.hit_type == HitType.umbrella:
+                    add_rule(loc, lambda state: state.has("Umbrella", world.player))
+
+                elif data.hit_type == HitType.umbrella_or_brewing:
+                    add_rule(loc, lambda state: state.has("Umbrella", world.player)
+                             or can_use_hat(state, world, HatType.BREWING))
+
+                elif data.hit_type == HitType.dweller_bell:
+                    add_rule(loc, lambda state: state.has("Umbrella", world.player)
+                             or can_use_hat(state, world, HatType.BREWING)
+                             or can_use_hat(state, world, HatType.DWELLER))
 
             main_rule = main_objective.access_rule
 
@@ -188,13 +196,12 @@ def set_dw_rules(world: World):
                     add_rule(bonus_stamps, loc.access_rule)
 
     if world.options.DWShuffle.value > 0:
-        dw_shuffle = world.get_dw_shuffle()
-        for i in range(len(dw_shuffle)):
+        for i in range(len(world.dw_shuffle)):
             if i == 0:
                 continue
 
-            name = dw_shuffle[i]
-            prev_dw = world.multiworld.get_region(dw_shuffle[i-1], world.player)
+            name = world.dw_shuffle[i]
+            prev_dw = world.multiworld.get_region(world.dw_shuffle[i-1], world.player)
             entrance = world.multiworld.get_entrance(f"{prev_dw.name} -> {name}", world.player)
             add_rule(entrance, lambda state, n=prev_dw.name: state.has(f"1 Stamp - {n}", world.player))
     else:
@@ -221,7 +228,7 @@ def set_dw_rules(world: World):
                                                                                       world.player)
 
 
-def modify_dw_rules(world: World, name: str):
+def modify_dw_rules(world: "HatInTimeWorld", name: str):
     difficulty: Difficulty = get_difficulty(world)
     main_objective = world.multiworld.get_location(f"{name} - Main Objective", world.player)
     full_clear = world.multiworld.get_location(f"{name} - All Clear", world.player)
@@ -267,11 +274,11 @@ def modify_dw_rules(world: World, name: str):
         set_candle_dw_rules(name, world)
 
 
-def get_total_dw_stamps(state: CollectionState, world: World) -> int:
+def get_total_dw_stamps(state: CollectionState, world: "HatInTimeWorld") -> int:
     if world.options.DWShuffle.value > 0:
         return 999  # no stamp costs in death wish shuffle
 
-    count: int = 0
+    count = 0
 
     for name in death_wishes:
         if name == "Snatcher Coins in Nyakuza Metro" and not world.is_dlc2():
@@ -290,7 +297,7 @@ def get_total_dw_stamps(state: CollectionState, world: World) -> int:
     return count
 
 
-def set_candle_dw_rules(name: str, world: World):
+def set_candle_dw_rules(name: str, world: "HatInTimeWorld"):
     main_objective = world.multiworld.get_location(f"{name} - Main Objective", world.player)
     full_clear = world.multiworld.get_location(f"{name} - All Clear", world.player)
 
@@ -322,13 +329,19 @@ def set_candle_dw_rules(name: str, world: World):
                  and state.has("Triple Enemy Picture", world.player))
 
     elif "Snatcher Coins" in name:
+        coins: List[str] = []
         for coin in required_snatcher_coins[name]:
-            add_rule(main_objective, lambda state: state.has(coin, world.player), "or")
+            coins.append(coin)
             add_rule(full_clear, lambda state: state.has(coin, world.player))
 
+        # any coin works for the main objective
+        add_rule(main_objective, lambda state: state.has(coins[0], world.player)
+                 or state.has(coins[1], world.player)
+                 or state.has(coins[2], world.player))
 
-def get_zero_jump_clear_count(state: CollectionState, world: World) -> int:
-    total: int = 0
+
+def get_zero_jump_clear_count(state: CollectionState, world: "HatInTimeWorld") -> int:
+    total = 0
 
     for name in act_chapters.keys():
         n = f"{name} (Zero Jumps)"
@@ -349,8 +362,8 @@ def get_zero_jump_clear_count(state: CollectionState, world: World) -> int:
     return total
 
 
-def get_reachable_enemy_count(state: CollectionState, world: World) -> int:
-    count: int = 0
+def get_reachable_enemy_count(state: CollectionState, world: "HatInTimeWorld") -> int:
+    count = 0
     for enemy in hit_list.keys():
         if enemy in bosses:
             continue
@@ -361,7 +374,7 @@ def get_reachable_enemy_count(state: CollectionState, world: World) -> int:
     return count
 
 
-def can_reach_all_bosses(state: CollectionState, world: World) -> bool:
+def can_reach_all_bosses(state: CollectionState, world: "HatInTimeWorld") -> bool:
     for boss in bosses:
         if not state.has(boss, world.player):
             return False
@@ -369,8 +382,8 @@ def can_reach_all_bosses(state: CollectionState, world: World) -> bool:
     return True
 
 
-def create_enemy_events(world: World):
-    no_tourist = "Camera Tourist" in world.get_excluded_dws() or "Camera Tourist" in world.get_excluded_bonuses()
+def create_enemy_events(world: "HatInTimeWorld"):
+    no_tourist = "Camera Tourist" in world.excluded_dws or "Camera Tourist" in world.excluded_bonuses
 
     for enemy, regions in hit_list.items():
         if no_tourist and enemy in bosses:
@@ -387,7 +400,7 @@ def create_enemy_events(world: World):
             if area == "Bluefin Tunnel" and not world.is_dlc2():
                 continue
             if world.options.DWShuffle.value > 0 and area in death_wishes.keys() \
-               and area not in world.get_dw_shuffle():
+               and area not in world.dw_shuffle:
                 continue
 
             region = world.multiworld.get_region(area, world.player)
@@ -401,7 +414,7 @@ def create_enemy_events(world: World):
             continue
 
         if world.options.DWShuffle.value > 0 and name in death_wishes.keys() \
-           and name not in world.get_dw_shuffle():
+           and name not in world.dw_shuffle:
             continue
 
         region = world.multiworld.get_region(name, world.player)
@@ -413,8 +426,8 @@ def create_enemy_events(world: World):
             add_rule(event, lambda state: can_use_hookshot(state, world) and can_use_hat(state, world, HatType.DWELLER))
 
 
-def set_enemy_rules(world: World):
-    no_tourist = "Camera Tourist" in world.get_excluded_dws() or "Camera Tourist" in world.get_excluded_bonuses()
+def set_enemy_rules(world: "HatInTimeWorld"):
+    no_tourist = "Camera Tourist" in world.excluded_dws or "Camera Tourist" in world.excluded_bonuses
 
     for enemy, regions in hit_list.items():
         if no_tourist and enemy in bosses:
@@ -432,7 +445,7 @@ def set_enemy_rules(world: World):
                 continue
 
             if world.options.DWShuffle.value > 0 and area in death_wishes \
-               and area not in world.get_dw_shuffle():
+               and area not in world.dw_shuffle:
                 continue
 
             event = world.multiworld.get_location(f"{enemy} - {area}", world.player)

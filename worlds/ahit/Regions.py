@@ -1,10 +1,12 @@
-from worlds.AutoWorld import World
 from BaseClasses import Region, Entrance, ItemClassification, Location
 from .Types import ChapterIndex, Difficulty, HatInTimeLocation, HatInTimeItem
 from .Locations import location_table, storybook_pages, event_locs, is_location_valid, \
     shop_locations, TASKSANITY_START_ID, snatcher_coins, zero_jumps, zero_jumps_expert, zero_jumps_hard
-import typing
+from typing import TYPE_CHECKING, List, Dict
 from .Rules import set_rift_rules, get_difficulty
+
+if TYPE_CHECKING:
+    from . import HatInTimeWorld
 
 
 # ChapterIndex: region
@@ -268,7 +270,7 @@ blacklisted_combos = {
 }
 
 
-def create_regions(world: World):
+def create_regions(world: "HatInTimeWorld"):
     w = world
     p = world.player
 
@@ -422,7 +424,7 @@ def create_regions(world: World):
         create_thug_shops(w)
 
 
-def create_rift_connections(world: World, region: Region):
+def create_rift_connections(world: "HatInTimeWorld", region: Region):
     i = 1
     for name in rift_access_regions[region.name]:
         act_region = world.multiworld.get_region(name, world.player)
@@ -436,7 +438,7 @@ def create_rift_connections(world: World, region: Region):
             world.multiworld.get_entrance(entrance.name, world.player)
 
 
-def create_tasksanity_locations(world: World):
+def create_tasksanity_locations(world: "HatInTimeWorld"):
     ship_shape: Region = world.multiworld.get_region("Ship Shape", world.player)
     id_start: int = TASKSANITY_START_ID
     for i in range(world.options.TasksanityCheckCount.value):
@@ -444,15 +446,37 @@ def create_tasksanity_locations(world: World):
         ship_shape.locations.append(location)
 
 
-def is_valid_plando(world: World, region: str) -> bool:
-    if region in blacklisted_acts.values() or region not in act_entrances.keys():
+def is_valid_plando(world: "HatInTimeWorld", region: str, is_candidate: bool = False) -> bool:
+    # Duplicated keys will throw an exception for us, but we still need to check for duplicated values
+    if is_candidate:
+        found_list: List = []
+        old_region = region
+        for name in world.options.ActPlando.keys():
+            act = world.options.ActPlando.get(name)
+            if act == old_region:
+                region = name
+                found_list.append(name)
+
+        if len(found_list) == 0:
+            return False
+
+        if len(found_list) > 1:
+            raise Exception(f"ActPlando ({world.multiworld.get_player_name(world.player)}) - "
+                  f"Duplicated act plando mapping found for act: \"{old_region}\"")
+    elif region not in world.options.ActPlando.keys():
         return False
 
-    if region not in world.options.ActPlando.keys():
+    if region in blacklisted_acts.values() or (region not in act_entrances.keys() and "Time Rift" not in region):
         return False
 
     act = world.options.ActPlando.get(region)
-    if act in blacklisted_acts.values() or act not in act_entrances.keys():
+    try:
+        world.multiworld.get_region(region, world.player)
+        world.multiworld.get_region(act, world.player)
+    except KeyError:
+        return False
+
+    if act in blacklisted_acts.values() or (act not in act_entrances.keys() and "Time Rift" not in act):
         return False
 
     # Don't allow plando-ing things onto the first act that aren't completable with nothing
@@ -471,24 +495,27 @@ def is_valid_plando(world: World, region: str) -> bool:
             return False
 
     # Don't allow straight up impossible mappings
-    if region == "The Illness has Spread" and act == "Alpine Free Roam":
+    if (region == "Time Rift - Curly Tail Trail"
+       or region == "Time Rift - The Twilight Bell"
+       or region == "The Illness has Spread") \
+       and act == "Alpine Free Roam":
         return False
 
-    if region == "Rush Hour" and act == "Nyakuza Free Roam":
-        return False
-
-    if region == "Time Rift - Rumbi Factory" and act == "Nyakuza Free Roam":
+    if (region == "Rush Hour" or region == "Time Rift - Rumbi Factory") \
+       and act == "Nyakuza Free Roam":
         return False
 
     if region == "Time Rift - The Owl Express" and act == "Murder on the Owl Express":
         return False
 
-    return any(a.name == world.options.ActPlando.get(region) for a in
-               world.multiworld.get_regions(world.player))
+    if region == "Time Rift - Deep Sea" and act == "Bon Voyage!":
+        return False
+
+    return any(a.name == world.options.ActPlando.get(region) for a in world.multiworld.get_regions(world.player))
 
 
-def randomize_act_entrances(world: World):
-    region_list: typing.List[Region] = get_act_regions(world)
+def randomize_act_entrances(world: "HatInTimeWorld"):
+    region_list: List[Region] = get_act_regions(world)
     world.random.shuffle(region_list)
 
     separate_rifts: bool = bool(world.options.ActRandomizer.value == 1)
@@ -509,27 +536,45 @@ def randomize_act_entrances(world: World):
             region_list.remove(region)
             region_list.append(region)
 
+    for name in world.options.ActPlando.keys():
+        try:
+            world.multiworld.get_region(name, world.player)
+        except KeyError:
+            print(f"[WARNING] ActPlando ({world.multiworld.get_player_name(world.player)}) - "
+                  f"Act \"{name}\" does not exist in the multiworld."
+                  f"Possible reasons are typos, case-sensitivity, or DLC options.")
+
     for region in region_list.copy():
         if region.name in world.options.ActPlando.keys():
-            if is_valid_plando(world, region.name):
+            try:
+                act = world.multiworld.get_region(world.options.ActPlando.get(region.name), world.player)
+            except KeyError:
+                print(f"[WARNING] ActPlando ({world.multiworld.get_player_name(world.player)}) - "
+                      f"Act \"{world.options.ActPlando.get(region.name)}\" does not exist in the multiworld."
+                      f"Possible reasons are typos, case-sensitivity, or DLC options.")
+                continue
+
+            if is_valid_plando(world, region.name) and is_valid_plando(world, act.name, True):
                 region_list.remove(region)
                 region_list.append(region)
+                region_list.remove(act)
+                region_list.append(act)
             else:
                 print(f"[WARNING] ActPlando "
-                        f"({world.multiworld.get_player_name(world.player)}) - "
-                        f"{region.name}: {world.options.ActPlando.get(region.name)} "
-                        f"is an invalid or disallowed act plando combination!")
+                      f"({world.multiworld.get_player_name(world.player)}) - "
+                      f"\"{region.name}: {world.options.ActPlando.get(region.name)}\" "
+                      f"is an invalid or disallowed act plando combination!")
 
     # Reverse the list, so we can do what we want to do first
     region_list.reverse()
 
-    shuffled_list: typing.List[Region] = []
-    mapped_list: typing.List[Region] = []
-    rift_dict: typing.Dict[str, Region] = {}
+    shuffled_list: List[Region] = []
+    mapped_list: List[Region] = []
+    rift_dict: Dict[str, Region] = {}
     first_chapter: Region = get_first_chapter_region(world)
     has_guaranteed: bool = False
 
-    i: int = 0
+    i = 0
     while i < len(region_list):
         region = region_list[i]
         i += 1
@@ -543,7 +588,7 @@ def randomize_act_entrances(world: World):
                and "Free Roam" not in act_entrances[region.name]:
                 continue
 
-            if region.name in world.options.ActPlando.keys() and is_valid_plando(world, region.name):
+            if is_valid_plando(world, region.name):
                 has_guaranteed = True
 
             i = 0
@@ -555,14 +600,14 @@ def randomize_act_entrances(world: World):
         mapped_list.append(region)
 
         # Look for candidates to map this act to
-        candidate_list: typing.List[Region] = []
+        candidate_list: List[Region] = []
         for candidate in region_list:
             # We're mapping something to the first act, make sure it is valid
             if not has_guaranteed:
                 if candidate.name not in guaranteed_first_acts:
                     continue
 
-                if candidate.name in world.options.ActPlando.values():
+                if is_valid_plando(world, candidate.name, True):
                     continue
 
                 # Not completable without Umbrella
@@ -579,7 +624,7 @@ def randomize_act_entrances(world: World):
                 has_guaranteed = True
                 break
 
-            if region.name in world.options.ActPlando.keys() and is_valid_plando(world, region.name):
+            if is_valid_plando(world, region.name):
                 candidate_list.clear()
                 candidate_list.append(
                    world.multiworld.get_region(world.options.ActPlando.get(region.name), world.player))
@@ -666,18 +711,24 @@ def randomize_act_entrances(world: World):
     set_rift_rules(world, rift_dict)
 
 
-def connect_time_rift(world: World, time_rift: Region, exit_region: Region):
+def connect_time_rift(world: "HatInTimeWorld", time_rift: Region, exit_region: Region):
     count: int = len(rift_access_regions[time_rift.name])
     i: int = 1
     while i <= count:
         name = f"{time_rift.name} Portal - Entrance {i}"
-        entrance: Entrance = world.multiworld.get_entrance(name, world.player)
+        entrance: Entrance
+        try:
+            entrance = world.multiworld.get_entrance(name, world.player)
+        except KeyError:
+            entrance = time_rift.entrances[0]
+
+        # noinspection PyUnboundLocalVariable
         reconnect_regions(entrance, entrance.parent_region, exit_region)
         i += 1
 
 
-def get_act_regions(world: World) -> typing.List[Region]:
-    act_list: typing.List[Region] = []
+def get_act_regions(world: "HatInTimeWorld") -> List[Region]:
+    act_list: List[Region] = []
     for region in world.multiworld.get_regions(world.player):
         if region.name in chapter_act_info.keys():
             if not is_act_blacklisted(world, region.name):
@@ -686,9 +737,9 @@ def get_act_regions(world: World) -> typing.List[Region]:
     return act_list
 
 
-def is_act_blacklisted(world: World, name: str) -> bool:
-    plando: bool = name in world.options.ActPlando.keys() \
-        or name in world.options.ActPlando.values()
+def is_act_blacklisted(world: "HatInTimeWorld", name: str) -> bool:
+    plando: bool = name in world.options.ActPlando.keys() and is_valid_plando(world, name) \
+        or name in world.options.ActPlando.values() and is_valid_plando(world, name, True)
 
     if name == "The Finale":
         return not plando and world.options.EndGoal.value == 1
@@ -702,7 +753,7 @@ def is_act_blacklisted(world: World, name: str) -> bool:
     return name in blacklisted_acts.values()
 
 
-def create_region(world: World, name: str) -> Region:
+def create_region(world: "HatInTimeWorld", name: str) -> Region:
     reg = Region(name, world.player, world.multiworld)
 
     for (key, data) in location_table.items():
@@ -726,18 +777,18 @@ def create_region(world: World, name: str) -> Region:
     return reg
 
 
-def create_badge_seller(world: World) -> Region:
+def create_badge_seller(world: "HatInTimeWorld") -> Region:
     badge_seller = Region("Badge Seller", world.player, world.multiworld)
     world.multiworld.regions.append(badge_seller)
-    count: int = 0
-    max_items: int = 0
+    count = 0
+    max_items = 0
 
     if world.options.BadgeSellerMaxItems.value > 0:
         max_items = world.random.randint(world.options.BadgeSellerMinItems.value,
                                          world.options.BadgeSellerMaxItems.value)
 
     if max_items <= 0:
-        world.set_badge_seller_count(0)
+        world.badge_seller_count = 0
         return badge_seller
 
     for (key, data) in shop_locations.items():
@@ -752,7 +803,7 @@ def create_badge_seller(world: World) -> Region:
         if count >= max_items:
             break
 
-    world.set_badge_seller_count(max_items)
+    world.badge_seller_count = max_items
     return badge_seller
 
 
@@ -782,7 +833,7 @@ def reconnect_regions(entrance: Entrance, start_region: Region, exit_region: Reg
     entrance.connect(exit_region)
 
 
-def create_region_and_connect(world: World,
+def create_region_and_connect(world: "HatInTimeWorld",
                               name: str, entrancename: str, connected_region: Region, is_exit: bool = True) -> Region:
 
     reg: Region = create_region(world, name)
@@ -800,38 +851,37 @@ def create_region_and_connect(world: World,
     return reg
 
 
-def get_first_chapter_region(world: World) -> Region:
-    start_chapter: ChapterIndex = world.options.StartingChapter.value
+def get_first_chapter_region(world: "HatInTimeWorld") -> Region:
+    start_chapter: ChapterIndex = ChapterIndex(world.options.StartingChapter.value)
     return world.multiworld.get_region(chapter_regions.get(start_chapter), world.player)
 
 
-def get_act_original_chapter(world: World, act_name: str) -> Region:
+def get_act_original_chapter(world: "HatInTimeWorld", act_name: str) -> Region:
     return world.multiworld.get_region(act_chapters[act_name], world.player)
 
 
 # Sets an act entrance in slot data by specifying the Hat_ChapterActInfo, to be used in-game
-def update_chapter_act_info(world: World, original_region: Region, new_region: Region):
+def update_chapter_act_info(world: "HatInTimeWorld", original_region: Region, new_region: Region):
     original_act_info = chapter_act_info[original_region.name]
     new_act_info = chapter_act_info[new_region.name]
     world.act_connections[original_act_info] = new_act_info
 
 
-def get_shuffled_region(self, region: str) -> str:
+def get_shuffled_region(world: "HatInTimeWorld", region: str) -> str:
     ci: str = chapter_act_info[region]
-    for key, val in self.act_connections.items():
+    for key, val in world.act_connections.items():
         if val == ci:
             for name in chapter_act_info.keys():
                 if chapter_act_info[name] == key:
                     return name
 
 
-def create_thug_shops(world: World):
+def create_thug_shops(world: "HatInTimeWorld"):
     min_items: int = min(world.options.NyakuzaThugMinShopItems.value, world.options.NyakuzaThugMaxShopItems.value)
     max_items: int = max(world.options.NyakuzaThugMaxShopItems.value, world.options.NyakuzaThugMinShopItems.value)
-    count: int = -1
-    step: int = 0
-    old_name: str = ""
-    thug_items = world.get_nyakuza_thug_items()
+    count = -1
+    step = 0
+    old_name = ""
 
     for key, data in shop_locations.items():
         if data.nyakuza_thug == "":
@@ -841,14 +891,14 @@ def create_thug_shops(world: World):
             continue
 
         try:
-            if thug_items[data.nyakuza_thug] <= 0:
+            if world.nyakuza_thug_items[data.nyakuza_thug] <= 0:
                 continue
         except KeyError:
             pass
 
         if count == -1:
             count = world.random.randint(min_items, max_items)
-            thug_items.setdefault(data.nyakuza_thug, count)
+            world.nyakuza_thug_items.setdefault(data.nyakuza_thug, count)
             if count <= 0:
                 continue
 
@@ -864,11 +914,9 @@ def create_thug_shops(world: World):
                 step = 0
                 count = -1
 
-    world.set_nyakuza_thug_items(thug_items)
 
-
-def create_events(world: World) -> int:
-    count: int = 0
+def create_events(world: "HatInTimeWorld") -> int:
+    count = 0
 
     for (name, data) in event_locs.items():
         if not is_location_valid(world, name):
@@ -877,7 +925,7 @@ def create_events(world: World) -> int:
         item_name: str = name
         if world.is_dw():
             if name in snatcher_coins.keys():
-                name = f"{name} ({data.region})"
+                item_name = data.snatcher_coin
             elif name in zero_jumps:
                 if get_difficulty(world) < Difficulty.HARD and name in zero_jumps_hard:
                     continue
@@ -892,7 +940,7 @@ def create_events(world: World) -> int:
     return count
 
 
-def create_event(name: str, item_name: str, region: Region, world: World) -> Location:
+def create_event(name: str, item_name: str, region: Region, world: "HatInTimeWorld") -> Location:
     event = HatInTimeLocation(world.player, name, None, region)
     region.locations.append(event)
     event.place_locked_item(HatInTimeItem(item_name, ItemClassification.progression, None, world.player))
