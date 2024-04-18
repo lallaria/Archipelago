@@ -94,6 +94,8 @@ def download_slot_file(room_id, player_id: int):
             fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.apmq"
         elif slot_data.game == "The Wind Waker":
             fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.aptww"
+        elif slot_data.game == "Mario & Luigi Superstar Saga":
+            fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.apmlss"
         else:
             return "Game download not supported."
         return send_file(io.BytesIO(slot_data.data), as_attachment=True, download_name=fname)
