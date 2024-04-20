@@ -168,6 +168,8 @@ def create():
             if option_name in visible
         }
 
+        filtered_player_options["gameItems"] = list(world.item_names)
+
         with open(os.path.join(target_folder, 'player-options', game_name + ".json"), "w") as f:
             json.dump(filtered_player_options, f, indent=2, separators=(',', ': '))
 

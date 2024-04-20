@@ -99,17 +99,70 @@ const createDefaultOptions = (optionData) => {
 const buildUI = (optionData) => {
   // Game Options
   const leftGameOpts = {};
-  const rightGameOpts = {};
+  const centerGameOpts = {};
   Object.keys(optionData.gameOptions).forEach((key, index) => {
     if (index < Object.keys(optionData.gameOptions).length / 2) {
       leftGameOpts[key] = optionData.gameOptions[key];
     } else {
-      rightGameOpts[key] = optionData.gameOptions[key];
+      centerGameOpts[key] = optionData.gameOptions[key];
     }
   });
   document.getElementById('game-options-left').appendChild(buildOptionsTable(leftGameOpts));
-  document.getElementById('game-options-right').appendChild(buildOptionsTable(rightGameOpts));
+  document.getElementById('game-options-center').appendChild(buildOptionsTable(centerGameOpts));
+  document.getElementById('game-options-right').appendChild(buildStartingItemsTable(optionData.gameItems));
 };
+
+const buildStartingItemsTable = (gameItems) => {
+  const currentOptions = JSON.parse(localStorage.getItem(gameName));
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const label = document.createElement('label');
+  label.textContent = `Starting Items:`;
+
+  const questionSpan = document.createElement('span');
+  questionSpan.classList.add('interactive');
+  questionSpan.setAttribute('data-tooltip', "Select items you want to have from the start (multiple selections with Shift/Ctrl).");
+  questionSpan.innerText = '(?)';
+  questionSpan.style.marginLeft = "5px";
+
+  label.appendChild(questionSpan);
+  
+  thead.appendChild(label);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  const multiSelectBox = document.createElement('div');
+  multiSelectBox.classList.add('starting-items-container');
+  let select = document.createElement('select');
+  select.setAttribute("multiple", "multiple");
+  gameItems.forEach(item => {
+    const optionElement = document.createElement('option');
+    optionElement.setAttribute('value', item);item
+    optionElement.innerText = item;
+
+    select.appendChild(optionElement);
+  });
+  select.addEventListener('change', (event) => setStartingItems(select.selectedOptions));
+  multiSelectBox.appendChild(select);
+  tbody.appendChild(multiSelectBox);
+  table.appendChild(tbody);
+  
+  return table;
+}
+
+const setStartingItems = (activeItems) => {
+  let listOfItems = Array.from(activeItems).map(({ value }) => value);
+
+  localStorage.setItem(`${gameName}-preset`, '__custom');
+  const presetElement = document.getElementById('game-options-preset');
+  presetElement.value = '__custom';
+
+  const options = JSON.parse(localStorage.getItem(gameName));
+
+  options[gameName]["start_inventory"] = Object.fromEntries(listOfItems.map(itemName => [itemName, 1]));
+  console.log(options[gameName]["start_inventory"]);
+  localStorage.setItem(gameName, JSON.stringify(options));
+}
 
 const buildOptionsTable = (options, romOpts = false) => {
   const currentOptions = JSON.parse(localStorage.getItem(gameName));
