@@ -113,7 +113,6 @@ const buildUI = (optionData) => {
 };
 
 const buildStartingItemsTable = (gameItems) => {
-  const currentOptions = JSON.parse(localStorage.getItem(gameName));
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const label = document.createElement('label');
@@ -135,7 +134,9 @@ const buildStartingItemsTable = (gameItems) => {
   multiSelectBox.classList.add('starting-items-container');
   let select = document.createElement('select');
   select.setAttribute("multiple", "multiple");
-  gameItems.forEach(item => {
+  
+  let sortedItems = gameItems.sort();
+  sortedItems.forEach(item => {
     const optionElement = document.createElement('option');
     optionElement.setAttribute('value', item);item
     optionElement.innerText = item;
