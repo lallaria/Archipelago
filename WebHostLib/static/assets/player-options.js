@@ -134,7 +134,7 @@ const buildStartingItemsTable = (gameItems) => {
   multiSelectBox.classList.add('starting-items-container');
   let select = document.createElement('select');
   select.setAttribute("multiple", "multiple");
-  
+
   let sortedItems = gameItems.sort();
   sortedItems.forEach(item => {
     const optionElement = document.createElement('option');
@@ -161,7 +161,6 @@ const setStartingItems = (activeItems) => {
   const options = JSON.parse(localStorage.getItem(gameName));
 
   options[gameName]["start_inventory"] = Object.fromEntries(listOfItems.map(itemName => [itemName, 1]));
-  console.log(options[gameName]["start_inventory"]);
   localStorage.setItem(gameName, JSON.stringify(options));
 }
 
