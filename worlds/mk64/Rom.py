@@ -5,14 +5,12 @@ import struct
 import os
 import bsdiff4
 import pkgutil
-import unicodedata
 
 from typing import TYPE_CHECKING
 import settings
 import Utils
 from worlds.Files import APDeltaPatch
 
-from . import Items
 from .Locations import ID_BASE
 from .Options import CourseOrder, ShuffleDriftAbilities, ConsistentItemBoxes
 
@@ -32,9 +30,9 @@ class Addr:
     SAVE_SIZE = 0x200
     SAVE_LOCKED_ITEM_CLUSTERS = SAVE + 0x1B
     SAVE_LOCKED_ITEM_CLUSTERS_SIZE = 9
-    SAVE_UNCHECKED_LOCATIONS = SAVE_LOCKED_ITEM_CLUSTERS + SAVE_LOCKED_ITEM_CLUSTERS_SIZE
-    SAVE_UNCHECKED_LOCATIONS_SIZE = 56
-    SAVE_IDENTIFIED_ITEM_BOXES = SAVE_UNCHECKED_LOCATIONS + SAVE_UNCHECKED_LOCATIONS_SIZE
+    SAVE_UNCHECKED_LOCATIONS = SAVE + 0x24
+    SAVE_UNCHECKED_LOCATIONS_SIZE = 73
+    SAVE_IDENTIFIED_ITEM_BOXES = SAVE + 0x6D
     SAVE_IDENTIFIED_ITEM_BOXES_SIZE = 43
     PLAYER_NAME = SAVE + SAVE_SIZE
     PLAYER_NAME_SIZE = 64
@@ -51,7 +49,6 @@ class Addr:
     SHUFFLE_RAILINGS = FREE_MINI_TURBO + 1
     FEATHER_AVAILABLE = SHUFFLE_RAILINGS + 1
     CONSISTENT_ITEM_BOXES = FEATHER_AVAILABLE + 1
-    ENGINE_CLASSES = CONSISTENT_ITEM_BOXES + 1
     # Generation Flags
     # AP Items and pickup strings
     ITEMS = 0xC002C8  # APItem[583] at 3 bytes each
@@ -65,7 +62,6 @@ class Addr:
     GAME_STATUS_BYTE = 0x400019
     NUM_ITEMS_RECEIVED = 0x40001A
     LOCATIONS_UNCHECKED = 0x400024
-    ENGINE_CLASSES_RAM = 0x400260
     RECEIVE_ITEM_ID = 0x40028E
     RECEIVE_CLASSIFICATION = RECEIVE_ITEM_ID + 1
     RECEIVE_PLAYER_NAME = RECEIVE_CLASSIFICATION + 1
@@ -92,7 +88,6 @@ def generate_rom_patch(world: "MK64World", output_directory: str) -> None:
         drift = ((opt.drift == ShuffleDriftAbilities.option_off and 0xAAAA) or
                  (opt.drift == ShuffleDriftAbilities.option_free_drift and 0x5555) or 0)
         blues = 0b11 if opt.special_boxes else 0
-        kart_unlocks = sum(1 << Items.item_name_groups["Karts"].index(kart) for kart in world.starting_karts)
         tires_off_road = 0 if opt.traction else 0xFF
         tires_winter = 0 if opt.traction else 0xFF
         locked_cups = 0b1110    # only Mushroom Cup starts unlocked
@@ -104,7 +99,7 @@ def generate_rom_patch(world: "MK64World", output_directory: str) -> None:
         rom.write_int16(Addr.SAVE + 0x8, locked_courses)
         rom.write_int16(Addr.SAVE + 0xA, drift)
         rom.write_byte(Addr.SAVE + 0xF,  blues)
-        rom.write_byte(Addr.SAVE + 0x14, kart_unlocks)
+        rom.write_byte(Addr.SAVE + 0x14, world.driver_unlocks)
         rom.write_byte(Addr.SAVE + 0x15, tires_off_road)
         rom.write_byte(Addr.SAVE + 0x16, tires_winter)
         rom.write_byte(Addr.SAVE + 0x17, (locked_cups << 4) | switches)
@@ -125,7 +120,7 @@ def generate_rom_patch(world: "MK64World", output_directory: str) -> None:
         rom.write_bytes(Addr.PLAYER_NAME, player_name_bytes)
         seed_name_bytes = multiworld.seed_name.encode("utf-8")
         if len(seed_name_bytes) > 20:
-            raise ValueError(f"Multiworld.seed_name {multiworld.seed_name} was longer than the 20 byte expectation.")
+            seed_name_bytes = seed_name_bytes[-20:]
         rom.write_bytes(Addr.SEED_NAME, [0] * Addr.SEED_NAME_SIZE)
         rom.write_bytes(Addr.SEED_NAME, seed_name_bytes)
 
@@ -146,9 +141,6 @@ def generate_rom_patch(world: "MK64World", output_directory: str) -> None:
         rom.write_byte(Addr.CONSISTENT_ITEM_BOXES, opt.consistent)
         if opt.consistent == ConsistentItemBoxes.option_on:
             rom.write_bytes(Addr.SAVE_IDENTIFIED_ITEM_BOXES, [0xFF] * Addr.SAVE_IDENTIFIED_ITEM_BOXES_SIZE)
-        rom.write_int16(Addr.ENGINE_CLASSES, opt.low_engine)
-        rom.write_int16(Addr.ENGINE_CLASSES + 2, opt.middle_engine)
-        rom.write_int16(Addr.ENGINE_CLASSES + 4, opt.high_engine)
         rom.write_byte(Addr.GENERATION_DONE, 1)
         rom.write_byte(Addr.GENERATION_LOCKED, 1)
 
@@ -181,15 +173,13 @@ def generate_rom_patch(world: "MK64World", output_directory: str) -> None:
             addr = Addr.ITEMS + Addr.ITEM_SIZE * local_loc_id
             rom.write_byte(addr + 1, loc.item.classification & 0b111)  # 0=FILLER,1=PROGRESSION,2=USEFUL,4=TRAP
             rom.write_byte(addr + 2, i)  # pickup_id, used by the game to reference player name and item name
-            pickup_item_name = unicodedata.normalize("NFKD", loc.item.name)\
-                                          .encode("ascii", "ignore")[:Addr.ITEM_NAME_SIZE]
+            pickup_item_name = loc.item.name.encode("ascii")[:Addr.ITEM_NAME_SIZE]
             rom.write_bytes(Addr.PICKUP_ITEM_NAMES + i * Addr.ITEM_NAME_SIZE, pickup_item_name)
             if loc.item.player == player:
                 rom.write_byte(addr, loc.item.code - ID_BASE)  # local_id (0 to 211)
             else:
                 rom.write_byte(addr, 0xFF)  # local_id of 0xFF indicates nonlocal item
-                pickup_player_name = unicodedata.normalize("NFKD", multiworld.player_name[loc.item.player])\
-                                                .encode("ascii", "ignore")[:Addr.ASCII_PLAYER_NAME_SIZE]
+                pickup_player_name = multiworld.player_name[loc.item.player].encode("ascii")
                 rom.write_bytes(Addr.PICKUP_PLAYER_NAMES + Addr.ASCII_PLAYER_NAME_SIZE * i, pickup_player_name)
         rom.write_bytes(Addr.SAVE_UNCHECKED_LOCATIONS, initial_unchecked_locs)
 
