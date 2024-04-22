@@ -36,11 +36,10 @@ class MarioKart64Client(BizHawkClient):
             # Check if we can read the slot name. Doing this here instead of set_auth as a protection against
             # validating a ROM where there's no slot name to read.
             try:
-                read_state = await bizhawk.read(ctx.bizhawk_ctx, [(Addr.PLAYER_NAME, Addr.PLAYER_NAME_SIZE, "ROM"),
-                                                                  (Addr.SEED_NAME, Addr.SEED_NAME_SIZE, "ROM"),
-                                                                  (Addr.ENGINE_CLASSES, 6, "ROM")])
-                player_name_bytes = read_state[0]
-                seed_name_bytes = read_state[1]
+                player_name_bytes = (await bizhawk.read(ctx.bizhawk_ctx,
+                                                      [(Addr.PLAYER_NAME, Addr.PLAYER_NAME_SIZE, "ROM")]))[0]
+                seed_name_bytes = (await bizhawk.read(ctx.bizhawk_ctx,
+                                                      [(Addr.SEED_NAME, Addr.SEED_NAME_SIZE, "ROM")]))[0]
                 self.rom_slot_name = (bytes([byte for byte in player_name_bytes if byte != 0]).decode("utf-8"))
             except UnicodeDecodeError:
                 logger.info("Could not read slot name from ROM. Are you sure this ROM matches this client version?")
