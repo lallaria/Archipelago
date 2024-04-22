@@ -2,8 +2,7 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 from . import Locations
-from Options import Choice, DefaultOnToggle, Toggle, Range, OptionList, StartInventoryPool, PerGameCommonOptions, \
-    NamedRange
+from Options import Choice, DefaultOnToggle, Toggle, Range, OptionList, StartInventoryPool, PerGameCommonOptions
 
 if TYPE_CHECKING:
     from . import MK64World
@@ -29,17 +28,6 @@ class GameMode(Choice):
     display_name = "Game Mode"
     option_cups = 0
     option_courses = 1
-    default = 0
-
-
-class Goal(Choice):
-    """Determines the victory condition.
-
-    Final Win: Victory is placed at Special Cup 150cc Gold on Cups Mode, or 1st on the last course on Courses Mode
-    All Wins: Victory requires 150cc Gold on all cups on Cups Mode, or 1st on all courses on Courses Mode"""
-    display_name = "Goal"
-    option_final_win = 0
-    option_all_wins = 1
     default = 0
 
 
@@ -116,24 +104,6 @@ class TwoLapCourses(Choice):
     default = 0
 
 
-class CupTrophyLocations(Choice):
-    """Which sets of trophies are used as location checks. Finishing a cup will reward items for that trophy and engine
-    class, and all below. For example, getting 100cc Silver will also give 100cc Bronze, 50cc Silver, and 50cc Bronze.
-
-    ▃ Three: Bronze, Silver, and Gold (any engine class)
-    ▞ Three Scaling: Bronze, 100cc Silver, 150cc Gold
-    ▟ Five: Bronze, Silver, and Gold, 100cc Gold, 150cc Gold
-    ▟ Six: Bronze, Silver, and Gold, 100cc Silver, 100cc Gold, 150cc Gold
-    █ Nine: All three trophies in all three engine classes"""
-    display_name = "Cup Trophy Locations"
-    option_three = 0b0001
-    option_three_scaling = 0b0010
-    option_five = 0b0101
-    option_six = 0b0111
-    option_nine = 0b1111
-    default = 0b0101
-
-
 class HazardLocations(DefaultOnToggle):
     """Whether to include hazards which can be destroyed or defeated by the star power as location checks."""
     display_name = "Add Hazard Locations"
@@ -146,7 +116,7 @@ class SecretLocations(DefaultOnToggle):
 
 class ShuffleDriftAbilities(Choice):
     """Optionally shuffle into the item pool the ability to drift and the ability to use mini-turbos as progressive
-    unlocks per kart. "Plentiful" shuffles a 3rd progressive unlock into the pool. "Free Drift" means karts start
+    unlocks per driver. "Plentiful" shuffles a 3rd progressive unlock into the pool. "Free Drift" means drivers start
     with the ability to drift. "Free mini-turbo" means both abilities will be obtained together."""
     display_name = "Shuffle Drift Abilities"
     option_off = 0
@@ -165,13 +135,13 @@ class ShuffleDriftAbilities(Choice):
 
 class TractionTires(DefaultOnToggle):
     """Optionally shuffle into the item pool the ability to have traction on off-road and winter surface types,
-    per kart. "Off" means karts always have traction, as in the vanilla game."""
+    per driver. "Off" means karts always have traction, as in the vanilla game."""
     display_name = "Add Traction Tires"
 
 
 class StartingItems(DefaultOnToggle):
-    """Optionally shuffle into the item pool a random item power to start each race with, per kart. For example
-    Mario may be able to start each race with a blue shell. Which item is random per kart."""
+    """Optionally shuffle into the item pool a random item power to start each race with, per driver. For example
+    Mario may be able to start each race with a blue shell. Which item is random per driver."""
     display_name = "Add Starting Items"
 
 
@@ -230,7 +200,7 @@ class FillerTrapPercentage(Range):
     display_name = "Filler Trap Percentage"
     range_start = 0
     range_end = 100
-    default = 10
+    default = 20
 
 
 class MinimumFillerItems(Range):
@@ -238,48 +208,8 @@ class MinimumFillerItems(Range):
     (More filler items helps generation succeed. Future versions will be less fragile to generation failure.)"""
     display_name = "Minimum Filler Items"
     range_start = 0
-    range_end = 60
+    range_end = 40
     default = 30
-
-
-class LowEngineClass(NamedRange):
-    """Adjust the 50cc engine class. Capped 25cc below the Middle Engine Class.
-
-    Below Middle Random: A flat random distribution from 35cc to 25cc below Middle Engine Class.
-
-    Can be changed later with /low_engine_class [value]"""
-    display_name = "Low Engine Class"
-    range_start = 35
-    range_end = 150
-    default = 50
-    special_range_names = {
-        "random_below_middle": 0
-    }
-
-
-class MiddleEngineClass(NamedRange):
-    """Adjust the 100cc engine class.
-
-    Can be changed later with /middle_engine_class [value]"""
-    display_name = "Middle Engine Class"
-    range_start = 60
-    range_end = 175
-    default = 100
-
-
-class HighEngineClass(NamedRange):
-    """Adjust the 150cc engine class. Capped 25cc above the Middle Engine Class.
-
-    Above Middle Random: A flat random distribution from 25cc above the Middle Engine Class to 200cc.
-
-    Can be changed later with /high_engine_class [value]"""
-    display_name = "High Engine Class"
-    range_start = 85
-    range_end = 200
-    default = 150
-    special_range_names = {
-        "random_above_middle": 0
-    }
 
 
 class FixResultsMusic(DefaultOnToggle):
@@ -304,14 +234,12 @@ class MK64Options(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
     two_player: TwoPlayer
     game_mode: GameMode
-    goal: Goal
     locked_courses: LockedCourses
     course_order: CourseOrder
     logic_difficulty: LogicDifficulty
     final_course_pool: FinalCoursePool
     mirror_course_chance: MirrorCourseChance
     two_lap_courses: TwoLapCourses
-    cup_trophy_locations: CupTrophyLocations
     hazard_locations: HazardLocations
     secret_locations: SecretLocations
     shuffle_drift_abilities: ShuffleDriftAbilities
@@ -326,9 +254,6 @@ class MK64Options(PerGameCommonOptions):
     shuffle_item_box_clusters: ShuffleItemBoxClusters
     filler_trap_percentage: FillerTrapPercentage
     minimum_filler_items: MinimumFillerItems
-    low_engine_class: LowEngineClass
-    middle_engine_class: MiddleEngineClass
-    high_engine_class: HighEngineClass
     fix_results_music: FixResultsMusic
     sound_mode: SoundMode
 
@@ -339,14 +264,12 @@ class Opt:
         # Relevant Options
         self.two_player =      world.options.two_player.value
         self.mode =            world.options.game_mode.value
-        self.goal =            world.options.goal.value
         self.course_order =    world.options.course_order.value
         self.locked_courses =  world.options.locked_courses.value
         self.logic =           world.options.logic_difficulty.value
         self.final_pool =      world.options.final_course_pool.value
         self.mirror_chance =   world.options.mirror_course_chance.value
         self.two_lap_courses = world.options.two_lap_courses.value
-        self.trophies =        world.options.cup_trophy_locations.value
         self.hazards =         world.options.hazard_locations.value
         self.secrets =         world.options.secret_locations.value
         self.drift =           world.options.shuffle_drift_abilities.value
@@ -361,7 +284,4 @@ class Opt:
         self.clusters =        world.options.shuffle_item_box_clusters.value
         self.trap_percentage = world.options.filler_trap_percentage.value
         self.min_filler =      world.options.minimum_filler_items.value
-        self.low_engine =      world.options.low_engine_class.value
-        self.middle_engine =   world.options.middle_engine_class.value
-        self.high_engine =     world.options.high_engine_class.value
         self.fix_music =       world.options.fix_results_music.value

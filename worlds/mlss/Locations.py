@@ -17,7 +17,7 @@ class MLSSLocation(Location):
     game: str = "Mario & Luigi Superstar Saga"
 
 
-hidden: typing.List[int] = [
+hidden = [
     0x39D8C5,
     0x39D90F,
     0x39D9E9,
@@ -273,10 +273,10 @@ coins: typing.List[LocationData] = [
     LocationData("Sewers Prison Room Coin Block", 0x39e01e, 0),
     LocationData("Gwarhar Lagoon First Underwater Area Room 2 Coin Block", 0x39e455, 0),
     LocationData("Teehee Valley Past Ultra Hammer Rocks Coin Block", 0x39e588, 0),
-    LocationData("S.S Chuckola Storage Room Coin Block 1", 0x39e618, 0),
-    LocationData("S.S Chuckola Storage Room Coin Block 2", 0x39e620, 0),
-    LocationData("Jokes End Second Floor West Room Coin Block", 0x39e771, 0),
-    LocationData("Jokes End North of Bridge Room Coin Block", 0x39e836, 0),
+    LocationData("S.S. Chuckola Storage Room Coin Block 1", 0x39e618, 0),
+    LocationData("S.S. Chuckola Storage Room Coin Block 2", 0x39e620, 0),
+    LocationData("Joke's End Second Floor West Room Coin Block", 0x39e771, 0),
+    LocationData("Joke's End North of Bridge Room Coin Block", 0x39e836, 0),
     LocationData("Outside Woohoo Hooniversity Coin Block 1", 0x39e9ad, 0),
     LocationData("Outside Woohoo Hooniversity Coin Block 2", 0x39e9bd, 0),
     LocationData("Outside Woohoo Hooniversity Coin Block 3", 0x39e9c5, 0),
@@ -313,7 +313,7 @@ chucklehuck: typing.List[LocationData] = [
     LocationData("Chateau Popple Fight Room Block 1", 0x39dd38, 0),
     LocationData("Chateau Popple Fight Room Block 2", 0x39dd48, 0),
     LocationData("Chateau Popple Fight Room Digspot", 0x39dd50, 0),
-    LocationData("Chateau Barrel Room Digspot ", 0x39dd5d, 0),
+    LocationData("Chateau Barrel Room Digspot", 0x39dd5d, 0),
     LocationData("Chateau Goblet Room Digspot", 0x39dd6d, 0),
     LocationData("Chucklehuck Woods Cave Room 1 Block 1", 0x39dd82, 0),
     LocationData("Chucklehuck Woods Cave Room 1 Block 2", 0x39dd8a, 0),
@@ -549,8 +549,8 @@ surfable: typing.List[LocationData] = [
     LocationData("Ocean South Whirlpool Digspot 5", 0x39e0fa, 0),
     LocationData("Ocean South Whirlpool Digspot 6", 0x39e102, 0),
     LocationData("Ocean South Whirlpool Room 2 Digspot", 0x39e10f, 0),
-    LocationData("Jokes End Pipe Digspot", 0x39e6c2, 0),
-    LocationData("Jokes End Staircase Digspot", 0x39e6cf, 0),
+    LocationData("Joke's End Pipe Digspot", 0x39e6c2, 0),
+    LocationData("Joke's End Staircase Digspot", 0x39e6cf, 0),
     LocationData("Surf Minigame", 0x2753ea, 1),
     LocationData("North Ocean Whirlpool Mole", 0x277956, 1),
     LocationData("Beanbean Outskirts Surf Beach Digspot 1", 0x39dcfb, 0),
@@ -627,9 +627,9 @@ teeheeValley: typing.List[LocationData] = [
     LocationData("Teehee Valley Past Ultra Hammers Digspot 3", 0x39e5a8, 0),
     LocationData("Teehee Valley Solo Luigi Maze Room 1 Block", 0x39e5e0, 0),
     LocationData("Teehee Valley Before Trunkle Digspot", 0x39e5f0, 0),
-    LocationData("S.S Chuckola Storage Room Block 1", 0x39e610, 0),
-    LocationData("S.S Chuckola Storage Room Block 2", 0x39e628, 0),
-    LocationData("S.S Chuckola Membership Card", 0x260637, 1)
+    LocationData("S.S. Chuckola Storage Room Block 1", 0x39e610, 0),
+    LocationData("S.S. Chuckola Storage Room Block 2", 0x39e628, 0),
+    LocationData("S.S. Chuckola Membership Card", 0x260637, 1)
 ]
 
 fungitown: typing.List[LocationData] = [
@@ -703,47 +703,47 @@ bowsersMini: typing.List[LocationData] = [
 ]
 
 jokesEntrance: typing.List[LocationData] = [
-    LocationData("Jokes End West of First Boiler Room Block 1", 0x39e6e5, 0),
-    LocationData("Jokes End West of First Boiler Room Block 2", 0x39e6ed, 0),
-    LocationData("Jokes End First Boiler Room Digspot 1", 0x39e6fa, 0),
-    LocationData("Jokes End First Boiler Room Digspot 2", 0x39e702, 0),
-    LocationData("Jokes End Second Floor West Room Block 1", 0x39e761, 0),
-    LocationData("Jokes End Second Floor West Room Block 2", 0x39e769, 0),
-    LocationData("Jokes End Second Floor West Room Block 3", 0x39e779, 0),
-    LocationData("Jokes End Second Floor West Room Block 4", 0x39e781, 0),
-    LocationData("Jokes End Mole Reward 1", 0x27788e, 1),
-    LocationData("Jokes End Mole Reward 2", 0x2778d2, 1)
+    LocationData("Joke's End West of First Boiler Room Block 1", 0x39e6e5, 0),
+    LocationData("Joke's End West of First Boiler Room Block 2", 0x39e6ed, 0),
+    LocationData("Joke's End First Boiler Room Digspot 1", 0x39e6fa, 0),
+    LocationData("Joke's End First Boiler Room Digspot 2", 0x39e702, 0),
+    LocationData("Joke's End Second Floor West Room Block 1", 0x39e761, 0),
+    LocationData("Joke's End Second Floor West Room Block 2", 0x39e769, 0),
+    LocationData("Joke's End Second Floor West Room Block 3", 0x39e779, 0),
+    LocationData("Joke's End Second Floor West Room Block 4", 0x39e781, 0),
+    LocationData("Joke's End Mole Reward 1", 0x27788e, 1),
+    LocationData("Joke's End Mole Reward 2", 0x2778d2, 1)
 ]
 
 jokesMain: typing.List[LocationData] = [
-    LocationData("Jokes End Furnace Room 1 Block 1", 0x39e70f, 0),
-    LocationData("Jokes End Furnace Room 1 Block 2", 0x39e717, 0),
-    LocationData("Jokes End Furnace Room 1 Block 3", 0x39e71f, 0),
-    LocationData("Jokes End Northeast of Boiler Room 1 Block", 0x39e732, 0),
-    LocationData("Jokes End Northeast of Boiler Room 3 Digspot", 0x39e73f, 0),
-    LocationData("Jokes End Northeast of Boiler Room 2 Block", 0x39e74c, 0),
-    LocationData("Jokes End Northeast of Boiler Room 2 Digspot", 0x39e754, 0),
-    LocationData("Jokes End Second Floor East Room Digspot", 0x39e794, 0),
-    LocationData("Jokes End Final Split up Room Digspot", 0x39e7a7, 0),
-    LocationData("Jokes End South of Bridge Room Block", 0x39e7b4, 0),
-    LocationData("Jokes End Solo Luigi Room 1 Block", 0x39e7c4, 0),
-    LocationData("Jokes End Solo Luigi Room 1 Digspot", 0x39e7cc, 0),
-    LocationData("Jokes End Solo Mario Final Room Block 1", 0x39e7d9, 0),
-    LocationData("Jokes End Solo Mario Final Room Block 2", 0x39e7e1, 0),
-    LocationData("Jokes End Solo Mario Final Room Block 3", 0x39e7e9, 0),
-    LocationData("Jokes End Solo Luigi Room 2 Digspot", 0x39e7fc, 0),
-    LocationData("Jokes End Solo Mario Room 1 Digspot", 0x39e809, 0),
-    LocationData("Jokes End Solo Mario Room 2 Block 1", 0x39e819, 0),
-    LocationData("Jokes End Solo Mario Room 2 Block 2", 0x39e821, 0),
-    LocationData("Jokes End Solo Mario Room 2 Block 3", 0x39e829, 0),
-    LocationData("Jokes End Second Boiler Room Digspot 1", 0x39e84f, 0),
-    LocationData("Jokes End Second Boiler Room Digspot 2", 0x39e857, 0),
-    LocationData("Jokes End North of Second Boiler Room Block 1", 0x39e864, 0),
-    LocationData("Jokes End North of Second Boiler Room Block 2", 0x39e86c, 0),
-    LocationData("Jokes End Before Jojora Room Block 1", 0x39e927, 0),
-    LocationData("Jokes End Before Jojora Room Block 2", 0x39e92f, 0),
-    LocationData("Jokes End Before Jojora Room Digspot", 0x39e937, 0),
-    LocationData("Jokes End Jojora Room Digspot", 0x39e944, 0)
+    LocationData("Joke's End Furnace Room 1 Block 1", 0x39e70f, 0),
+    LocationData("Joke's End Furnace Room 1 Block 2", 0x39e717, 0),
+    LocationData("Joke's End Furnace Room 1 Block 3", 0x39e71f, 0),
+    LocationData("Joke's End Northeast of Boiler Room 1 Block", 0x39e732, 0),
+    LocationData("Joke's End Northeast of Boiler Room 3 Digspot", 0x39e73f, 0),
+    LocationData("Joke's End Northeast of Boiler Room 2 Block", 0x39e74c, 0),
+    LocationData("Joke's End Northeast of Boiler Room 2 Digspot", 0x39e754, 0),
+    LocationData("Joke's End Second Floor East Room Digspot", 0x39e794, 0),
+    LocationData("Joke's End Final Split up Room Digspot", 0x39e7a7, 0),
+    LocationData("Joke's End South of Bridge Room Block", 0x39e7b4, 0),
+    LocationData("Joke's End Solo Luigi Room 1 Block", 0x39e7c4, 0),
+    LocationData("Joke's End Solo Luigi Room 1 Digspot", 0x39e7cc, 0),
+    LocationData("Joke's End Solo Mario Final Room Block 1", 0x39e7d9, 0),
+    LocationData("Joke's End Solo Mario Final Room Block 2", 0x39e7e1, 0),
+    LocationData("Joke's End Solo Mario Final Room Block 3", 0x39e7e9, 0),
+    LocationData("Joke's End Solo Luigi Room 2 Digspot", 0x39e7fc, 0),
+    LocationData("Joke's End Solo Mario Room 1 Digspot", 0x39e809, 0),
+    LocationData("Joke's End Solo Mario Room 2 Block 1", 0x39e819, 0),
+    LocationData("Joke's End Solo Mario Room 2 Block 2", 0x39e821, 0),
+    LocationData("Joke's End Solo Mario Room 2 Block 3", 0x39e829, 0),
+    LocationData("Joke's End Second Boiler Room Digspot 1", 0x39e84f, 0),
+    LocationData("Joke's End Second Boiler Room Digspot 2", 0x39e857, 0),
+    LocationData("Joke's End North of Second Boiler Room Block 1", 0x39e864, 0),
+    LocationData("Joke's End North of Second Boiler Room Block 2", 0x39e86c, 0),
+    LocationData("Joke's End Before Jojora Room Block 1", 0x39e927, 0),
+    LocationData("Joke's End Before Jojora Room Block 2", 0x39e92f, 0),
+    LocationData("Joke's End Before Jojora Room Digspot", 0x39e937, 0),
+    LocationData("Joke's End Jojora Room Digspot", 0x39e944, 0)
 ]
 
 postJokes: typing.List[LocationData] = [
@@ -774,7 +774,7 @@ oasis: typing.List[LocationData] = [
     LocationData("Oho Oasis Thunderhand", 0x1e9409, 2)
 ]
 
-nonBlock: list[(int, int, int)] = [
+nonBlock = [
     (0x434B, 0x1, 0x243844),  # Farm Mole 1
     (0x434B, 0x1, 0x24387d),  # Farm Mole 2
     (0x4373, 0x8, 0x2779C8),  # Simulblock Mole
@@ -856,7 +856,7 @@ nonBlock: list[(int, int, int)] = [
     (0x433D, 0x10, 0xDA0008)  # Birdo
 ]
 
-roomException: dict[int, list[int]] = {
+roomException = {
     0x1e9437: [0xFE, 0xFF, 0x100],
     0x24ed74: [0x94, 0x95, 0x96, 0x99],
     0x250621: [0x94, 0x95, 0x96, 0x99],
@@ -867,7 +867,7 @@ roomException: dict[int, list[int]] = {
     0x2578e7: [0x79, 0x192, 0x193]
 }
 
-beanstones: dict[int, int] = {
+beanstones = {
     0x229345: 0x39dc72,  # Bean fruit 1 - 6
     0x22954D: 0x39dcb4,
     0x228A17: 0x39dbd1,
@@ -886,7 +886,7 @@ beanstones: dict[int, int] = {
     0x25181F: 0x39d78b
 }
 
-roomCount: dict[int, int] = {
+roomCount = {
     0x15: 2,
     0x18: 4,
     0x19: 3,
@@ -1091,17 +1091,17 @@ roomCount: dict[int, int] = {
     0x1F7: 1,
 }
 
-shop: dict[int, []] = {
+shop = {
     0x3c05f0: [0x3c05f0, 0x3c05f2, 0x3c05f4, 0x3c05f8, 0x3c05fc, 0x3c05fe, 0x3c0600, 0x3c0602, 0x3c0606, 0x3c0608, 0x3c060c, 0x3c060e, 0x3c0610, 0x3c0614],
     0x3c066a: [0x3c066a, 0x3c066c, 0x3c066e, 0x3c0670, 0x3c0672, 0x3c0674, 0x3c0676, 0x3c0678, 0x3c067c, 0x3c0680]
 }
 
-badge: dict[int, []] = {
+badge = {
     0x3c0618: [0x3c0618, 0x3c061a, 0x3c0624, 0x3c0626, 0x3c0628, 0x3c0632, 0x3c0634, 0x3c0636, 0x3c0640, 0x3c0642, 0x3c0644, 0x3c064e, 0x3c0650, 0x3c0652, 0x3c065c, 0x3c065e, 0x3c0660],
     0x3c0684: [0x3c0684, 0x3c0686, 0x3c0688, 0x3c0692, 0x3c0694, 0x3c069c, 0x3c069e]
 }
 
-pants: dict[int, []] = {
+pants = {
     0x3c0618: [0x3c061C, 0x3c061E, 0x3c0620, 0x3c062a, 0x3c062c, 0x3c062e, 0x3c0638, 0x3c063a, 0x3c063c, 0x3c0646, 0x3c0648, 0x3c064a, 0x3c0654, 0x3c0656, 0x3c0658, 0x3c0662, 0x3c0664, 0x3c0666],
     0x3c0684: [0x3c068a, 0x3c068c, 0x3c068e, 0x3c0696, 0x3c0698, 0x3c06a0, 0x3c06a2]
 }

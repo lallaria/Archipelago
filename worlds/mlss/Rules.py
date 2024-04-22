@@ -287,21 +287,21 @@ def set_rules(world: "MLSSWorld", excluded):
                  lambda state: StateLogic.rose(state, world.player))
         add_rule(world.multiworld.get_location("Teehee Valley Past Ultra Hammer Rocks Coin Block", world.player),
                  lambda state: StateLogic.ultra(state, world.player))
-        add_rule(world.multiworld.get_location("S.S Chuckola Storage Room Coin Block 1", world.player),
+        add_rule(world.multiworld.get_location("S.S. Chuckola Storage Room Coin Block 1", world.player),
                  lambda state: StateLogic.super(state, world.player) or StateLogic.canDash(state, world.player))
         add_rule(world.multiworld.get_location("Gwarhar Lagoon First Underwater Area Room 2 Coin Block", world.player),
                  lambda state: StateLogic.canDash(state, world.player) and (StateLogic.membership(state, world.player) or StateLogic.surfable(state, world.player)))
-        add_rule(world.multiworld.get_location("S.S Chuckola Storage Room Coin Block 2", world.player),
+        add_rule(world.multiworld.get_location("S.S. Chuckola Storage Room Coin Block 2", world.player),
                  lambda state: StateLogic.super(state, world.player) or StateLogic.canDash(state, world.player))
-        add_rule(world.multiworld.get_location("Jokes End Second Floor West Room Coin Block", world.player),
+        add_rule(world.multiworld.get_location("Joke's End Second Floor West Room Coin Block", world.player),
                  lambda state: StateLogic.ultra(state, world.player) and StateLogic.fire(state, world.player)
                  and (StateLogic.membership(state, world.player)
                  or (StateLogic.canDig(state, world.player) and StateLogic.canMini(state, world.player))))
-        add_rule(world.multiworld.get_location("Jokes End North of Bridge Room Coin Block", world.player),
+        add_rule(world.multiworld.get_location("Joke's End North of Bridge Room Coin Block", world.player),
                  lambda state: StateLogic.ultra(state, world.player) and StateLogic.fire(state, world.player)
                  and StateLogic.canDig(state, world.player)
                  and (StateLogic.membership(state, world.player)
                  or StateLogic.canMini(state, world.player)))
         if not world.options.difficult_logic:
-            add_rule(world.multiworld.get_location("Jokes End North of Bridge Room Coin Block", world.player),
+            add_rule(world.multiworld.get_location("Joke's End North of Bridge Room Coin Block", world.player),
                      lambda state: StateLogic.canCrash(state, world.player))

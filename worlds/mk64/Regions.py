@@ -1,10 +1,8 @@
 from typing import TYPE_CHECKING
-from BaseClasses import Region
+from BaseClasses import Region, Location
 
-from . import Courses
-from .Locations import (MK64Location, Group, item_cluster_locations, course_locations, shared_hazard_locations,
-                        cup_locations, cup_events)
-from .Options import GameMode, Goal
+from . import Locations, Courses
+from .Options import GameMode
 from .Rules import course_qualify_rules
 
 if TYPE_CHECKING:
@@ -15,23 +13,23 @@ def add_region(world: "MK64World", region_name: str, region_group: list[Region])
     region_group.append(Region(region_name, world.player, world.multiworld))
 
 
-def add_location(player: int, loc_name: str, code: int | None, region: Region) -> MK64Location:
-    location = MK64Location(player, loc_name, code, region)
+def add_location(player: int, loc_name: str, code: int, region: Region) -> Locations.MK64Location:
+    location = Locations.MK64Location(player, loc_name, code, region)
     region.locations.append(location)
     return location
 
 
-def create_regions_locations_connections(world: "MK64World"):
+def create_regions_locations_connections(world: "MK64World") -> tuple[Location, list[int]]:
     multiworld = world.multiworld
     player = world.player
     opt = world.opt
     shuffle_clusters = world.shuffle_clusters
     filler_spots = world.filler_spots
 
-    location_group_mask = (Group.base
-                           | (opt.hazards and Group.hazard)
-                           | (opt.secrets and Group.secret)
-                           | (opt.special_boxes and Group.blue_shell_item_spot))
+    location_group_mask = (Locations.Group.base
+                           | (opt.hazards and Locations.Group.hazard)
+                           | (opt.secrets and Locations.Group.secret)
+                           | (opt.special_boxes and Locations.Group.blue_shell_item_spot))
 
     # Prepare Region Handling
     menu_region = Region("Menu", player, multiworld)
@@ -44,7 +42,7 @@ def create_regions_locations_connections(world: "MK64World"):
     world.random.shuffle(filler_spots)
     item_spot_data = []
     c, s, t = 0, 0, -1
-    for region in item_cluster_locations:
+    for region in Locations.item_cluster_locations:
         item_spot_data.append([])
         for cluster in region:
             if shuffle_clusters[c]:
@@ -60,7 +58,7 @@ def create_regions_locations_connections(world: "MK64World"):
                     s += 1
 
     # Construct Course Regions and Locations
-    for (course_name, locs), spot_data_clusters in zip(course_locations.items(), item_spot_data):
+    for (course_name, locs), spot_data_clusters in zip(Locations.course_locations.items(), item_spot_data):
         add_region(world, course_name, course_regions)
         for loc_name, (code, group) in locs.items():
             if group & location_group_mask:
@@ -72,20 +70,19 @@ def create_regions_locations_connections(world: "MK64World"):
 
     # Shared Hazard Regions & Locations & Connections
     if opt.hazards:
-        for name, (code, courses) in shared_hazard_locations.items():
+        for name, (code, courses) in Locations.shared_hazard_locations.items():
             add_region(world, name, shared_hazard_regions)
             add_location(player, name, code, shared_hazard_regions[-1])
-            for c, region in enumerate(course_regions):
-                if c in courses:
-                    region.connect(shared_hazard_regions[-1])
+            for region in course_regions:
+                if region.name in courses:
+                    region.connect(name, "Use Star")
 
     # Cup Regions & Locations
     if opt.mode == GameMode.option_cups:
-        for cup, locations in cup_locations.items():
-            add_region(world, cup + " Trophy Ceremony", cup_regions)
-            for name, code, option_filter in locations:
-                if option_filter & opt.trophies:
-                    add_location(player, name, code, cup_regions[-1])
+        for cup, locations in Locations.cup_locations.items():
+            add_region(world, cup, cup_regions)
+            for name, code in locations.items():
+                add_location(player, name, code, cup_regions[-1])
 
     # Determine Course Order
     order = Courses.determine_order(world)
@@ -105,12 +102,12 @@ def create_regions_locations_connections(world: "MK64World"):
                     lambda state, qualify_rule=course_qualify_rules[order[c-1]]: qualify_rule(state, player, opt.logic))
             else:
                 menu_region.connect(course_regions[c], entrance_names[c],
-                                    lambda state, count=c//4: state.has("Progressive Cup", player, count))
+                                    lambda state, count=c//4: state.has("Progressive Cup Unlock", player, count))
                 course_regions[c+3].connect(cup_regions[c//4], entrance_names[c][:-1] + "Finish")
     else:  # GameMode.option_courses
         for i in range(16):
             locks = max(0, i + opt.locked_courses - 15)
-            rule = (lambda state, k=locks: state.has("Progressive Course", player, k)) if locks > 0 else None
+            rule = (lambda state, k=locks: state.has("Progressive Course Unlock", player, k)) if locks > 0 else None
             menu_region.connect(course_regions[i], f"Course {i + 1}", rule)
 
     # Register regions (and locations)
@@ -124,18 +121,13 @@ def create_regions_locations_connections(world: "MK64World"):
         # print(entrance.name + " => " + entrance.connected_region.name)
 
     # Place Victory Event Location
-    if opt.goal == Goal.option_final_win:
-        if opt.mode == GameMode.option_cups:
-            cup_regions[-1].locations[-1].address = None
-            cup_regions[-1].locations[-1].event = True
-            victory_location = cup_regions[-1].locations[-1]
-        else:
-            course_regions[15].locations[2].address = None
-            course_regions[15].locations[2].event = True
-            victory_location = course_regions[15].locations[2]
+    if opt.mode == GameMode.option_cups:
+        cup_regions[-1].locations[-1].address = None
+        cup_regions[-1].locations[-1].event = True
+        victory_event_location = cup_regions[-1].locations[-1]
     else:
-        for c in range(4):
-            add_location(player, cup_events[c], None, cup_regions[c])
-        victory_location = add_location(player, "All Golds", None, menu_region)
-    world.course_order = order
-    world.victory_location = victory_location
+        course_regions[15].locations[2].address = None
+        course_regions[15].locations[2].event = True
+        victory_event_location = course_regions[15].locations[2]
+
+    return victory_event_location, order
