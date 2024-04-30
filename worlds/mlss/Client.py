@@ -168,10 +168,10 @@ class MLSSClient(BizHawkClient):
                     if location >= 0xDA0000:
                         await ctx.send_msgs([{
                             "cmd": "Set",
-                            "key": f"mlss_flag{location - 0xD9FFFF}_{ctx.team}_{ctx.slot}",
+                            "key": f"mlss_flag_{ctx.team}_{ctx.slot}",
                             "default": 0,
                             "want_reply": False,
-                            "operations": [{"operation": "replace", "value": 1}]
+                            "operations": [{"operation": "or", "value": 1 << (location - 0xDA0000)}]
                         }])
                         continue
                     if location in roomException:
@@ -217,7 +217,7 @@ class MLSSClient(BizHawkClient):
                             self.checked_flags[byte_i] += [j]
                             locs_to_send.add(pointer)
 
-            if not ctx.finished_game and cackletta != 0:
+            if not ctx.finished_game and cackletta != 0 and current_room == 0x1C7:
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL

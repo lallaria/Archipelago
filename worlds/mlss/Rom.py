@@ -94,17 +94,17 @@ class MLSSPatchExtension(APPatchExtension):
     @staticmethod
     def hidden_visible(caller: APProcedurePatch, rom: bytes):
         options = json.loads(caller.get_file("options.json").decode("UTF-8"))
-        if options["hidden_visible"] == 0 and options["blocks_invisible"] == 0:
+        if options["block_visibility"] == 0:
             return rom
         stream = io.BytesIO(rom)
 
         for location in all_locations:
             stream.seek(location.id - 6)
             b = stream.read(1)
-            if b[0] == 0x10 and options["hidden_visible"]:
+            if b[0] == 0x10 and options["block_visibility"] == 1:
                 stream.seek(location.id - 6)
                 stream.write(bytes([0x0]))
-            if b[0] == 0x0 and options["blocks_invisible"]:
+            if b[0] == 0x0 and options["block_visibility"] == 2:
                 stream.seek(location.id - 6)
                 stream.write(bytes([0x10]))
 
@@ -225,7 +225,7 @@ class MLSSPatchExtension(APPatchExtension):
                     stream.seek(-3, 1)
                     stream.write(bytes([enemies_raw.pop()]))
                     stream.seek(1, 1)
-                    stream.write(bytes([0x4]))
+                    stream.write(bytes([0x6]))
                     stream.seek(1, 1)
                 else:
                     stream.seek(3, 1)
@@ -278,8 +278,7 @@ def write_tokens(world: "MLSSWorld", patch: MLSSProcedurePatch) -> None:
         "castle_skip": world.options.castle_skip.value,
         "randomize_sounds": world.options.randomize_sounds.value,
         "music_options": world.options.music_options.value,
-        "hidden_visible": world.options.hidden_visible.value,
-        "blocks_invisible": world.options.blocks_invisible.value,
+        "block_visibility": world.options.block_visibility.value,
         "seed": world.multiworld.seed,
         "player": world.player
     }
@@ -297,6 +296,13 @@ def write_tokens(world: "MLSSWorld", patch: MLSSProcedurePatch) -> None:
         APTokenTypes.WRITE,
         0xDF00A0,
         world.multiworld.seed_name.encode("UTF-8")
+    )
+
+    # Bake patch into header
+    patch.write_token(
+        APTokenTypes.WRITE,
+        0xAD,
+        "P".encode("UTF-8")
     )
 
     # Intro Skip
@@ -377,15 +383,15 @@ def write_tokens(world: "MLSSWorld", patch: MLSSProcedurePatch) -> None:
     if world.options.scale_stats:
         patch.write_token(
             APTokenTypes.WRITE,
-            0x1E9418,
+            0xD00002,
             bytes([0x1])
         )
 
-    if world.options.scale_pow:
+    if world.options.xp_multiplier:
         patch.write_token(
             APTokenTypes.WRITE,
-            0x1E9419,
-            bytes([0x1])
+            0xD00003,
+            bytes([world.options.xp_multiplier.value])
         )
 
     if world.options.tattle_hp:
