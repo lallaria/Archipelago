@@ -29,6 +29,7 @@ class TWWFlag(Flag):
     XPENSVE = auto()
     ISLND_P = auto()
     MISCELL = auto()
+    BOSS = auto()
     OTHER = auto()
 
 
@@ -71,6 +72,15 @@ class TWWLocation(Location):
         base_id: int = 2326528
         return base_id + code if code is not None else None
 
+
+DUNGEON_NAMES = [
+    "Dragon Roost Cavern",
+    "Forbidden Woods",
+    "Tower of the Gods",
+    "Forsaken Fortress",
+    "Earth Temple",
+    "Wind Temple",
+]
 
 LOCATION_TABLE: dict[str, TWWLocationData] = {
     # Outset Island
@@ -307,7 +317,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         74, TWWFlag.DUNGEON | TWWFlag.DG_SCRT, "Dragon Roost Cavern", 0x3, TWWLocationType.PCKUP, 6
     ),
     "Dragon Roost Cavern - Gohma Heart Container": TWWLocationData(
-        75, TWWFlag.DUNGEON, "Gohma Boss Arena", 0x3, TWWLocationType.PCKUP, 21
+        75, TWWFlag.DUNGEON | TWWFlag.BOSS, "Gohma Boss Arena", 0x3, TWWLocationType.PCKUP, 21
     ),
 
     # Forest Haven
@@ -371,7 +381,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         94, TWWFlag.DUNGEON, "Forbidden Woods", 0x4, TWWLocationType.CHEST, 14
     ),
     "Forbidden Woods - Kalle Demos Heart Container": TWWLocationData(
-        95, TWWFlag.DUNGEON, "Kalle Demos Boss Arena", 0x4, TWWLocationType.PCKUP, 21
+        95, TWWFlag.DUNGEON | TWWFlag.BOSS, "Kalle Demos Boss Arena", 0x4, TWWLocationType.PCKUP, 21
     ),
 
     # Greatfish Isle
@@ -426,7 +436,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         111, TWWFlag.DUNGEON, "Tower of the Gods", 0x5, TWWLocationType.CHEST, 0
     ),
     "Tower of the Gods - Gohdan Heart Container": TWWLocationData(
-        112, TWWFlag.DUNGEON, "Gohdan Boss Arena", 0x5, TWWLocationType.PCKUP, 21
+        112, TWWFlag.DUNGEON | TWWFlag.BOSS, "Gohdan Boss Arena", 0x5, TWWLocationType.PCKUP, 21
     ),
 
     # Hyrule
@@ -451,7 +461,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         118, TWWFlag.DUNGEON, "The Great Sea", 0x2, TWWLocationType.CHEST, 1
     ),
     "Forsaken Fortress - Helmaroc King Heart Container": TWWLocationData(
-        119, TWWFlag.DUNGEON, "Helmaroc King Boss Arena", 0x2, TWWLocationType.PCKUP, 21
+        119, TWWFlag.DUNGEON | TWWFlag.BOSS, "Helmaroc King Boss Arena", 0x2, TWWLocationType.PCKUP, 21
     ),
 
     # Mother and Child Isles
@@ -545,7 +555,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         146, TWWFlag.DUNGEON, "Earth Temple", 0x6, TWWLocationType.CHEST, 6
     ),
     "Earth Temple - Jalhalla Heart Container": TWWLocationData(
-        147, TWWFlag.DUNGEON, "Jalhalla Boss Arena", 0x6, TWWLocationType.PCKUP, 21
+        147, TWWFlag.DUNGEON | TWWFlag.BOSS, "Jalhalla Boss Arena", 0x6, TWWLocationType.PCKUP, 21
     ),
 
     # Wind Temple
@@ -595,7 +605,7 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
         162, TWWFlag.DUNGEON, "Wind Temple", 0x7, TWWLocationType.CHEST, 12
     ),
     "Wind Temple - Molgera Heart Container": TWWLocationData(
-        163, TWWFlag.DUNGEON, "Molgera Boss Arena", 0x7, TWWLocationType.PCKUP, 21
+        163, TWWFlag.DUNGEON | TWWFlag.BOSS, "Molgera Boss Arena", 0x7, TWWLocationType.PCKUP, 21
     ),
 
     # Ganon's Tower
@@ -1193,3 +1203,65 @@ VANILLA_DUNGEON_ITEM_LOCATIONS: dict[str, list[str]] = {
     "ET Compass": ["Earth Temple - Chest In Three Blocks Room"],
     "WT Compass": ["Wind Temple - Chest In Middle Of Hub Room"],
 }
+
+
+ISLAND_NUMBER_TO_NAME = {
+    1: "Forsaken Fortress Sector",
+    2: "Star Island",
+    3: "Northern Fairy Island",
+    4: "Gale Isle",
+    5: "Crescent Moon Island",
+    6: "Seven-Star Isles",
+    7: "Overlook Island",
+    8: "Four-Eye Reef",
+    9: "Mother and Child Isles",
+    10: "Spectacle Island",
+    11: "Windfall Island",
+    12: "Pawprint Isle",
+    13: "Dragon Roost Island",
+    14: "Flight Control Platform",
+    15: "Western Fairy Island",
+    16: "Rock Spire Isle",
+    17: "Tingle Island",
+    18: "Northern Triangle Island",
+    19: "Eastern Fairy Island",
+    20: "Fire Mountain",
+    21: "Star Belt Archipelago",
+    22: "Three-Eye Reef",
+    23: "Greatfish Isle",
+    24: "Cyclops Reef",
+    25: "Six-Eye Reef",
+    26: "Tower of the Gods Sector",
+    27: "Eastern Triangle Island",
+    28: "Thorned Fairy Island",
+    29: "Needle Rock Isle",
+    30: "Islet of Steel",
+    31: "Stone Watcher Island",
+    32: "Southern Triangle Island",
+    33: "Private Oasis",
+    34: "Bomb Island",
+    35: "Bird's Peak Rock",
+    36: "Diamond Steppe Island",
+    37: "Five-Eye Reef",
+    38: "Shark Island",
+    39: "Southern Fairy Island",
+    40: "Ice Ring Isle",
+    41: "Forest Haven",
+    42: "Cliff Plateau Isles",
+    43: "Horseshoe Island",
+    44: "Outset Island",
+    45: "Headstone Island",
+    46: "Two-Eye Reef",
+    47: "Angular Isles",
+    48: "Boating Course",
+    49: "Five-Star Isles",
+}
+
+
+def split_location_name_by_zone(location_name: str) -> tuple[str, str]:
+    if " - " in location_name:
+        zone_name, specific_location_name = location_name.split(" - ", 1)
+    else:
+        zone_name = specific_location_name = location_name
+
+    return zone_name, specific_location_name
