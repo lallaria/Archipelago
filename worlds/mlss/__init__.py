@@ -173,9 +173,6 @@ class MLSSWorld(World):
     def get_filler_item_name(self) -> str:
         return self.random.choice(list(filter(lambda item: item.classification == ItemClassification.filler, itemList)))
 
-    def get_filler_item_name(self) -> str:
-        return self.random.choice(list(filter(lambda item: item.progression == ItemClassification.filler, itemList)))
-
     def generate_output(self, output_directory: str) -> None:
         patch = MLSSProcedurePatch(player=self.player, player_name=self.multiworld.player_name[self.player])
         patch.write_file("base_patch.bsdiff4", pkgutil.get_data(__name__, "data/basepatch.bsdiff"))
