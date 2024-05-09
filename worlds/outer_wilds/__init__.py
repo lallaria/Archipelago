@@ -24,6 +24,11 @@ class OuterWildsWebWorld(WebWorld):
 
 
 class OuterWildsWorld(World):
+    """
+    Outer Wilds is an action-adventure game set in a small planetary system in which the player character, an unnamed four-eyed Hearthian space explorer referred to as the Hatchling, explores and investigates its mysteries in a self-directed manner. 
+    Whenever the Hatchling dies, the game resets to the beginning; this happens regardless after 22 minutes of gameplay due to the sun going supernova. 
+    The player uses these repeated time loops to discover the secrets of the Nomai, an alien species that has left ruins scattered throughout the planetary system, including why the sun is exploding.
+    """
     game = "Outer Wilds"
     web = OuterWildsWebWorld()
 
