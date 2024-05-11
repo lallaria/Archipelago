@@ -424,6 +424,11 @@ def set_moderate_rules(world: "HatInTimeWorld"):
              lambda state: state.has("TIHS Access", world.player)
              and can_use_hat(state, world, HatType.SPRINT), "or")
 
+    # Moderate: Finale Telescope with only Ice Hat
+    add_rule(world.multiworld.get_entrance("Telescope -> Time's End", world.player),
+             lambda state: state.has("Time Piece", world.player, world.chapter_timepiece_costs[ChapterIndex.FINALE])
+             and can_use_hat(state, world, HatType.ICE), "or")
+
     # Moderate: Finale without Hookshot
     set_rule(world.multiworld.get_location("Act Completion (The Finale)", world.player),
              lambda state: can_use_hat(state, world, HatType.DWELLER))
@@ -493,13 +498,9 @@ def set_hard_rules(world: "HatInTimeWorld"):
     add_rule(world.multiworld.get_location("Act Completion (Time Rift - Curly Tail Trail)", world.player),
              lambda state: can_sdj(state, world), "or")
 
-    # Finale Telescope with only Ice Hat
-    add_rule(world.multiworld.get_entrance("Telescope -> Time's End", world.player),
-             lambda state: can_use_hat(state, world, HatType.ICE), "or")
-
     # Hard: Goat Refinery from TIHS with nothing
     add_rule(world.multiworld.get_location("Alpine Skyline - Goat Refinery", world.player),
-             lambda state: state.has("TIHS Access", world.player, "or"))
+             lambda state: state.has("TIHS Access", world.player), "or")
 
     if world.is_dlc1():
         # Hard: clear Deep Sea without Dweller Mask
