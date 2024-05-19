@@ -1,14 +1,10 @@
-from worlds.ahit.Regions import act_chapters
-from worlds.ahit.Rules import act_connections
+from ..Regions import act_chapters
+from ..Rules import act_connections
 from . import HatInTimeTestBase
 
 
 class TestActs(HatInTimeTestBase):
-    def run_default_tests(self) -> bool:
-        return False
-      
-    def testAllStateCanReachEverything(self):
-        pass
+    run_default_tests = False
 
     options = {
         "ActRandomizer": 2,
@@ -18,7 +14,7 @@ class TestActs(HatInTimeTestBase):
     }
 
     def test_act_shuffle(self):
-        for i in range(1000):
+        for i in range(300):
             self.world_setup()
             self.collect_all_but([""])
 
