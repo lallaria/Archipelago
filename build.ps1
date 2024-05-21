@@ -13,6 +13,7 @@ cd .\build\
 Rename-Item "exe.$NAME" Archipelago
 Write-Output "### Adding Dolphin memory engine ###"
 Copy-Item -Path "..\lib\dolphin_memory_engine" -Destination ".\Archipelago\lib\" -Recurse
+Copy-Item -Path "..\lib\py_randomprime" -Destination ".\Archipelago\lib\" -Recurse
 Write-Output "### Archive Build ###"
 C:\"Program Files"\7-Zip\7z.exe a -mx=9 -mhe=on -ms "../dist/$ZIP_NAME" Archipelago
 cd ..
