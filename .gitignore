@@ -78,8 +78,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib
-!worlds/**/lib
 lib64/
 parts/
 sdist/

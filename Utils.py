@@ -537,12 +537,6 @@ def init_logging(name: str, loglevel: typing.Union[str, int] = logging.INFO, wri
     import threading
     threading.Thread(target=_cleanup, name="LogCleaner").start()
     import platform
-    logging.info(
-        f"Archipelago ({__version__}) logging initialized"
-        f" on {platform.platform()}"
-        f" running Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
-    )
-
 
 def stream_input(stream, queue):
     def queuer():

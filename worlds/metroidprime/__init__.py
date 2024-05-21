@@ -11,7 +11,7 @@ from .Rules import set_rules
 from .config import make_config
 from worlds.AutoWorld import World
 from ..AutoWorld import WebWorld
-import inc.py_randomprime
+import lib.py_randomprime
 import settings
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
 
