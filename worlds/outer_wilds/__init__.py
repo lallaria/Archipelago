@@ -3,7 +3,9 @@ from typing import TextIO
 
 from BaseClasses import Tutorial
 from worlds.AutoWorld import WebWorld, World
-# from .Coordinates import generate_random_coordinates
+from .Coordinates import coordinate_description, generate_random_coordinates
+from .DBLayout import generate_random_db_layout
+from .Orbits import generate_random_orbits
 from .Items import OuterWildsItem, all_non_event_items_table, item_name_groups, create_item, create_items
 from .LocationsAndRegions import all_non_event_locations_table, location_name_groups, create_regions
 from .Options import OuterWildsGameOptions
@@ -24,20 +26,23 @@ class OuterWildsWebWorld(WebWorld):
 
 
 class OuterWildsWorld(World):
-    """
-    Outer Wilds is an action-adventure game set in a small planetary system in which the player character, an unnamed four-eyed Hearthian space explorer referred to as the Hatchling, explores and investigates its mysteries in a self-directed manner. 
-    Whenever the Hatchling dies, the game resets to the beginning; this happens regardless after 22 minutes of gameplay due to the sun going supernova. 
-    The player uses these repeated time loops to discover the secrets of the Nomai, an alien species that has left ruins scattered throughout the planetary system, including why the sun is exploding.
-    """
     game = "Outer Wilds"
     web = OuterWildsWebWorld()
 
-    # eotu_coordinates = 'vanilla'
+    eotu_coordinates = 'vanilla'
+    db_layout = 'vanilla'
+    planet_order = 'vanilla'
+    orbit_angles = 'vanilla'
+    rotation_axes = 'vanilla'
 
     def generate_early(self) -> None:
-        pass
-        # self.eotu_coordinates = generate_random_coordinates(self.random) \
-        #     if self.options.randomize_coordinates else "vanilla"
+        self.eotu_coordinates = generate_random_coordinates(self.random) \
+            if self.options.randomize_coordinates else "vanilla"
+        db_option = self.options.randomize_dark_bramble_layout
+        self.db_layout = generate_random_db_layout(self.random, db_option) \
+            if db_option != db_option.option_false else "vanilla"
+        (self.planet_order, self.orbit_angles, self.rotation_axes) = generate_random_orbits(self.random) \
+            if self.options.randomize_orbits else "vanilla"
 
     # members and methods implemented by LocationsAndRegions.py, locations.jsonc and connections.jsonc
 
@@ -84,17 +89,31 @@ class OuterWildsWorld(World):
 
     def fill_slot_data(self):
         slot_data = self.options.as_dict("goal", "death_link", "logsanity")
-        # slot_data["eotu_coordinates"] = self.eotu_coordinates
+        slot_data["eotu_coordinates"] = self.eotu_coordinates
+        slot_data["db_layout"] = self.db_layout
+        slot_data["planet_order"] = self.planet_order
+        slot_data["orbit_angles"] = self.orbit_angles
+        slot_data["rotation_axes"] = self.rotation_axes
         # Archipelago does not yet have apworld versions (data_version is deprecated),
         # so we have to roll our own with slot_data for the time being
-        slot_data["apworld_version"] = "0.1.8"
+        slot_data["apworld_version"] = "0.2.1"
         return slot_data
 
-    # def write_spoiler(self, spoiler_handle: TextIO) -> None:
-    #     if self.eotu_coordinates != 'vanilla':
-    #         spoiler_handle.write('\n\nRandomized Eye of the Universe Coordinates:'
-    #                              '\n(0-5 are the points of the hexagon, starting at '
-    #                              'the rightmost point and going counterclockwise)'
-    #                              '\n\n%s\n%s\n%s\n\n' % (json.dumps(self.eotu_coordinates[0]),
-    #                                                      json.dumps(self.eotu_coordinates[1]),
-    #                                                      json.dumps(self.eotu_coordinates[2])))
+    def write_spoiler(self, spoiler_handle: TextIO) -> None:
+        if self.eotu_coordinates != 'vanilla':
+            spoiler_handle.write('\nRandomized Coordinates for %s:'
+                                 '\n\n%s\n%s\n%s\n' % (self.multiworld.player_name[self.player],
+                                                       coordinate_description(self.eotu_coordinates[0]),
+                                                       coordinate_description(self.eotu_coordinates[1]),
+                                                       coordinate_description(self.eotu_coordinates[2])))
+        if self.db_layout != 'vanilla':
+            spoiler_handle.write('\nRandomized Dark Bramble Layout for %s:'
+                                 '\nRoom names are (H)ub, (E)scapePod, (A)nglerNest, '
+                                 '(P)ioneer, E(X)itOnly, (V)essel, (C)luster, (S)mallNest'
+                                 '\n\n%s\n' % (self.multiworld.player_name[self.player],
+                                               self.db_layout.replace('|', '\n')))
+        if self.planet_order != 'vanilla':
+            spoiler_handle.write('\nRandomized Orbits for %s:'
+                                 '\n\nPlanet Order: %s\nOrbit Angles: %s\nRotation Axes: %s\n' %
+                                 (self.multiworld.player_name[self.player],
+                                  self.planet_order, self.orbit_angles, self.rotation_axes))

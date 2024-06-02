@@ -1,6 +1,7 @@
 from typing import List
 
 from test.bases import WorldTestBase, CollectionState
+from ..Options import Goal
 
 
 class OuterWildsTestBase(WorldTestBase):
@@ -79,8 +80,8 @@ class OuterWildsTestBase(WorldTestBase):
         # for now, we create the Victory events unconditionally, and the Goal
         # setting only changes which one is used in the completion_condition,
         # so these "go mode" tests pass regardless of the Goal setting
-        self.assertTrue(self.makeStateWith([
-            # "Spacesuit",
+        self.assertRequiresAllOf("Victory - Song of Five", [
+            "Spacesuit",
             "Launch Codes",
             "Nomai Warp Codes",
             "Warp Core Installation Manual",
@@ -90,10 +91,10 @@ class OuterWildsTestBase(WorldTestBase):
             "Escape Pod 3 Signal",
             "Scout",
             "Coordinates"
-        ]).can_reach("Victory - Song of Five", "Location", 1))
+        ])
 
-        self.assertFalse(self.makeStateWith([
-            # "Spacesuit",
+        self.assertNotReachableWith("Victory - Song of Six", [
+            "Spacesuit",
             "Launch Codes",
             "Nomai Warp Codes",
             "Warp Core Installation Manual",
@@ -103,10 +104,10 @@ class OuterWildsTestBase(WorldTestBase):
             "Escape Pod 3 Signal",
             "Scout",
             "Coordinates"
-        ]).can_reach("Victory - Song of Six", "Location", 1))
+        ])
 
-        self.assertTrue(self.makeStateWith([
-            # "Spacesuit",
+        self.assertRequiresAllOf("Victory - Song of Six", [
+            "Spacesuit",
             "Launch Codes",
             "Nomai Warp Codes",
             "Warp Core Installation Manual",
@@ -120,7 +121,7 @@ class OuterWildsTestBase(WorldTestBase):
             "Imaging Rule",
             "Shrine Door Codes",
             "Entanglement Rule"
-        ]).can_reach("Victory - Song of Six", "Location", 1))
+        ])
 
 
 class TestDefaultWorld(OuterWildsTestBase):
@@ -143,10 +144,20 @@ class TestDefaultWorld(OuterWildsTestBase):
         # logsanity locations don't exist, so trying to access one raises
         self.assertRaises(KeyError, lambda: self.multiworld.get_location("Ship Log: Village 1 - Identify", 1))
 
+        # Feldspar's Camp is one of the few places with two different "logical paths", so check that both are in-logic
+        self.assertNotReachableWith("DB: Feldspar's Camp Fuel Tank", ["Silent Running Mode"])
+        self.assertNotReachableWith("DB: Feldspar's Camp Fuel Tank", ["Silent Running Mode", "Signalscope"])
+        self.assertReachableWith("DB: Feldspar's Camp Fuel Tank", [
+            "Silent Running Mode", "Signalscope", "Feldspar's Signal"
+        ])
+        self.assertReachableWith("DB: Feldspar's Camp Fuel Tank", [
+            "Silent Running Mode", "Scout"
+        ])
+
 
 class TestSongOfSixWorld(OuterWildsTestBase):
     options = {
-        "goal": 1
+        "goal": Goal.option_song_of_six
     }
 
     def test_six_world(self):
@@ -198,3 +209,40 @@ class TestLogsanityWorld(OuterWildsTestBase):
 
         self.assertNotReachableWith("GD: Bramble Island Fuel Tank", [])
         self.assertReachableWith("GD: Bramble Island Fuel Tank", ["Ghost Matter Wavelength"])
+
+
+class TestSuitlessWorld(OuterWildsTestBase):
+    options = {
+        "shuffle_spacesuit": "true"
+    }
+
+
+class TestSuitlessSongOfSixWorld(OuterWildsTestBase):
+    options = {
+        "shuffle_spacesuit": "true",
+        "goal": Goal.option_song_of_six
+    }
+
+
+class TestSuitlessLogsanityWorld(OuterWildsTestBase):
+    options = {
+        "shuffle_spacesuit": "true",
+        "logsanity": "true"
+    }
+
+
+class TestSuitlessLogsanitySongOfSixWorld(OuterWildsTestBase):
+    options = {
+        "shuffle_spacesuit": "true",
+        "logsanity": "true",
+        "goal": Goal.option_song_of_six
+    }
+
+    def test_suitless_logic(self):
+        # Spacesuit is required for PTM locations (via region logic rather than location logic)
+        self.assertNotReachableWith("GD Ship Log: Probe Tracking Module 1 - Millions", [
+            "Tornado Aerodynamic Adjustments", "Electrical Insulation", "Translator"
+        ])
+        self.assertReachableWith("GD Ship Log: Probe Tracking Module 1 - Millions", [
+            "Tornado Aerodynamic Adjustments", "Electrical Insulation", "Spacesuit", "Translator"
+        ])

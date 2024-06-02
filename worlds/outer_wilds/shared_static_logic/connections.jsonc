@@ -6,10 +6,16 @@
     { "from": "Space", "to": "Hourglass Twins", "requires": [] },
     { "from": "Space", "to": "Timber Hearth", "requires": [] },
     { "from": "Space", "to": "Brittle Hollow", "requires": [] },
-    { "from": "Space", "to": "White Hole Station", "requires": [ ] },// { "item": "Spacesuit" } ] },
+    { "from": "Space", "to": "White Hole Station", "requires": [ { "item": "Spacesuit" } ] },
     { "from": "Space", "to": "Giant's Deep", "requires": [] },
     // the only astral body you can't land on without an item
-    { "from": "Space", "to": "Quantum Moon", "requires": [ { "item": "Imaging Rule" } ] },
+    { "from": "Space", "to": "Quantum Moon", "requires": [
+        { "item": "Imaging Rule" },
+        { "anyOf": [
+            { "item": "Spacesuit" }, // in this case "Spacesuit" implies the Scout Launcher and its Photo Mode
+            { "item": "Scout" } // without Photo Mode, the only way to take a photo is launching a Scout from the ship
+        ] }
+    ] },
 
     { "from": "Quantum Moon", "to": "Quantum Shrine", "requires": [ { "item": "Shrine Door Codes" } ] },
     { "from": "Quantum Shrine", "to": "Sixth Location", "requires": [ { "item": "Entanglement Rule" } ] },
@@ -20,14 +26,14 @@
 
     // you can simply fall into the black hole inside BH instead of using the warp pad
     { "from": "Brittle Hollow", "to": "White Hole Station", "requires": [
-        //{ "anyOf": [
-            //{ "item": "Spacesuit" }, // for movement/oxygen after jumping in the black hole
+        { "anyOf": [
+            { "item": "Spacesuit" }, // for movement/oxygen after jumping in the black hole
             { "item": "Nomai Warp Codes" } // for using the warp pad, which does not require the suit
-        //] }
+        ] }
     ] },
 
     // you can simply jump off/out and fall to the rest of the Hanging City
-    { "from": "Hanging City Ceiling", "to": "Brittle Hollow", "requires": [ ] },// { "item": "Spacesuit" } ] },
+    { "from": "Hanging City Ceiling", "to": "Brittle Hollow", "requires": [ { "item": "Spacesuit" } ] },
 
     // This connection is tricky because you need to reach the forge controls in Hanging City first,
     // and then get back to whichever warp pad connects to Hanging City Ceiling _in the same loop_.
@@ -36,10 +42,10 @@
     // And once the ship is required, { "region": "Brittle Hollow" } would be redundant.
     { "from": "Hanging City Ceiling", "to": "Black Hole Forge", "requires": [ { "item": "Launch Codes" } ] },
 
-    { "from": "Space", "to": "Giant's Deep - Ocean Depths", "requires": [ { "item": "Tornado Aerodynamic Adjustments" } ] },
-    { "from": "Giant's Deep - Ocean Depths", "to": "Giant's Deep - Core", "requires": [ { "item": "Electrical Insulation" } ] },//, { "item": "Spacesuit" } ] },
+    { "from": "Space", "to": "GD Ocean Depths", "requires": [ { "item": "Tornado Aerodynamic Adjustments" } ] },
+    { "from": "GD Ocean Depths", "to": "GD Core", "requires": [ { "item": "Electrical Insulation" }, { "item": "Spacesuit" } ] },
 
-    { "from": "Space", "to": "Interloper Core", "requires": [ { "item": "Scout" }, { "item": "Ghost Matter Wavelength" } ] },//, { "item": "Spacesuit" } ] },
+    { "from": "Space", "to": "Interloper Core", "requires": [ { "item": "Scout" }, { "item": "Ghost Matter Wavelength" }, { "item": "Spacesuit" } ] },
 
     // representing frequencies/shuttles/etc as abstract regions turns out to be much faster than an anyOf rule
 
@@ -77,37 +83,37 @@
     ] },
 
     // To find Feldspar, either follow the harmonica signal on the OW Ventures frequency...
-    { "from": "Dark Bramble", "to": "Dark Bramble - Feldspar via Signal", "requires": [
+    { "from": "Dark Bramble", "to": "Feldspar via Signal", "requires": [
         { "item": "Signalscope" },
         { "item": "Feldspar's Signal" }
     ] },
     // ...or launch a Scout into the DB seed back on TH.
     // Since DB can only be reached by Spaceship, we don't need an explicit "can reach TH" condition here.
-    { "from": "Dark Bramble", "to": "Dark Bramble - Feldspar via Scout", "requires": [ { "item": "Scout" } ] },
+    { "from": "Dark Bramble", "to": "Feldspar via Scout", "requires": [ { "item": "Scout" } ] },
 
     // either way you reach the same group of Feldspar-related locations
-    { "from": "Dark Bramble - Feldspar via Signal", "to": "Dark Bramble - Feldspar", "requires": [] },
-    { "from": "Dark Bramble - Feldspar via Scout", "to": "Dark Bramble - Feldspar", "requires": [] },
+    { "from": "Feldspar via Signal", "to": "Feldspar's Camp", "requires": [] },
+    { "from": "Feldspar via Scout", "to": "Feldspar's Camp", "requires": [] },
 
-    { "from": "Dark Bramble", "to": "Dark Bramble - Nomai Grave", "requires": [
+    { "from": "Dark Bramble", "to": "Nomai Grave", "requires": [
         // to follow the Escape Pod 3 signal
         { "item": "Signalscope" },
         { "item": "Distress Beacon Frequency" },
         { "item": "Escape Pod 3 Signal" }
     ] },
-    { "from": "Dark Bramble - Nomai Grave", "to": "Dark Bramble - The Vessel", "requires": [
-        { "item": "Scout" }//, // to launch into the DB seed at Nomai Grave
-        //{ "item": "Spacesuit" } // to enter the Vessel
+    { "from": "Nomai Grave", "to": "The Vessel", "requires": [
+        { "item": "Scout" }, // to launch into the DB seed at Nomai Grave
+        { "item": "Spacesuit" } // to enter the Vessel
     ] },
 
     // these will become dynamic after we implement warp pad randomization
-    { "from": "Hourglass Twins", "to": "Sun Station", "requires": [ { "item": "Nomai Warp Codes" } ] },//, { "item": "Spacesuit" } ] },
+    { "from": "Hourglass Twins", "to": "Sun Station", "requires": [ { "item": "Nomai Warp Codes" }, { "item": "Spacesuit" } ] },
     { "from": "Hourglass Twins", "to": "Ash Twin Interior", "requires": [ { "item": "Nomai Warp Codes" } ] },
     { "from": "Hourglass Twins", "to": "Timber Hearth", "requires": [ { "item": "Nomai Warp Codes" } ] },
     { "from": "Hourglass Twins", "to": "Hanging City Ceiling", "requires": [ { "item": "Nomai Warp Codes" } ] },
     { "from": "Hourglass Twins", "to": "Giant's Deep", "requires": [ { "item": "Nomai Warp Codes" } ] },
 
-    { "from": "Sun Station", "to": "Hourglass Twins", "requires": [ { "item": "Nomai Warp Codes" } ] },//, { "item": "Spacesuit" } ] },
+    { "from": "Sun Station", "to": "Hourglass Twins", "requires": [ { "item": "Nomai Warp Codes" }, { "item": "Spacesuit" } ] },
     { "from": "Ash Twin Interior", "to": "Hourglass Twins", "requires": [ { "item": "Nomai Warp Codes" } ] },
     { "from": "Timber Hearth", "to": "Hourglass Twins", "requires": [ { "item": "Nomai Warp Codes" } ] },
     { "from": "Hanging City Ceiling", "to": "Hourglass Twins", "requires": [ { "item": "Nomai Warp Codes" } ] },

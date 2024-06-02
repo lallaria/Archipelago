@@ -50,7 +50,8 @@ class TrapTypeWeights(OptionDict):
 
 class DeathLink(Choice):
     """When you die, everyone dies. Of course the reverse is true too.
-    The "default" option will not include deaths to meditation, the supernova or the time loop ending."""
+    The "default" option will not include deaths to meditation, the supernova or the time loop ending.
+    Be aware that the game mod provides a 'Death Link Override' setting, in case you change your mind later."""
     display_name = "Death Link"
     option_off = 0
     option_default = 1
@@ -64,18 +65,38 @@ class Logsanity(Toggle):
 
 
 class ShuffleSpacesuit(Toggle):
-    """Puts the spacesuit into the Archipelago item pool, forcing you to play suitless until it's found.
-    This is a HIGHLY EXPERIMENTAL setting. Expect logic bugs. Feedback encouraged."""
+    """Puts the spacesuit into the Archipelago item pool, forcing you to play suitless until it's found."""
     display_name = "Shuffle Spacesuit"
+
+
+class RandomizeDarkBrambleLayout(Choice):
+    """Randomizes which Dark Bramble 'rooms' link to which other rooms, so you can't rely on your memory of the vanilla layout.
+    Be aware that randomized layouts are often significantly harder to navigate than vanilla Dark Bramble, since they allow several paths to the same room and more complex loops / recursion.
+    'hub_start' forces the first room to be Hub (same as the vanilla game), which tends to generate shorter and simpler paths than full randomization."""
+    display_name = "Randomize Dark Bramble Layout"
+    option_false = 0
+    option_true = 1
+    option_hub_start = 2
+    default = 0
+
+
+class RandomizeOrbits(DefaultOnToggle):
+    """Randomizes:
+    - The order of the five planets (the Hourglass Twins as a whole, Timber Hearth, Brittle Hollow, Giant's Deep, Dark Bramble), i.e. which ones are closer or farther from the sun
+    - The orbit angles of the five planets, as well as four satellites (Sun Station, Attlerock, Hollow's Lantern, and the Orbital Probe Cannon)
+    - The axes of rotation for Ember Twin, Ash Twin, Timber Hearth and Brittle Hollow. This often causes the Hourglass Twins' sand pillar to pass through different areas."""
+    display_name = "Randomize Orbits"
 
 
 @dataclass
 class OuterWildsGameOptions(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
     goal: Goal
-    # randomize_coordinates: RandomizeCoordinates
+    randomize_coordinates: RandomizeCoordinates
+    randomize_orbits: RandomizeOrbits
+    randomize_dark_bramble_layout: RandomizeDarkBrambleLayout
     trap_chance: TrapChance
     trap_type_weights: TrapTypeWeights
     death_link: DeathLink
     logsanity: Logsanity
-    # shuffle_spacesuit: ShuffleSpacesuit
+    shuffle_spacesuit: ShuffleSpacesuit
