@@ -6,7 +6,7 @@ from enum import Enum
 import lib.py_randomprime
 from .Items import ItemData, item_table
 
-symbols = py_randomprime.symbols_for_version("0-00")
+symbols = lib.py_randomprime.symbols_for_version("0-00")
 game_state_pointer = symbols["g_GameState"]
 cstate_manager_global = symbols["g_StateManager"]
 cplayer_vtable = 0x803d96e8
