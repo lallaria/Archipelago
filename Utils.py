@@ -775,10 +775,8 @@ def title_sorted(data: typing.Iterable, key=None, ignore: typing.AbstractSet[str
             element = element["title"]
 
         parts = element.split(maxsplit=1)
-        if parts[0].lower() in ignore:
-            return parts[1].lower()
-        else:
-            return element.lower()
+        
+        return element.lower()
     return sorted(data, key=lambda i: sorter(key(i)) if key else sorter(i))
 
 
