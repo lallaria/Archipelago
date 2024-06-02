@@ -3,7 +3,7 @@ import struct
 from .DolphinClient import GC_GAME_ID_ADDRESS, DolphinClient, DolphinException
 from enum import Enum
 from enum import Enum
-import py_randomprime
+import lib.py_randomprime
 from .Items import ItemData, item_table
 
 symbols = py_randomprime.symbols_for_version("0-00")
