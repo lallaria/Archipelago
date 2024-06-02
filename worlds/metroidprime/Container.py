@@ -3,7 +3,7 @@ import struct
 from typing import List
 import zipfile
 from worlds.Files import APContainer
-import py_randomprime
+import Lib.py_randomprime
 
 from worlds.metroidprime.MetroidPrimeInterface import HUD_MESSAGE_ADDRESS, HUD_MESSAGE_DURATION, HUD_TRIGGER_ADDRESS
 
