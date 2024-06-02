@@ -1,9 +1,8 @@
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Optional
 import typing
 from BaseClasses import Item, Tutorial, ItemClassification
 from worlds.metroidprime.Container import MetroidPrimeContainer
-from .Items import MetroidPrimeItem, suit_upgrade_table, artifact_table, item_table, custom_suit_upgrade_table
+from .Items import MetroidPrimeItem, suit_upgrade_table, artifact_table, item_table
 from .PrimeOptions import MetroidPrimeOptions
 from .Locations import every_location
 from .Regions import create_regions
@@ -11,13 +10,11 @@ from .Rules import set_rules
 from .config import make_config
 from worlds.AutoWorld import World
 from ..AutoWorld import WebWorld
-import lib.py_randomprime
 import settings
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
 
 
-def run_client(_):
-    print("Running Metroid Prime Client")
+def run_client(url: Optional[str] = None):
     from .MetroidPrimeClient import launch
     launch_subprocess(launch, name="MetroidPrimeClient")
 
@@ -37,12 +34,12 @@ class MetroidPrimeSettings(settings.Group):
     class RomStart(str):
         """
         Set this to false to never autostart a rom (such as after patching),
-                    true  for operating system default program
-        Alternatively, a path to a program to open the .iso file with
+        Set it to true to have the operating system default program open the iso
+        Alternatively, set it to a path to a program to open the .iso file with (like Dolplhin)
         """
 
     rom_file: RomFile = RomFile(RomFile.copy_to)
-    rom_start: typing.Union[RomStart, bool] = True
+    rom_start: typing.Union[RomStart, bool] = False
 
 
 class MetroidPrimeWeb(WebWorld):
@@ -125,6 +122,15 @@ class MetroidPrimeWorld(World):
             else:
                 self.multiworld.itempool += [self.create_item(i)]
                 items_added += 1
+
+        if self.options.missile_launcher.value:
+            self.multiworld.itempool += [self.create_item("Missile Launcher")]
+            items_added += 1
+
+        if self.options.main_power_bomb.value:
+            self.multiworld.itempool += [self.create_item("Power Bomb (Main)")]
+            items_added += 1
+
         # add missiles in whatever slots we have left
         remain = 100 - items_added
         for i in range(0, remain):
@@ -137,6 +143,7 @@ class MetroidPrimeWorld(World):
 
     def generate_output(self, output_directory: str) -> None:
         configjson = make_config(self)
+
         # convert configjson to json
         import json
         configjsons = json.dumps(configjson, indent=4)
@@ -151,6 +158,8 @@ class MetroidPrimeWorld(World):
             "spring_ball": self.options.spring_ball.value,
             "death_link": self.options.death_link.value,
             "required_artifacts": self.options.required_artifacts.value,
+            "missile_launcher": self.options.missile_launcher.value,
+            "main_power_bomb": self.options.main_power_bomb.value,
             "exclude_items": self.options.exclude_items.value,
             "final_bosses": self.options.final_bosses.value,
         }
