@@ -6,7 +6,7 @@ import subprocess
 import traceback
 from typing import List
 import zipfile
-import lib.py_randomprime
+import lib.py_randomprime as py_randomprime
 
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, logger, server_loop, gui_enabled
 from NetUtils import ClientStatus, NetworkItem
@@ -14,7 +14,7 @@ import Utils
 from .ClientReceiveItems import handle_receive_items
 from .NotificationManager import NotificationManager
 from .Container import construct_hud_message_patch
-from .DolphinClient import DolphinException
+from .DolphinClient import DolphinException, assert_no_running_dolphin, get_num_dolphin_instances
 from .Locations import METROID_PRIME_LOCATION_BASE, every_location
 from .MetroidPrimeInterface import HUD_MESSAGE_DURATION, ConnectionState, InventoryItemData, MetroidPrimeInterface, MetroidPrimeLevel
 
@@ -27,14 +27,26 @@ class MetroidPrimeCommandProcessor(ClientCommandProcessor):
         """Send a message to the game interface."""
         self.ctx.notification_manager.queue_notification(' '.join(map(str, args)))
 
+    def _cmd_status(self, *args):
+        """Display the current dolphin connection status."""
+        logger.info(f"Connection status: {status_messages[self.ctx.connection_state]}")
+
     def _cmd_deathlink(self):
         """Toggle deathlink from client. Overrides default setting."""
         if isinstance(self.ctx, MetroidPrimeContext):
-            new_value = True
-            if (self.tags["DeathLink"]):
-                new_value = False
+            self.ctx.death_link_enabled = not self.ctx.death_link_enabled
             Utils.async_start(self.ctx.update_death_link(
-                new_value), name="Update Deathlink")
+                self.ctx.death_link_enabled), name="Update Deathlink")
+            logger.info(
+                f"Deathlink is now {'enabled' if self.ctx.death_link_enabled else 'disabled'}")
+
+
+status_messages = {
+    ConnectionState.IN_GAME: "Connected to Metroid Prime",
+    ConnectionState.IN_MENU: "Connected to game, waiting for game to start",
+    ConnectionState.DISCONNECTED: "Unable to connect to the Dolphin instance, attempting to reconnect...",
+    ConnectionState.MULTIPLE_DOLPHIN_INSTANCES: "Warning: Multiple Dolphin instances detected, client may not function correctly."
+}
 
 
 class MetroidPrimeContext(CommonContext):
@@ -49,6 +61,7 @@ class MetroidPrimeContext(CommonContext):
     dolphin_sync_task = None
     connection_state = ConnectionState.DISCONNECTED
     slot_data: dict[str, Utils.Any] = None
+    death_link_enabled = False
 
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
@@ -69,6 +82,7 @@ class MetroidPrimeContext(CommonContext):
         if cmd == "Connected":
             self.slot_data = args["slot_data"]
             if "death_link" in args["slot_data"]:
+                self.death_link_enabled = bool(args["slot_data"]["death_link"])
                 Utils.async_start(self.update_death_link(
                     bool(args["slot_data"]["death_link"])))
 
@@ -88,14 +102,11 @@ class MetroidPrimeContext(CommonContext):
 def update_connection_status(ctx: MetroidPrimeContext, status):
     if ctx.connection_state == status:
         return
-    elif status == ConnectionState.IN_GAME:
-        logger.info("Connected to Metroid Prime")
-    elif status == ConnectionState.IN_MENU:
-        logger.info("Connected to game, waiting for game to start")
-    elif status == ConnectionState.DISCONNECTED:
-        logger.info("Disconnected from Metroid Prime, attempting to reconnect...")
-
-    ctx.connection_state = status
+    else:
+        logger.info(status_messages[status])
+        if get_num_dolphin_instances() > 1:
+            logger.info(status_messages[ConnectionState.MULTIPLE_DOLPHIN_INSTANCES])
+        ctx.connection_state = status
 
 
 async def dolphin_sync_task(ctx: MetroidPrimeContext):
@@ -127,8 +138,6 @@ async def handle_checked_location(ctx: MetroidPrimeContext, current_inventory: d
         return
     checked_location_id = METROID_PRIME_LOCATION_BASE + \
         unknown_item1.current_capacity - 1
-    logger.debug(
-        f"Checked location: {checked_location_id} with amount: {unknown_item1.current_capacity} ")
     await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [checked_location_id]}])
     ctx.game_interface.give_item_to_player(unknown_item1.id, 0, 0)
 
@@ -136,7 +145,6 @@ async def handle_checked_location(ctx: MetroidPrimeContext, current_inventory: d
 async def handle_check_goal_complete(ctx: MetroidPrimeContext):
     current_level = ctx.game_interface.get_current_level()
     if current_level == MetroidPrimeLevel.End_of_Game:
-        logger.debug("Sending Goal Complete")
         await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
 
@@ -144,7 +152,7 @@ async def handle_check_deathlink(ctx: MetroidPrimeContext):
     health = ctx.game_interface.get_current_health()
     if health <= 0 and ctx.is_pending_death_link_reset == False:
         await ctx.send_death(ctx.player_names[ctx.slot] + " ran out of energy.")
-        ctx.is_pending_death_link_reset
+        ctx.is_pending_death_link_reset = True
     elif health > 0 and ctx.is_pending_death_link_reset == True:
         ctx.is_pending_death_link_reset = False
 
@@ -160,7 +168,7 @@ async def _handle_game_ready(ctx: MetroidPrimeContext):
         await handle_checked_location(ctx, current_inventory)
         await handle_check_goal_complete(ctx)
 
-        if "DeathLink" in ctx.tags:
+        if ctx.death_link_enabled:
             await handle_check_deathlink(ctx)
         await asyncio.sleep(0.5)
     else:
@@ -178,10 +186,11 @@ async def _handle_game_not_ready(ctx: MetroidPrimeContext):
 
 async def run_game(romfile):
     auto_start = Utils.get_options()["metroidprime_options"].get("rom_start", True)
-    if auto_start is True:
+
+    if auto_start is True and assert_no_running_dolphin():
         import webbrowser
         webbrowser.open(romfile)
-    elif os.path.isfile(auto_start):
+    elif os.path.isfile(auto_start) and assert_no_running_dolphin():
         subprocess.Popen([auto_start, romfile],
                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -208,9 +217,9 @@ async def patch_and_run_game(apmp1_file: str):
                 config_json = json.loads(config_json)
 
         config_json["gameConfig"]["updateHintStateReplacement"] = construct_hud_message_patch()
-        notifier = lib.py_randomprime.ProgressNotifier(
+        notifier = py_randomprime.ProgressNotifier(
             lambda progress, message: print("Generating ISO: ", progress, message))
-        lib.py_randomprime.patch_iso(input_iso_path, output_path, config_json, notifier)
+        py_randomprime.patch_iso(input_iso_path, output_path, config_json, notifier)
 
     Utils.async_start(run_game(output_path))
 

@@ -1,12 +1,12 @@
 from logging import Logger
 import struct
-from .DolphinClient import GC_GAME_ID_ADDRESS, DolphinClient, DolphinException
+from .DolphinClient import GC_GAME_ID_ADDRESS, DolphinClient, DolphinException, get_num_dolphin_instances
 from enum import Enum
 from enum import Enum
-import lib.py_randomprime
+import lib.py_randomprime as py_randomprime
 from .Items import ItemData, item_table
 
-symbols = lib.py_randomprime.symbols_for_version("0-00")
+symbols = py_randomprime.symbols_for_version("0-00")
 game_state_pointer = symbols["g_GameState"]
 cstate_manager_global = symbols["g_StateManager"]
 cplayer_vtable = 0x803d96e8
@@ -25,6 +25,7 @@ class ConnectionState(Enum):
     DISCONNECTED = 0
     IN_GAME = 1
     IN_MENU = 2
+    MULTIPLE_DOLPHIN_INSTANCES = 3
 
 
 class MetroidPrimeSuit(Enum):
@@ -329,8 +330,6 @@ class MetroidPrimeInterface:
                     active = self.get_layer_active(
                         ARTIFACT_TEMPLE_ROOM_INDEX, layer_id)
                     if active != (item.current_amount > 0):
-                        self.logger.debug(
-                            f"Setting Artifact layer for {item.name} to {item.current_amount > 0}")
                         self.set_layer_active(
                             ARTIFACT_TEMPLE_ROOM_INDEX, layer_id, item.current_amount > 0)
                         changed = True

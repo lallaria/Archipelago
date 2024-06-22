@@ -1,12 +1,16 @@
+import random
 from typing import Any, Dict, Optional
+import os
 import typing
 from BaseClasses import Item, Tutorial, ItemClassification
+from worlds.generic.Rules import add_item_rule, forbid_item
 from worlds.metroidprime.Container import MetroidPrimeContainer
-from .Items import MetroidPrimeItem, suit_upgrade_table, artifact_table, item_table
+from worlds.metroidprime.data.RoomNames import RoomName
+from worlds.metroidprime.data.StartRoomData import StartRoomData, StartRoomLoadout, get_random_start_room_by_difficulty, all_start_rooms, get_starting_room_by_name, init_starting_room_data
+from .Items import MetroidPrimeItem, SuitUpgrade, suit_upgrade_table, artifact_table, item_table
 from .PrimeOptions import MetroidPrimeOptions
 from .Locations import every_location
 from .Regions import create_regions
-from .Rules import set_rules
 from .config import make_config
 from worlds.AutoWorld import World
 from ..AutoWorld import WebWorld
@@ -53,6 +57,10 @@ class MetroidPrimeWeb(WebWorld):
     )]
 
 
+# These items will always be given at start
+ALWAYS_START_INVENTORY = [SuitUpgrade.Scan_Visor.value, SuitUpgrade.Power_Suit.value, SuitUpgrade.Combat_Visor.value]
+
+
 class MetroidPrimeWorld(World):
     """
     Metroid Prime is a first-person action-adventure game originally for the Gamecube. Play as
@@ -67,6 +75,17 @@ class MetroidPrimeWorld(World):
     item_name_to_id = {name: data.code for name, data in item_table.items()}
     location_name_to_id = every_location
     settings: MetroidPrimeSettings
+    item_name_groups = {
+        "Artifacts": set(artifact_table.keys())
+    }
+    starting_room_data: Optional[StartRoomData] = None
+    prefilled_item_map: Dict[str, str] = {}  # Dict of location name to item name
+
+    def get_filler_item_name(self) -> str:
+        return SuitUpgrade.Missile_Expansion.value
+
+    def generate_early(self) -> None:
+        init_starting_room_data(self)
 
     def create_regions(self) -> None:
         boss_selection = int(self.options.final_bosses)
@@ -78,30 +97,49 @@ class MetroidPrimeWorld(World):
             return MetroidPrimeItem(name, ItemClassification.progression, createdthing.code, self.player)
         return MetroidPrimeItem(name, createdthing.classification, createdthing.code, self.player)
 
+    def pre_fill(self) -> None:
+        for location_name, item_name in self.prefilled_item_map.items():
+            location = self.get_location(location_name)
+            item = self.create_item(item_name, True)
+            location.place_locked_item(item)
+
     def create_items(self) -> None:
         # add artifacts
         items_added = 0
-        reqarts = int(self.options.required_artifacts)
-        precollectedarts = [*artifact_table][reqarts:]
-        neededarts = [*artifact_table][:reqarts]
-        for i in precollectedarts:
-            self.multiworld.push_precollected(self.create_item(i))
-        for i in neededarts:
+        for i in artifact_table.keys():
             self.multiworld.itempool += [self.create_item(i)]
             items_added += 1
+
         excluded = self.options.exclude_items
-        for i in {*suit_upgrade_table}:  # , *custom_suit_upgrade_table}:
-            if i == "Power Beam" or i == "Scan Visor" or i == "Power Suit" or i == "Combat Visor":
-                self.multiworld.push_precollected(self.create_item(i))
-            elif i in excluded.keys():
+
+        # Create initial inventory from yaml and starting room
+        start_inventory = []
+        start_inventory += ALWAYS_START_INVENTORY
+        start_inventory += [item.value for item in self.starting_room_data.selected_loadout.loadout]
+        start_inventory += [item.name for item in self.multiworld.precollected_items[self.player]]
+
+        if "Beam" not in "".join(start_inventory):
+            start_inventory += [SuitUpgrade.Power_Beam.value]
+
+        for i in start_inventory:
+            self.multiworld.push_precollected(self.create_item(i))
+
+        for i in {*suit_upgrade_table}:
+            # Don't add items that are already placed locally via start room logic or starting loadout to the multiworld pool.
+            # Missile expansions should still be added since there are multiple
+            if i in self.prefilled_item_map.values() and i != SuitUpgrade.Missile_Expansion.value:
+                items_added += 1
+                continue
+            elif i in start_inventory:
+                continue
+
+            if i in excluded.keys():
                 continue
             elif i == "Missile Expansion":
                 for j in range(0, 8):
                     self.multiworld.itempool += [
                         self.create_item('Missile Expansion', True)]
                 items_added += 8
-            elif i == "Spring Ball":
-                continue
             elif i == "Energy Tank":
                 for j in range(0, 8):
                     self.multiworld.itempool += [
@@ -110,8 +148,6 @@ class MetroidPrimeWorld(World):
                     self.multiworld.itempool += [
                         self.create_item("Energy Tank")]
                 items_added += 14
-                continue
-            elif i == "Ice Trap":
                 continue
             elif i == "Power Bomb Expansion":
                 self.multiworld.itempool += [self.create_item('Power Bomb Expansion', True)]
@@ -124,12 +160,14 @@ class MetroidPrimeWorld(World):
                 items_added += 1
 
         if self.options.missile_launcher.value:
-            self.multiworld.itempool += [self.create_item("Missile Launcher")]
-            items_added += 1
+            if SuitUpgrade.Missile_Launcher.value not in start_inventory:
+                self.multiworld.itempool += [self.create_item(SuitUpgrade.Missile_Launcher.value)]
+                items_added += 1
 
         if self.options.main_power_bomb.value:
-            self.multiworld.itempool += [self.create_item("Power Bomb (Main)")]
-            items_added += 1
+            if SuitUpgrade.Main_Power_Bomb.value not in start_inventory:
+                self.multiworld.itempool += [self.create_item(SuitUpgrade.Main_Power_Bomb.value)]
+                items_added += 1
 
         # add missiles in whatever slots we have left
         remain = 100 - items_added
@@ -137,7 +175,6 @@ class MetroidPrimeWorld(World):
             self.multiworld.itempool += [self.create_item("Missile Expansion")]
 
     def set_rules(self) -> None:
-        set_rules(self.multiworld, self.player, every_location)
         self.multiworld.completion_condition[self.player] = lambda state: (
             state.can_reach("Mission Complete", "Region", self.player))
 
@@ -160,6 +197,7 @@ class MetroidPrimeWorld(World):
             "required_artifacts": self.options.required_artifacts.value,
             "missile_launcher": self.options.missile_launcher.value,
             "main_power_bomb": self.options.main_power_bomb.value,
+            "non_varia_heat_damage": self.options.non_varia_heat_damage.value,
             "exclude_items": self.options.exclude_items.value,
             "final_bosses": self.options.final_bosses.value,
         }
