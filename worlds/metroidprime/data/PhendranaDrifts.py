@@ -1,8 +1,9 @@
 
-from worlds.metroidprime.data.Tricks import Tricks
-from worlds.metroidprime.data.AreaNames import MetroidPrimeArea
+from ..LogicCombat import can_combat_labs, can_combat_thardus
+from .Tricks import Tricks
+from .AreaNames import MetroidPrimeArea
 from .RoomData import AreaData, DoorData, DoorLockType, PickupData, RoomData
-from worlds.metroidprime.Logic import can_bomb, can_boost, can_charge_beam, can_defeat_sheegoth, can_grapple, can_melt_ice, can_missile, can_morph_ball, can_move_underwater, can_plasma_beam, can_power_bomb, can_scan, can_space_jump, can_spider, can_super_missile, can_thermal, can_wave_beam, can_xray
+from ..Logic import can_bomb, can_boost, can_charge_beam, can_defeat_sheegoth, can_grapple, can_melt_ice, can_missile, can_morph_ball, can_move_underwater, can_plasma_beam, can_power_bomb, can_scan, can_space_jump, can_spider, can_super_missile, can_thermal, can_wave_beam, can_xray
 from .RoomNames import RoomName
 
 
@@ -41,9 +42,11 @@ class PhendranaDriftsAreaData(AreaData):
         },
             pickups=[PickupData('Phendrana Drifts: Chozo Ice Temple', rule_func=lambda state, player: can_morph_ball(state, player) and can_space_jump(state, player) and can_melt_ice(state, player)), ]),
         RoomName.Control_Tower: RoomData(doors={
-            0: DoorData(RoomName.East_Tower, defaultLock=DoorLockType.Wave),
-            1: DoorData(RoomName.West_Tower, defaultLock=DoorLockType.Wave),
-        }, pickups=[PickupData('Phendrana Drifts: Control Tower', rule_func=lambda state, player: can_space_jump(state, player) and can_missile(state, player) and can_melt_ice(state, player) and can_bomb(state, player)), ]),
+            0: DoorData(RoomName.East_Tower, defaultLock=DoorLockType.Wave, rule_func=can_combat_labs),
+            1: DoorData(RoomName.West_Tower, defaultLock=DoorLockType.Wave, rule_func=can_combat_labs),
+        }, pickups=[PickupData('Phendrana Drifts: Control Tower',
+                               rule_func=lambda state, player: can_combat_labs(state, player) and can_space_jump(state, player) and can_missile(state, player) and can_melt_ice(state, player) and can_bomb(state, player),
+                               tricks=[Tricks.control_tower_item_no_plasma]), ]),
         RoomName.Courtyard_Entryway: RoomData(doors={
             0: DoorData(RoomName.Ruined_Courtyard),
             1: DoorData(RoomName.Ice_Ruins_West),
@@ -137,10 +140,10 @@ class PhendranaDriftsAreaData(AreaData):
         RoomName.Observatory: RoomData(
             doors={
                 0: DoorData(RoomName.Observatory_Access, defaultLock=DoorLockType.Wave),
-                1: DoorData(RoomName.West_Tower_Entrance, rule_func=_can_climb_observatory_via_puzzle, tricks=[Tricks.observatory_puzzle_skip], defaultLock=DoorLockType.Wave),
-                2: DoorData(RoomName.Save_Station_D, rule_func=_can_climb_observatory_via_puzzle, tricks=[Tricks.observatory_puzzle_skip], defaultLock=DoorLockType.Missile),
+                1: DoorData(RoomName.West_Tower_Entrance, rule_func=lambda state, player: can_combat_labs(state, player) and _can_climb_observatory_via_puzzle(state, player), tricks=[Tricks.observatory_puzzle_skip], defaultLock=DoorLockType.Wave),
+                2: DoorData(RoomName.Save_Station_D, rule_func=lambda state, player: can_combat_labs(state, player) and _can_climb_observatory_via_puzzle(state, player), tricks=[Tricks.observatory_puzzle_skip], defaultLock=DoorLockType.Missile),
             },
-            pickups=[PickupData('Phendrana Drifts: Observatory', rule_func=_can_climb_observatory_via_puzzle, tricks=[Tricks.observatory_puzzle_skip]), ]),
+            pickups=[PickupData('Phendrana Drifts: Observatory', rule_func=lambda state, player: can_combat_labs(state, player) and _can_climb_observatory_via_puzzle(state, player), tricks=[Tricks.observatory_puzzle_skip]), ]),
         RoomName.Phendrana_Canyon: RoomData(doors={
             0: DoorData(RoomName.Canyon_Entryway, rule_func=lambda state, player: (can_boost(state, player) and can_scan(state, player)) or can_space_jump(state, player)),
         }, pickups=[PickupData('Phendrana Drifts: Phendrana Canyon', tricks=[Tricks.phendrana_canyon_escape_no_items]), ]),
@@ -183,10 +186,10 @@ class PhendranaDriftsAreaData(AreaData):
             1: DoorData(RoomName.Ruined_Courtyard),
         }),
         RoomName.Quarantine_Cave: RoomData(doors={
-            0: DoorData(RoomName.North_Quarantine_Tunnel, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_spider(state, player) and can_thermal(state, player), tricks=[Tricks.quarantine_to_north_courtyard_slope_jump]),
-            1: DoorData(RoomName.South_Quarantine_Tunnel, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_thermal(state, player) and ((can_bomb(state, player) and can_spider(state, player)) or (can_space_jump(state, player) and can_grapple(state, player)))),
-            2: DoorData(RoomName.Quarantine_Monitor, defaultLock=DoorLockType.None_, exclude_from_rando=True, rule_func=lambda state, player: can_spider(state, player) and can_grapple(state, player), tricks=[Tricks.monitor_cave_no_grapple])  # Not an annotated door
-        }, pickups=[PickupData('Phendrana Drifts: Quarantine Cave', rule_func=can_thermal),]),
+            0: DoorData(RoomName.North_Quarantine_Tunnel, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_thardus(state, player) and can_spider(state, player) and can_thermal(state, player), tricks=[Tricks.quarantine_to_north_courtyard_slope_jump]),
+            1: DoorData(RoomName.South_Quarantine_Tunnel, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_thardus(state, player) and can_thermal(state, player) and ((can_bomb(state, player) and can_spider(state, player)) or (can_space_jump(state, player) and can_grapple(state, player)))),
+            2: DoorData(RoomName.Quarantine_Monitor, defaultLock=DoorLockType.None_, exclude_from_rando=True, rule_func=lambda state, player: can_combat_thardus(state, player) and can_spider(state, player) and can_grapple(state, player), tricks=[Tricks.monitor_cave_no_grapple])  # Not an annotated door
+        }, pickups=[PickupData('Phendrana Drifts: Quarantine Cave', rule_func=lambda state, player: can_combat_thardus(state, player) and can_thermal(state, player)),]),
         RoomName.Quarantine_Monitor: RoomData(doors={
             0: DoorData(RoomName.Quarantine_Cave, rule_func=can_morph_ball, defaultLock=DoorLockType.None_, exclude_from_rando=True),  # Not an annotated door
         }, pickups=[PickupData('Phendrana Drifts: Quarantine Monitor'), ]),
@@ -196,8 +199,8 @@ class PhendranaDriftsAreaData(AreaData):
         }),
         RoomName.Research_Core: RoomData(doors={
             0: DoorData(RoomName.Pike_Access, defaultLock=DoorLockType.Ice),
-            1: DoorData(RoomName.Research_Core_Access, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_thermal(state, player) and can_wave_beam(state, player)),
-        }, pickups=[PickupData('Phendrana Drifts: Research Core', rule_func=lambda state, player: can_thermal(state, player) and can_scan(state, player) and can_wave_beam(state, player)), ]),
+            1: DoorData(RoomName.Research_Core_Access, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_labs(state, player) and can_thermal(state, player) and can_wave_beam(state, player)),
+        }, pickups=[PickupData('Phendrana Drifts: Research Core', rule_func=lambda state, player: can_combat_labs(state, player) and can_thermal(state, player) and can_scan(state, player) and can_wave_beam(state, player)), ]),
         RoomName.Research_Entrance: RoomData(doors={
             0: DoorData(RoomName.Specimen_Storage, defaultLock=DoorLockType.Wave),
             1: DoorData(RoomName.Map_Station, destinationArea=MetroidPrimeArea.Phendrana_Drifts),
@@ -205,16 +208,16 @@ class PhendranaDriftsAreaData(AreaData):
         }),
         RoomName.Research_Lab_Aether: RoomData(
             doors={
-                0: DoorData(RoomName.Aether_Lab_Entryway, defaultLock=DoorLockType.Wave, rule_func=can_space_jump),
-                1: DoorData(RoomName.Research_Core_Access, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_missile(state, player) or can_power_bomb(state, player)),  # Vertical door, going down
+                0: DoorData(RoomName.Aether_Lab_Entryway, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_labs(state, player) and can_space_jump(state, player)),
+                1: DoorData(RoomName.Research_Core_Access, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_labs(state, player) and can_missile(state, player) or can_power_bomb(state, player)),  # Vertical door, going down
             },
             pickups=[
-                PickupData('Phendrana Drifts: Research Lab Aether - Tank', rule_func=can_missile),
-                PickupData('Phendrana Drifts: Research Lab Aether - Morph Track', rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player)),
+                PickupData('Phendrana Drifts: Research Lab Aether - Tank', rule_func=lambda state, player: can_combat_labs(state, player) and can_missile(state, player)),
+                PickupData('Phendrana Drifts: Research Lab Aether - Morph Track', rule_func=lambda state, player: can_combat_labs(state, player) and can_bomb(state, player) and can_space_jump(state, player)),
             ]),
         RoomName.Research_Lab_Hydra: RoomData(doors={
-            0: DoorData(RoomName.Hydra_Lab_Entryway, defaultLock=DoorLockType.Wave, rule_func=can_scan),  # scan door is two way w/ random prime
-            1: DoorData(RoomName.Observatory_Access, defaultLock=DoorLockType.Wave, rule_func=can_scan),
+            0: DoorData(RoomName.Hydra_Lab_Entryway, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_labs(state, player) and can_scan(state, player)),  # scan door is two way w/ random prime
+            1: DoorData(RoomName.Observatory_Access, defaultLock=DoorLockType.Wave, rule_func=lambda state, player: can_combat_labs(state, player) and can_scan(state, player)),
         }, pickups=[PickupData('Phendrana Drifts: Research Lab Hydra', rule_func=lambda state, player: can_super_missile(state, player) and can_scan(state, player)), ]),
         RoomName.Ruined_Courtyard: RoomData(
             doors={

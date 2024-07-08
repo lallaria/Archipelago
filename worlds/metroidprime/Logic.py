@@ -1,10 +1,12 @@
 from BaseClasses import CollectionState
-from worlds.metroidprime.PrimeOptions import MetroidPrimeOptions
-from worlds.metroidprime.data.RoomNames import RoomName
-from .Items import SuitUpgrade, artifact_table
+from .data.RoomNames import RoomName
+from .Items import SuitUpgrade
+import typing
+if typing.TYPE_CHECKING:
+  from .PrimeOptions import MetroidPrimeOptions
 
 
-def _get_options(state: CollectionState, player: int) -> MetroidPrimeOptions:
+def _get_options(state: CollectionState, player: int) -> 'MetroidPrimeOptions':
     return state.multiworld.worlds[player].options
 
 
@@ -126,20 +128,8 @@ def can_infinite_speed(state: CollectionState, player: int) -> bool:
     return can_boost(state, player) and can_bomb(state, player)
 
 
-def can_exit_ruined_shrine(state: CollectionState, player: int) -> bool:
-    return can_morph_ball(state, player) or can_space_jump(state, player)
-
-
-def can_flaahgra(state: CollectionState, player: int) -> bool:
-    return state.can_reach_region(RoomName.Sunchamber.value, player) and can_missile(state, player) and can_scan(state, player) and can_bomb(state, player)
-
-
-def can_climb_sun_tower(state: CollectionState, player: int) -> bool:
-    return can_spider(state, player) and can_super_missile(state, player)
-
-
 def can_climb_tower_of_light(state: CollectionState, player: int) -> bool:
-    return can_missile(state, player) and state.has(SuitUpgrade.Missile_Expansion.value, player, 8)
+    return can_missile(state, player) and state.has(SuitUpgrade.Missile_Expansion.value, player, 8) and can_space_jump(state, player)
 
 
 def can_defeat_sheegoth(state: CollectionState, player: int) -> bool:
@@ -148,3 +138,10 @@ def can_defeat_sheegoth(state: CollectionState, player: int) -> bool:
 
 def can_backwards_lower_mines(state, player) -> bool:
     return bool(_get_options(state, player).backwards_lower_mines.value)
+
+
+def has_power_bomb_count(state: CollectionState, player: int, required_count: int) -> bool:
+    count = state.count(SuitUpgrade.Power_Bomb_Expansion.value, player)
+    if state.has(SuitUpgrade.Main_Power_Bomb.value, player):
+        count += 4
+    return count >= required_count

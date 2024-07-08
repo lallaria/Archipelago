@@ -4,11 +4,10 @@ from typing import Callable, List, Optional
 import typing
 
 from BaseClasses import CollectionState, LocationProgressType, Region
-from worlds.metroidprime.Items import SuitUpgrade
-from worlds.metroidprime.Logic import can_bomb, can_ice_beam, can_missile, can_plasma_beam, can_wave_beam
-from worlds.metroidprime.PrimeOptions import MetroidPrimeOptions
-from worlds.metroidprime.data.AreaNames import MetroidPrimeArea
-
+from ..Items import SuitUpgrade
+from ..Logic import can_bomb, can_ice_beam, can_missile, can_plasma_beam, can_wave_beam
+from ..PrimeOptions import MetroidPrimeOptions
+from ..data.AreaNames import MetroidPrimeArea
 from ..Locations import METROID_PRIME_LOCATION_BASE, MetroidPrimeLocation, every_location
 from .RoomNames import RoomName
 from .Tricks import TrickInfo
@@ -157,9 +156,10 @@ def _get_options(state: CollectionState, player: int) -> MetroidPrimeOptions:
 def _can_reach_pickup(state: CollectionState, player: int, pickup_data: PickupData) -> bool:
     """Determines if the player is able to reach the pickup based on their items and selected trick difficulty"""
     max_difficulty = _get_options(state, player).trick_difficulty.value
-
+    allow_list = _get_options(state, player).trick_allow_list
+    deny_list = _get_options(state, player).trick_deny_list
     for trick in pickup_data.tricks:
-        if trick.difficulty.value > max_difficulty:
+        if trick.name not in allow_list and (trick.difficulty.value > max_difficulty or trick.name in deny_list):
             continue
         elif trick.rule_func is not None and trick.rule_func(state, player):
             return True
@@ -174,6 +174,8 @@ def _can_reach_pickup(state: CollectionState, player: int, pickup_data: PickupDa
 def _can_access_door(state: CollectionState, player: int, door_data: DoorData) -> bool:
     """Determines if the player can open the door based on the lock type as well as whether they can reach it or not"""
     max_difficulty = _get_options(state, player).trick_difficulty.value
+    allow_list = _get_options(state, player).trick_allow_list
+    deny_list = _get_options(state, player).trick_deny_list
     can_open = False
     lock = door_data.lock or door_data.defaultLock
     if lock is not None:
@@ -198,7 +200,9 @@ def _can_access_door(state: CollectionState, player: int, door_data: DoorData) -
         return False
 
     for trick in door_data.tricks:
-        if trick.difficulty.value > max_difficulty:
+        if trick.name in allow_list:
+          pass
+        if trick.name not in allow_list and (trick.difficulty.value > max_difficulty or trick.name in deny_list):
             continue
         elif trick.rule_func is not None and trick.rule_func(state, player):
             return True

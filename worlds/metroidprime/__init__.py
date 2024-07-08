@@ -1,21 +1,24 @@
-import random
-from typing import Any, Dict, Optional
-import os
-import typing
-from BaseClasses import Item, Tutorial, ItemClassification
-from worlds.generic.Rules import add_item_rule, forbid_item
-from worlds.metroidprime.Container import MetroidPrimeContainer
-from worlds.metroidprime.data.RoomNames import RoomName
-from worlds.metroidprime.data.StartRoomData import StartRoomData, StartRoomLoadout, get_random_start_room_by_difficulty, all_start_rooms, get_starting_room_by_name, init_starting_room_data
-from .Items import MetroidPrimeItem, SuitUpgrade, suit_upgrade_table, artifact_table, item_table
-from .PrimeOptions import MetroidPrimeOptions
-from .Locations import every_location
-from .Regions import create_regions
-from .config import make_config
-from worlds.AutoWorld import World
-from ..AutoWorld import WebWorld
-import settings
+# Setup local dependencies if running in an apworld
+from .PrimeUtils import setup_lib_path
+setup_lib_path() # NOTE: This MUST be called before importing any other metroidprime modules (other than PrimeUtils)
+
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
+import settings
+from worlds.AutoWorld import World, WebWorld
+from .data.Transports import default_elevator_mappings, get_random_elevator_mapping
+from .config import make_config
+from .Regions import create_regions
+from .Locations import every_location
+from .PrimeOptions import MetroidPrimeOptions, VariaSuitColorOverride
+from .Items import MetroidPrimeItem, SuitUpgrade, suit_upgrade_table, artifact_table, item_table
+from .data.StartRoomData import StartRoomData, init_starting_room_data
+from .data.RoomNames import RoomName
+from .Container import MetroidPrimeContainer
+from BaseClasses import Item, Tutorial, ItemClassification
+import typing
+import os
+from typing import Any, Dict, List, Optional
+from logging import info
 
 
 def run_client(url: Optional[str] = None):
@@ -32,7 +35,7 @@ components.append(
 class MetroidPrimeSettings(settings.Group):
     class RomFile(settings.UserFilePath):
         """File name of the Metroid Prime ISO"""
-        description = "Metroid Prime (US) v1.0 ISO file"
+        description = "Metroid Prime GC ISO file"
         copy_to = "Metroid_Prime.iso"
 
     class RomStart(str):
@@ -58,7 +61,7 @@ class MetroidPrimeWeb(WebWorld):
 
 
 # These items will always be given at start
-ALWAYS_START_INVENTORY = [SuitUpgrade.Scan_Visor.value, SuitUpgrade.Power_Suit.value, SuitUpgrade.Combat_Visor.value]
+ALWAYS_START_INVENTORY = [SuitUpgrade.Power_Suit.value, SuitUpgrade.Combat_Visor.value]
 
 
 class MetroidPrimeWorld(World):
@@ -80,12 +83,18 @@ class MetroidPrimeWorld(World):
     }
     starting_room_data: Optional[StartRoomData] = None
     prefilled_item_map: Dict[str, str] = {}  # Dict of location name to item name
+    elevator_mapping: Dict[str, Dict[str, str]] = default_elevator_mappings
 
     def get_filler_item_name(self) -> str:
         return SuitUpgrade.Missile_Expansion.value
 
     def generate_early(self) -> None:
         init_starting_room_data(self)
+        info(f"{self.multiworld.get_player_name(self.player)}'s Metroid Prime starting room data: {self.starting_room_data.name}")
+        if self.options.elevator_randomization.value:
+            self.elevator_mapping = get_random_elevator_mapping(self)
+            info(f"{self.multiworld.get_player_name(self.player)}'s Metroid Prime elevator_mapping data: {self.elevator_mapping.__str__()}")
+        self.options.elevator_mapping.value = self.elevator_mapping
 
     def create_regions(self) -> None:
         boss_selection = int(self.options.final_bosses)
@@ -117,20 +126,26 @@ class MetroidPrimeWorld(World):
         start_inventory += ALWAYS_START_INVENTORY
         start_inventory += [item.value for item in self.starting_room_data.selected_loadout.loadout]
         start_inventory += [item.name for item in self.multiworld.precollected_items[self.player]]
+        if not self.options.shuffle_scan_visor.value:
+            start_inventory += [SuitUpgrade.Scan_Visor.value]
 
         if "Beam" not in "".join(start_inventory):
             start_inventory += [SuitUpgrade.Power_Beam.value]
 
         for i in start_inventory:
-            self.multiworld.push_precollected(self.create_item(i))
+            # Pre collect the ones that start room loadout adds in
+            item = self.create_item(i)
+            if item not in self.multiworld.precollected_items[self.player]:
+                self.multiworld.push_precollected(item)
 
+        items_with_multiple = [SuitUpgrade.Missile_Expansion.value, SuitUpgrade.Power_Bomb_Expansion.value, SuitUpgrade.Energy_Tank.value]
         for i in {*suit_upgrade_table}:
             # Don't add items that are already placed locally via start room logic or starting loadout to the multiworld pool.
-            # Missile expansions should still be added since there are multiple
-            if i in self.prefilled_item_map.values() and i != SuitUpgrade.Missile_Expansion.value:
+            # Missile expansions, PB expansions, and energy tanks are added still since there are multiple of them.
+            if i in self.prefilled_item_map.values() and i not in items_with_multiple:
                 items_added += 1
                 continue
-            elif i in start_inventory:
+            elif i in start_inventory and i not in items_with_multiple:
                 continue
 
             if i in excluded.keys():
@@ -141,13 +156,15 @@ class MetroidPrimeWorld(World):
                         self.create_item('Missile Expansion', True)]
                 items_added += 8
             elif i == "Energy Tank":
-                for j in range(0, 8):
+                max_tanks = 14
+                progression_tanks = 8
+                for j in range(0, progression_tanks):
                     self.multiworld.itempool += [
                         self.create_item("Energy Tank", True)]
-                for j in range(0, 6):
+                for j in range(0, max_tanks - progression_tanks):
                     self.multiworld.itempool += [
                         self.create_item("Energy Tank")]
-                items_added += 14
+                items_added += max_tanks
                 continue
             elif i == "Power Bomb Expansion":
                 self.multiworld.itempool += [self.create_item('Power Bomb Expansion', True)]
@@ -161,13 +178,15 @@ class MetroidPrimeWorld(World):
 
         if self.options.missile_launcher.value:
             if SuitUpgrade.Missile_Launcher.value not in start_inventory:
-                self.multiworld.itempool += [self.create_item(SuitUpgrade.Missile_Launcher.value)]
                 items_added += 1
+                if SuitUpgrade.Missile_Launcher.value not in self.prefilled_item_map.values():
+                    self.multiworld.itempool += [self.create_item(SuitUpgrade.Missile_Launcher.value)]
 
         if self.options.main_power_bomb.value:
             if SuitUpgrade.Main_Power_Bomb.value not in start_inventory:
-                self.multiworld.itempool += [self.create_item(SuitUpgrade.Main_Power_Bomb.value)]
                 items_added += 1
+                if SuitUpgrade.Main_Power_Bomb.value not in self.prefilled_item_map.values():
+                    self.multiworld.itempool += [self.create_item(SuitUpgrade.Main_Power_Bomb.value)]
 
         # add missiles in whatever slots we have left
         remain = 100 - items_added
@@ -179,11 +198,21 @@ class MetroidPrimeWorld(World):
             state.can_reach("Mission Complete", "Region", self.player))
 
     def generate_output(self, output_directory: str) -> None:
+        if self.options.randomize_suit_colors:
+            options: List[VariaSuitColorOverride] = [self.options.power_suit_color, self.options.varia_suit_color, self.options.gravity_suit_color, self.options.phazon_suit_color]
+            for option in options:
+                if option.value == 0:
+                    option.value = self.random.randint(1, 35) * 10
+
+        import json
         configjson = make_config(self)
+        configjsons = json.dumps(configjson, indent=4)
+        # Check if the environment variable 'DEBUG' is set to 'True'
+        if os.environ.get('DEBUG') == 'True':
+            with open("test_config.json", "w") as f:
+                f.write(configjsons)
 
         # convert configjson to json
-        import json
-        configjsons = json.dumps(configjson, indent=4)
 
         outfile_name = self.multiworld.get_out_file_name_base(self.player)
         apmp1 = MetroidPrimeContainer(configjsons, outfile_name, output_directory, player=self.player, player_name=self.multiworld.get_player_name(self.player))
@@ -203,3 +232,9 @@ class MetroidPrimeWorld(World):
         }
 
         return slot_data
+
+    def post_fill(self) -> None:
+        if self.options.artifact_hints.value:
+            start_hints: typing.Set[str] = self.options.start_hints.value
+            for i in artifact_table.keys():
+                start_hints.add(i)

@@ -59,17 +59,17 @@ suit_upgrade_table: dict[str, ItemData] = {
     SuitUpgrade.Ice_Beam.value: ItemData(SuitUpgrade.Ice_Beam.value, 1, ItemClassification.progression),
     SuitUpgrade.Wave_Beam.value: ItemData(SuitUpgrade.Wave_Beam.value, 2, ItemClassification.progression),
     SuitUpgrade.Plasma_Beam.value: ItemData(SuitUpgrade.Plasma_Beam.value, 3, ItemClassification.progression),
-    SuitUpgrade.Missile_Expansion.value: ItemData(SuitUpgrade.Missile_Expansion.value, 4, ItemClassification.useful, 999),
+    SuitUpgrade.Missile_Expansion.value: ItemData(SuitUpgrade.Missile_Expansion.value, 4, ItemClassification.filler, 999),
     SuitUpgrade.Scan_Visor.value: ItemData(SuitUpgrade.Scan_Visor.value, 5, ItemClassification.progression),
     SuitUpgrade.Morph_Ball_Bomb.value: ItemData(SuitUpgrade.Morph_Ball_Bomb.value, 6, ItemClassification.progression),
     SuitUpgrade.Power_Bomb_Expansion.value: ItemData(SuitUpgrade.Power_Bomb_Expansion.value, 7, ItemClassification.useful, 99),
-    SuitUpgrade.Flamethrower.value: ItemData(SuitUpgrade.Flamethrower.value, 8, ItemClassification.filler),
+    SuitUpgrade.Flamethrower.value: ItemData(SuitUpgrade.Flamethrower.value, 8, ItemClassification.useful),
     SuitUpgrade.Thermal_Visor.value: ItemData(SuitUpgrade.Thermal_Visor.value, 9, ItemClassification.progression),
     SuitUpgrade.Charge_Beam.value: ItemData(SuitUpgrade.Charge_Beam.value, 10, ItemClassification.progression),
     SuitUpgrade.Super_Missile.value: ItemData(SuitUpgrade.Super_Missile.value, 11, ItemClassification.progression),
     SuitUpgrade.Grapple_Beam.value: ItemData(SuitUpgrade.Grapple_Beam.value, 12, ItemClassification.progression),
     SuitUpgrade.X_Ray_Visor.value: ItemData(SuitUpgrade.X_Ray_Visor.value, 13, ItemClassification.progression),
-    SuitUpgrade.Ice_Spreader.value: ItemData(SuitUpgrade.Ice_Spreader.value, 14, ItemClassification.filler),
+    SuitUpgrade.Ice_Spreader.value: ItemData(SuitUpgrade.Ice_Spreader.value, 14, ItemClassification.useful),
     SuitUpgrade.Space_Jump_Boots.value: ItemData(SuitUpgrade.Space_Jump_Boots.value, 15, ItemClassification.progression),
     SuitUpgrade.Morph_Ball.value: ItemData(SuitUpgrade.Morph_Ball.value, 16, ItemClassification.progression),
     SuitUpgrade.Combat_Visor.value: ItemData(SuitUpgrade.Combat_Visor.value, 17, ItemClassification.progression),
@@ -80,7 +80,7 @@ suit_upgrade_table: dict[str, ItemData] = {
     SuitUpgrade.Varia_Suit.value: ItemData(SuitUpgrade.Varia_Suit.value, 22, ItemClassification.progression),
     SuitUpgrade.Phazon_Suit.value: ItemData(SuitUpgrade.Phazon_Suit.value, 23, ItemClassification.progression),
     SuitUpgrade.Energy_Tank.value: ItemData(SuitUpgrade.Energy_Tank.value, 24, ItemClassification.useful, 14),
-    SuitUpgrade.Wavebuster.value: ItemData(SuitUpgrade.Wavebuster.value, 28, ItemClassification.filler),
+    SuitUpgrade.Wavebuster.value: ItemData(SuitUpgrade.Wavebuster.value, 28, ItemClassification.useful),
 }
 
 misc_item_table: dict[str, ItemData] = {
@@ -96,18 +96,18 @@ custom_suit_upgrade_table: dict[str, ItemData] = {
 }
 
 artifact_table: dict[str, ItemData] = {
-    "Artifact of Truth": ItemData("Artifact of Truth", 29, ItemClassification.progression),
-    "Artifact of Strength": ItemData("Artifact of Strength", 30, ItemClassification.progression),
-    "Artifact of Elder": ItemData("Artifact of Elder", 31, ItemClassification.progression),
-    "Artifact of Wild": ItemData("Artifact of Wild", 32, ItemClassification.progression),
-    "Artifact of Lifegiver": ItemData("Artifact of Lifegiver", 33, ItemClassification.progression),
-    "Artifact of Warrior": ItemData("Artifact of Warrior", 34, ItemClassification.progression),
-    "Artifact of Chozo": ItemData("Artifact of Chozo", 35, ItemClassification.progression),
-    "Artifact of Nature": ItemData("Artifact of Nature", 36, ItemClassification.progression),
-    "Artifact of Sun": ItemData("Artifact of Sun", 37, ItemClassification.progression),
-    "Artifact of World": ItemData("Artifact of World", 38, ItemClassification.progression),
-    "Artifact of Spirit": ItemData("Artifact of Spirit", 39, ItemClassification.progression),
-    "Artifact of Newborn": ItemData("Artifact of Newborn", 40, ItemClassification.progression),
+    "Artifact of Truth": ItemData("Artifact of Truth", 29, ItemClassification.progression_skip_balancing),
+    "Artifact of Strength": ItemData("Artifact of Strength", 30, ItemClassification.progression_skip_balancing),
+    "Artifact of Elder": ItemData("Artifact of Elder", 31, ItemClassification.progression_skip_balancing),
+    "Artifact of Wild": ItemData("Artifact of Wild", 32, ItemClassification.progression_skip_balancing),
+    "Artifact of Lifegiver": ItemData("Artifact of Lifegiver", 33, ItemClassification.progression_skip_balancing),
+    "Artifact of Warrior": ItemData("Artifact of Warrior", 34, ItemClassification.progression_skip_balancing),
+    "Artifact of Chozo": ItemData("Artifact of Chozo", 35, ItemClassification.progression_skip_balancing),
+    "Artifact of Nature": ItemData("Artifact of Nature", 36, ItemClassification.progression_skip_balancing),
+    "Artifact of Sun": ItemData("Artifact of Sun", 37, ItemClassification.progression_skip_balancing),
+    "Artifact of World": ItemData("Artifact of World", 38, ItemClassification.progression_skip_balancing),
+    "Artifact of Spirit": ItemData("Artifact of Spirit", 39, ItemClassification.progression_skip_balancing),
+    "Artifact of Newborn": ItemData("Artifact of Newborn", 40, ItemClassification.progression_skip_balancing),
 }
 
 item_table: dict[str, ItemData] = {

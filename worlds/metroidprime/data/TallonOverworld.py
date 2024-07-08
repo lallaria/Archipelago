@@ -1,7 +1,8 @@
 
-from worlds.metroidprime.Logic import can_bomb, can_boost, can_charge_beam, can_crashed_frigate, can_crashed_frigate_backwards, can_grapple, can_missile, can_morph_ball, can_move_underwater, can_power_beam, can_power_bomb, can_space_jump, can_spider, can_super_missile, can_xray
-from worlds.metroidprime.data.Tricks import Tricks
-from worlds.metroidprime.data.AreaNames import MetroidPrimeArea
+from ..Logic import can_bomb, can_boost, can_charge_beam, can_crashed_frigate, can_crashed_frigate_backwards, can_grapple, can_missile, can_morph_ball, can_move_underwater, can_power_beam, can_power_bomb, can_space_jump, can_spider, can_super_missile, can_xray
+from ..LogicCombat import can_combat_ghosts
+from .Tricks import Tricks
+from .AreaNames import MetroidPrimeArea
 from .RoomData import AreaData, DoorData, DoorLockType, PickupData, RoomData
 from .RoomNames import RoomName
 
@@ -88,6 +89,7 @@ class TallonOverworldAreaData(AreaData):
                 0: DoorData(RoomName.Waterfall_Cavern, defaultLock=DoorLockType.Missile, rule_func=can_missile),
                 1: DoorData(RoomName.Cargo_Freight_Lift_to_Deck_Gamma, defaultLock=DoorLockType.Ice,
                             rule_func=can_crashed_frigate,
+                            tricks=[Tricks.frigate_no_gravity],
                             exclude_from_rando=True
                             ),
                 2: DoorData(RoomName.Overgrown_Cavern, defaultLock=DoorLockType.Ice,
@@ -136,7 +138,7 @@ class TallonOverworldAreaData(AreaData):
 
         RoomName.Hydro_Access_Tunnel: RoomData(
             doors={
-                0: DoorData(RoomName.Great_Tree_Hall, rule_func=lambda state, player: can_crashed_frigate(state, player), tricks=[Tricks.hydro_access_tunnel_no_gravity]),  # Boost is needed to open way in great tree hall
+                0: DoorData(RoomName.Great_Tree_Hall, rule_func=lambda state, player: can_crashed_frigate(state, player) and can_boost(state, player), tricks=[Tricks.hydro_access_tunnel_no_gravity]),  # Boost is needed to open way in great tree hall
                 1: DoorData(RoomName.Biohazard_Containment, rule_func=lambda state, player: can_bomb(state, player) and can_crashed_frigate_backwards(state, player),
                             tricks=[Tricks.hydro_access_tunnel_no_gravity]),
 
@@ -162,10 +164,10 @@ class TallonOverworldAreaData(AreaData):
         RoomName.Life_Grove_Tunnel: RoomData(
             doors={
                 0: DoorData(RoomName.Great_Tree_Hall, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_power_bomb(state, player) and can_boost(state, player), exclude_from_rando=True),
-                1: DoorData(RoomName.Life_Grove, defaultLock=DoorLockType.None_, rule_func=lambda state, player: can_power_bomb(state, player) and can_boost(state, player), exclude_from_rando=True)
+                1: DoorData(RoomName.Life_Grove, defaultLock=DoorLockType.None_, rule_func=lambda state, player: can_power_beam(state, player) and can_combat_ghosts(state, player) and can_power_bomb(state, player) and can_boost(state, player), exclude_from_rando=True)
             },
             pickups=[
-                PickupData('Tallon Overworld: Life Grove Tunnel', rule_func=lambda state, player: can_bomb(state, player) and can_boost(state, player)),
+                PickupData('Tallon Overworld: Life Grove Tunnel', rule_func=lambda state, player: can_power_bomb(state, player) and can_bomb(state, player) and can_boost(state, player)),
             ]),
 
         RoomName.Life_Grove: RoomData(
@@ -325,7 +327,7 @@ class TallonOverworldAreaData(AreaData):
             area=MetroidPrimeArea.Tallon_Overworld,
             doors={
                 0: DoorData(RoomName.Transport_to_Phazon_Mines_East, defaultLock=DoorLockType.Ice),
-                1: DoorData(RoomName.Great_Tree_Hall, defaultLock=DoorLockType.Ice),
+                1: DoorData(RoomName.Great_Tree_Hall, defaultLock=DoorLockType.Ice, rule_func=can_boost),
                 2: DoorData(RoomName.Hydro_Access_Tunnel, defaultLock=DoorLockType.Ice, exclude_from_rando=True),
             },
         ),
