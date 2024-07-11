@@ -8,7 +8,7 @@ python setup.py build_exe --yes
 Write-Output "### Preparing Folder structure ###"
 New-Item -Path dist -ItemType Directory -Force
 $NAME="$(ls build | Select-String -Pattern 'exe')".Split('.',2)[1]
-$ZIP_NAME="Archipelago_$NAME.7z"
+$ZIP_NAME="Trezipelago_latest_$NAME.7z"
 cd .\build\
 Rename-Item "exe.$NAME" Archipelago
 Write-Output "### Adding Dolphin memory engine and other libs ###"
