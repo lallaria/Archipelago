@@ -4,7 +4,7 @@ from typing import Callable, List, Optional
 import typing
 
 from BaseClasses import CollectionState, LocationProgressType, Region
-from ..Items import SuitUpgrade
+from ..Items import ProgressiveUpgrade, SuitUpgrade
 from ..Logic import can_bomb, can_ice_beam, can_missile, can_plasma_beam, can_wave_beam
 from ..PrimeOptions import MetroidPrimeOptions
 from ..data.AreaNames import MetroidPrimeArea
@@ -26,12 +26,20 @@ def get_config_item_model(world: 'MetroidPrimeWorld', location) -> str:
     loc = world.multiworld.get_location(location, world.player)
     if loc.native_item:
         name = loc.item.name
-        if name == "Missile Expansion":
+        if name == SuitUpgrade.Missile_Expansion.value:
             return "Missile"
-        elif name == "Missile Launcher":
+        elif name == SuitUpgrade.Missile_Launcher.value:
             return "Shiny Missile"
-        elif name == "Power Bomb (Main)":
+        elif name == SuitUpgrade.Main_Power_Bomb.value:
             return "Power Bomb"
+        elif name == ProgressiveUpgrade.Progressive_Power_Beam.value:
+            return "Super Missile"
+        elif name == ProgressiveUpgrade.Progressive_Wave_Beam.value:
+            return "Wavebuster"
+        elif name == ProgressiveUpgrade.Progressive_Ice_Beam.value:
+            return "Ice Spreader"
+        elif name == ProgressiveUpgrade.Progressive_Plasma_Beam.value:
+            return "Flamethrower"
         else:
             return name
     else:
@@ -72,6 +80,8 @@ class PickupData:
     rule_func: Optional[Callable[[CollectionState, int], bool]] = None
     tricks: List[TrickInfo] = field(default_factory=list)
     priority: LocationProgressType = LocationProgressType.DEFAULT
+    exclude_from_config: bool = False  # Used when items need to be treated differently for logic with odd room connections
+    exclude_from_logic: bool = False  # Used when items need to be treated differently for logic with odd room connections
 
     def get_config_data(self, world: 'MetroidPrimeWorld'):
         return {
@@ -94,7 +104,7 @@ class RoomData:
         if len(self.pickups) == 0:
             return {}
         return {
-            "pickups": [pickup.get_config_data(world) for pickup in self.pickups],
+            "pickups": [pickup.get_config_data(world) for pickup in self.pickups if not pickup.exclude_from_config],
         }
 
     def get_region_name(self, name: str):
@@ -121,6 +131,9 @@ class AreaData:
 
             # Add each room's pickups as locations
             for pickup in room_data.pickups:
+                if pickup.exclude_from_logic:
+                    continue
+
                 def generate_access_rule(pickup) -> Callable[[CollectionState], bool]:
                     def access_rule(state: CollectionState):
                         return _can_reach_pickup(state, world.player, pickup)
@@ -201,7 +214,7 @@ def _can_access_door(state: CollectionState, player: int, door_data: DoorData) -
 
     for trick in door_data.tricks:
         if trick.name in allow_list:
-          pass
+            pass
         if trick.name not in allow_list and (trick.difficulty.value > max_difficulty or trick.name in deny_list):
             continue
         elif trick.rule_func is not None and trick.rule_func(state, player):

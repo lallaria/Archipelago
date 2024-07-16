@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Callable, Dict
 
 from BaseClasses import CollectionState
+from ..LogicCombat import can_combat_ghosts
 from ..Logic import can_bomb, can_boost, can_charge_beam, can_defeat_sheegoth, can_grapple, can_heat, can_ice_beam, can_infinite_speed, can_melt_ice, can_missile, can_morph_ball, can_move_underwater, can_plasma_beam, can_power_beam, can_power_bomb, can_scan, can_space_jump, can_spider, can_super_missile, can_thermal, can_wave_beam, can_xray, has_energy_tanks
 from ..data.RoomNames import RoomName
 
@@ -70,6 +71,7 @@ class Tricks:
     vault_via_plaza: TrickInfo = TrickInfo("Vault Via Plaza", "Reach the Vault via the Main Plaza using an L Jump", TrickDifficulty.Easy, can_space_jump)
     plaza_half_pipe_no_boost: TrickInfo = TrickInfo("Plaza Half Pipe No Boost", "Reach the Half Pipe in the Main Plaza using a slope jump", TrickDifficulty.Easy, can_space_jump)
     plaza_grapple_ledge_r_jump: TrickInfo = TrickInfo("Plaza Grapple Ledge R Jump", "Reach the Grapple Ledge in the Main Plaza using an R Jump", TrickDifficulty.Easy, can_space_jump)
+    plaza_grapple_ledge_tree_grapple: TrickInfo = TrickInfo("Plaza Grapple Ledge Tree Grapple", "Reach the Grapple Ledge in the Main Plaza by L jumping to the tree and then grappling to the ledge", TrickDifficulty.Easy, can_grapple)
 
     ruined_shrine_upper_door_no_spider_ball: TrickInfo = TrickInfo("Ruined Shrine Upper Door L Jump", "Reach the upper door in the Ruined Shrine by L Jumping off the root", TrickDifficulty.Easy, can_space_jump)
     ruined_shrine_upper_door_scan_dash: TrickInfo = TrickInfo("Ruined Shrine Upper Door Scan Dash", "Reach the upper door in the Ruined Shrine by scan dashing without space jump", TrickDifficulty.Hard, can_scan)
@@ -89,7 +91,7 @@ class Tricks:
 
     arboretum_scan_gate_skip: TrickInfo = TrickInfo("Arboretum Scan Gate Skip", "Skip the gate in the Arboretum by double bomb jumping", TrickDifficulty.Easy, can_bomb)
 
-    gathering_hall_without_space_jump: TrickInfo = TrickInfo("Gathering Hall Without Space Jump", "Double bomb jump from the side platform to the grate where the item is", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_power_bomb(state, player))
+    gathering_hall_without_space_jump: TrickInfo = TrickInfo("Gathering Hall Without Space Jump", "Double bomb jump from the side platform to the grate where the item is", TrickDifficulty.Easy, can_bomb)
 
     watery_hall_no_gravity: TrickInfo = TrickInfo("Watery Hall No Gravity", "Reach the Watery Hall Underwater Item without Gravity Suit by using a slope jump", TrickDifficulty.Easy, can_space_jump)
     watery_hall_no_gravity_no_space_jump: TrickInfo = TrickInfo("Watery Hall No Gravity No Space Jump", "Reach the Watery Hall Underwater Item without Gravity Suit by using a slope jump", TrickDifficulty.Medium, lambda state, player: can_move_underwater(state, player) == False or can_bomb(state, player))
@@ -101,12 +103,12 @@ class Tricks:
     crossway_item_fewer_reqs = TrickInfo("Crossway Item Fewer Reqs", "Reach the crossway item using only SJB and Morph Ball", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_space_jump(state, player))
     crossway_hpbj = TrickInfo("Crossway Half pip bomb jump", "Reach the hall of the elders using a half pipe bomb jump", TrickDifficulty.Hard, lambda state, player: can_bomb(state, player))
 
-    hall_of_elders_bomb_slots_no_spider = TrickInfo("Hall of Elders No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_space_jump(state, player) and can_bomb(state, player) and can_power_beam(state, player))
-    hall_of_elders_reflecting_pool_no_spider = TrickInfo("Hall of Elders Reflecting Pool No Spider Ball", "Reach the reflecting pool without the spider ball", TrickDifficulty.Easy, lambda state, player: can_space_jump(state, player) and can_wave_beam(state, player) and can_bomb(state, player) and can_power_beam(state, player))
-    hall_of_elders_reflecting_pool_no_wave_beam = TrickInfo("Hall of Elders Reflecting Pool No Wave Beam", "In Hall of the Elders, you can Hyper Bomb Jump (HBJ) to the morph ball track and reach the door to Reflecting Pool Access.", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player) and can_bomb(state, player) and can_power_beam(state, player))
+    hall_of_elders_bomb_slots_no_spider = TrickInfo("Hall of Elders No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_space_jump(state, player) and can_bomb(state, player) and can_power_beam(state, player) and can_combat_ghosts(state, player))
+    hall_of_elders_reflecting_pool_no_spider = TrickInfo("Hall of Elders Reflecting Pool No Spider Ball", "Reach the reflecting pool without the spider ball", TrickDifficulty.Easy, lambda state, player: can_space_jump(state, player) and can_wave_beam(state, player) and can_bomb(state, player) and can_power_beam(state, player) and can_combat_ghosts(state, player))
+    hall_of_elders_reflecting_pool_no_wave_beam = TrickInfo("Hall of Elders Reflecting Pool No Wave Beam", "In Hall of the Elders, you can Hyper Bomb Jump (HBJ) to the morph ball track and reach the door to Reflecting Pool Access.", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player) and can_bomb(state, player) and can_power_beam(state, player) and can_combat_ghosts(state, player))
 
-    hall_of_elders_elder_chamber_no_spider = TrickInfo("Hall of Elders Elder Chamber No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_plasma_beam(state, player) and can_space_jump(state, player) and can_power_beam(state, player))
-    hall_of_elders_item_no_spider = TrickInfo("Hall of Elders Item No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_ice_beam(state, player) and can_space_jump(state, player) and can_power_beam(state, player))
+    hall_of_elders_elder_chamber_no_spider = TrickInfo("Hall of Elders Elder Chamber No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_plasma_beam(state, player) and can_space_jump(state, player) and can_power_beam(state, player) and can_combat_ghosts(state, player))
+    hall_of_elders_item_no_spider = TrickInfo("Hall of Elders Item No Spider Ball", "Reach the bomb slots without the spider ball by jumping on a peg to activate the top bomb slot", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_ice_beam(state, player) and can_space_jump(state, player) and can_power_beam(state, player) and can_combat_ghosts(state, player))
 
     reflecting_pool_space_jump_climb = TrickInfo("Reflecting Pool Space Jump Climb", "Climb the reflecting pool by space jumping off a stone toad", TrickDifficulty.Easy, can_space_jump)
 
@@ -152,7 +154,7 @@ class Tricks:
     quarantine_to_north_courtyard_slope_jump = TrickInfo("Quarantine to North Courtyard Slope Jump", "You can exit Quarantine Cave to Ruined Courtyard by slope jumping next to the Spider Ball track.", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player))
 
     observatory_puzzle_skip = TrickInfo("Observatory Puzzle Skip", "This trick expects you to dash to climb Observatory without Boost Ball and Bombs, and then slope jump to the pipes to reach the item.", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player) and can_scan(state, player))
-    frozen_pike_no_bombs = TrickInfo("Frozen Pike No Bombs", "To skip the morph ball bomb tunnel, you can R jump or dash to the upper platform on the opposite end of the tunnel.", TrickDifficulty.Easy, lambda state, player: can_space_jump(state, player))
+    frozen_pike_no_bombs = TrickInfo("Frozen Pike No Bombs", "To skip the morph ball bomb tunnel, you can R jump or dash to the upper platform on the opposite end of the tunnel.", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player))
     frozen_pike_no_gravity_suit = TrickInfo("Frozen Pike No Gravity Suit", "Reach hunter cave without gravity suit by doing a slope jump", TrickDifficulty.Medium, lambda state, player: can_space_jump(state, player))
 
     frost_cave_no_grapple = TrickInfo("Frost Cave No Grapple", "Reach the Frost Cave item without the Grapple Beam", TrickDifficulty.Easy, lambda state, player: can_missile(state, player) and can_space_jump(state, player) and can_move_underwater(state, player))  # Requires gravity
@@ -166,11 +168,11 @@ class Tricks:
 
   # Phazon Mines
 
-    main_quarry_item_no_spider = TrickInfo("Main Quarry Item No Spider Ball", "You can slope jump onto the top of the crane and R jump over to the item.", TrickDifficulty.Medium, lambda state, player:  can_morph_ball(state, player) and can_bomb(state, player) and can_thermal(state, player) and can_wave_beam(state, player) and can_scan(state, player) and can_space_jump(state, player))
+    main_quarry_item_no_spider = TrickInfo("Main Quarry Item No Spider Ball", "You can slope jump onto the top of the crane and R jump over to the item.", TrickDifficulty.Medium, lambda state, player: can_morph_ball(state, player) and can_bomb(state, player) and can_thermal(state, player) and can_wave_beam(state, player) and can_scan(state, player) and can_space_jump(state, player))
     main_quarry_to_waste_disposal_no_grapple = TrickInfo("Main Quarry to Waste Disposal No Grapple", "You can scan dash from the top of the structure (using the crane spider track scan point) to reach the door to Waste Disposal.", TrickDifficulty.Easy, lambda state, player: can_scan(state, player) and can_space_jump(state, player))
 
     ore_processing_to_storage_depot_b_no_spider = TrickInfo("Ore Processing Climb to Storage No Grapple Spider", "You can stand on various collision in the room, such as on the rotating column, to climb to the top of Ore Processing.", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_power_bomb(state, player) and can_space_jump(state, player))
-    ore_processing_climb_no_grapple_spider = TrickInfo("Ore Processing Climb No Grapple Spider", "You can stand on various collision in the room, such as on the rotating column, to climb to the top of Ore Processing.", TrickDifficulty.Easy, lambda state, player:  can_bomb(state, player) and can_power_bomb(state, player) and can_space_jump(state, player))
+    ore_processing_climb_no_grapple_spider = TrickInfo("Ore Processing Climb No Grapple Spider", "You can stand on various collision in the room, such as on the rotating column, to climb to the top of Ore Processing.", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_power_bomb(state, player) and can_space_jump(state, player))
 
     mines_climb_shafts_no_spider = TrickInfo("Mines Climb Shafts No Spider Ball", "Elevator Access A and Research Access can be climbed without Spider Ball.", TrickDifficulty.Hard, lambda state, player: can_space_jump(state, player))
     elite_research_spinner_no_boost = TrickInfo("Elite Research laser No Boost", "You can get the laser turret to spin by wedging the morph ball in the spinner, bombing out, and then spinning the morph ball while in the laser before it locks you in.", TrickDifficulty.Easy, lambda state, player: can_bomb(state, player) and can_scan(state, player) and can_space_jump(state, player))

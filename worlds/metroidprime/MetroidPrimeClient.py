@@ -4,7 +4,7 @@ import multiprocessing
 import os
 import subprocess
 import traceback
-from typing import List
+from typing import List, Optional
 import zipfile
 import py_randomprime
 
@@ -13,17 +13,17 @@ from NetUtils import ClientStatus, NetworkItem
 import Utils
 from .ClientReceiveItems import handle_receive_items
 from .NotificationManager import NotificationManager
-from .Container import construct_hud_message_patch
+from .Container import construct_hook_patch
 from .DolphinClient import DolphinException, assert_no_running_dolphin, get_num_dolphin_instances
 from .Locations import METROID_PRIME_LOCATION_BASE, every_location
-from .MetroidPrimeInterface import HUD_MESSAGE_DURATION, ConnectionState, InventoryItemData, MetroidPrimeInterface, MetroidPrimeLevel
+from .MetroidPrimeInterface import HUD_MESSAGE_DURATION, ConnectionState, InventoryItemData, MetroidPrimeInterface, MetroidPrimeLevel, MetroidPrimeSuit
 
 
 class MetroidPrimeCommandProcessor(ClientCommandProcessor):
     def __init__(self, ctx: CommonContext):
         super().__init__(ctx)
 
-    def _cmd_test_message(self, *args):
+    def _cmd_test_hud(self, *args):
         """Send a message to the game interface."""
         self.ctx.notification_manager.queue_notification(' '.join(map(str, args)))
 
@@ -37,8 +37,26 @@ class MetroidPrimeCommandProcessor(ClientCommandProcessor):
             self.ctx.death_link_enabled = not self.ctx.death_link_enabled
             Utils.async_start(self.ctx.update_death_link(
                 self.ctx.death_link_enabled), name="Update Deathlink")
-            logger.info(
-                f"Deathlink is now {'enabled' if self.ctx.death_link_enabled else 'disabled'}")
+            message = f"Deathlink {'enabled' if self.ctx.death_link_enabled else 'disabled'}"
+            logger.info(message)
+            self.ctx.notification_manager.queue_notification(message)
+
+    def _cmd_toggle_gravity_suit(self):
+        """Toggles the gravity suit functionality on/off if the player has received it. Note that this will not change the player's current suit they are wearing but disables the functionality of the gravity suit."""
+        if isinstance(self.ctx, MetroidPrimeContext):
+            self.ctx.gravity_suit_enabled = not self.ctx.gravity_suit_enabled
+            self.ctx.notification_manager.queue_notification(f"{'Enabling' if self.ctx.gravity_suit_enabled else 'Disabling'} Gravity Suit...")
+
+    def _cmd_set_cosmetic_suit(self, input):
+        """Set the cosmetic suit of the player. This will not affect the player's current suit but will change the appearance of the suit in the game."""
+        if isinstance(self.ctx, MetroidPrimeContext):
+            suit = MetroidPrimeSuit.get_by_key(input)
+            if suit is None:
+                options = ", ".join([suit.name for suit in MetroidPrimeSuit if "Fusion" not in suit.name])
+                logger.warning(f"Invalid cosmetic suit: {suit}. Valid options are: {options}")
+                return
+            logger.info(f"Setting cosmetic suit to: {suit.name} Suit")
+            self.ctx.cosmetic_suit = suit
 
 
 status_messages = {
@@ -62,6 +80,8 @@ class MetroidPrimeContext(CommonContext):
     connection_state = ConnectionState.DISCONNECTED
     slot_data: dict[str, Utils.Any] = None
     death_link_enabled = False
+    gravity_suit_enabled: bool = True
+    cosmetic_suit: Optional[MetroidPrimeSuit] = None
 
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
@@ -244,19 +264,32 @@ async def patch_and_run_game(apmp1_file: str):
     if not os.path.exists(output_path):
 
         config_json_file = None
+        options_json_file = None
         if zipfile.is_zipfile(apmp1_file):
             for name in zipfile.ZipFile(apmp1_file).namelist():
                 if name == 'config.json':
                     config_json_file = name
-                    break
+                elif name == 'options.json':
+                    options_json_file = name
 
         config_json = None
+        options_json = None
+
         with zipfile.ZipFile(apmp1_file) as zip_file:
             with zip_file.open(config_json_file) as file:
                 config_json = file.read().decode("utf-8")
                 config_json = json.loads(config_json)
 
-        config_json["gameConfig"]["updateHintStateReplacement"] = construct_hud_message_patch(game_version)
+            if options_json_file:
+                with zip_file.open(options_json_file) as file:
+                    options_json = file.read().decode("utf-8")
+                    options_json = json.loads(options_json)
+
+        build_progressive_beam_patch = False
+        if options_json:
+            build_progressive_beam_patch = options_json["progressive_beam_upgrades"]
+
+        config_json["gameConfig"]["updateHintStateReplacement"] = construct_hook_patch(game_version, build_progressive_beam_patch)
         notifier = py_randomprime.ProgressNotifier(
             lambda progress, message: print("Generating ISO: ", progress, message))
         py_randomprime.patch_iso(input_iso_path, output_path, config_json, notifier)

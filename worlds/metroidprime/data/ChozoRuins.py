@@ -103,7 +103,7 @@ class ChozoRuinsAreaData(AreaData):
             pickups=[
                 PickupData('Chozo Ruins: Furnace - Spider Tracks', rule_func=lambda state, player: can_power_bomb(state, player) and can_boost(state, player) and can_spider(state, player),
                            tricks=[Tricks.furnace_spider_track_hbj, Tricks.furnace_spider_track_sj_bombs]),
-                PickupData('Chozo Ruins: Furnace - Inside Furnace', rule_func=lambda state, player: can_bomb(state, player) and state.can_reach(RoomName.West_Furnace_Access.value, None, player))
+                PickupData('Chozo Ruins: Furnace - Inside Furnace', exclude_from_logic=True)
             ]),
         RoomName.Gathering_Hall_Access: RoomData(doors={
             0: DoorData(RoomName.Gathering_Hall),
@@ -114,16 +114,16 @@ class ChozoRuinsAreaData(AreaData):
             1: DoorData(RoomName.Gathering_Hall_Access, defaultLock=DoorLockType.Missile),
             2: DoorData(RoomName.Save_Station_2, defaultLock=DoorLockType.Missile),
             3: DoorData(RoomName.East_Atrium, rule_func=lambda state, player: can_morph_ball(state, player) or can_space_jump(state, player)),
-        }, pickups=[PickupData('Chozo Ruins: Gathering Hall', rule_func=lambda state, player: can_space_jump(state, player) and can_power_bomb(state, player), tricks=[Tricks.gathering_hall_without_space_jump]), ]),
+        }, pickups=[PickupData('Chozo Ruins: Gathering Hall', rule_func=lambda state, player: can_space_jump(state, player) and (can_bomb(state, player) or can_power_bomb(state, player)), tricks=[Tricks.gathering_hall_without_space_jump])]),
         RoomName.Hall_of_the_Elders: RoomData(
             doors={
-                0: DoorData(RoomName.Reflecting_Pool_Access, rule_func=lambda state, player: can_power_beam(state, player) and can_bomb(state, player) and can_spider(state, player) and can_wave_beam(state, player) and can_space_jump(state, player), tricks=[Tricks.hall_of_elders_reflecting_pool_no_spider, Tricks.hall_of_elders_reflecting_pool_no_wave_beam]),
-                1: DoorData(RoomName.Elder_Hall_Access, rule_func=lambda state, player: can_power_beam(state, player) and can_boost(state, player) and can_missile(state, player) and can_space_jump(state, player)),
-                2: DoorData(RoomName.East_Furnace_Access, defaultLock=DoorLockType.Ice, rule_func=can_power_beam),
-                3: DoorData(RoomName.Crossway_Access_South, defaultLock=DoorLockType.Ice, rule_func=can_power_beam),
-                4: DoorData(RoomName.Elder_Chamber, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_power_beam(state, player) and can_bomb(state, player) and can_plasma_beam(state, player) and can_space_jump(state, player) and can_spider(state, player), tricks=[Tricks.hall_of_elders_elder_chamber_no_spider]),
+                0: DoorData(RoomName.Reflecting_Pool_Access, rule_func=lambda state, player: can_combat_ghosts(state, player) and can_bomb(state, player) and can_spider(state, player) and can_wave_beam(state, player) and can_space_jump(state, player), tricks=[Tricks.hall_of_elders_reflecting_pool_no_spider, Tricks.hall_of_elders_reflecting_pool_no_wave_beam]),
+                1: DoorData(RoomName.Elder_Hall_Access, rule_func=lambda state, player: can_combat_ghosts(state, player) and can_boost(state, player) and can_missile(state, player) and can_space_jump(state, player)),
+                2: DoorData(RoomName.East_Furnace_Access, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_combat_ghosts(state, player) and can_power_beam(state, player)),
+                3: DoorData(RoomName.Crossway_Access_South, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_combat_ghosts(state, player) and can_power_beam(state, player)),
+                4: DoorData(RoomName.Elder_Chamber, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_combat_ghosts(state, player) and can_bomb(state, player) and can_plasma_beam(state, player) and can_space_jump(state, player) and can_spider(state, player), tricks=[Tricks.hall_of_elders_elder_chamber_no_spider]),
             },
-            pickups=[PickupData('Chozo Ruins: Hall of the Elders', rule_func=lambda state, player: can_power_beam(state, player) and can_bomb(state, player) and can_spider(state, player) and can_ice_beam(state, player) and can_space_jump(state, player), tricks=[Tricks.hall_of_elders_item_no_spider]), ]),
+            pickups=[PickupData('Chozo Ruins: Hall of the Elders', rule_func=lambda state, player: can_combat_ghosts(state, player) and can_power_beam(state, player) and can_bomb(state, player) and can_spider(state, player) and can_ice_beam(state, player) and can_space_jump(state, player), tricks=[Tricks.hall_of_elders_item_no_spider]), ]),
         RoomName.Hive_Totem: RoomData(
             doors={
                 0: DoorData(RoomName.Totem_Access),
@@ -193,7 +193,7 @@ class ChozoRuinsAreaData(AreaData):
                 1: DoorData(RoomName.Ruined_Fountain_Access),
                 2: DoorData(RoomName.Meditation_Fountain),
             },
-            pickups=[PickupData('Chozo Ruins: Ruined Fountain', rule_func=lambda state, player: can_flaahgra(state, player) and can_spider(state, player) and can_bomb(state, player))], ),  # This location can accidentally be locked out if flaaghra is skipped
+            pickups=[PickupData('Chozo Ruins: Ruined Fountain', rule_func=lambda state, player: state.can_reach(state.multiworld.worlds[player].get_location('Chozo Ruins: Sunchamber - Flaaghra'), None, player) and can_spider(state, player))], ),  # This location can accidentally be locked out if flaaghra is skipped
         RoomName.Ruined_Gallery: RoomData(
             doors={
                 0: DoorData(RoomName.North_Atrium),
@@ -256,7 +256,7 @@ class ChozoRuinsAreaData(AreaData):
         }, ),
         RoomName.Sunchamber_Lobby: RoomData(doors={
             0: DoorData(RoomName.Sunchamber_Access),
-            1: DoorData(RoomName.Arboretum, defaultLock=DoorLockType.Missile,),
+            1: DoorData(RoomName.Arboretum, rule_func=lambda state, player: False),
         }),
         RoomName.Sunchamber: RoomData(doors={
             0: DoorData(RoomName.Sun_Tower_Access, rule_func=can_flaahgra, exclude_from_rando=True)
@@ -352,6 +352,8 @@ class ChozoRuinsAreaData(AreaData):
             ]),
         RoomName.West_Furnace_Access: RoomData(doors={
             0: DoorData(RoomName.Energy_Core),
-            1: DoorData(RoomName.Furnace, rule_func=lambda state, player: can_spider(state, player) and can_bomb(state, player), tricks=[Tricks.furnace_no_spider_ball]),
-        }, pickups=[])  # This is not actually in west furnace but it can only be accessed from west furnace, logic-wise
+            1: DoorData(RoomName.Furnace, rule_func=lambda state, player: can_spider(state, player) and can_bomb(state, player), tricks=[Tricks.furnace_no_spider_ball], exclude_from_rando=True),
+        }, pickups=[
+            PickupData('Chozo Ruins: Furnace - Inside Furnace', rule_func=can_bomb, exclude_from_config=True)
+        ])  # This is not actually in west furnace but it can only be accessed from west furnace, logic-wise
     }

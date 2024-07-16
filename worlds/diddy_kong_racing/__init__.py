@@ -1,12 +1,13 @@
-import random
+from __future__ import annotations
+
 from multiprocessing import Process
-import typing
-from .Items import DiddyKongRacingItem, ALL_ITEM_TABLE, KEY_TABLE
-from .Locations import DiddyKongRacingLocation, ALL_LOCATION_TABLE
-from .Regions import DIDDY_KONG_RACING_REGIONS, create_regions, connect_regions
+
+from .Items import DiddyKongRacingItem, ALL_ITEM_TABLE
+from .Locations import ALL_LOCATION_TABLE
+from .Regions import create_regions, connect_regions
 from .Options import DiddyKongRacingOptions
 from .Rules import DiddyKongRacingRules
-from .Names import ItemName, LocationName, RegionName
+from .Names import ItemName, LocationName
 
 from BaseClasses import ItemClassification, Tutorial, Item
 from ..AutoWorld import World, WebWorld
@@ -51,7 +52,7 @@ class DiddyKongRacingWorld(World):
     options_dataclass = DiddyKongRacingOptions
     options: DiddyKongRacingOptions
 
-    def __init__(self, world, player):
+    def __init__(self, world, player) -> None:
         self.slot_data = []
         super(DiddyKongRacingWorld, self).__init__(world, player)
 
@@ -61,9 +62,6 @@ class DiddyKongRacingWorld(World):
         item_classification = ItemClassification.progression
         if self.options.victory_condition.value != 1:
             if item_name == ItemName.TT_AMULET_PIECE:
-                item_classification = ItemClassification.filler
-
-            if not self.options.shuffle_tt_amulet and item_name in KEY_TABLE:
                 item_classification = ItemClassification.filler
 
         created_item = DiddyKongRacingItem(
@@ -105,7 +103,7 @@ class DiddyKongRacingWorld(World):
         connect_regions(self)
 
     def set_rules(self) -> None:
-        rules = Rules.DiddyKongRacingRules(self)
+        rules = DiddyKongRacingRules(self)
 
         return rules.set_rules()
 
@@ -139,20 +137,23 @@ class DiddyKongRacingWorld(World):
         self.multiworld.get_location(location_name, self.player).place_locked_item(item)
 
     def fill_slot_data(self) -> dict[str, any]:
-        dkr_options = dict[str, any]()
-        dkr_options["player_name"] = self.multiworld.player_name[self.player]
-        dkr_options["seed"] = random.randint(12212, 69996)
-        dkr_options["victory_condition"] = self.options.victory_condition.value
-        dkr_options["starting_balloon_count"] = self.options.starting_balloon_count.value
-        dkr_options["starting_regional_balloon_count"] = self.options.starting_regional_balloon_count.value
-        dkr_options["starting_wizpig_amulet_piece_count"] = self.options.starting_wizpig_amulet_piece_count.value
-        dkr_options["starting_tt_amulet_piece_count"] = self.options.starting_tt_amulet_piece_count.value
-        dkr_options["skip_trophy_races"] = "true" if self.options.skip_trophy_races else "false"
+        dkr_options: dict[str, any] = {
+            "player_name": self.multiworld.player_name[self.player],
+            "seed": self.random.randint(12212, 69996),
+            "victory_condition": self.options.victory_condition.value,
+            "starting_balloon_count": self.options.starting_balloon_count.value,
+            "starting_regional_balloon_count": self.options.starting_regional_balloon_count.value,
+            "starting_wizpig_amulet_piece_count": self.options.starting_wizpig_amulet_piece_count.value,
+            "starting_tt_amulet_piece_count": self.options.starting_tt_amulet_piece_count.value,
+            "shuffle_wizpig_amulet": "true" if self.options.shuffle_wizpig_amulet else "false",
+            "shuffle_tt_amulet": "true" if self.options.shuffle_tt_amulet else "false",
+            "skip_trophy_races": "true" if self.options.skip_trophy_races else "false"
+        }
 
         return dkr_options
 
     # For the universal tracker, doesn't get called in standard gen
     @staticmethod
-    def interpret_slot_data(slot_data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def interpret_slot_data(slot_data: dict[str, any]) -> dict[str, any]:
         # Returning slot_data so it regens, giving it back in multiworld.re_gen_passthrough
         return slot_data

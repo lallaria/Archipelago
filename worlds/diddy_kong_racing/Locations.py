@@ -1,5 +1,6 @@
-from BaseClasses import Location
 import typing
+
+from BaseClasses import Location
 from .Names import LocationName
 
 
@@ -8,7 +9,7 @@ class DiddyKongRacingLocation(Location):
 
 
 class LocationData(typing.NamedTuple):
-    dkr_id: int | None = 0
+    dkr_id: typing.Union[int, None] = 0
 
 
 TIMBERS_ISLAND_LOCATION_TABLE = {

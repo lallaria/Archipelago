@@ -4,7 +4,7 @@ from .DolphinClient import GC_GAME_ID_ADDRESS, DolphinClient, DolphinException, 
 from enum import Enum
 from enum import Enum
 import py_randomprime
-from .Items import ItemData, item_table
+from .Items import ItemData, SuitUpgrade, item_table, custom_suit_upgrade_table
 
 _SUPPORTED_VERSIONS = ["0-00", "0-01", "0-02", "jpn", "kor", "pal"]
 _SYMBOLS = {version: py_randomprime.symbols_for_version(version) for version in _SUPPORTED_VERSIONS}
@@ -17,6 +17,7 @@ GAMES = {
         "cplayer_vtable": 0x803d96e8,
         "HUD_MESSAGE_ADDRESS": 0x803efb90,
         "HUD_TRIGGER_ADDRESS": 0x80572414,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x80572415,  # When this is 1 the game will display the message and then set it back to 0
     },
     "0-01": {
         "game_id": b"GM8E01",
@@ -26,6 +27,7 @@ GAMES = {
         "cplayer_vtable": 0x803d98c8,
         "HUD_MESSAGE_ADDRESS": 0x803efd70,
         "HUD_TRIGGER_ADDRESS": 0x805724f4,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x805724f5,  # When this is 1 the game will display the message and then set it back to 0
     },
     "0-02": {
         "game_id": b"GM8E01",
@@ -35,6 +37,7 @@ GAMES = {
         "cplayer_vtable": 0x803da7a8,
         "HUD_MESSAGE_ADDRESS": 0x803f0ba8,
         "HUD_TRIGGER_ADDRESS": 0x80573494,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x80573495,  # When this is 1 the game will display the message and then set it back to 0
     },
     "jpn": {
         "game_id": b"GM8J01",
@@ -44,6 +47,7 @@ GAMES = {
         "cplayer_vtable": 0x803c5b28,
         "HUD_MESSAGE_ADDRESS": 0x803d89c8,
         "HUD_TRIGGER_ADDRESS": 0x8055b474,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x8055b475,  # When this is 1 the game will display the message and then set it back to 0
     },
     "kor": {
         "game_id": b"GM8E01",
@@ -53,6 +57,7 @@ GAMES = {
         "cplayer_vtable": 0x803d97e8,
         "HUD_MESSAGE_ADDRESS": 0x803efc90,
         "HUD_TRIGGER_ADDRESS": 0x805720f4,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x805720f5,  # When this is 1 the game will display the message and then set it back to 0
     },
     "pal": {
         "game_id": b"GM8P01",
@@ -62,8 +67,15 @@ GAMES = {
         "cplayer_vtable": 0x803c4b88,
         "HUD_MESSAGE_ADDRESS": 0x803d7a28,
         "HUD_TRIGGER_ADDRESS": 0x804344b4,  # When this is 1 the game will display the message and then set it back to 0
+        "PROGRESSIVE_BEAM_ADDRESS": 0x804344b5,  # When this is 1 the game will display the message and then set it back to 0
     },
 }
+
+
+def calculate_item_offset(item_id):
+    return (0x24 + RTSL_VECTOR_OFFSET) + (item_id * ITEM_SIZE)
+
+
 AREA_SIZE = 16
 ITEM_SIZE = 0x8
 RTSL_VECTOR_OFFSET = 0x4
@@ -88,6 +100,13 @@ class MetroidPrimeSuit(Enum):
     FusionGravity = 5
     FusionVaria = 6
     FusionPhazon = 7
+
+    @staticmethod
+    def get_by_key(key):
+        for suit in MetroidPrimeSuit:
+            if suit.name == key:
+                return suit
+        return None
 
 
 class MetroidPrimeLevel(Enum):
@@ -125,6 +144,14 @@ class Area:
         return f"LayerCount: {self.layerCount}, LayerStartIndex: {self.startNameIdx}, LayerBitsHi: {self.layerBitsHi}, LayerBitsLo: {self.layerBitsLo}"
 
 
+custom_charge_id_to_beam = {
+    custom_suit_upgrade_table[SuitUpgrade.Power_Charge_Beam.value].id: SuitUpgrade.Power_Charge_Beam,
+    custom_suit_upgrade_table[SuitUpgrade.Wave_Charge_Beam.value].id: SuitUpgrade.Wave_Charge_Beam,
+    custom_suit_upgrade_table[SuitUpgrade.Ice_Charge_Beam.value].id: SuitUpgrade.Ice_Charge_Beam,
+    custom_suit_upgrade_table[SuitUpgrade.Plasma_Charge_Beam.value].id: SuitUpgrade.Plasma_Charge_Beam
+}
+
+
 class InventoryItemData(ItemData):
     """Class used to track the player'scurrent items and their quantities"""
     current_amount: int
@@ -153,8 +180,14 @@ class MetroidPrimeInterface:
 
     def give_item_to_player(self, item_id: int, new_amount: int, new_capacity: int):
         """Gives the player an item with the specified amount and capacity"""
+        if item_id in custom_charge_id_to_beam:
+            charge_beam = custom_charge_id_to_beam[item_id]
+            self.set_progressive_beam_charge_state(charge_beam, True)
+            return
         self.dolphin_client.write_pointer(self.__get_player_state_pointer(),
-                                          self.__calculate_item_offset(item_id), struct.pack(">II", new_amount, new_capacity))
+                                          calculate_item_offset(item_id), struct.pack(">II", new_amount, new_capacity))
+
+        # This will be overriden by handle_cosmetic_suit
         if item_id > 20 and item_id <= 23:
             current_suit = self.get_current_suit()
             if current_suit == MetroidPrimeSuit.Phazon:
@@ -176,10 +209,11 @@ class MetroidPrimeInterface:
         return None
 
     def get_item(self, item: ItemData) -> InventoryItemData:
-        player_state_pointer = int.from_bytes(
-            self.dolphin_client.read_address(GAMES[self.current_game]["cstate_manager_global"] + 0x8B8, 4), "big")
+        if item.id in custom_charge_id_to_beam:
+            return InventoryItemData(item, int(self.get_progressive_beam_charge_state(custom_charge_id_to_beam[item.id])), 1)
+
         result = self.dolphin_client.read_pointer(
-            self.__get_player_state_pointer(), self.__calculate_item_offset(item.id), 8)
+            self.__get_player_state_pointer(), calculate_item_offset(item.id), 8)
         if result is None:
             return None
         current_ammount, current_capacity = struct.unpack(">II", result)
@@ -190,6 +224,8 @@ class MetroidPrimeInterface:
         inventory: dict[str, InventoryItemData] = {}
         for item in item_table.values():
             if item.id <= MAX_VANILLA_ITEM_ID:
+                inventory[item.name] = self.get_item(item)
+            elif item.id in custom_charge_id_to_beam:
                 inventory[item.name] = self.get_item(item)
         return inventory
 
@@ -317,6 +353,28 @@ class MetroidPrimeInterface:
 
         self.dolphin_client.write_address(GAMES[self.current_game]["HUD_MESSAGE_ADDRESS"], encoded_message)
 
+    def __get_progressive_beam_charge_offset(self, charge_beam: SuitUpgrade) -> int:
+        offset = 0
+        if charge_beam == SuitUpgrade.Power_Charge_Beam:
+            offset = 0
+        elif charge_beam == SuitUpgrade.Wave_Charge_Beam:
+            offset = 2
+        elif charge_beam == SuitUpgrade.Ice_Charge_Beam:
+            offset = 1
+        elif charge_beam == SuitUpgrade.Plasma_Charge_Beam:
+            offset = 3
+        return offset
+
+    def set_progressive_beam_charge_state(self, beam: SuitUpgrade, state: bool):
+        offset = self.__get_progressive_beam_charge_offset(beam)
+        state = b"\x01" if state else b"\x00"
+        self.dolphin_client.write_address(GAMES[self.current_game]["PROGRESSIVE_BEAM_ADDRESS"] + offset, state)
+
+    def get_progressive_beam_charge_state(self, beam: SuitUpgrade) -> bool:
+        offset = self.__get_progressive_beam_charge_offset(beam)
+        state = self.dolphin_client.read_address(GAMES[self.current_game]["PROGRESSIVE_BEAM_ADDRESS"] + offset, 1)
+        return state == b"\x01"
+
     def __is_player_table_ready(self) -> bool:
         """Check if the player table is ready to be read from memory, indicating the game is in a playable state"""
         player_table_bytes = self.dolphin_client.read_pointer(
@@ -331,9 +389,6 @@ class MetroidPrimeInterface:
 
     def __get_player_state_pointer(self):
         return int.from_bytes(self.dolphin_client.read_address(GAMES[self.current_game]["cstate_manager_global"] + 0x8B8, 4), "big")
-
-    def __calculate_item_offset(self, item_id):
-        return (0x24 + RTSL_VECTOR_OFFSET) + (item_id * ITEM_SIZE)
 
     def __get_world_layer_state_pointer(self):
         return int.from_bytes(self.dolphin_client.read_address(GAMES[self.current_game]["cstate_manager_global"] + 0x8c8, 4), "big")

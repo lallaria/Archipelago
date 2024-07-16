@@ -1,8 +1,8 @@
 import asyncio
+import copy
 import json
 import multiprocessing
-import copy
-from asyncio import StreamReader, StreamWriter
+from typing import Union
 
 # CommonClient import first to trigger ModuleUpdater
 from CommonClient import CommonContext, server_loop, gui_enabled, \
@@ -65,7 +65,7 @@ class DiddyKongRacingContext(CommonContext):
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
         self.game = 'Diddy Kong Racing'
-        self.n64_streams: (StreamReader, StreamWriter) = None  # type: ignore
+        self.n64_streams: (asyncio.StreamReader, asyncio.StreamWriter) = None  # type: ignore
         self.n64_sync_task = None
         self.n64_status = CONNECTION_INITIAL_STATUS
         self.awaiting_rom = False
@@ -90,7 +90,7 @@ class DiddyKongRacingContext(CommonContext):
 
         return
 
-    def _set_message(self, msg: str, msg_id: int | None):
+    def _set_message(self, msg: str, msg_id: Union[int, None]):
         if msg_id is None:
             self.messages.update({len(self.messages)+1: msg})
         else:
@@ -168,6 +168,7 @@ def get_payload(ctx: DiddyKongRacingContext):
                 "messages": [message for (i, message) in ctx.messages.items() if i != 0],
             })
     else:
+        ctx.startup = False
         payload = json.dumps({
                 "items": [],
                 "playerNames": [name for (i, name) in ctx.player_names.items() if i != 0],
@@ -238,8 +239,11 @@ async def parse_payload(payload: dict, ctx: DiddyKongRacingContext):
             ctx.location_table = locations
 
     # Send Async Data.
-    if "sync_ready" in payload and payload["sync_ready"] == "true" and not ctx.sync_ready:
-        ctx.sync_ready = True
+    if "sync_ready" in payload:
+        if payload["sync_ready"] == "true":
+            ctx.sync_ready = True
+        else:
+            ctx.sync_ready = False
 
 
 async def n64_sync_task(ctx: DiddyKongRacingContext):

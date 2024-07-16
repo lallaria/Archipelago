@@ -6,17 +6,18 @@ import os.path
 
 import settings
 import pkgutil
-from typing import ClassVar, List, Dict, Any
+from typing import ClassVar, List, Dict, Any, TextIO, Tuple
 from BaseClasses import Tutorial, MultiWorld, ItemClassification
 from Fill import fill_restrictive, FillError
 from worlds.AutoWorld import WebWorld, World
 from .client import PokemonFRLGClient
-from .data import data as frlg_data, SpeciesData
+from .data import data as frlg_data, EventData, MapData, MiscPokemonData, SpeciesData, StarterData
 from .items import ITEM_GROUPS, create_item_name_to_id_map, get_item_classification, PokemonFRLGItem
 from .locations import (LOCATION_GROUPS, create_location_name_to_id_map, create_locations_from_tags, set_free_fly,
                         PokemonFRLGLocation)
-from .options import (PokemonFRLGOptions, GameVersion, GameRevision, ShuffleHiddenItems, ShuffleBadges,
-                      ViridianCityRoadblock)
+from .options import (PokemonFRLGOptions, GameVersion, GameRevision, RandomizeWildPokemon, ShuffleHiddenItems,
+                      ShuffleBadges, ViridianCityRoadblock)
+from .pokemon import randomize_legendaries, randomize_misc_pokemon, randomize_starters, randomize_wild_encounters
 from .rom import (write_tokens, PokemonFireRedProcedurePatch, PokemonFireRedRev1ProcedurePatch,
                   PokemonLeafGreenProcedurePatch, PokemonLeafGreenRev1ProcedurePatch)
 from .util import int_to_bool_array, HM_TO_COMPATABILITY_ID
@@ -95,14 +96,26 @@ class PokemonFRLGWorld(World):
 
     free_fly_location_id: int
     modified_species: Dict[int, SpeciesData]
+    modified_maps: Dict[str, MapData]
+    modified_starters: Dict[str, StarterData]
+    modified_events: Dict[str, EventData]
+    modified_legendary_pokemon: Dict[str, MiscPokemonData]
+    modified_misc_pokemon: Dict[str, MiscPokemonData]
     hm_compatability: Dict[str, List[str]]
+    trade_pokemon: List[Tuple[str, str]]
     auth: bytes
 
     def __init__(self, multiworld, player):
         super(PokemonFRLGWorld, self).__init__(multiworld, player)
         self.free_fly_location_id = 0
         self.modified_species = copy.deepcopy(frlg_data.species)
+        self.modified_maps = copy.deepcopy(frlg_data.maps)
+        self.modified_starters = copy.deepcopy(frlg_data.starters)
+        self.modified_events = copy.deepcopy(frlg_data.events)
+        self.modified_legendary_pokemon = copy.deepcopy(frlg_data.legendary_pokemon)
+        self.modified_misc_pokemon = copy.deepcopy(frlg_data.misc_pokemon)
         self.hm_compatability = {}
+        self.trade_pokemon = list()
 
     @classmethod
     def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
@@ -140,6 +153,10 @@ class PokemonFRLGWorld(World):
         self.multiworld.itempool += itempool
 
     def generate_early(self) -> None:
+        randomize_wild_encounters(self)
+        randomize_starters(self)
+        randomize_legendaries(self)
+        randomize_misc_pokemon(self)
         self.create_hm_compatability_dict()
 
     def set_rules(self) -> None:
@@ -187,21 +204,11 @@ class PokemonFRLGWorld(World):
                 evolution_region.locations.remove(location)
 
         # Delete trades that are not in logic in an all_state so that the accessibility check doesn't fail
-        electrode_trade_location = self.multiworld.get_location("Cinnabar Pokemon Lab Lounge - Trade Raichu",
-                                                                self.player)
-        if not collection_state.can_reach(electrode_trade_location, player=self.player):
-            region = self.multiworld.get_region("Cinnabar Pokemon Lab Lounge", self.player)
-            region.locations.remove(electrode_trade_location)
-
-        if self.options.game_version == GameVersion.option_firered:
-            lickitung_trade_location = self.multiworld.get_location("Route 18 East Entrance 2F - Trade Golduck",
-                                                                    self.player)
-        else:
-            lickitung_trade_location = self.multiworld.get_location("Route 18 East Entrance 2F - Trade Slowbro",
-                                                                    self.player)
-        if not collection_state.can_reach(lickitung_trade_location, player=self.player):
-            region = self.multiworld.get_region("Route 18 East Entrance 2F", self.player)
-            region.locations.remove(lickitung_trade_location)
+        for trade in self.trade_pokemon:
+            location = self.multiworld.get_location(trade[1], self.player)
+            if not collection_state.can_reach(location, player=self.player):
+                region = self.multiworld.get_region(trade[0], self.player)
+                region.locations.remove(location)
 
     def generate_output(self, output_directory: str) -> None:
         # Modify catch rate
@@ -234,6 +241,14 @@ class PokemonFRLGWorld(World):
         out_file_name = self.multiworld.get_out_file_name_base(self.player)
         patch.write(os.path.join(output_directory, f'{out_file_name}{patch.patch_file_ending}'))
 
+        del self.modified_species
+        del self.modified_maps
+        del self.modified_starters
+        del self.modified_events
+        del self.modified_legendary_pokemon
+        del self.modified_misc_pokemon
+        del self.trade_pokemon
+
     @classmethod
     def stage_post_fill(cls, multiworld):
         # Change all but one instance of a pokemon in each sphere to useful classification
@@ -252,6 +267,16 @@ class PokemonFRLGWorld(World):
                         location.item.classification = ItemClassification.useful
                     else:
                         found_mons.add(key)
+
+    def write_spoiler(self, spoiler_handle: TextIO) -> None:
+        # Add pokemon locations to the spoiler log if they are not vanilla
+        if self.options.wild_pokemon != RandomizeWildPokemon.option_vanilla:
+            spoiler_handle.write(f"\n\nPokémon Locations ({self.multiworld.player_name[self.player]}):\n\n")
+            pokemon_locations: List[PokemonFRLGLocation] = [
+                location for location in self.multiworld.get_locations(self.player) if "Wild" in location.tags
+            ]
+            for location in pokemon_locations:
+                spoiler_handle.write(location.name + ": " + location.item.name + "\n")
 
     def modify_multidata(self, multidata: Dict[str, Any]):
         import base64

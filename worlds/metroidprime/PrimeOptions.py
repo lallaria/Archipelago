@@ -7,7 +7,7 @@ from .LogicCombat import CombatLogicDifficulty
 
 
 class HudColor(Enum):
-    DEFAULT = [102/255, 174/255, 225/255]
+    DEFAULT = [102 / 255, 174 / 255, 225 / 255]
     RED = [1, 0, 0]
     GREEN = [0, 1, 0]
     BLUE = [0, 0, 1]
@@ -71,10 +71,12 @@ class MainPowerBomb(DefaultOnToggle):
     display_name = "Main Power Bomb"
     default = False
 
+
 class ShuffleScanVisor(Toggle):
     """If enabled, the scan visor will be shuffled into the item pool and will need to be found in order to scan dash and open certain locks"""
     display_name = "Shuffle Scan Visor"
     default = False
+
 
 class NonVariaHeatDamage(DefaultOnToggle):
     """If enabled, the gravity suit and phazon suit will not protect against heat damage which will change the required logic of the game"""
@@ -154,7 +156,7 @@ class RemoveThermalRequirements(Toggle):
 
 class StartingRoom(Choice):
     """Determines the starting room of the game. This will change your starting loadout depending on the room
-       normal: Start at the Talon Overworld Landing Site
+       normal: Start at the Talon Overworld Landing Site. If elevator randomization is enabled, or Shuffle Scan Visor + Don't Pre Scan Elevators, this will switch to Save Station 1 in Chozo Ruins
        safe: Start in rooms that will not require a significant combat challenge to progress from
        buckle_up: Start in rooms that will pose a significant challenge to players with no energy tanks or suit upgrades. Fun for the aspiring masochist (less fun for their friends in BK).
     """
@@ -199,23 +201,32 @@ class ElevatorMapping(OptionDict):
     visibility = Visibility.spoiler
     default = {}
 
+
 class PreScanElevators(Toggle):
     """Pre scans the elevators in the game, allowing for faster transitions between regions. Makes for more interesting gameply if disabled when the scan visor is shuffled."""
     display_name = "Pre Scan Elevators"
     default = True
 
 
+class ProgressiveBeamUpgrades(Toggle):
+    """If enabled, 3 progressive beam items will be added into the item pool per beam. The first unlocks the beam, the second unlocks the ability to charge the beam, and the third unlocks the missile combo for it. Progressive items share the same model as the associated beam combo model(all progressive wave beams will look like the wavvebuster)"""
+    display_name = "Progressive Beam Upgrades"
+    default = False
+
 # COSMETIC OPTIONS
+
 
 class RandomizeSuitColors(Toggle):
     """Randomize the colors of the suits. Is overriden if any of the color overrides are greater than 0. Note: This is not compatible with the Fusion Suit and will have no effect"""
     display_name = "Randomize Suit Colors"
     default = False
 
+
 class ShowSuitIndexOnPauseMenu(DefaultOnToggle):
     """If enabled, the selected suit color index will be shown on the pause menu under "Suits". Note: This has unexpected behavior on non US versions """
     display_name = "Show Suit Index on Pause Menu (Disable if using non US version)"
     default = True
+
 
 class PowerSuitColorOverride(Range):
     """Override the color of the Power Suit using an index from the game's color wheel"""
@@ -250,7 +261,7 @@ class PhazonSuitColorOverride(Range):
 
 
 class HudColorOption(Choice):
-    """Determines the color of the HUD in the game. Will be overriden if any of the color overrides are greater than 0."""
+    """Determines the color of the HUD in the game. Will be overriden if any of the color overrides are greater than 0. Note: Certain colors will change the colors of the beam icons."""
     display_name = "HUD Color"
     default = "Default"
     option_default = "Default"
@@ -295,7 +306,6 @@ class HudColorOverrideBlue(Range):
 @dataclass
 class MetroidPrimeOptions(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
-    spring_ball: SpringBall
     required_artifacts: RequiredArtifacts
     exclude_items: ExcludeItems
     final_bosses: FinalBosses
@@ -304,13 +314,14 @@ class MetroidPrimeOptions(PerGameCommonOptions):
     main_power_bomb: MainPowerBomb
     shuffle_scan_visor: ShuffleScanVisor
     pre_scan_elevators: PreScanElevators
-    non_varia_heat_damage: NonVariaHeatDamage
-    staggered_suit_damage: StaggeredSuitDamage
     elevator_randomization: ElevatorRandomization
     elevator_mapping: ElevatorMapping
     starting_room: StartingRoom
     starting_room_name: StartingRoomName
     disable_starting_room_bk_prevention: DisableStartingRoomBKPrevention
+    progressive_beam_upgrades: ProgressiveBeamUpgrades
+    non_varia_heat_damage: NonVariaHeatDamage
+    staggered_suit_damage: StaggeredSuitDamage
     combat_logic_difficulty: CombatLogicDifficultyOption
     trick_difficulty: TrickDifficulty
     trick_allow_list: TrickAllowList
@@ -320,6 +331,7 @@ class MetroidPrimeOptions(PerGameCommonOptions):
     remove_xray_requirements: RemoveXrayRequirements
     remove_thermal_requirements: RemoveThermalRequirements
     remove_hive_mecha: RemoveHiveMecha
+    spring_ball: SpringBall
 
     # Cosmetic options
     fusion_suit: FusionSuit
