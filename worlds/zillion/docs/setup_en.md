@@ -77,7 +77,7 @@ If you would like to validate your config file to make sure it works, you may do
        - If you activate the "room generation" option in your config (yaml), you might want to tell your host that the generation will take longer than normal. It takes approximately 20 seconds longer for each Zillion player that enables this option.
 2. Create your ROM.
     - Linux
-       - In the Archipelago Launcher, choose "Open Patch" and select your `.apzl` patch file.
+       - In the TreZapalooza Launcher, choose "Open Patch" and select your `.apzl` patch file.
     - Windows
        - Put your patch file on your desktop or somewhere convenient, and double click it.
     - This should automatically launch the client, and will also create your ROM in the same place as your patch file.

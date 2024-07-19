@@ -49,7 +49,7 @@ YAMLs of any other players participating in the multiworld (Note: Only one YAML 
 of Lethal Company. An example of such would be 2 players playing in the same LC lobby
 while another player plays a different Archipelago game (or LC lobby)). You would need only
 1 YAML for Lethal Company and 1 YAML for the other game/s.).In the lib/worlds folder, paste
-lethal_company.apworld. Then, open the archipelago launcher and click Generate which will
+lethal_company.apworld. Then, open the TreZapalooza Launcher and click Generate which will
 generate a .zip in the Output folder found in your archipelago installation, in the same path
 where the players folder is. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg)
 website, click on get started, then click Host Game, then "Upload File" and select the zip

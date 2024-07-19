@@ -1,5 +1,5 @@
 """
-Archipelago launcher for bundled app.
+TreZapalooza Launcher for bundled app.
 
 * if run with APBP as argument, launch corresponding client.
 * if run with executable as argument, run it passing argv[2:] as arguments
@@ -170,7 +170,7 @@ def run_gui():
     from kivy.uix.relativelayout import RelativeLayout
 
     class Launcher(App):
-        base_title: str = "Archipelago Launcher"
+        base_title: str = "TreZapalooza Launcher"
         container: ContainerLayout
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     init_logging('Launcher')
     Utils.freeze_support()
     multiprocessing.set_start_method("spawn")  # if launched process uses kivy, fork won't work
-    parser = argparse.ArgumentParser(description='Archipelago Launcher')
+    parser = argparse.ArgumentParser(description='TreZapalooza Launcher')
     run_group = parser.add_argument_group("Run")
     run_group.add_argument("--update_settings", action="store_true",
                            help="Update host.yaml and exit.")

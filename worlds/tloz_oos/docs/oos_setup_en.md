@@ -26,8 +26,8 @@
 
 To get the template YAML file:
 1. install the .apworld file as instructed above
-2. if Archipelago Launcher was running on your computer, close it 
-3. run the Archipelago launcher
+2. if TreZapalooza Launcher was running on your computer, close it 
+3. run the TreZapalooza Launcher
 4. click on "Generate Template Settings"
 5. it should open a directory in file explorer, pick the file named `The Legend of Zelda - Oracle of Seasons.yaml`
 

@@ -14,7 +14,7 @@ Read changes to the base game on the [Game Info Page](/games/The%20Messenger/inf
 ### Automated Installation
 
 1. Download and install the latest [Archipelago release](https://github.com/ArchipelagoMW/Archipelago/releases/latest)
-2. Launch the Archipelago Launcher (ArchipelagoLauncher.exe)
+2. Launch the TreZapalooza Launcher (ArchipelagoLauncher.exe)
 3. Click on "The Messenger"
 4. Follow the prompts
 
