@@ -37,7 +37,7 @@ h1{
         url('../../static/backgrounds/cliffs/grass/cliff-bottom.png') bottom repeat-x,
         url('../../static/backgrounds/cliffs/grass/cliff-left.png') left repeat-y,
         url('../../static/backgrounds/cliffs/grass/cliff-right.png') right repeat-y,
-        url('../../static/backgrounds/grass.png') repeat;
+        url('../../static/backgrounds/ocean.png') repeat;
 
     background-size:
         140px 120px, /* top-left */
