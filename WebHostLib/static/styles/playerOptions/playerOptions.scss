@@ -120,11 +120,11 @@ html{
 
         .left, .right{
             display: grid;
-            grid-template-columns: 12rem auto;
+            grid-template-columns: 19rem auto;
             grid-row-gap: 0.5rem;
             grid-auto-rows: min-content;
             align-items: start;
-            min-width: 480px;
+            min-width: 640px;
             width: 50%;
         }
     }
