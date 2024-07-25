@@ -308,23 +308,23 @@ item_table: Dict[str, ItemData] = {
     "Bonus Money": ItemData(offset + 310),
     "Receive Buffoon Pack" : ItemData(offset + 311),
     "Receive Consumable Pack" : ItemData(offset + 312),
-    "Plus 3 Hand Size Next Round" : ItemData(offset + 313),
-    "Rerolls Start At $0 Next Shop" : ItemData(offset + 314),
-    "Free uncommon joker next shop" : ItemData(offset + 315),
-    "Free rare joker next shop" : ItemData(offset + 316),
-    "Free negative joker next shop" : ItemData(offset + 317),
-    "Free foil joker next shop" : ItemData(offset + 318),
-    "Free holographic joker next shop" : ItemData(offset + 319),
-    "Free polychrome joker next shop" : ItemData(offset + 320),
-    "Receive double tag" : ItemData(offset + 321),
+    "Bonus Juggle Tag" : ItemData(offset + 313),
+    "Bonus D6 Tag" : ItemData(offset + 314),
+    "Bonus Uncommon Tag" : ItemData(offset + 315),
+    "Bonus Rare Tag" : ItemData(offset + 316),
+    "Bonus Negative Tag" : ItemData(offset + 317),
+    "Bonus Foil Tag" : ItemData(offset + 318),
+    "Bonus Holographic Tag" : ItemData(offset + 319),
+    "Bonus Polychrome Tag" : ItemData(offset + 320),
+    "Bonus Double Tag" : ItemData(offset + 321),
 
     # Traps 
-    "Lose All Money" : ItemData(offset + 330),
-    "Lose Discard" : ItemData(offset + 331),
-    "Lose Hand" : ItemData(offset + 332),
-    "Make Random Joker Perishable" : ItemData(offset + 333),
-    "Make Random Joker Eternal" : ItemData(offset + 334),
-    "Make Random Joker Rental" : ItemData(offset + 335),
+    "Bankruptcy Trap" : ItemData(offset + 330),
+    "Discard Trap" : ItemData(offset + 331),
+    "Hand Trap" : ItemData(offset + 332),
+    "Perishable Trap" : ItemData(offset + 333),
+    "Eternal Trap" : ItemData(offset + 334),
+    "Rental Trap" : ItemData(offset + 335),
     
     # Joker Bundle (for short mode)
     "Joker Bundle 1" : ItemData(offset + 351),
@@ -346,11 +346,54 @@ item_table: Dict[str, ItemData] = {
     # Consumable Bundles
     "Tarot Bundle" : ItemData(offset + 371),
     "Planet Bundle" : ItemData(offset + 372),
-    "Spectral Bundle" : ItemData(offset + 373)
+    "Spectral Bundle" : ItemData(offset + 373),
+    
+    # Stakes as Items
+    "White Stake" : ItemData(offset + 390),
+    "Red Stake" : ItemData(offset + 391),
+    "Green Stake" : ItemData(offset + 392),
+    "Black Stake" : ItemData(offset + 393),
+    "Blue Stake" : ItemData(offset + 394),
+    "Purple Stake" : ItemData(offset + 395),
+    "Orange Stake" : ItemData(offset + 396),
+    "Gold Stake" : ItemData(offset + 397),   
+}
+
+stake_to_number: Dict[str, int] = {
+    "White Stake" : 1,
+    "Red Stake" : 2, 
+    "Green Stake" : 3, 
+    "Black Stake" : 4, 
+    "Blue Stake" : 5, 
+    "Purple Stake" : 6, 
+    "Orange Stake" : 7, 
+    "Gold Stake" : 8
+}
+
+number_to_stake: Dict[int, str] = {
+    1 : "White Stake",
+    2 : "Red Stake", 
+    3: "Green Stake", 
+    4: "Black Stake" , 
+    5: "Blue Stake" , 
+    6: "Purple Stake" , 
+    7: "Orange Stake" , 
+    8: "Gold Stake"
 }
 
 def is_deck(item_name: str) -> bool:
     return item_name.endswith("Deck")
+
+decks: Dict[int, str] = {
+    data.code: item_name for item_name, data in item_table.items() if data.code and is_deck(item_name)
+}
+
+prev_id = 400
+for deck in decks.values():
+    for stake in [key for key, _ in stake_to_number.items()]:
+        item_table[str(deck) + " " + str(stake)] = ItemData(offset + prev_id)
+        prev_id += 1
+
 
 def is_joker(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
@@ -384,6 +427,15 @@ def is_joker_bundle(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 351 and item_id <= 365)
 
+def is_stake(item_name: str) -> bool:
+    item_id = item_name_to_id[item_name] - offset
+    return (item_id >= 390 and item_id <= 397)
+
+def is_stake_per_deck(item_name: str) -> bool:
+    item_id = item_name_to_id[item_name] - offset
+    return (item_id >= 400 and item_id <= 520)
+
+
 
 def is_progression(item_name: str) -> bool:
     return (is_deck(item_name) or 
@@ -391,12 +443,14 @@ def is_progression(item_name: str) -> bool:
             is_tarot(item_name) or 
             is_voucher(item_name) or 
             is_planet(item_name) or 
-            is_spectral(item_name) 
+            is_spectral(item_name) or 
+            is_stake(item_name) or
+            is_stake_per_deck(item_name) or
+            is_booster(item_name)
     )
 
 def is_useful(item_name: str) -> bool:
-    return ( is_booster(item_name) 
-    )
+    return False # maybe we will find a useful items in the future
 
 item_id_to_name: Dict[int, str] = {
     data.code: item_name for item_name, data in item_table.items() if data.code
@@ -405,6 +459,7 @@ item_id_to_name: Dict[int, str] = {
 item_name_to_id: Dict[str, int] = {
     item_name: data.code for item_name, data in item_table.items() if data.code
 }
+
 
 jokers: Dict[int, str] = {
     data.code: item_name for item_name, data in item_table.items() if data.code and is_joker(item_name)

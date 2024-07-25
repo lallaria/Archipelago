@@ -2,7 +2,7 @@ from enum import Enum
 import os
 from typing import TYPE_CHECKING, Dict, Any, List, Optional
 
-from .Items import SuitUpgrade
+from .Items import ProgressiveUpgrade, SuitUpgrade
 
 
 from .PrimeOptions import HudColor, MetroidPrimeOptions
@@ -14,6 +14,7 @@ from .data.PhendranaDrifts import PhendranaDriftsAreaData
 from .data.TallonOverworld import TallonOverworldAreaData
 from .data.ChozoRuins import ChozoRuinsAreaData
 
+MAX_32_BIT_INT = 0x7fffffff
 
 if TYPE_CHECKING:
     from . import MetroidPrimeWorld
@@ -21,24 +22,15 @@ if TYPE_CHECKING:
 
 def starting_inventory(world: 'MetroidPrimeWorld', item: str) -> bool:
     items = [item.name for item in world.multiworld.precollected_items[world.player]]
-    if item in items:
-        return True
-    else:
-        return False
+    return item in items
 
 
 def spring_check(spring) -> bool:
-    if spring == 1:
-        return True
-    else:
-        return False
+    return spring == 1
 
 
-def ridley(boss) -> bool:
-    if boss == 0 or boss == 1:
-        return False
-    else:
-        return True
+def skip_ridley(boss: int) -> bool:
+    return boss not in [0, 1]
 
 
 def get_starting_beam(world: 'MetroidPrimeWorld') -> str:
@@ -48,6 +40,9 @@ def get_starting_beam(world: 'MetroidPrimeWorld') -> str:
         if item in [SuitUpgrade.Wave_Beam.value, SuitUpgrade.Ice_Beam.value, SuitUpgrade.Plasma_Beam.value]:
             starting_beam = item.split(" ")[0]
             break
+        if item in [ProgressiveUpgrade.Progressive_Wave_Beam, ProgressiveUpgrade.Progressive_Ice_Beam.value, ProgressiveUpgrade.Progressive_Plasma_Beam.value, ProgressiveUpgrade.Progressive_Power_Beam.value]:
+            starting_beam = item.split(" ")[1]
+            break
     return starting_beam
 
 
@@ -55,7 +50,7 @@ def color_options_to_value(world: 'MetroidPrimeWorld') -> List[float]:
     options = world.options
     # If any overrides are set, use that instead
     if options.hud_color_red.value or options.hud_color_green.value or options.hud_color_blue.value:
-        return [options.hud_color_red.value/255, options.hud_color_green.value/255, options.hud_color_blue.value/255]
+        return [options.hud_color_red.value / 255, options.hud_color_green.value / 255, options.hud_color_blue.value / 255]
 
     # get the key in hudcolor enum that matches all caps color
     color: str = world.options.hud_color.value
@@ -166,36 +161,36 @@ def make_config(world: 'MetroidPrimeWorld'):
             "phazonDamagePerSec": 0.964,
             "phazonDamageModifier": "Default",
             "autoEnabledElevators": bool(options.pre_scan_elevators.value),
-            "skipRidley": ridley(options.final_bosses.value),
+            "skipRidley": skip_ridley(options.final_bosses.value),
             "removeHiveMecha": bool(options.remove_hive_mecha.value),
             "multiworldDolPatches": False,
             "startingItems": {
                 "combatVisor": True,  # starting_inventory(world, "Combat Visor"),
-                "powerBeam": starting_inventory(world, "Power Beam"),
-                "scanVisor": starting_inventory(world, "Scan Visor"),
+                "powerBeam": starting_inventory(world, SuitUpgrade.Power_Beam.value) or starting_inventory(world, ProgressiveUpgrade.Progressive_Power_Beam.value),
+                "scanVisor": starting_inventory(world, SuitUpgrade.Scan_Visor.value),
                 # These are handled by the client
-                "missiles": 0,
+                "missiles": 5 if starting_inventory(world, SuitUpgrade.Missile_Launcher.value) or starting_inventory(world, SuitUpgrade.Missile_Expansion.value) else 0,
                 "energyTanks": 0,
                 "powerBombs": 0,
-                "wave": starting_inventory(world, "Wave Beam"),
-                "ice": starting_inventory(world, "Ice Beam"),
-                "plasma": starting_inventory(world, "Plasma Beam"),
-                "charge": starting_inventory(world, "Charge Beam"),
-                "morphBall": starting_inventory(world, "Morph Ball"),
-                "bombs": starting_inventory(world, "Morph Ball Bomb"),
-                "spiderBall": starting_inventory(world, "Spider Ball"),
-                "boostBall": starting_inventory(world, "Boost Ball"),
-                "variaSuit": starting_inventory(world, "Varia Suit"),
-                "gravitySuit": starting_inventory(world, "Gravity Suit"),
-                "phazonSuit": starting_inventory(world, "Phazon Suit"),
-                "thermalVisor": starting_inventory(world, "Thermal Visor"),
-                "xray": starting_inventory(world, "X-Ray Visor"),
-                "spaceJump": starting_inventory(world, "Space Jump Boots"),
-                "grapple": starting_inventory(world, "Grapple Beam"),
-                "superMissile": starting_inventory(world, "Super Missile"),
-                "wavebuster": starting_inventory(world, "Wavebuster"),
-                "iceSpreader": starting_inventory(world, "Ice Spreader"),
-                "flamethrower": starting_inventory(world, "Flamethrower")
+                "wave": starting_inventory(world, SuitUpgrade.Wave_Beam.value) or starting_inventory(world, ProgressiveUpgrade.Progressive_Wave_Beam.value),
+                "ice": starting_inventory(world, SuitUpgrade.Ice_Beam.value) or starting_inventory(world, ProgressiveUpgrade.Progressive_Ice_Beam.value),
+                "plasma": starting_inventory(world, SuitUpgrade.Plasma_Beam.value) or starting_inventory(world, ProgressiveUpgrade.Progressive_Plasma_Beam.value),
+                "charge": starting_inventory(world, SuitUpgrade.Charge_Beam.value),
+                "morphBall": starting_inventory(world, SuitUpgrade.Morph_Ball.value),
+                "bombs": starting_inventory(world, SuitUpgrade.Morph_Ball_Bomb.value),
+                "spiderBall": starting_inventory(world, SuitUpgrade.Spider_Ball.value),
+                "boostBall": starting_inventory(world, SuitUpgrade.Boost_Ball.value),
+                "variaSuit": starting_inventory(world, SuitUpgrade.Varia_Suit.value),
+                "gravitySuit": starting_inventory(world, SuitUpgrade.Gravity_Suit.value),
+                "phazonSuit": starting_inventory(world, SuitUpgrade.Phazon_Suit.value),
+                "thermalVisor": starting_inventory(world, SuitUpgrade.Thermal_Visor.value),
+                "xray": starting_inventory(world, SuitUpgrade.X_Ray_Visor.value),
+                "spaceJump": starting_inventory(world, SuitUpgrade.Space_Jump_Boots.value),
+                "grapple": starting_inventory(world, SuitUpgrade.Grapple_Beam.value),
+                "superMissile": starting_inventory(world, SuitUpgrade.Super_Missile.value),
+                "wavebuster": starting_inventory(world, SuitUpgrade.Wavebuster.value),
+                "iceSpreader": starting_inventory(world, SuitUpgrade.Ice_Spreader.value),
+                "flamethrower": starting_inventory(world, SuitUpgrade.Flamethrower.value)
             },
             "disableItemLoss": True,
             "startingVisor": "Combat",
@@ -230,9 +225,9 @@ def make_config(world: 'MetroidPrimeWorld'):
                 "Varia Suit": 1,
                 "Phazon Suit": 1,
                 "Energy Tank": 99,
-                "Unknown Item 1": 6000,
-                "Health Refill": 999,
-                "Unknown Item 2": 1,
+                "Unknown Item 1": MAX_32_BIT_INT,
+                "Health Refill": MAX_32_BIT_INT,
+                "Unknown Item 2": MAX_32_BIT_INT,
                 "Wavebuster": 1,
                 "Artifact Of Truth": 1,
                 "Artifact Of Strength": 1,
@@ -268,25 +263,25 @@ def make_config(world: 'MetroidPrimeWorld'):
 def make_level_data(world):
     transport_data = get_transport_data(world)
     level_data = {
-        MetroidPrimeArea.Tallon_Overworld.value:  {
+        MetroidPrimeArea.Tallon_Overworld.value: {
             "transports": transport_data[MetroidPrimeArea.Tallon_Overworld.value],
-            "rooms":  TallonOverworldAreaData().get_config_data(world)
+            "rooms": TallonOverworldAreaData().get_config_data(world)
         },
         MetroidPrimeArea.Chozo_Ruins.value: {
             "transports": transport_data[MetroidPrimeArea.Chozo_Ruins.value],
-            "rooms":  ChozoRuinsAreaData().get_config_data(world)
+            "rooms": ChozoRuinsAreaData().get_config_data(world)
         },
         MetroidPrimeArea.Magmoor_Caverns.value: {
             "transports": transport_data[MetroidPrimeArea.Magmoor_Caverns.value],
-            "rooms":  MagmoorCavernsAreaData().get_config_data(world)
+            "rooms": MagmoorCavernsAreaData().get_config_data(world)
         },
         MetroidPrimeArea.Phendrana_Drifts.value: {
             "transports": transport_data[MetroidPrimeArea.Phendrana_Drifts.value],
-            "rooms":  PhendranaDriftsAreaData().get_config_data(world)
+            "rooms": PhendranaDriftsAreaData().get_config_data(world)
         },
         MetroidPrimeArea.Phazon_Mines.value: {
             "transports": transport_data[MetroidPrimeArea.Phazon_Mines.value],
-            "rooms":  PhazonMinesAreaData().get_config_data(world)
+            "rooms": PhazonMinesAreaData().get_config_data(world)
 
         }
     }

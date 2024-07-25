@@ -5,13 +5,15 @@ from CommonClient import logger
 from NetUtils import NetworkItem
 
 from .Items import PROGRESSIVE_ITEM_MAPPING, ProgressiveUpgrade, SuitUpgrade, custom_suit_upgrade_table, suit_upgrade_table
-from .MetroidPrimeInterface import InventoryItemData, MetroidPrimeSuit
+from .MetroidPrimeInterface import ITEMS_USED_FOR_LOCATION_TRACKING, InventoryItemData, MetroidPrimeSuit
 
 if TYPE_CHECKING:
     from .MetroidPrimeClient import MetroidPrimeContext
 
 
 async def handle_receive_items(ctx: 'MetroidPrimeContext', current_items: dict[str, InventoryItemData]):
+    # Will be used when consumables are implemented
+    # current_index = ctx.game_interface.get_last_received_index()
     for network_item in ctx.items_received:
         item_data = inventory_item_by_network_id(
             network_item.item, current_items)
@@ -27,10 +29,13 @@ async def handle_receive_items(ctx: 'MetroidPrimeContext', current_items: dict[s
             continue
 
             # Handle Single Item Upgrades
-        if item_data.max_capacity == 1:
+        if item_data.max_capacity == 1 or item_data.name in ITEMS_USED_FOR_LOCATION_TRACKING:
             give_item_if_not_owned(ctx, item_data, network_item)
         elif item_data.max_capacity > 1:
             continue
+    # Not used until consumables are implemented but keeping it here to see if it breaks anything and gets reported
+    new_index = len(ctx.items_received) - 1
+    ctx.game_interface.set_last_received_index(new_index)
 
     await handle_receive_missiles(ctx, current_items)
     await handle_receive_power_bombs(ctx, current_items)
@@ -47,7 +52,8 @@ async def handle_receive_items(ctx: 'MetroidPrimeContext', current_items: dict[s
 def give_item_if_not_owned(ctx: 'MetroidPrimeContext', item_data: InventoryItemData, network_item: NetworkItem):
     """Gives the item and notifies"""
     if item_data.current_amount == 0:
-        ctx.game_interface.give_item_to_player(item_data.id, 1, 1)
+        max_capacity = 1
+        ctx.game_interface.give_item_to_player(item_data.id, 1, max_capacity, item_data.name in ITEMS_USED_FOR_LOCATION_TRACKING)
         if network_item.player != ctx.slot:
             receipt_message = "online" if not item_data.name.startswith("Artifact") else "received"
             ctx.notification_manager.queue_notification(f"{item_data.name} {receipt_message} ({ctx.player_names[network_item.player]})")
@@ -56,7 +62,7 @@ def give_item_if_not_owned(ctx: 'MetroidPrimeContext', item_data: InventoryItemD
 def disable_item_if_owned(ctx: 'MetroidPrimeContext', item_data: InventoryItemData):
     """Disables the item and notifies"""
     if item_data.current_amount > 0:
-        ctx.game_interface.give_item_to_player(item_data.id, 0, 0)
+        ctx.game_interface.give_item_to_player(item_data.id, 0, 0, item_data.name in ITEMS_USED_FOR_LOCATION_TRACKING)
         ctx.notification_manager.queue_notification(f"{item_data.name} offline")
 
 

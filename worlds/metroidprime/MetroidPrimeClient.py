@@ -11,6 +11,7 @@ import py_randomprime
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, logger, server_loop, gui_enabled
 from NetUtils import ClientStatus, NetworkItem
 import Utils
+from .Items import suit_upgrade_table
 from .ClientReceiveItems import handle_receive_items
 from .NotificationManager import NotificationManager
 from .Container import construct_hook_patch
@@ -48,11 +49,18 @@ class MetroidPrimeCommandProcessor(ClientCommandProcessor):
             self.ctx.notification_manager.queue_notification(f"{'Enabling' if self.ctx.gravity_suit_enabled else 'Disabling'} Gravity Suit...")
 
     def _cmd_set_cosmetic_suit(self, input):
-        """Set the cosmetic suit of the player. This will not affect the player's current suit but will change the appearance of the suit in the game."""
+        """Set the cosmetic suit of the player. This will not affect the player's current suit but will change the appearance of the suit in the game. Note that if you start a new seed without closing the client, the option will persist. If you close the client and get a new suit, you may need to re set this."""
         if isinstance(self.ctx, MetroidPrimeContext):
+            if input == "None":
+                logger.info("Removing cosmetic suit")
+                self.ctx.cosmetic_suit = None
+                suit = self.ctx.game_interface.get_highest_owned_suit()
+                self.ctx.game_interface.set_cosmetic_suit_by_id(suit_upgrade_table[suit.value].id)
+                self.ctx.game_interface.set_current_suit(self.ctx.game_interface.get_current_cosmetic_suit())
+                return
             suit = MetroidPrimeSuit.get_by_key(input)
             if suit is None:
-                options = ", ".join([suit.name for suit in MetroidPrimeSuit if "Fusion" not in suit.name])
+                options = ", ".join([suit.name for suit in MetroidPrimeSuit if "Fusion" not in suit.name] + ["None"])
                 logger.warning(f"Invalid cosmetic suit: {suit}. Valid options are: {options}")
                 return
             logger.info(f"Setting cosmetic suit to: {suit.name} Suit")
@@ -81,11 +89,15 @@ class MetroidPrimeContext(CommonContext):
     slot_data: dict[str, Utils.Any] = None
     death_link_enabled = False
     gravity_suit_enabled: bool = True
+    previous_location_str: str = ""
     cosmetic_suit: Optional[MetroidPrimeSuit] = None
+    slot_name: Optional[str] = None
+    last_error_message: Optional[str] = None
 
-    def __init__(self, server_address, password):
+    def __init__(self, server_address, password, slot_name=None):
         super().__init__(server_address, password)
         self.game_interface = MetroidPrimeInterface(logger)
+        self.auth = slot_name
         self.notification_manager = NotificationManager(HUD_MESSAGE_DURATION, self.game_interface.send_hud_message)
 
     def on_deathlink(self, data: Utils.Dict[str, Utils.Any]) -> None:
@@ -151,15 +163,35 @@ async def dolphin_sync_task(ctx: MetroidPrimeContext):
             continue
 
 
+def __int_to_reversed_bits(value: int, bit_length: int) -> str:
+    """
+    Converts an integer to a binary string of a specified length and reverses it.
+
+    :param value: The integer to convert.
+    :param bit_length: The length of the resulting binary string.
+    :return: A reversed binary string representation of the integer.
+    """
+    binary_string = format(value, f'0{bit_length}b')
+    return binary_string[::-1]
+
+
 async def handle_checked_location(ctx: MetroidPrimeContext, current_inventory: dict[str, InventoryItemData]):
     """Uses the current amount of UnknownItem1 in inventory as an indicator of which location was checked. This will break if the player collects more than one pickup without having the AP client hooked to the game and server"""
     unknown_item1 = current_inventory["UnknownItem1"]
-    if (unknown_item1.current_capacity == 0):
+    unknown_item2 = current_inventory["UnknownItem2"]
+    health_refill = current_inventory["HealthRefill"]
+
+    flag_ints = [unknown_item2.current_amount, unknown_item2.current_capacity, health_refill.current_capacity, unknown_item1.current_amount]
+    flags_str = "".join([__int_to_reversed_bits(flag_int, 32) for flag_int in flag_ints])
+    if (flags_str == ctx.previous_location_str):
         return
-    checked_location_id = METROID_PRIME_LOCATION_BASE + \
-        unknown_item1.current_capacity - 1
-    await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [checked_location_id]}])
-    ctx.game_interface.give_item_to_player(unknown_item1.id, 0, 0)
+    checked_locations = []
+    for index, char in enumerate(flags_str):
+        if char == "1":
+            checked_locations.append(index + METROID_PRIME_LOCATION_BASE)
+
+    await ctx.send_msgs([{"cmd": "LocationChecks", "locations": checked_locations}])
+    ctx.previous_location_str = flags_str
 
 
 async def handle_check_goal_complete(ctx: MetroidPrimeContext):
@@ -180,6 +212,7 @@ async def handle_check_deathlink(ctx: MetroidPrimeContext):
 
 async def _handle_game_ready(ctx: MetroidPrimeContext):
     if ctx.server:
+        ctx.last_error_message = None
         if not ctx.slot:
             await asyncio.sleep(1)
             return
@@ -193,7 +226,10 @@ async def _handle_game_ready(ctx: MetroidPrimeContext):
             await handle_check_deathlink(ctx)
         await asyncio.sleep(0.5)
     else:
-        logger.info("Waiting for player to connect to server")
+        message = "Waiting for player to connect to server"
+        if ctx.last_error_message is not message:
+            logger.info("Waiting for player to connect to server")
+            ctx.last_error_message = message
         await asyncio.sleep(1)
 
 
@@ -254,6 +290,22 @@ def get_version_from_iso(path: str) -> str:
                 raise Exception(f"Unknown version of Metroid Prime GC (game_id : {game_id} | game_rev : {game_rev})")
 
 
+def get_options_from_apmp1(apmp1_file: str) -> dict:
+    with zipfile.ZipFile(apmp1_file) as zip_file:
+        with zip_file.open("options.json") as file:
+            options_json = file.read().decode("utf-8")
+            options_json = json.loads(options_json)
+    return options_json
+
+
+def get_randomprime_config_from_apmp1(apmp1_file: str) -> dict:
+    with zipfile.ZipFile(apmp1_file) as zip_file:
+        with zip_file.open("config.json") as file:
+            config_json = file.read().decode("utf-8")
+            config_json = json.loads(config_json)
+    return config_json
+
+
 async def patch_and_run_game(apmp1_file: str):
     apmp1_file = os.path.abspath(apmp1_file)
     input_iso_path = Utils.get_options()["metroidprime_options"]["rom_file"]
@@ -262,28 +314,11 @@ async def patch_and_run_game(apmp1_file: str):
     output_path = base_name + '.iso'
 
     if not os.path.exists(output_path):
+        if not zipfile.is_zipfile(apmp1_file):
+            raise Exception(f"Invalid APMP1 file: {apmp1_file}")
 
-        config_json_file = None
-        options_json_file = None
-        if zipfile.is_zipfile(apmp1_file):
-            for name in zipfile.ZipFile(apmp1_file).namelist():
-                if name == 'config.json':
-                    config_json_file = name
-                elif name == 'options.json':
-                    options_json_file = name
-
-        config_json = None
-        options_json = None
-
-        with zipfile.ZipFile(apmp1_file) as zip_file:
-            with zip_file.open(config_json_file) as file:
-                config_json = file.read().decode("utf-8")
-                config_json = json.loads(config_json)
-
-            if options_json_file:
-                with zip_file.open(options_json_file) as file:
-                    options_json = file.read().decode("utf-8")
-                    options_json = json.loads(options_json)
+        config_json = get_randomprime_config_from_apmp1(apmp1_file)
+        options_json = get_options_from_apmp1(apmp1_file)
 
         build_progressive_beam_patch = False
         if options_json:
@@ -307,12 +342,13 @@ def launch():
         parser.add_argument('apmp1_file', default="", type=str, nargs="?",
                             help='Path to an apmp1 file')
         args = parser.parse_args()
-
+        slot = None
         if args.apmp1_file:
             logger.info("APMP1 file supplied, beginning patching process...")
             Utils.async_start(patch_and_run_game(args.apmp1_file))
+            slot = get_options_from_apmp1(args.apmp1_file)["player_name"]
 
-        ctx = MetroidPrimeContext(args.connect, args.password)
+        ctx = MetroidPrimeContext(args.connect, args.password, slot)
         logger.info("Connecting to server...")
         ctx.server_task = asyncio.create_task(server_loop(ctx), name="Server Loop")
         if gui_enabled:

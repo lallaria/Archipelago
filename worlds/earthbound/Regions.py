@@ -98,7 +98,7 @@ def init_areas(world: "EarthBoundWorld", locations: List[LocationData]) -> None:
                                                       "Northern Onett": lambda state: state.has("Police Badge", player)})
 
     multiworld.get_region("Twoson", player).add_exits(["Onett", "Peaceful Rest Valley", "Threed", "Everdred's House"],
-                                                      {"Onett": lambda state: True,
+                                                      {"Onett": lambda state: state.has("Police Badge", player),
                                                        "Peaceful Rest Valley": lambda state: state.has("Pencil Eraser", player),
                                                        "Threed": lambda state: state.has_any({"Threed Tunnels Clear", "Wad of Bills"}, player),
                                                        "Everdred's House": lambda state: state.has("Paula", player)})
@@ -170,7 +170,7 @@ def init_areas(world: "EarthBoundWorld", locations: List[LocationData]) -> None:
 
     multiworld.get_region("Tenda Village", player).add_exits(["Lumine Hall", "Deep Darkness Darkness"],
                                                              {"Lumine Hall": lambda state: state.has("Shyness Book", player),
-                                                              "Deep Darkness": lambda state: state.has_all({"Shyness Book", "Hawk Eye"}, player)})
+                                                              "Deep Darkness Darkness": lambda state: state.has_all({"Shyness Book", "Hawk Eye"}, player)})
 
     multiworld.get_region("Lumine Hall", player).add_exits(["Lost Underworld"])
 

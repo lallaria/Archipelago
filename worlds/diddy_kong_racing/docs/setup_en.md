@@ -27,7 +27,7 @@ Double-click `diddy_kong_racing.apworld`, or manually copy it into the `custom_w
 ## How To Install - Client Side
 - Double-click `diddy_kong_racing.apworld`, or manually copy it into the `custom_worlds` folder in your existing Archipelago folder.
 - Copy `data/lua/connector_diddy_kong_racing.lua` into the `lua` folder in your existing Archipelago folder (`data/lua`).
-- Run the TreZapalooza Launcher and select Diddy Kong Racing Client.
+- Run the Archipelago launcher and select Diddy Kong Racing Client.
 - Connect the Archipelago Client with the server.
 - Open Bizhawk (2.9.1+) and open your Diddy Kong Racing ROM.
 - Run the `diddy_kong_racing.lua` script (drag and drop it into Bizhawk).

@@ -158,7 +158,7 @@ def patch_rom(world, rom, player: int, multiworld):
 
             if name in present_locations:
                 if item == "Nothing": #I can change this to "In nothing_table" later todo: make it so nonlocal items do not follow this table
-                    rom.write_bytes(present_locations[name], bytearray([0x00, 0x01]))
+                    rom.write_bytes(present_locations[name], bytearray([0x00, 0x00, 0x01]))
                 elif location.item.player != location.player:
                     rom.write_bytes(present_locations[name], bytearray([item_id, 0x00, 0x00, (location.address - 0xEB0000)]))
                 elif item in item_id_table:
@@ -285,7 +285,7 @@ def patch_rom(world, rom, player: int, multiworld):
     elif world.options.magicant_mode == 2:
         rom.write_bytes(0x2EC1D8, bytearray([0x6A, 0xC2, 0xEE]))
     
-    flavor_address = 0x3FAEE0
+    flavor_address = 0x3FAF10
     for i in range(4):
         rom.write_bytes(flavor_address, bytearray(world.flavor_text[i]))
         flavor_addr = flavor_address - 0x3F0000
@@ -324,6 +324,17 @@ def patch_rom(world, rom, player: int, multiworld):
                 rom.write_bytes(0x17FC8D + starting_char, bytearray([character_item_table[item.name][1]]))
                 starting_character_count.append(item.name)
                 starting_char += 1
+
+    for sphere_number, sphere in enumerate(world.multiworld.get_spheres(), start=1):
+        for location in sphere:
+            if location.parent_region.name in combat_regions:
+                world.last_combat_region = location.parent_region.name
+            if location.item.name in ["Paula", "Jeff", "Poo"]:
+                if location.parent_region.name in combat_regions:
+                    setattr(world, f"{location.item.name}_region", location.parent_region.name)
+                else:
+                    setattr(world, f"{location.item.name}_region", world.last_combat_region)
+
 
     scale_enemies(world, rom)
     rom.write_bytes(0x17FCD0, world.starting_money)

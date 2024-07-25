@@ -4,7 +4,7 @@ from .DolphinClient import GC_GAME_ID_ADDRESS, DolphinClient, DolphinException, 
 from enum import Enum
 from enum import Enum
 import py_randomprime
-from .Items import ItemData, SuitUpgrade, item_table, custom_suit_upgrade_table
+from .Items import ItemData, SuitUpgrade, item_table, custom_suit_upgrade_table, suit_upgrade_table
 
 _SUPPORTED_VERSIONS = ["0-00", "0-01", "0-02", "jpn", "kor", "pal"]
 _SYMBOLS = {version: py_randomprime.symbols_for_version(version) for version in _SUPPORTED_VERSIONS}
@@ -151,6 +151,8 @@ custom_charge_id_to_beam = {
     custom_suit_upgrade_table[SuitUpgrade.Plasma_Charge_Beam.value].id: SuitUpgrade.Plasma_Charge_Beam
 }
 
+ITEMS_USED_FOR_LOCATION_TRACKING = ["HealthRefill", "UnknownItem1", "UnknownItem2"]  # These will not have their max capacities modified by the client for tracking checked locations
+
 
 class InventoryItemData(ItemData):
     """Class used to track the player'scurrent items and their quantities"""
@@ -178,26 +180,36 @@ class MetroidPrimeInterface:
         self.logger = logger
         self.dolphin_client = DolphinClient(logger)
 
-    def give_item_to_player(self, item_id: int, new_amount: int, new_capacity: int):
+    def give_item_to_player(self, item_id: int, new_amount: int, new_capacity: int, ignore_capacity: bool = False):
         """Gives the player an item with the specified amount and capacity"""
         if item_id in custom_charge_id_to_beam:
             charge_beam = custom_charge_id_to_beam[item_id]
             self.set_progressive_beam_charge_state(charge_beam, True)
             return
-        self.dolphin_client.write_pointer(self.__get_player_state_pointer(),
-                                          calculate_item_offset(item_id), struct.pack(">II", new_amount, new_capacity))
+        if ignore_capacity:
+            self.dolphin_client.write_pointer(self.__get_player_state_pointer(),
+                                              calculate_item_offset(item_id), struct.pack(">I", new_amount))
+        else:
+            self.dolphin_client.write_pointer(self.__get_player_state_pointer(),
+                                              calculate_item_offset(item_id), struct.pack(">II", new_amount, new_capacity))
 
         # This will be overriden by handle_cosmetic_suit
         if item_id > 20 and item_id <= 23:
-            current_suit = self.get_current_suit()
+            current_suit = self.get_current_cosmetic_suit()
             if current_suit == MetroidPrimeSuit.Phazon:
                 return
-            elif item_id == 23:
-                self.set_current_suit(MetroidPrimeSuit.Phazon)
-            elif item_id == 21:
-                self.set_current_suit(MetroidPrimeSuit.Gravity)
-            elif item_id == 22 and current_suit != MetroidPrimeSuit.Gravity:
-                self.set_current_suit(MetroidPrimeSuit.Varia)
+            self.set_cosmetic_suit_by_id(item_id)
+
+    def set_cosmetic_suit_by_id(self, item_id: int):
+        current_suit = self.get_current_cosmetic_suit()
+        if item_id == 23:
+            self.set_current_suit(MetroidPrimeSuit.Phazon)
+        elif item_id == 21:
+            self.set_current_suit(MetroidPrimeSuit.Gravity)
+        elif item_id == 22 and current_suit != MetroidPrimeSuit.Gravity:
+            self.set_current_suit(MetroidPrimeSuit.Varia)
+        else:
+            self.set_current_suit(MetroidPrimeSuit.Power)
 
     def check_for_new_locations(self):
         pass
@@ -229,12 +241,18 @@ class MetroidPrimeInterface:
                 inventory[item.name] = self.get_item(item)
         return inventory
 
-    def get_current_suit(self) -> MetroidPrimeSuit:
+    def get_current_cosmetic_suit(self) -> MetroidPrimeSuit:
         player_state_pointer = self.__get_player_state_pointer()
         result = self.dolphin_client.read_pointer(
             player_state_pointer, 0x20, 4)
         suit_id = struct.unpack(">I", result)[0]
         return MetroidPrimeSuit(suit_id)
+
+    def get_highest_owned_suit(self) -> SuitUpgrade:
+        for suit in [SuitUpgrade.Phazon_Suit, SuitUpgrade.Gravity_Suit, SuitUpgrade.Varia_Suit]:
+            if self.get_item(suit_upgrade_table[suit.value]).current_amount > 0:
+                return suit
+        return SuitUpgrade.Power_Suit
 
     def set_current_suit(self, suit: MetroidPrimeSuit):
         player_state_pointer = self.__get_player_state_pointer()
@@ -278,6 +296,17 @@ class MetroidPrimeInterface:
         self.dolphin_client.write_pointer(
             self.__get_player_state_pointer(), 0xC, struct.pack(">f", new_health_amount))
         return self.get_current_health()
+
+    def get_last_received_index(self) -> int:
+        """Gets the index of the last item received. This is stored as the current amount for the power suit"""
+        inventory_item = self.get_item(item_table[SuitUpgrade.Power_Suit.value])
+        return inventory_item.current_amount
+
+    def set_last_received_index(self, index: int):
+        """Sets the received index to the index of the last item received. This is stored as the max amount for the power suit"""
+        inventory_item = self.get_item(item_table[SuitUpgrade.Power_Suit.value])
+        inventory_item.current_amount = index
+        self.give_item_to_player(inventory_item.id, inventory_item.current_amount, inventory_item.current_capacity)
 
     def connect_to_game(self):
         """Initializes the connection to dolphin and verifies it is connected to Metroid Prime"""
