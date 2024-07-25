@@ -314,7 +314,7 @@ html{
 }
 
 @media all and (max-width: 1580px){
-    #landing-clouds #cloud1, #landing-clouds #cloud2, #landing-clouds #cloud3{
+    #landing-clouds #cloud1, #landing-clouds #cloud2, #landing-clouds #cloud3, #landing-clouds #cloud4{
         display: none;
     }
 
