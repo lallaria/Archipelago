@@ -13,7 +13,7 @@ from .Rules import set_rules
 class TheBindingOfIsaacRepentanceWeb(WebWorld):
     tutorials = [Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the The Binding Of Isaac Repentance integration for Archipelago multiworld games.",
+        "A guide to setting up the The Binding Of Isaac Repentance integration for Trezapalooza Multiworld games.",
         "English",
         "setup_en.md",
         "setup/en",

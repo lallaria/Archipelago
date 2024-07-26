@@ -19,7 +19,7 @@ logger = logging.getLogger("Subnautica")
 class SubnaticaWeb(WebWorld):
     tutorials = [Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Subnautica randomizer connected to an Archipelago Multiworld",
+        "A guide to setting up the Subnautica randomizer connected to an Trezapalooza Multiworld",
         "English",
         "setup_en.md",
         "setup/en",

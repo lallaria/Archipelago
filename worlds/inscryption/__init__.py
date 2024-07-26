@@ -13,7 +13,7 @@ class InscrypWeb(WebWorld):
 
     guide_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Inscryption Archipelago Multiworld",
+        "A guide to setting up the Inscryption Trezapalooza Multiworld",
         "English",
         "setup_en.md",
         "setup/en",
@@ -22,7 +22,7 @@ class InscrypWeb(WebWorld):
 
     guide_fr = Tutorial(
         "Multiworld Setup Guide",
-        "Un guide pour configurer Inscryption Archipelago Multiworld",
+        "Un guide pour configurer Inscryption Trezapalooza Multiworld",
         "Français",
         "setup_fr.md",
         "setup/fr",

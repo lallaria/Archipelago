@@ -16,7 +16,7 @@ class RaftWeb(WebWorld):
     theme = "ocean"
     tutorials = [Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up Raft integration for Archipelago multiworld games.",
+        "A guide to setting up Raft integration for Trezapalooza Multiworld games.",
         "English",
         "setup_en.md",
         "setup/en",

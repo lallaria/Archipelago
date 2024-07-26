@@ -32,7 +32,7 @@ class WL4Web(WebWorld):
 
     setup_en = Tutorial(
         'Multiworld Setup Guide',
-        'A guide to setting up the Wario Land 4 randomizer connected to an Archipelago Multiworld.',
+        'A guide to setting up the Wario Land 4 randomizer connected to an Trezapalooza Multiworld.',
         'English',
         'setup_en.md',
         'setup/en',

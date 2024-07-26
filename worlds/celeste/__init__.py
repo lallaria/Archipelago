@@ -27,7 +27,7 @@ class CelesteWebWorld(WebWorld):
     tutorials = [
         Tutorial(
             "Multiworld Setup Tutorial",
-            "A guide to setting up the Celeste randomiser connected to an Archipelago MultiWorld.",
+            "A guide to setting up the Celeste randomiser connected to an Trezapalooza Multiworld.",
             "English",
             "celeste_en.md",
             "celeste/en",

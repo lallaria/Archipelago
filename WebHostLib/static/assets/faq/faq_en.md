@@ -49,7 +49,7 @@ found in the [Glossary](/glossary/en).
 
 ## Does everyone need to be connected at the same time?
 
-There are two different play-styles that are common for Archipelago multiworld sessions. These sessions can either
+There are two different play-styles that are common for Trezapalooza Multiworld sessions. These sessions can either
 be considered synchronous (or "sync"), where everyone connects and plays at the same time, or asynchronous (or "async"),
 where players connect and play at their own pace. The setup for both is identical. The difference in play-style is how
 you and your friends choose to organize and play your multiworld. Most groups decide on the format before creating

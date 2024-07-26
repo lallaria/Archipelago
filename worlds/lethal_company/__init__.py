@@ -13,7 +13,7 @@ from .regions import create_regions
 class LethalCompanyWeb(WebWorld):
     tutorials = [Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Lethal Company integration for Archipelago multiworld games.",
+        "A guide to setting up the Lethal Company integration for Trezapalooza Multiworld games.",
         "English",
         "setup_en.md",
         "setup/en",
