@@ -15,8 +15,8 @@ CookieConsent.run({
         translations: {
             en: {
                 consentModal: {
-                    title: 'We use cookies',
-                    description: 'Cookie modal description',
+                    title: 'This website uses cookies',
+                    description: 'We use cookies to personalise content, and to analyse our traffic. We also share information about your use of our site with our analytics partners who may combine it with other information that you’ve provided to them.',
                     acceptAllBtn: 'Accept all',
                     acceptNecessaryBtn: 'Reject all',
                     showPreferencesBtn: 'Manage Individual preferences'
@@ -28,10 +28,6 @@ CookieConsent.run({
                     savePreferencesBtn: 'Accept current selection',
                     closeIconLabel: 'Close modal',
                     sections: [
-                        {
-                            title: 'Somebody said ... cookies?',
-                            description: 'I want one!'
-                        },
                         {
                             title: 'Strictly Necessary cookies',
                             description: 'These cookies are essential for the proper functioning of the website and cannot be disabled.',
@@ -46,7 +42,7 @@ CookieConsent.run({
                         },
                         {
                             title: 'More information',
-                            description: 'For any queries in relation to my policy on cookies and your choices, please <a href="#contact-page">contact us</a>'
+                            description: 'For any queries in relation to my policy on cookies and your choices, please <a href="/legal">contact us</a>'
                         }
                     ]
                 }
