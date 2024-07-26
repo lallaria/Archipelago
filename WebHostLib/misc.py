@@ -97,6 +97,12 @@ def new_room(seed: UUID):
     return redirect(url_for("host_room", room=room.id))
 
 
+@app.route('/legal/')
+@cache.cached()
+def legal():
+    return render_template("legal.html")
+
+
 def _read_log(log: IO[Any], offset: int = 0) -> Iterator[bytes]:
     marker = log.read(3)  # skip optional BOM
     if marker != b'\xEF\xBB\xBF':
