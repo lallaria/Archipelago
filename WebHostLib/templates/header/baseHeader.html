@@ -1,16 +1,6 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="styles/themes/base.css") }}" />
     <script type="application/ecmascript" src="{{ url_for('static', filename="assets/baseHeader.js") }}"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-39Z35ZSZ55"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-39Z35ZSZ55');
-    </script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css" />
 {% endblock %}
 
 {% block header %}
