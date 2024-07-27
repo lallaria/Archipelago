@@ -9,7 +9,7 @@ from .z80asm.Assembler import Z80Assembler
 from .Constants import *
 from ..data.Constants import *
 from .. import LOCATIONS_DATA, OracleOfSeasonsOldMenShuffle, OracleOfSeasonsGoal, OracleOfSeasonsAnimalCompanion, \
-    OracleOfSeasonsMasterKeys, OracleOfSeasonsFoolsOre, OracleOfSeasonsGoldenOreSpotsShuffle
+    OracleOfSeasonsMasterKeys, OracleOfSeasonsFoolsOre
 from pathlib import Path
 
 
@@ -93,17 +93,6 @@ def define_samasa_combination(assembler: Z80Assembler, patch_data):
     if len(cutscene) > 0xFE:
         raise Exception("Samasa gate sequence is too long")
     assembler.add_floating_chunk("showSamasaCutscene", cutscene)
-
-
-def define_sign_guy_requirement_digits(assembler: Z80Assembler, requirement: int):
-    digits = []
-    while requirement > 0:
-        digits.append(0x30 + (requirement % 10))
-        requirement = int(requirement / 10)
-    # If list is empty, it means requirement was <= 0, so just display "0"
-    if len(digits) == 0:
-        digits = [0x30]
-    assembler.add_floating_chunk("signGuyRequirementDigits", list(reversed(digits)))
 
 
 def define_compass_rooms_table(assembler: Z80Assembler, patch_data):
@@ -269,7 +258,6 @@ def define_option_constants(assembler: Z80Assembler, patch_data):
     assembler.define_byte("option.treehouseOldManRequirement", options["treehouse_old_man_requirement"])
     assembler.define_byte("option.tarmGateRequiredJewels", options["tarm_gate_required_jewels"])
     assembler.define_byte("option.signGuyRequirement", options["sign_guy_requirement"])
-    define_sign_guy_requirement_digits(assembler, options["sign_guy_requirement"])
 
     assembler.define_byte("option.removeD0AltEntrance", options["remove_d0_alt_entrance"])
     assembler.define_byte("option.deterministicGashaLootCount", options["deterministic_gasha_locations"])
@@ -521,6 +509,11 @@ def define_text_constants(assembler: Z80Assembler, patch_data):
             text_bytes.extend([0x09, 0x01, 0x0c, 0x08, 0x20, 0x02, 0x09, 0x2e, 0x01])  # "(number) Ore Chunks."
         assembler.add_floating_chunk(f"text.{symbolic_name}", text_bytes)
 
+    assembler.add_floating_chunk("text.signGuyRequirementDigits",
+                                 convert_value_to_digits(patch_data["options"]["sign_guy_requirement"]))
+    assembler.add_floating_chunk("text.deterministicGashaCountDigits",
+                                 convert_value_to_digits(patch_data["options"]["deterministic_gasha_locations"]))
+
 
 def set_heart_beep_interval_from_settings(rom: RomData):
     heart_beep_interval = get_settings()["tloz_oos_options"]["heart_beep_interval"]
@@ -549,8 +542,8 @@ def set_character_sprite_from_settings(rom: RomData):
 
     palette = get_settings()["tloz_oos_options"]["character_palette"]
     if palette == "random":
-        colors = list(PALETTE_BYTES.keys())
-        palette = colors[random.randint(0, len(colors) - 1)]
+        palette = random.choice(get_available_random_colors_from_sprite_name(sprite))
+
     if palette == "green":
         return  # Nothing to change
     if palette not in PALETTE_BYTES:

@@ -1,31 +1,37 @@
 """
-Archipelago World definition for Pokemon FireRed/LeafGreen
+Archipelago World definition for Pokémon FireRed/LeafGreen
 """
 import copy
 import os.path
+import tempfile
+import Utils
 
 import settings
 import pkgutil
-from typing import ClassVar, List, Dict, Any, TextIO, Tuple
+from typing import Any, ClassVar, Dict, List, Set, TextIO, Tuple
+
 from BaseClasses import Tutorial, MultiWorld, ItemClassification
 from Fill import fill_restrictive, FillError
 from worlds.AutoWorld import WebWorld, World
 from .client import PokemonFRLGClient
-from .data import data as frlg_data, EventData, MapData, MiscPokemonData, SpeciesData, StarterData
+from .data import (data as frlg_data, LEGENDARY_POKEMON, EventData, MapData, MiscPokemonData, SpeciesData, StarterData,
+                   TrainerData)
 from .items import ITEM_GROUPS, create_item_name_to_id_map, get_item_classification, PokemonFRLGItem
 from .locations import (LOCATION_GROUPS, create_location_name_to_id_map, create_locations_from_tags, set_free_fly,
                         PokemonFRLGLocation)
-from .options import (PokemonFRLGOptions, GameVersion, GameRevision, RandomizeWildPokemon, ShuffleHiddenItems,
+from .options import (PokemonFRLGOptions, GameVersion, RandomizeWildPokemon, ShuffleHiddenItems,
                       ShuffleBadges, ViridianCityRoadblock)
-from .pokemon import randomize_legendaries, randomize_misc_pokemon, randomize_starters, randomize_wild_encounters
-from .rom import (write_tokens, PokemonFireRedProcedurePatch, PokemonFireRedRev1ProcedurePatch,
+from .pokemon import (randomize_abilities, randomize_legendaries, randomize_misc_pokemon, randomize_moves,
+                      randomize_starters, randomize_tm_hm_compatability, randomize_trainer_parties, randomize_types,
+                      randomize_wild_encounters)
+from .rom import (write_tokens, FRLGContainer, PokemonFireRedProcedurePatch, PokemonFireRedRev1ProcedurePatch,
                   PokemonLeafGreenProcedurePatch, PokemonLeafGreenRev1ProcedurePatch)
 from .util import int_to_bool_array, HM_TO_COMPATABILITY_ID
 
 
 class PokemonFRLGWebWorld(WebWorld):
     """
-    Webhost info for Pokemon FireRed and LeafGreen
+    Webhost info for Pokémon FireRed and LeafGreen
     """
     setup_en = Tutorial(
         "Multiworld Setup Guide",
@@ -41,33 +47,41 @@ class PokemonFRLGWebWorld(WebWorld):
 
 class PokemonFRLGSettings(settings.Group):
     class PokemonFireRedRomFile(settings.UserFilePath):
-        """File name of your English Pokemon FireRed ROM"""
+        """File name of your English Pokémon FireRed ROM"""
         description = "Pokemon FireRed ROM File"
         copy_to = "Pokemon - FireRed Version (USA, Europe).gba"
         md5s = [PokemonFireRedProcedurePatch.hash]
 
     class PokemonFireRedRev1RomFile(settings.UserFilePath):
-        """File name of your English Pokemon FireRed (Rev 1) ROM"""
+        """File name of your English Pokémon FireRed (Rev 1) ROM"""
         description = "Pokemon FireRed (Rev 1) ROM File"
         copy_to = "Pokemon - FireRed Version (USA, Europe) (Rev 1).gba"
         md5s = [PokemonFireRedRev1ProcedurePatch.hash]
 
     class PokemonLeafGreenRomFile(settings.UserFilePath):
-        """File name of your English Pokemon LeafGreen ROM"""
+        """File name of your English Pokémon LeafGreen ROM"""
         description = "Pokemon LeafGreen ROM File"
         copy_to = "Pokemon - LeafGreen Version (USA, Europe).gba"
         md5s = [PokemonLeafGreenProcedurePatch.hash]
 
     class PokemonLeafGreenRev1RomFile(settings.UserFilePath):
-        """File name of your English Pokemon LeafGreen (Rev 1) ROM"""
+        """File name of your English Pokémon LeafGreen (Rev 1) ROM"""
         description = "Pokemon LeafGreen (Rev 1) ROM File"
         copy_to = "Pokemon - LeafGreen Version (USA, Europe) (Rev 1).gba"
         md5s = [PokemonLeafGreenRev1ProcedurePatch.hash]
 
-    firered_rom_file: PokemonFireRedRomFile = PokemonFireRedRomFile(PokemonFireRedRomFile.copy_to)
-    firered_rev1_rom_file: PokemonFireRedRev1RomFile = PokemonFireRedRev1RomFile(PokemonFireRedRev1RomFile.copy_to)
-    leafgreen_rom_file: PokemonLeafGreenRomFile = PokemonLeafGreenRomFile(PokemonLeafGreenRomFile.copy_to)
-    leafgreen_rev1_rom_file: PokemonLeafGreenRev1RomFile = PokemonLeafGreenRev1RomFile(PokemonLeafGreenRev1RomFile.copy_to)
+    firered_rom_file: PokemonFireRedRomFile = PokemonFireRedRomFile(
+        PokemonFireRedRomFile.copy_to
+    )
+    firered_rev1_rom_file: PokemonFireRedRev1RomFile = PokemonFireRedRev1RomFile(
+        PokemonFireRedRev1RomFile.copy_to
+    )
+    leafgreen_rom_file: PokemonLeafGreenRomFile = PokemonLeafGreenRomFile(
+        PokemonLeafGreenRomFile.copy_to
+    )
+    leafgreen_rev1_rom_file: PokemonLeafGreenRev1RomFile = PokemonLeafGreenRev1RomFile(
+        PokemonLeafGreenRev1RomFile.copy_to
+    )
 
 
 class PokemonFRLGWorld(World):
@@ -101,8 +115,15 @@ class PokemonFRLGWorld(World):
     modified_events: Dict[str, EventData]
     modified_legendary_pokemon: Dict[str, MiscPokemonData]
     modified_misc_pokemon: Dict[str, MiscPokemonData]
+    modified_trainers: Dict[int, TrainerData]
     hm_compatability: Dict[str, List[str]]
+    per_species_tmhm_moves: Dict[int, List[int]]
     trade_pokemon: List[Tuple[str, str]]
+    blacklisted_wild_pokemon: Set[int]
+    blacklisted_starters: Set[int]
+    blacklisted_trainer_pokemon: Set[int]
+    blacklisted_abilities: Set[int]
+    blacklist_moves: Set[int]
     auth: bytes
 
     def __init__(self, multiworld, player):
@@ -114,7 +135,9 @@ class PokemonFRLGWorld(World):
         self.modified_events = copy.deepcopy(frlg_data.events)
         self.modified_legendary_pokemon = copy.deepcopy(frlg_data.legendary_pokemon)
         self.modified_misc_pokemon = copy.deepcopy(frlg_data.misc_pokemon)
+        self.modified_trainers = copy.deepcopy(frlg_data.trainers)
         self.hm_compatability = {}
+        self.per_species_tmhm_moves = {}
         self.trade_pokemon = list()
 
     @classmethod
@@ -125,6 +148,39 @@ class PokemonFRLGWorld(World):
 
     def get_filler_item_name(self) -> str:
         return "Poke Ball"
+
+    def generate_early(self) -> None:
+        self.blacklisted_wild_pokemon = {
+            species.species_id for species in self.modified_species.values()
+            if species.name in self.options.wild_pokemon_blacklist.value
+        }
+        if "Legendaries" in self.options.wild_pokemon_blacklist.value:
+            self.blacklisted_wild_pokemon |= LEGENDARY_POKEMON
+
+        self.blacklisted_starters = {
+            species.species_id for species in self.modified_species.values()
+            if species.name in self.options.starter_blacklist.value
+        }
+        if "Legendaries" in self.options.starter_blacklist.value:
+            self.blacklisted_starters |= LEGENDARY_POKEMON
+
+        self.blacklisted_trainer_pokemon = {
+            species.species_id for species in self.modified_species.values()
+            if species.name in self.options.trainer_blacklist.value
+        }
+        if "Legendaries" in self.options.trainer_blacklist.value:
+            self.blacklisted_trainer_pokemon |= LEGENDARY_POKEMON
+
+        self.blacklisted_abilities = {frlg_data.abilities[name] for name in self.options.ability_blacklist.value}
+        self.blacklist_moves = {frlg_data.moves[name] for name in self.options.move_blacklist.value}
+
+        randomize_types(self)
+        randomize_wild_encounters(self)
+        randomize_starters(self)
+        randomize_legendaries(self)
+        randomize_misc_pokemon(self)
+        randomize_tm_hm_compatability(self)
+        self.create_hm_compatability_dict()
 
     def create_regions(self) -> None:
         from .regions import create_regions
@@ -151,13 +207,6 @@ class PokemonFRLGWorld(World):
 
         itempool = [self.create_item_by_id(location.default_item_id) for location in item_locations]
         self.multiworld.itempool += itempool
-
-    def generate_early(self) -> None:
-        randomize_wild_encounters(self)
-        randomize_starters(self)
-        randomize_legendaries(self)
-        randomize_misc_pokemon(self)
-        self.create_hm_compatability_dict()
 
     def set_rules(self) -> None:
         from .rules import set_rules
@@ -216,30 +265,42 @@ class PokemonFRLGWorld(World):
         for species in self.modified_species.values():
             species.catch_rate = max(species.catch_rate, min_catch_rate)
 
-        if self.options.game_version == GameVersion.option_firered:
-            if self.options.game_revision == GameRevision.option_rev0:
-                patch = PokemonFireRedProcedurePatch(player=self.player, player_name=self.player_name)
-                patch.write_file("base_patch_firered.bsdiff4",
-                                 pkgutil.get_data(__name__, "data/base_patch_firered.bsdiff4"))
-            else:
-                patch = PokemonFireRedRev1ProcedurePatch(player=self.player, player_name=self.player_name)
-                patch.write_file("base_patch_firered_rev1.bsdiff4",
-                                 pkgutil.get_data(__name__, "data/base_patch_firered_rev1.bsdiff4"))
-        else:
-            if self.options.game_revision == GameRevision.option_rev0:
-                patch = PokemonLeafGreenProcedurePatch(player=self.player, player_name=self.player_name)
-                patch.write_file("base_patch_leafgreen.bsdiff4",
-                                 pkgutil.get_data(__name__, "data/base_patch_leafgreen.bsdiff4"))
-            else:
-                patch = PokemonLeafGreenRev1ProcedurePatch(player=self.player, player_name=self.player_name)
-                patch.write_file("base_patch_leafgreen_rev1.bsdiff4",
-                                 pkgutil.get_data(__name__, "data/base_patch_leafgreen_rev1.bsdiff4"))
+        randomize_abilities(self)
+        randomize_moves(self)
+        randomize_trainer_parties(self)
 
-        write_tokens(self, patch)
+        if self.options.game_version == GameVersion.option_firered:
+            patch_rev0 = PokemonFireRedProcedurePatch(player=self.player, player_name=self.player_name)
+            patch_rev0.write_file("base_patch_firered.bsdiff4",
+                                  pkgutil.get_data(__name__, "data/base_patch_firered.bsdiff4"))
+            patch_rev1 = PokemonFireRedRev1ProcedurePatch(player=self.player, player_name=self.player_name)
+            patch_rev1.write_file("base_patch_firered_rev1.bsdiff4",
+                                  pkgutil.get_data(__name__, "data/base_patch_firered_rev1.bsdiff4"))
+        else:
+            patch_rev0 = PokemonLeafGreenProcedurePatch(player=self.player, player_name=self.player_name)
+            patch_rev0.write_file("base_patch_leafgreen.bsdiff4",
+                                  pkgutil.get_data(__name__, "data/base_patch_leafgreen.bsdiff4"))
+            patch_rev1 = PokemonLeafGreenRev1ProcedurePatch(player=self.player, player_name=self.player_name)
+            patch_rev1.write_file("base_patch_leafgreen_rev1.bsdiff4",
+                                  pkgutil.get_data(__name__, "data/base_patch_leafgreen_rev1.bsdiff4"))
+
+        write_tokens(self, patch_rev0)
+        write_tokens(self, patch_rev1)
 
         # Write output
         out_file_name = self.multiworld.get_out_file_name_base(self.player)
-        patch.write(os.path.join(output_directory, f'{out_file_name}{patch.patch_file_ending}'))
+        output = tempfile.TemporaryDirectory()
+        with output as temp_dir:
+            patch_rev0.write(os.path.join(temp_dir, f"{out_file_name}{patch_rev0.patch_file_ending}"))
+            patch_rev1.write(os.path.join(temp_dir, f"{out_file_name}{patch_rev1.patch_file_ending}"))
+            seed_name = self.multiworld.seed_name
+            player_name = self.multiworld.get_file_safe_player_name(self.player)
+            zip_file_name = f"AP-{seed_name}-P{self.player}-{player_name}"
+            frlg_container = FRLGContainer(temp_dir,
+                                           os.path.join(output_directory, zip_file_name + "_" + Utils.__version__),
+                                           self.player,
+                                           self.multiworld.get_file_safe_player_name(self.player))
+            frlg_container.write()
 
         del self.modified_species
         del self.modified_maps
@@ -251,7 +312,7 @@ class PokemonFRLGWorld(World):
 
     @classmethod
     def stage_post_fill(cls, multiworld):
-        # Change all but one instance of a pokemon in each sphere to useful classification
+        # Change all but one instance of a Pokémon in each sphere to useful classification
         # This cuts down on time calculating the playthrough
         found_mons = set()
         pokemon = set()
@@ -269,7 +330,7 @@ class PokemonFRLGWorld(World):
                         found_mons.add(key)
 
     def write_spoiler(self, spoiler_handle: TextIO) -> None:
-        # Add pokemon locations to the spoiler log if they are not vanilla
+        # Add Pokémon locations to the spoiler log if they are not vanilla
         if self.options.wild_pokemon != RandomizeWildPokemon.option_vanilla:
             spoiler_handle.write(f"\n\nPokémon Locations ({self.multiworld.player_name[self.player]}):\n\n")
             pokemon_locations: List[PokemonFRLGLocation] = [
@@ -324,10 +385,10 @@ class PokemonFRLGWorld(World):
         )
 
     def create_hm_compatability_dict(self):
-        hms = frozenset(["Cut", "Fly", "Surf", "Strength", "Flash", "Rock Smash", "Waterfall"])
+        hms = frozenset({"Cut", "Fly", "Surf", "Strength", "Flash", "Rock Smash", "Waterfall"})
         for hm in hms:
             self.hm_compatability[hm] = list()
-            for species in frlg_data.species.values():
+            for species in self.modified_species.values():
                 combatibility_array = int_to_bool_array(species.tm_hm_compatibility)
                 if combatibility_array[HM_TO_COMPATABILITY_ID[hm]] == 1:
                     self.hm_compatability[hm].append(species.name)
