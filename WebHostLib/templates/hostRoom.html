@@ -41,7 +41,7 @@
             data-tooltip="This means address/ip is {{ config['HOST_ADDRESS'] }} and port is {{ room.last_port }}.">
             '/connect {{ config['HOST_ADDRESS'] }}:{{ room.last_port }}'
             </span>
-            <a onclick="copyRoomToClipboard()" href="#">(click here to copy)</a>
+            <a onclick="copyRoomToClipboard(config['HOST_ADDRESS'],room.last_port)" href="#">(click here to copy)</a>
             in the <a href="{{ url_for("tutorial_landing")}}">client</a>.<br>
         {% endif %}
         {{ macros.list_patches_room(room) }}
