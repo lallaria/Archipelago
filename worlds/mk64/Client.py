@@ -40,7 +40,9 @@ class MarioKart64Client(BizHawkClient):
                                                       [(Addr.PLAYER_NAME, Addr.PLAYER_NAME_SIZE, "ROM")]))[0]
                 seed_name_bytes = (await bizhawk.read(ctx.bizhawk_ctx,
                                                       [(Addr.SEED_NAME, Addr.SEED_NAME_SIZE, "ROM")]))[0]
-                self.rom_slot_name = (bytes([byte for byte in player_name_bytes if byte != 0]).decode("utf-8"))
+                self.rom_slot_name = (bytes([byte for byte in player_name_bytes if byte != 0]).decode("utf-8")
+                                      + "_"
+                                      + bytes([byte for byte in seed_name_bytes if byte != 0]).decode("ascii"))
             except UnicodeDecodeError:
                 logger.info("Could not read slot name from ROM. Are you sure this ROM matches this client version?")
                 return False
