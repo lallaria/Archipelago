@@ -29,7 +29,7 @@ icon_paths['yatta'] = local_path('data', 'yatta.png')
 
 class AWebInTime(WebWorld):
     theme = "partyTime"
-    #option_groups = create_option_groups()
+    option_groups = create_option_groups()
     tutorials = [Tutorial(
         "Multiworld Setup Guide",
         "A guide for setting up A Hat in Time to be played in Archipelago.",
