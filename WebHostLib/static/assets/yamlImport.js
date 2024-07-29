@@ -41,6 +41,10 @@ function parseYML(yaml) {
     if ("game" in jsonObj) {
         Object.keys(jsonObj[jsonObj.game]).forEach(key => {
             let settingValue = jsonObj[jsonObj.game][key];
+
+            if (key == "sprite") //remove sprite
+                return;
+
             if (Array.isArray(settingValue)) {
                 settingValue.forEach(elem => {
                     storageObj.checkboxes[`${key}-${elem}`] = true;
