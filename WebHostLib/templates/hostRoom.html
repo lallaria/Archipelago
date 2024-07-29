@@ -15,6 +15,7 @@
     {% endif %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="styles/hostRoom.css") }}"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="styles/snackbar.css") }}"/>
+    <script type="application/ecmascript" src="{{ url_for('static', filename="assets/copyToClipboard.js") }}"></script>
 {% endblock %}
 
 {% block body %}
@@ -66,14 +67,6 @@
           let updateLogTimeout;
           let awaitingCommandResponse = false;
           let logger = document.getElementById("logger");
-
-          function copyRoomToClipboard() {
-            await navigator.clipboard.writeText("{{ config['HOST_ADDRESS'] }}:{{ room.last_port }}")
-            document.getElementById("snackbar").classList.add("show");
-            setTimeout(() => {
-              document.getElementById("snackbar").classList.remove("show");
-            }, 3000);
-          }
 
           function scrollToBottom(el) {
             let bot = el.scrollHeight - el.clientHeight;
