@@ -1,5 +1,5 @@
 from enum import Enum, Flag, auto
-from typing import NamedTuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from BaseClasses import Location, Region
 
@@ -44,20 +44,22 @@ class TWWLocationType(Enum):
 
 
 class TWWLocationData(NamedTuple):
-    code: int | None
+    code: Optional[int]
     flags: TWWFlag
     region: str
     stage_id: int
     type: TWWLocationType
     bit: int
-    address: int | None = None
+    address: Optional[int] = None
 
 
 class TWWLocation(Location):
     game: str = "The Wind Waker"
+    dungeon = None
 
     def __init__(self, player: int, name: str, parent: Region, data: TWWLocationData):
-        super(TWWLocation, self).__init__(player, name, address=TWWLocation.get_apid(data.code), parent=parent)
+        address = None if data.code is None else TWWLocation.get_apid(data.code)
+        super(TWWLocation, self).__init__(player, name, address=address, parent=parent)
 
         self.code = data.code
         self.flags = data.flags
@@ -70,7 +72,7 @@ class TWWLocation(Location):
     @staticmethod
     def get_apid(code: int):
         base_id: int = 2326528
-        return base_id + code if code is not None else None
+        return base_id + code
 
 
 DUNGEON_NAMES = [
@@ -82,7 +84,7 @@ DUNGEON_NAMES = [
     "Wind Temple",
 ]
 
-LOCATION_TABLE: dict[str, TWWLocationData] = {
+LOCATION_TABLE: Dict[str, TWWLocationData] = {
     # Outset Island
     "Outset Island - Underneath Link's House": TWWLocationData(
         0, TWWFlag.MISCELL, "The Great Sea", 0xB, TWWLocationType.CHEST, 5
@@ -1159,51 +1161,6 @@ LOCATION_TABLE: dict[str, TWWLocationData] = {
     ),
 }
 
-VANILLA_DUNGEON_ITEM_LOCATIONS: dict[str, list[str]] = {
-    "DRC Small Key": [
-        "Dragon Roost Cavern - First Room",
-        "Dragon Roost Cavern - Boarded Up Chest",
-        "Dragon Roost Cavern - Rat Room Boarded Up Chest",
-        "Dragon Roost Cavern - Bird's Nest",
-    ],
-    "FW Small Key": [
-        "Forbidden Woods - Vine Maze Right Chest"
-    ],
-    "TotG Small Key": [
-        "Tower of the Gods - Hop Across Floating Boxes",
-        "Tower of the Gods - Floating Platforms Room"
-    ],
-    "ET Small Key": [
-        "Earth Temple - Transparent Chest in First Crypt",
-        "Earth Temple - Casket in Second Crypt",
-        "Earth Temple - End of Foggy Room With Floormasters",
-    ],
-    "WT Small Key": [
-        "Wind Temple - Spike Wall Room - First Chest",
-        "Wind Temple - Chest Behind Seven Armos"
-    ],
-
-    "DRC Big Key": ["Dragon Roost Cavern - Big Key Chest"],
-    "FW Big Key": ["Forbidden Woods - Big Key Chest"],
-    "TotG Big Key": ["Tower of the Gods - Big Key Chest"],
-    "ET Big Key": ["Earth Temple - Big Key Chest"],
-    "WT Big Key": ["Wind Temple - Big Key Chest"],
-
-    "DRC Dungeon Map": ["Dragon Roost Cavern - Alcove With Water Jugs"],
-    "FW Dungeon Map": ["Forbidden Woods - First Room"],
-    "TotG Dungeon Map": ["Tower of the Gods - Chest Behind Bombable Walls"],
-    "FF Dungeon Map": ["Forsaken Fortress - Chest Outside Upper Jail Cell"],
-    "ET Dungeon Map": ["Earth Temple - Transparent Chest In Warp Pot Room"],
-    "WT Dungeon Map": ["Wind Temple - Chest In Many Cyclones Room"],
-
-    "DRC Compass": ["Dragon Roost Cavern - Rat Room"],
-    "FW Compass": ["Forbidden Woods - Vine Maze Left Chest"],
-    "TotG Compass": ["Tower of the Gods - Skulls Room Chest"],
-    "FF Compass": ["Forsaken Fortress - Chest Guarded By Bokoblin"],
-    "ET Compass": ["Earth Temple - Chest In Three Blocks Room"],
-    "WT Compass": ["Wind Temple - Chest In Middle Of Hub Room"],
-}
-
 
 ISLAND_NUMBER_TO_NAME = {
     1: "Forsaken Fortress Sector",
@@ -1257,8 +1214,60 @@ ISLAND_NUMBER_TO_NAME = {
     49: "Five-Star Isles",
 }
 
+ISLAND_NAME_TO_SALVAGE_BIT = {
+    "Forsaken Fortress Sector": 8,
+    "Star Island": 18,
+    "Northern Fairy Island": 51,
+    "Gale Isle": 33,
+    "Crescent Moon Island": 40,
+    "Seven-Star Isles": 38,
+    "Overlook Island": 15,
+    "Four-Eye Reef": 12,
+    "Mother and Child Isles": 56,
+    "Spectacle Island": 5,
+    "Windfall Island": 58,
+    "Pawprint Isle": 42,
+    "Dragon Roost Island": 50,
+    "Flight Control Platform": 13,
+    "Western Fairy Island": 10,
+    "Rock Spire Isle": 48,
+    "Tingle Island": 0,
+    "Northern Triangle Island": 11,
+    "Eastern Fairy Island": 62,
+    "Fire Mountain": 9,
+    "Star Belt Archipelago": 17,
+    "Three-Eye Reef": 49,
+    "Greatfish Isle": 32,
+    "Cyclops Reef": 16,
+    "Six-Eye Reef": 52,
+    "Tower of the Gods Sector": 1,
+    "Eastern Triangle Island": 57,
+    "Thorned Fairy Island": 44,
+    "Needle Rock Isle": 60,
+    "Islet of Steel": 54,
+    "Stone Watcher Island": 34,
+    "Southern Triangle Island": 37,
+    "Private Oasis": 55,
+    "Bomb Island": 43,
+    "Bird's Peak Rock": 6,
+    "Diamond Steppe Island": 45,
+    "Five-Eye Reef": 53,
+    "Shark Island": 59,
+    "Southern Fairy Island": 61,
+    "Ice Ring Isle": 7,
+    "Forest Haven": 46,
+    "Cliff Plateau Isles": 36,
+    "Horseshoe Island": 4,
+    "Outset Island": 35,
+    "Headstone Island": 63,
+    "Two-Eye Reef": 39,
+    "Angular Isles": 41,
+    "Boating Course": 14,
+    "Five-Star Isles": 47,
+}
 
-def split_location_name_by_zone(location_name: str) -> tuple[str, str]:
+
+def split_location_name_by_zone(location_name: str) -> Tuple[str, str]:
     if " - " in location_name:
         zone_name, specific_location_name = location_name.split(" - ", 1)
     else:
