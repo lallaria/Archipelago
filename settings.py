@@ -405,6 +405,7 @@ class FilePath(Path):
                 file_md5.update(view[:n])
             file_md5_hex = file_md5.hexdigest()
             for valid_md5 in cls.md5s:
+                print(file_md5 + "--" + valid_md5)
                 if isinstance(valid_md5, str):
                     if valid_md5.lower() == file_md5_hex:
                         break

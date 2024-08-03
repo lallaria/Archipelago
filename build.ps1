@@ -10,9 +10,9 @@ New-Item -Path dist -ItemType Directory -Force
 $NAME="$(ls build | Select-String -Pattern 'exe')".Split('.',2)[1]
 $ZIP_NAME="Trezapalooza_latest_$NAME.7z"
 cd .\build\
-Rename-Item "exe.$NAME" Archipelago
+Rename-Item "exe.$NAME" Trezapalooza
 Write-Output "### Adding Dolphin memory engine and other libs ###"
-Copy-Item -Path "..\lib\*" -Destination ".\Archipelago\lib\" -Recurse
+Copy-Item -Path "..\lib\*" -Destination ".\Trezapalooza\lib\" -Recurse
 Write-Output "### Archive Build ###"
-C:\"Program Files"\7-Zip\7z.exe a -mx=9 -mhe=on -ms "../dist/$ZIP_NAME" Archipelago
+C:\"Program Files"\7-Zip\7z.exe a -mx=9 -mhe=on -ms "../dist/$ZIP_NAME" Trezapalooza
 cd ..
