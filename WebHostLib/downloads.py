@@ -34,8 +34,10 @@ def download_patch(room_id, patch_id):
                         else:
                             new_zip.writestr(file.filename, zf.read(file), file.compress_type, 9)
             if "patch_file_ending" in manifest:
+                print("fending from maninfest: " + str(manifest["patch_file_ending"]))
                 patch_file_ending = manifest["patch_file_ending"]
             else:
+                print("fending from register: " + str(AutoPatchRegister.patch_types[patch.game].patch_file_ending))
                 patch_file_ending = AutoPatchRegister.patch_types[patch.game].patch_file_ending
             fname = f"P{patch.player_id}_{patch.player_name}_{app.jinja_env.filters['suuid'](room_id)}" \
                     f"{patch_file_ending}"
