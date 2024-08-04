@@ -6,7 +6,7 @@ import struct
 import logging
 import zipfile
 from typing import TYPE_CHECKING, Dict, List, Tuple, Union
-from worlds.Files import APContainer, APProcedurePatch, APTokenMixin, APTokenTypes
+from worlds.Files import APContainer, APProcedurePatch, APTokenMixin, APTokenTypes, AutoPatchRegister
 from settings import get_settings
 from .data import data, TrainerPokemonDataTypeEnum
 from .items import reverse_offset_item_value
@@ -32,7 +32,7 @@ class FRLGContainer(APContainer):
         super().write_contents(opened_zipfile)
 
 
-class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin):
+class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
     game = "Pokemon FireRed and LeafGreen"
     hash = "e26ee0d44e809351c8ce2d73c7400cdd"
     patch_file_ending = ".apfirered"
@@ -51,7 +51,7 @@ class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin):
         return base_rom_bytes
 
 
-class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin):
+class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
     game = "Pokemon FireRed and LeafGreen"
     hash = "51901a6e40661b3914aa333c802e24e8"
     patch_file_ending = ".apfireredrev1"
@@ -70,7 +70,7 @@ class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin):
         return base_rom_bytes
 
 
-class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin):
+class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
     game = "Pokemon FireRed and LeafGreen"
     hash = "612ca9473451fa42b51d1711031ed5f6"
     patch_file_ending = ".apleafgreen"
@@ -89,7 +89,7 @@ class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin):
         return base_rom_bytes
 
 
-class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin):
+class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
     game = "Pokemon FireRed and LeafGreen"
     hash = "9d33a02159e018d09073e700e1fd10fd"
     patch_file_ending = ".apleafgreenrev1"
