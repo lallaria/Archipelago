@@ -28,7 +28,6 @@ class AutoPatchRegister(abc.ABCMeta):
             AutoPatchRegister.patch_types[dct["game"]] = new_class
             if not dct["patch_file_ending"]:
                 raise Exception(f"Need an expected file ending for {name}")
-            print(str(new_class))
             AutoPatchRegister.file_endings[dct["patch_file_ending"]] = new_class
         return new_class
 

@@ -109,10 +109,10 @@ class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metacla
 
 
 def write_tokens(world: "PokemonFRLGWorld",
-                 patch: Union[PokemonFireRedProcedurePatch,
-                              PokemonFireRedRev1ProcedurePatch,
+                 patch: Union[PokemonFireRedRev1ProcedurePatch,
                               PokemonLeafGreenProcedurePatch,
-                              PokemonLeafGreenRev1ProcedurePatch]) -> None:
+                              PokemonLeafGreenRev1ProcedurePatch,
+                              PokemonFireRedProcedurePatch]) -> None:
     game_version = world.options.game_version.current_key
     if type(patch) is PokemonFireRedProcedurePatch or type(patch) is PokemonLeafGreenProcedurePatch:
         game_version_revision = game_version
