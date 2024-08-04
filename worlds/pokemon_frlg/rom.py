@@ -6,7 +6,7 @@ import struct
 import logging
 import zipfile
 from typing import TYPE_CHECKING, Dict, List, Tuple, Union
-from worlds.Files import APContainer, APProcedurePatch, APTokenMixin, APTokenTypes, AutoPatchRegister
+from worlds.Files import APContainer, APProcedurePatch, APTokenMixin, APTokenTypes
 from settings import get_settings
 from .data import data, TrainerPokemonDataTypeEnum
 from .items import reverse_offset_item_value
@@ -32,7 +32,7 @@ class FRLGContainer(APContainer):
         super().write_contents(opened_zipfile)
 
 
-class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
+class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin):
     game = "Pokemon FireRed and LeafGreen"
     hash = "e26ee0d44e809351c8ce2d73c7400cdd"
     patch_file_ending = ".apfirered"
@@ -51,7 +51,7 @@ class PokemonFireRedProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=Aut
         return base_rom_bytes
 
 
-class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
+class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin):
     game = "Pokemon FireRed and LeafGreen"
     hash = "51901a6e40661b3914aa333c802e24e8"
     patch_file_ending = ".apfireredrev1"
@@ -70,7 +70,7 @@ class PokemonFireRedRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metaclass
         return base_rom_bytes
 
 
-class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
+class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin):
     game = "Pokemon FireRed and LeafGreen"
     hash = "612ca9473451fa42b51d1711031ed5f6"
     patch_file_ending = ".apleafgreen"
@@ -89,7 +89,7 @@ class PokemonLeafGreenProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=A
         return base_rom_bytes
 
 
-class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metaclass=AutoPatchRegister):
+class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin):
     game = "Pokemon FireRed and LeafGreen"
     hash = "9d33a02159e018d09073e700e1fd10fd"
     patch_file_ending = ".apleafgreenrev1"
@@ -109,10 +109,10 @@ class PokemonLeafGreenRev1ProcedurePatch(APProcedurePatch, APTokenMixin, metacla
 
 
 def write_tokens(world: "PokemonFRLGWorld",
-                 patch: Union[PokemonFireRedRev1ProcedurePatch,
+                 patch: Union[PokemonFireRedProcedurePatch,
+                              PokemonFireRedRev1ProcedurePatch,
                               PokemonLeafGreenProcedurePatch,
-                              PokemonLeafGreenRev1ProcedurePatch,
-                              PokemonFireRedProcedurePatch]) -> None:
+                              PokemonLeafGreenRev1ProcedurePatch]) -> None:
     game_version = world.options.game_version.current_key
     if type(patch) is PokemonFireRedProcedurePatch or type(patch) is PokemonLeafGreenProcedurePatch:
         game_version_revision = game_version
