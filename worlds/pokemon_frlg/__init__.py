@@ -335,6 +335,9 @@ class PokemonFRLGWorld(World):
             patch_rev1.write_file("base_patch_leafgreen_rev1.bsdiff4",
                                   pkgutil.get_data(__name__, "data/base_patch_leafgreen_rev1.bsdiff4"))
 
+        print("game version: " + self.options.game_version)
+        print("rev0: " + patch_rev0.patch_file_ending)
+        print("rev1: " + patch_rev1.patch_file_ending)
         write_tokens(self, patch_rev0)
         write_tokens(self, patch_rev1)
 
