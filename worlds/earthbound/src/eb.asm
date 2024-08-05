@@ -152,18 +152,6 @@ JML LoadAPData
 ORG $C17DD4
 JML SpecialNameDirect
 
-ORG $C18AE4
-JML GetServerData
-
-ORG $C1336D
-JML GetPresentData
-
-ORG $C1322B
-JML LogActorNum
-
-ORG $C1338E
-JML LogCheckNum
-
 ORG $C2164A
 JML RepelEnemies
 
@@ -176,6 +164,40 @@ JML GetStartingNames
 ORG $C40BCE
 JML ResetGame
 
+ORG $C04AA6
+JML ClearNameOnBattle
+
+ORG $C1F299
+JSL CopyAPData
+
+ORG $C1F3B3
+JSL DeleteAPData
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;Franklin badge checks
+ORG $C29549
+JML ReflectSpecial
+
+ORG $C29597
+JML ReflectFire
+
+ORG $C2901E
+JML ReflectFireBall
+
+ORG $C295F4
+JML ReflectFreeze
+
+ORG $C298B6
+JML ReflectFlash
+
+ORG $C29A90
+JML ReflectStarstorm
+
+ORG $C2A666
+JML ReflectExplode
+
+ORG $C2A66B
+JML SkipExplosionDeathReflect
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ORG $C1FEBC
@@ -641,7 +663,7 @@ db $1f, $1e, $44, $04, $06, $04, $7D, $02, $02; Dalaam Character text
 
 db $0e, $01, $0d, $01, $1d, $19, $00, $1b, $03, $E8, $01, $61, $00, $19, $10
 db $00, $0b, $04, $1b, $03, $d9, $01, $61, $00, $0f, $0a, $BD, $01, $61, $00, $04
-db $D9, $00, $1f, $15, $6a, $00, $53, $01, $01, $0a, $0d, $22, $c9, $00, $02; Trial of Mu
+db $D8, $00, $1f, $15, $6a, $00, $53, $01, $01, $0a, $0d, $22, $c9, $00, $02; Trial of Mu
 
 ORG $C9D61C
 db $0A, $A2, $01, $61, $00; Dalaam Char redir
@@ -1402,8 +1424,8 @@ db $0a, $0B, $FE, $C4
 ORG $C4FDF0
 db $07, $58, $00, $1b, $03, $93, $fa, $c6, $00, $08, $0b, $f9, $c6, $00, $1d, $03; FIX TEXT JUMPS!!!!
 db $ff, $1b, $02, $0A, $FE, $C4, $00, $04, $58, $00, $02, $07, $F4, $03, $1b, $03
-db $93, $fa, $c6, $00, $08, $65, $f9, $c6, $00, $1d, $03, $ff, $1b, $02, $2a, $00
-db $72, $00, $04, $F4, $03, $02, $07, $17, $00, $1b, $03, $93, $fa, $c6, $00, $08
+db $93, $fa, $c6, $00, $08, $65, $f9, $c6, $00, $1d, $03, $ff, $1b, $02, $0a, $FE
+db $C4, $00, $04, $F4, $03, $02, $07, $17, $00, $1b, $03, $93, $fa, $c6, $00, $08
 db $92, $f9, $c6, $00, $1d, $03, $ff, $1b, $02, $0a, $FE, $C4, $00, $04, $17, $00
 db $02, $07, $4e, $01, $1b, $03, $93, $fa, $c6, $00, $08, $38, $f9, $c6, $00, $1d
 db $03, $ff, $1b, $02, $0A, $FE, $C4, $00, $04, $4e, $01, $02; Fix locker checks
@@ -2146,14 +2168,14 @@ ORG $EF952F
 db $EC, $03, $29, $96, $C7
 
 ORG $C7961A
-db $0A, $08, $AF, $EE, $00, $18, $01, $01, $06, $56, $00, $8B, $96, $c7, $00, $70
+db $0A, $08, $AF, $EE, $00, $18, $01, $01, $06, $56, $00, $8D, $96, $c7, $00, $70
 db $72, $a9, $50, $a4, $98, $95, $50, $a7, $91, $a9, $5c, $10, $0a, $50, $79, $50
 db $96, $9f, $a5, $9e, $94, $50, $a4, $98, $99, $a3, $1c, $05, $11, $50, $98, $95
 db $a2, $95, $5e, $10, $0f, $0A, $34, $AF, $EE, $34, $AF, $EE, $1b, $02, $34, $93
 db $c8, $00, $10, $0f, $50, $79, $57, $94, $50, $9c, $99, $9b, $95, $50, $a9, $9f
 db $a5, $50, $a4, $9f, $50, $98, $91, $a6, $95, $50, $99, $a4, $5e, $03, $00, $1f
 db $02, $74, $10, $20, $1b, $04, $70, $58, $1c, $02, $00, $50, $97, $9f, $04, $56
-db $00, $04, $EC, $03, $04, $ED, $03, $04, $2D, $00, $18, $04, $0a, $a4, $96, $c7
+db $00, $04, $2D, $00, $04, $EC, $03, $04, $ED, $03, $18, $04, $0a, $a4, $96, $c7
 
 ORG $C796BB
 db $02; End Paula
@@ -2902,7 +2924,7 @@ CPY $98A4
 BEQ CharacterInvalid
 BRA CheckNextChar
 CharacterInvalid:
-LDA $F764
+LDA $B5D4
 BEQ SendItemToStorage
 LDA #$69
 RTS
@@ -3509,40 +3531,6 @@ XBA
 JSL MoveItemNames
 PLD
 RTS
-
-
-
-GetServerData:
-LDY #$7D94
-STY $1E
-PHA
-LDA $06
-STA $7EF68E
-PLA
-JML $C18754
-
-GetPresentData:
-LDA $06
-STA $7EF68C
-LDA [$06]
-STA $0A
-STY $0C
-JML $C13373
-
-LogActorNum:
-LDA $06
-STA $F68C
-LDA [$06]
-STA $0A
-JML $C1322F
-
-LogCheckNum:
-LDA $06
-STA $F68C
-LDA [$06]
-STA $0A
-JML $C13392
-
 
 PrintSpecialName:
   rep #$31
@@ -5402,16 +5390,267 @@ LDA #$0001
 PLD
 RTL
 
-PrintVersionNumber:
-JSL $C3E4D4
-LDA #$0000B
-JSL $C1DD47
+ClearNameOnBattle:
+LDA #$0001
+STA $5D98
+STZ $B573
+RTL
+;;;;;;;;;;;;;;;;
+;Franklin badge stuff
+ReflectSpecial:
+LDX #$00FF
+LDA $12
+PHA
+PHX
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLX
+PLA
+JML $C2954E
 
-LDA #$0100
-JSL $C10EFC
+ReflectFire:
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+LDX $A972
+LDA $003A,X
+JML $C2959D
+
+ReflectFreeze:
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+LDX $A972
+LDA $0038,X
+JML $C295FA
+
+ReflectFireBall:
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+LDX $A972
+LDA $003A,X
+AND #$00FF
+JML $C29024
+
+ReflectFlash:
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+LDX $A972
+SEP #$20
+JML $C298BB
+
+ReflectStarstorm:
+CMP #$0000
+BNE StarstormEnd
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+JML $C29A95
+StarstormEnd:
+JML $C29AA4
+
+ReflectExplode:
+PHX
+LDA $0E
+PHA
+LDA $0F
+PHA
+JSR CheckFranklinBadge
+CMP #$0000
+BEQ .Reflect
+JSR ReflectAttack
+.Reflect:
+PLA
+STA $0F
+PLA
+STA $0E
+LDA #$0000
+STA $04
+PLX
+JML $C2A66B
+
+CheckFranklinBadge:
+LDX $A972
+REP #$20
+LDA $000E,X
+AND #$00FF
+BNE NotPlayerChar
+LDX #$0001
+STX $16
+LDX $A972
+LDA $0010,X
+AND #$00FF
+INC
+LDX $16
+JSL $C45683
+RTS
+NotPlayerChar:
+LDA #$0000
+RTS
+
+ReflectAttack:
+;LDA $AA96
+;AND #$00FF
+;BNE SkipReflect
+LDA #$7160
+STA $0E
+LDA #$00EF
+STA $10
+JSL $C1DC1C
+LDA #$0001
+STA $AA96
+JSL DealReflect
+RTS
+SkipReflect:
+STZ $AA96
+SkipSuperreflect:
+RTS
+
+SkipExplosionDeathReflect:
+LDA $AA90; Is death attack?
+AND #$00FF
+BEQ .ForceExplode
+LDA $AA96
+BNE .SkipExplode; Is already reflected
+.ForceExplode
+LDA $1A
+JML ExplodeReturn
+.SkipExplode:
+JML $C2A6A9
+;;;;;;;;;;;;;;;;;
+CopyAPData:
+JSL $EF0C15
+PHA
+PHX
+PHB
+LDY #$0000
+LDX $16
+.CheckCurFile:
+LDA #$7E00
+.CheckZero:
+CPX #$0000
+BEQ .GotSaveDest
+CLC
+ADC #$0010
+DEX
+BRA .CheckZero
+.GotSaveDest
+CPY #$0001
+BEQ .PerformCopy
+PHA
+LDA $B4A1
+AND #$00FF
+TAX
+INY
+BRA .CheckCurFile
+.PerformCopy:
+TAX
+PLA
+TAY
+LDA #$000F
+MVN $2020
+PLB
+PLX
+PLA
+RTL
+
+DeleteAPData:
+JSL $EF0BFA
+LDA $B4A1
+AND #$00FF
+TAX
+LDA #$7E00
+.CheckSave:
+CPX #$0000
+BEQ .GotSave
+CLC
+ADC #$0010
+DEX
+BRA .CheckSave
+.GotSave:
+PHX
+PHY
+PHB
+TAY
+LDX #$FF70
+LDA #$000F
+MVN $FF20
+PLB
+PLY
+PLX
 RTL
 
 
+
+ORG $C2FFE0
+DealReflect:
+JSR $7E8A
+RTL
+
+ExplodeReturn:
+JSR $6A44
+JML $C2A670
+
+
+
+
+
+;;;;;;;;;;;;;;;;
 ORG $C7DE7E
 db $F4, $BF, $EE
 
@@ -5876,7 +6115,148 @@ NOP
 ORG $C1F80D
 ;JSL PrintVersionNumber
 
+ORG $C57948
+db $49, $00; Dungeon man if submarine is used
 
+ORG $C5796B
+db $D8, $03
+
+ORG $C5794F
+db $D8, $03
+
+ORG $C57A26
+db $06, $9c, $03, $55, $79, $c5, $ff, $70, $78, $95, $a2, $95, $5c, $10, $0a, $50
+db $79, $50, $92, $95, $9c, $99, $95, $a6, $95, $50, $a9, $9f, $a5, $50, $98, $91
+db $a6, $95, $50, $9c, $95, $96, $a4, $50, $a4, $98, $99, $a3, $50, $1c, $05, $01
+db $50, $92, $95, $98, $99, $9e, $94, $5e, $03, $1d, $03, $ff, $1b, $02, $76, $7a
+db $c5, $ff, $1d, $0e, $ff, $01, $08, $cf, $dc, $c7, $ff, $03, $04, $9c, $03, $02
+db $00, $70, $89, $9f, $a5, $50, $a3, $98, $9f, $a5, $9c, $94, $50, $93, $9f, $9d
+db $95, $50, $92, $91, $93, $9b, $50, $a7, $98, $95, $9e, $50, $a9, $9f, $a5, $50
+db $98, $91, $a6, $95, $50, $9d, $9f, $a2, $95, $50, $a2, $9f, $9f, $9d, $5e, $13
+db $02
+
+ORG $C5373A
+db $0a, $05, $c9, $ee
+
+ORG $EEC905
+db $a3, $50, $91, $08, $3a, $c9, $ee, $ff, $0a, $41, $37, $c5, $50, $9c, $99, $97
+db $98, $a4, $9e, $99, $9e, $97, $02, $50, $96, $99, $a2, $95, $02, $9e, $50, $99
+db $93, $95, $02, $50, $96, $9c, $91, $a3, $98, $02, $50, $a3, $a4, $91, $a2, $a3
+db $a4, $9f, $a2, $9d, $02, $50, $a0, $a3, $a9, $93, $98, $99, $93, $50, $95, $9e
+db $95, $a2, $97, $a9, $02, $9e, $50, $95, $a8, $a0, $9c, $9f, $a3, $99, $a6, $95
+db $02
+
+ORG $EF717B
+db $0a, $56, $c9, $ee
+
+ORG $EEC956
+db $08, $82, $c9, $ee, $ff, $0a, $80, $71, $ef, $9c, $99, $97, $98, $a4, $9e, $99
+db $9e, $97, $02, $96, $99, $a2, $95, $02, $99, $93, $95, $02, $9c, $99, $97, $98
+db $a4, $02, $a3, $a4, $91, $a2, $a3, $a4, $9f, $a2, $9d, $02, $95, $9e, $95, $a2
+db $97, $a9, $02, $92, $9c, $91, $a3, $a4, $02
+
+ORG $EF7163
+db $1c, $05, $01, $0a, $70, $71, $ef
+
+ORG $C8361C
+db $70, $7f, $98, $98, $98, $5c, $10, $08, $50, $91, $98, $98, $98, $5c, $50, $9f
+db $a5, $93, $98, $5e, $5e, $5e, $03, $00, $70, $79, $50, $a7, $91, $a3, $50, $a4
+db $a2, $a9, $99, $9e, $97, $50, $a4, $9f, $50, $9c, $9f, $9f, $9b, $50, $91, $a4
+db $50, $a4, $98, $91, $a4, $50, $a3, $a4, $91, $a4, $a5, $95, $50, $92, $95, $98
+db $99, $9e, $94, $50, $a4, $98, $95, $50, $93, $9f, $a5, $9e, $a4, $95, $a2, $5c
+db $10, $08, $50, $a7, $98, $95, $9e, $50, $79, $50, $a3, $a0, $a2, $91, $99, $9e
+db $95, $94, $50, $9d, $a9, $50, $91, $9e, $9b, $9c, $95, $5e, $5e, $5e, $03, $00
+db $70, $89, $95, $a3, $5e, $5e, $5e, $50, $79, $57, $9d, $50, $96, $99, $9e, $95
+db $5e, $10, $08, $50, $7a, $a5, $a3, $a4, $50, $98, $91, $a6, $95, $50, $a4, $9f
+db $50, $a7, $91, $9c, $9b, $50, $99, $a4, $50, $9f, $96, $96, $5e, $03, $00, $70
+db $71, $9e, $a9, $a7, $91, $a9, $a3, $5c, $10, $08, $50, $a9, $9f, $a5, $50, $a3
+db $98, $9f, $a5, $9c, $94, $50, $a2, $95, $91, $9c, $9c, $a9, $50, $93, $98, $95
+db $93, $9b, $10, $0e, $50, $92, $95, $98, $99, $9e, $94, $10, $0e, $50, $a4, $98
+db $95, $50, $93, $9f, $a5, $9e, $a4, $95, $a2, $10, $0e, $50, $91, $a4, $50, $a4
+db $98, $95, $50, $93, $91, $96, $95, $5e, $03, $00, $0a, $d8, $39, $c8; Everdred fourside text
+
+ORG $CFAE24
+db $00, $8F, $C9, $EE
+
+ORG $EEC98F
+db $70, $7e, $9f, $a4, $50, $a4, $9f, $9f, $50, $9c, $9f, $9e, $97, $50, $91, $97
+db $9f, $5c, $03, $00, $70, $79, $50, $98, $95, $91, $a2, $94, $50, $a3, $9f, $9d
+db $95, $50, $aa, $9f, $9d, $92, $99, $95, $a3, $50, $a4, $91, $9c, $9b, $99, $9e
+db $97, $50, $91, $92, $9f, $a5, $a4, $50, $98, $9f, $a7, $50, $a4, $98, $95, $a9
+db $50, $9c, $9f, $93, $9b, $95, $94, $50, $a3, $9f, $9d, $95, $01, $50, $50, $52
+db $1c, $05, $01, $52, $50, $99, $9e, $50, $a4, $98, $95, $50, $93, $95, $9d, $95
+db $a4, $95, $a2, $a9, $5e, $03, $00, $70, $78, $9f, $a7, $50, $91, $a7, $96, $a5
+db $9c, $51, $13, $02
+
+ORG $CFA5D5
+db $7A, $00, $02
+
+ORG $CFA272
+db $7a, $00, $01
+
+ORG $CFA283
+db $7a, $00, $01
+
+ORG $D5F63B
+db $6E
+
+ORG $EECA03
+db $04, $c3, $01, $04, $c4, $01, $04, $c5, $01, $04, $c6, $01, $04, $c7, $01, $04
+db $c8, $01, $04, $c9, $01, $04, $ca, $01, $04, $cc, $01, $04, $cd, $01, $04, $ce
+db $01, $0a, $0b, $b1, $c9
+
+ORG $CF097B
+db $00
+
+ORG $EECA28
+db $70, $7b, $9f, $9b, $a5, $99, $9b, $9f, $9b, $91, $9b, $95, $9b, $95, $51, $03
+db $00, $70, $58, $77, $95, $a4, $50, $a9, $9f, $a5, $a2, $50, $7d, $9f, $9e, $9b
+db $95, $a9, $50, $74, $95, $9c, $a5, $a8, $95, $50, $92, $a5, $9e, $94, $9c, $95
+db $a3, $51, $59, $03, $00, $70, $7b, $9f, $9b, $a5, $9b, $99, $50, $9b, $95, $95
+db $9b, $9f, $9b, $91, $99, $50, $9b, $9f, $9b, $9f, $9b, $9f, $50, $54, $65, $60
+db $60, $51, $03, $00, $70, $58, $71, $9e, $a9, $a4, $98, $99, $9e, $97, $50, $91
+db $50, $9d, $9f, $9e, $9b, $95, $a9, $50, $93, $9f, $a5, $9c, $94, $50, $a7, $91
+db $9e, $a4, $5c, $10, $06, $50, $9a, $a5, $a3, $a4, $50, $54, $65, $60, $60, $51
+db $59, $03, $00, $70, $7b, $9f, $9b, $a5, $9b, $91, $91, $99, $50, $9b, $9f, $9b
+db $91, $50, $54, $65, $60, $60, $6f, $03, $00, $70, $58, $87, $91, $9e, $a4, $50
+db $91, $50, $7d, $9f, $9e, $9b, $95, $a9, $50, $74, $95, $9c, $a5, $a8, $95, $50
+db $92, $a5, $9e, $94, $9c, $95, $50, $96, $9f, $a2, $50, $54, $65, $60, $60, $6f
+db $59, $03, $00, $1c, $04, $18, $0a, $19, $02, $89, $95, $a3, $02, $19, $02, $7e
+db $9f, $02, $1c, $07, $02, $11, $09, $02, $28, $cb, $ee, $11, $08, $cb, $ee, $22
+db $12, $70, $7b, $9f, $9b, $9f, $9b, $91, $9b, $5e, $03, $00, $70, $58, $89, $9f
+db $a5, $57, $9c, $9c, $50, $92, $95, $50, $92, $91, $93, $9b, $5e, $59, $13, $02
+db $1d, $09, $f4, $01, $1b, $02, $53, $cb, $ee, $ff, $12, $70, $7b, $99, $9b, $99
+db $99, $a9, $91, $99, $9b, $9f, $51, $03, $00, $70, $58, $89, $9f, $a5, $57, $a2
+db $95, $50, $92, $a2, $9f, $9b, $95, $51, $59, $13, $02, $0e, $00, $0d, $01, $1d
+db $00, $ff, $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b, $02, $bf
+db $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d, $00, $ff
+db $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b, $02, $bf, $cb, $ee
+db $ff, $1d, $00, $ff, $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b
+db $02, $bf, $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d
+db $00, $ff, $fe, $1b, $02, $bf, $cb, $ee, $ff, $1d, $00, $ff, $fe, $1b, $02, $bf
+db $cb, $ee, $ff, $0a, $35, $cc, $ee, $12, $70, $58, $87, $98, $9f, $91, $98, $51
+db $10, $0f, $50, $89, $9f, $a5, $50, $92, $95, $a4, $a4, $95, $a2, $50, $9d, $91
+db $9b, $95, $50, $a3, $a5, $a2, $95, $50, $a9, $9f, $a5, $50, $93, $91, $9e, $50
+db $98, $9f, $9c, $94, $50, $61, $60, $50, $a4, $98, $99, $9e, $97, $a3, $5c, $10
+db $06, $50, $92, $a5, $94, $94, $a9, $51, $59, $13, $08, $0c, $cc, $ee, $ff, $1d
+db $08, $f4, $01, $02, $1d, $01, $ff, $fe, $1d, $01, $ff, $fe, $1d, $01, $ff, $fe
+db $1d, $01, $ff, $fe, $1d, $01, $ff, $fe, $1d, $01, $ff, $fe, $1d, $01, $ff, $fe
+db $1d, $01, $ff, $fe, $1d, $01, $ff, $fe, $1d, $01, $ff, $fe, $02, $08, $0c, $cc
+db $ee, $ff, $1f, $02, $78, $18, $0a, $12, $70, $7b, $a5, $9b, $99, $9b, $9f, $9b
+db $91, $50, $9b, $99, $99, $a9, $9b, $5e, $03, $00, $70, $58, $7d, $a5, $93, $98
+db $50, $9f, $92, $9c, $99, $97, $95, $94, $5e, $59, $03, $1d, $0e, $ff, $e0, $1d
+db $0e, $ff, $5d, $1d, $0e, $ff, $5f, $1d, $0e, $ff, $5f, $1d, $0e, $ff, $7f, $1d
+db $0e, $ff, $5a, $1d, $0e, $ff, $5a, $1d, $0e, $ff, $5a, $1d, $0e, $ff, $6c, $1d
+db $0e, $ff, $8c, $1f, $02, $74, $10, $10, $1f, $02, $74, $10, $10, $1f, $02, $74
+db $10, $10, $1f, $02, $74, $10, $10, $1f, $02, $74, $10, $10, $1f, $02, $74, $10
+db $10, $1f, $02, $74, $10, $10, $1f, $02, $74, $10, $10, $1f, $02, $74, $10, $10
+db $1f, $02, $74, $10, $10, $02; Monkey caves Monkey Bundle
+
+ORG $C807F5
+db $1c, $05, $01, $0a, $fc, $07, $c8
+
+ORG $C57A14
+db $02
 
 
 ;If prayers skipped:

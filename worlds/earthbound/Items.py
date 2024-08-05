@@ -316,6 +316,7 @@ item_table: Dict[str, ItemData] = {
     'Saved Earth': ItemData('Events', None, ItemClassification.progression, 0),
     "Power of the Earth": ItemData("Events", None, ItemClassification.progression, 0),
     "Alternate Goal": ItemData("Events", None, ItemClassification.useful, 0),
+    "Magicant Boost": ItemData("Events", None, ItemClassification.useful, 0),
     "Magicant Unlock": ItemData("Events", None, ItemClassification.progression, 0)
 }
 
@@ -470,7 +471,6 @@ rare_items: List[str] = [
     "Super Bomb",
     "Bag of Dragonite",
     "Meteotite",
-    "Charm Coin",
     "Repel Superwich",
     "Piggy Jelly",
     "Spicy Jerky",
@@ -491,7 +491,8 @@ rare_gear: List[str] = [
     "Star Pendant",
     "Goddess Ribbon",
     "Talisman Coin",
-    "Shiny Coin"
+    "Shiny Coin",
+    "Charm Coin"
 ]
 
 

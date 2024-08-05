@@ -44,6 +44,21 @@ def setup_gamevars(world):
         world.uncommon_gear.append("Broken Cannon")
         world.rare_gear.append("Broken Antenna")
 
+    world.franklinbadge_elements = [
+        "thunder",
+        "fire",
+        "freeze",
+        "flash",
+        "starstorm",
+        "special",
+        "explosive"
+    ]
+
+    if world.options.randomize_franklinbadge_protection:
+        world.franklin_protection = world.random.choice(world.franklinbadge_elements)
+    else:
+        world.franklin_protection = "thunder"
+
     world.hinted_regions = [
         "Northern Onett",
         "Onett",
@@ -121,7 +136,7 @@ def setup_gamevars(world):
     else:
         world.filler_drops.extend([0x07, 0x05, 0x09, 0x0B, 0x10])
 
-    if world.options.magicant_mode == 2:
+    if world.options.magicant_mode.value >= 2:
         world.magicant_junk = []
         for i in range(6):
             world.magicant_junk.append(world.random.choice(filler_items))
@@ -190,9 +205,23 @@ def place_static_items(world):
     if world.options.magicant_mode == 2:
         world.get_location("+1 Sanctuary").place_locked_item(world.create_item("Magicant Unlock"))
         world.get_location("Ness's Nightmare").place_locked_item(world.create_item("Alternate Goal"))
+    elif world.options.magicant_mode == 3:
+        world.get_location("Ness's Nightmare").place_locked_item(world.create_item("Magicant Boost"))
 
     if world.options.random_start_location:
         world.multiworld.push_precollected(world.create_item(world.starting_teleport))
+
+    if not world.options.monkey_caves_mode:
+        world.get_location("Monkey Caves - 1F Right Chest").place_locked_item(world.create_item("Wet Towel"))
+        world.get_location("Monkey Caves - 1F Left Chest").place_locked_item(world.create_item("Pizza"))
+        world.get_location("Monkey Caves - West 2F Left Chest").place_locked_item(world.create_item("Pizza"))
+        world.get_location("Monkey Caves - West 2F Right Chest #1").place_locked_item(world.create_item("Hamburger"))
+        world.get_location("Monkey Caves - West 2F Right Chest #2").place_locked_item(world.create_item("Ruler"))
+        world.get_location("Monkey Caves - East 2F Left Chest").place_locked_item(world.create_item("Protein Drink"))
+        world.get_location("Monkey Caves - East 2F Right Chest").place_locked_item(world.create_item("Hamburger"))
+        world.get_location("Monkey Caves - East West 3F Right Chest #1").place_locked_item(world.create_item("Hamburger"))
+        world.get_location("Monkey Caves - East West 3F Right Chest #2").place_locked_item(world.create_item("Picnic Lunch"))
+
 
         #Add magicant, add sanc stuff, add alt goals...
             

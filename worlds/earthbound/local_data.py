@@ -39,7 +39,7 @@ check_table = {
     0xEB0025: [0x6D, 3],
     0xEB0026: [0x12, 5],
     0xEB0027: [0x85, 4],
-    0xEB0028: [0x10, 3],
+    0xEB0028: [0x17, 1],
     0xEB0029: [0x6E, 4],
     0xEB002A: [0x6E, 5],
     0xEB002B: [0x6E, 3],
@@ -265,7 +265,7 @@ location_dialogue = { #Locations which just need to print the name of the item
     "Twoson - Apple Kid Invention": [0x081F89],
     "Twoson - Apple Kid's Mouse": [0x2EBA86],
     "Twoson - Antique Shop": [0x093E5F],
-    "Twoson - Paula's Mother": [0x08061B],
+    "Twoson - Paula's Mother": [0x08061B, 0x0807F7],
     "Twoson - Everdred Meeting": [0x095FA2],
     "Twoson - Insignificant Location": [0x094EB1],
     "Happy-Happy Village - Donation Lady": [0x2EC578, 0x2EC580],
@@ -309,7 +309,7 @@ location_dialogue = { #Locations which just need to print the name of the item
     "Dalaam - Throne Character": [0x2EB4E2],
     "Monotoli Building - Monotoli Character": [0x2EB2C3],
     "Snow Wood - Bedroom": [0x2EB10D],
-    "Threed - Zombie Prisoner": [0x2EAFB1],
+    "Threed - Zombie Prisoner": [0x2EAFB1, 0x2EC9E1],
     "Happy-Happy Village - Prisoner": [0x2EBABA],
     "Saturn Valley - Saturn Coffee": [0x2EB008],
     "Monkey Caves - Monkey Power": [0x2EB1A1],
@@ -321,6 +321,7 @@ location_dialogue = { #Locations which just need to print the name of the item
     "Lost Underworld - Talking Rock": [0x2EB751],
     "Cave of the Present - Star Master": [0x2EB8DF],
     "Magicant - Ness's Nightmare": [0x2EB803, 0x2EB87C],
+    "Dungeon Man - 1F Exit Ledge Present": [0x057A55]
 }
 
 npc_locations = { #Locations given to you by an NPC
@@ -336,7 +337,7 @@ npc_locations = { #Locations given to you by an NPC
     "Twoson - Apple Kid's Mouse": [0x0819DF],
     "Twoson - Apple Kid Invention": [0x082015],
     "Twoson - Antique Shop": [0x2EAEFD],
-    "Twoson - Paula's Mother": [0x08062F],
+    "Twoson - Paula's Mother": [0x08062F, 0x08081F],
     "Twoson - Everdred Meeting": [0x096052],
     "Twoson - Insignificant Location": [0x094ED1],
     "Happy-Happy Village - Donation Lady": [0x098A97, 0x0893B6],
@@ -373,7 +374,8 @@ npc_locations = { #Locations given to you by an NPC
     "Tenda Village - Tenda Gift": [0x09DAF0],
     "Tenda Village - Tenda Gift #2": [0x09D814],
     "Magicant - Ness's Gift": [0x077629],
-    "Cave of the Present - Broken Phase Distorter": [0x2F590C]
+    "Cave of the Present - Broken Phase Distorter": [0x2F590C],
+    "Dungeon Man - 1F Exit Ledge Present": [0x057A6B]
 
 }
 
@@ -1003,6 +1005,36 @@ special_name_overrides = {
     "Snow Wood - Upper Left Locker": 0x2EBFC5,
     "Snow Wood - Bottom Right Locker": 0x2EBFCC,
     "Snow Wood - Bottom Left Locker": 0x2EBFD3
+}
+
+protection_checks = {
+    "thunder": [0x0297D2],
+    "fire": [0x2FFC35, 0x2FFC77],
+    "freeze": [0x2FFC56],
+    "flash": [0x2FFC9B],
+    "starstorm": [0x2FFCC0],
+    "special": [0x2FFC1E],
+    "explosive": [0x2FFCE0]
+}
+
+badge_names = {
+    "thunder": "Franklin badge",
+    "fire": "Bunsen badge",
+    "freeze": "Thilorier badge",
+    "flash": "Cowen badge",
+    "starstorm": "Leavitt badge",
+    "special": "Mesmer badge",
+    "explosive": "Nobel badge"
+}
+
+protection_text = {
+    "thunder": [0x11, 0xC9, 0xEE, 0x5F, 0xC9, 0xEE],
+    "fire": [0x1C, 0xC9, 0xEE, 0x69, 0xC9, 0xEE],
+    "freeze": [0x22, 0xC9, 0xEE, 0x6E, 0xC9, 0xEE],
+    "flash": [0x28, 0xC9, 0xEE, 0x72, 0xC9, 0xEE],
+    "starstorm": [0x2F, 0xC9, 0xEE, 0x78, 0xC9, 0xEE],
+    "special": [0x3A, 0xC9, 0xEE, 0x82, 0xC9, 0xEE],
+    "explosive": [0x4A, 0xC9, 0xEE, 0x89, 0xC9, 0xEE]
 }
 
     #0: Action pointer, call the actual item being given

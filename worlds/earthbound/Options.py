@@ -25,13 +25,29 @@ class SanctuaryAltGoal(Toggle):
 
 class MagicantMode(Choice):
     """PSI Location: You will be able to find a Magicant teleport item. Ness's Nightmare contains a PSI location, and no stat boost.
-       Required: You will unlock the Magicant Teleport upon reaching your Sanctuary goal. If Giygas is required, beating Ness's Nightmare will unlock the Cave of the Past. Otherwise, Ness's Nightmare will finish your game.
-       Alternate Goal: You will unlock the Magicant Teleport upon reaching one more Sanctuary than required. Beating Ness's Nightmare will finish your game. Does nothing if Giygas is not required, or if 8 Sanctuaries are required."""
+       Required: You will unlock the Magicant Teleport upon reaching your Sanctuary goal. If Giygas is required, beating Ness's Nightmare will unlock the Cave of the Past and grant a party-wide stat boost. Otherwise, Ness's Nightmare will finish your game.
+       Alternate Goal: You will unlock the Magicant Teleport upon reaching one more Sanctuary than required. Beating Ness's Nightmare will finish your game. Does nothing if Giygas is not required, or if 8 Sanctuaries are required. Magicant locations are removed from the multiworld, but contain random junk for yourself.
+       Optional Boost: You will be able to find a Magicant teleport item. Beating Ness's Nightmare will grant a party-wide stat boost. Magicant locations are removed from the multiworld, but contain random junk for yourself.
+       Removed: Magicant will be completely inacessible."""
     display_name = "Magicant Mode"
     option_psi_location = 0
     option_required = 1
     option_alternate_goal = 2
+    option_optional_boost = 3
+    option_removed = 4
     default = 0
+
+class MonkeyCavesMode(Choice):
+    """Chests: Items required to finish the Monkey Caves will be forcibly placed on the chests that can be found in-between rooms of the monkey caves. The "reward" locations, usually found at the end of a branch, are still random. If you waste chest items, they will need to be replaced via the methods in hunt mode.
+       Hunt: Items required to finish the Monkey Caves will need to be found outside. They can be obtained from the Dusty Dunes drugstore, the Fourside department store, and the pizza shop in either Twoson or Threed.
+       Shop: The monkey outside the Monkey Caves will sell you every minor item needed to complete the caves for 500$.
+       Solved: The Monkey Caves monkeys will already be moved out of the way and not require any items."""
+    display_name = "Monkey Caves Mode"
+    option_chests = 0
+    option_hunt = 1
+    option_shop = 2
+    option_solved = 3
+    default = 1
     
 
 class ShortenPrayers(DefaultOnToggle):
@@ -71,10 +87,19 @@ class PreFixItems(Toggle):
        This does not affect any items that are not placed by the multiworld."""
     display_name = "Prefixed Items"
 
+class AutoscaleParty(Toggle):
+    """If enabled, joining party members will be scaled to roughly the level of the sphere they were obtained in."""
+    display_name = "Autoscale Party Members"
+
 class ShuffleDrops(Toggle):
     """If enabled, enemies will drop random filler items. This does not put checks on enemy drops.
        Drop rates are unchanged."""
     display_name = "Shuffle Drops"
+
+class RandomFranklinBadge(Toggle):
+    """If enabled, the Franklin Badge will reflect a randomly selected attack type. The type can be determined from the item's name, as well as the help
+       text for it. The badge's function outside of battle will not change, and neither will its name outside of the game itself."""
+    display_name = "Franklin Badge Protection"
 
 class CommonWeight(Range):
     """Weight for placing a common filler item."""
@@ -134,19 +159,19 @@ class EBOptions(PerGameCommonOptions):
     random_start_location: RandomStartLocation
     alternate_sanctuary_goal: SanctuaryAltGoal
     magicant_mode: MagicantMode
+    monkey_caves_mode: MonkeyCavesMode
     shuffle_teleports: PSIShuffle# Better name?
     character_shuffle: CharacterShuffle
     experience_modifier: ExperienceModifier
     starting_money: StartingMoney
     easy_deaths: EasyDeaths
+    auto_scale_party_members: AutoscaleParty
     random_flavors: RandomFlavors
     prefixed_items: PreFixItems
+    randomize_franklinbadge_protection: RandomFranklinBadge
     shuffle_enemy_drops: ShuffleDrops
     common_filler_weight: CommonWeight
     uncommon_filler_weight: UncommonWeight
     rare_filler_weight: RareWeight
-    #RepairJeffItems
-    #PSI Checks
-    #Monkey caves...
     start_inventory_from_pool: StartInventoryPool
     #death_link: DeathLink
