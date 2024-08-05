@@ -9,14 +9,15 @@ import zipfile
 import py_randomprime
 
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, logger, server_loop, gui_enabled
-from NetUtils import ClientStatus, NetworkItem
+from NetUtils import ClientStatus
 import Utils
+from .PrimeUtils import get_apworld_version
 from .Items import suit_upgrade_table
 from .ClientReceiveItems import handle_receive_items
 from .NotificationManager import NotificationManager
 from .Container import construct_hook_patch
 from .DolphinClient import DolphinException, assert_no_running_dolphin, get_num_dolphin_instances
-from .Locations import METROID_PRIME_LOCATION_BASE, every_location
+from .Locations import METROID_PRIME_LOCATION_BASE, every_location, PICKUP_LOCATIONS
 from .MetroidPrimeInterface import HUD_MESSAGE_DURATION, ConnectionState, InventoryItemData, MetroidPrimeInterface, MetroidPrimeLevel, MetroidPrimeSuit
 
 
@@ -93,12 +94,13 @@ class MetroidPrimeContext(CommonContext):
     cosmetic_suit: Optional[MetroidPrimeSuit] = None
     slot_name: Optional[str] = None
     last_error_message: Optional[str] = None
+    apmp1_file: Optional[str] = None
 
-    def __init__(self, server_address, password, slot_name=None):
+    def __init__(self, server_address, password, apmp1_file=None):
         super().__init__(server_address, password)
         self.game_interface = MetroidPrimeInterface(logger)
-        self.auth = slot_name
         self.notification_manager = NotificationManager(HUD_MESSAGE_DURATION, self.game_interface.send_hud_message)
+        self.apmp1_file = apmp1_file
 
     def on_deathlink(self, data: Utils.Dict[str, Utils.Any]) -> None:
         super().on_deathlink(data)
@@ -142,7 +144,18 @@ def update_connection_status(ctx: MetroidPrimeContext, status):
 
 
 async def dolphin_sync_task(ctx: MetroidPrimeContext):
+    try:
+        # This will not work if the client is running from source
+        version = get_apworld_version()
+        logger.info(f"Using metroidprime.apworld version: {version}")
+    except:
+        pass
+
+    if ctx.apmp1_file:
+        Utils.async_start(patch_and_run_game(ctx.apmp1_file))
+
     logger.info("Starting Dolphin Connector, attempting to connect to emulator...")
+
     while not ctx.exit_event.is_set():
         try:
             connection_state = ctx.game_interface.get_connection_state()
@@ -176,22 +189,14 @@ def __int_to_reversed_bits(value: int, bit_length: int) -> str:
 
 
 async def handle_checked_location(ctx: MetroidPrimeContext, current_inventory: dict[str, InventoryItemData]):
-    """Uses the current amount of UnknownItem1 in inventory as an indicator of which location was checked. This will break if the player collects more than one pickup without having the AP client hooked to the game and server"""
-    unknown_item1 = current_inventory["UnknownItem1"]
-    unknown_item2 = current_inventory["UnknownItem2"]
-    health_refill = current_inventory["HealthRefill"]
-
-    flag_ints = [unknown_item2.current_amount, unknown_item2.current_capacity, health_refill.current_capacity, unknown_item1.current_amount]
-    flags_str = "".join([__int_to_reversed_bits(flag_int, 32) for flag_int in flag_ints])
-    if (flags_str == ctx.previous_location_str):
-        return
+    """Checks for active memory relays in each worlds"""
     checked_locations = []
-    for index, char in enumerate(flags_str):
-        if char == "1":
-            checked_locations.append(index + METROID_PRIME_LOCATION_BASE)
-
+    i = 0
+    for mlvl, memory_relay in PICKUP_LOCATIONS:
+        if ctx.game_interface.is_memory_relay_active(f'{mlvl.value:X}', memory_relay):
+            checked_locations.append(METROID_PRIME_LOCATION_BASE + i)
+        i += 1
     await ctx.send_msgs([{"cmd": "LocationChecks", "locations": checked_locations}])
-    ctx.previous_location_str = flags_str
 
 
 async def handle_check_goal_complete(ctx: MetroidPrimeContext):
@@ -216,6 +221,7 @@ async def _handle_game_ready(ctx: MetroidPrimeContext):
         if not ctx.slot:
             await asyncio.sleep(1)
             return
+        ctx.game_interface.update_relay_tracker_cache()
         current_inventory = ctx.game_interface.get_current_inventory()
         await handle_receive_items(ctx, current_inventory)
         ctx.notification_manager.handle_notifications()
@@ -226,6 +232,7 @@ async def _handle_game_ready(ctx: MetroidPrimeContext):
             await handle_check_deathlink(ctx)
         await asyncio.sleep(0.5)
     else:
+        ctx.game_interface.reset_relay_tracker_cache()
         message = "Waiting for player to connect to server"
         if ctx.last_error_message is not message:
             logger.info("Waiting for player to connect to server")
@@ -324,10 +331,22 @@ async def patch_and_run_game(apmp1_file: str):
         if options_json:
             build_progressive_beam_patch = options_json["progressive_beam_upgrades"]
 
-        config_json["gameConfig"]["updateHintStateReplacement"] = construct_hook_patch(game_version, build_progressive_beam_patch)
-        notifier = py_randomprime.ProgressNotifier(
-            lambda progress, message: print("Generating ISO: ", progress, message))
-        py_randomprime.patch_iso(input_iso_path, output_path, config_json, notifier)
+        try:
+            config_json["gameConfig"]["updateHintStateReplacement"] = construct_hook_patch(game_version, build_progressive_beam_patch)
+            notifier = py_randomprime.ProgressNotifier(
+                lambda progress, message: print("Generating ISO: ", progress, message))
+            logger.info("--------------")
+            logger.info(f"Input ISO Path: {input_iso_path}")
+            logger.info(f"Output ISO Path: {output_path}")
+            disc_version = py_randomprime.rust.get_iso_mp1_version(os.fspath(input_iso_path))
+            logger.info(f"Disc Version: {disc_version}")
+            logger.info("Patching ISO...")
+            py_randomprime.patch_iso(input_iso_path, output_path, config_json, notifier)
+            logger.info("Patching Complete")
+        except Exception as e:
+            logger.error(f"Error patching ISO: {e}")
+            return
+        logger.info("--------------")
 
     Utils.async_start(run_game(output_path))
 
@@ -342,13 +361,14 @@ def launch():
         parser.add_argument('apmp1_file', default="", type=str, nargs="?",
                             help='Path to an apmp1 file')
         args = parser.parse_args()
-        slot = None
-        if args.apmp1_file:
-            logger.info("APMP1 file supplied, beginning patching process...")
-            Utils.async_start(patch_and_run_game(args.apmp1_file))
-            slot = get_options_from_apmp1(args.apmp1_file)["player_name"]
 
-        ctx = MetroidPrimeContext(args.connect, args.password, slot)
+        ctx = MetroidPrimeContext(args.connect, args.password, args.apmp1_file)
+
+        if args.apmp1_file:
+            slot = get_options_from_apmp1(args.apmp1_file)["player_name"]
+            if slot:
+                ctx.auth = slot
+
         logger.info("Connecting to server...")
         ctx.server_task = asyncio.create_task(server_loop(ctx), name="Server Loop")
         if gui_enabled:
