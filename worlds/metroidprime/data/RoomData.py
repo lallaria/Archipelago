@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Callable, List, Optional
 import typing
 
-from BaseClasses import CollectionState, LocationProgressType, Region
+from BaseClasses import CollectionState, ItemClassification, LocationProgressType, Region
 from ..Items import ProgressiveUpgrade, SuitUpgrade
 from ..Logic import can_bomb, can_ice_beam, can_missile, can_plasma_beam, can_wave_beam
 from ..PrimeOptions import MetroidPrimeOptions
@@ -32,18 +32,23 @@ def get_config_item_model(world: 'MetroidPrimeWorld', location) -> str:
             return "Shiny Missile"
         elif name == SuitUpgrade.Main_Power_Bomb.value:
             return "Power Bomb"
-        elif name == ProgressiveUpgrade.Progressive_Power_Beam.value:
+        elif name == ProgressiveUpgrade.Progressive_Power_Beam.value or name == SuitUpgrade.Power_Beam.value:
             return "Super Missile"
         elif name == ProgressiveUpgrade.Progressive_Wave_Beam.value:
-            return "Wavebuster"
+            return "Wave Beam"
         elif name == ProgressiveUpgrade.Progressive_Ice_Beam.value:
-            return "Ice Spreader"
+            return "Ice Beam"
         elif name == ProgressiveUpgrade.Progressive_Plasma_Beam.value:
-            return "Flamethrower"
+            return "Plasma Beam"
         else:
             return name
     else:
-        return "Nothing"
+        if loc.item.classification == ItemClassification.filler:
+            return "Zoomer"
+        elif loc.item.classification == ItemClassification.useful:
+            return "Nothing"
+        else:
+            return "Cog"
 
 
 class DoorLockType(Enum):
@@ -88,7 +93,7 @@ class PickupData:
             "type": "Unknown Item 1",
             "scanText": get_config_item_text(world, self.name),
             "hudmemoText": get_config_item_text(world, self.name) + " Acquired!",
-            "currIncrease": every_location[self.name] - METROID_PRIME_LOCATION_BASE + 1,
+            "currIncrease": 0,
             "model": get_config_item_model(world, self.name),
             "showIcon": True
         }

@@ -12,7 +12,6 @@ from .Locations import every_location
 from .PrimeOptions import MetroidPrimeOptions, VariaSuitColorOverride
 from .Items import PROGRESSIVE_ITEM_MAPPING, MetroidPrimeItem, ProgressiveUpgrade, SuitUpgrade, get_item_for_options, get_progressive_upgrade_for_item, suit_upgrade_table, artifact_table, item_table
 from .data.StartRoomData import StartRoomData, init_starting_room_data
-from .data.RoomNames import RoomName
 from .Container import MetroidPrimeContainer
 from BaseClasses import Item, Tutorial, ItemClassification
 import typing
@@ -72,6 +71,7 @@ class MetroidPrimeWorld(World):
     """
     game = "Metroid Prime"
     web = MetroidPrimeWeb()
+    required_client_version = (0, 5, 0)
     options_dataclass = MetroidPrimeOptions
     options: MetroidPrimeOptions
     topology_present = True
@@ -103,12 +103,14 @@ class MetroidPrimeWorld(World):
                         option.value = value
 
     def generate_early(self) -> None:
+        skip_elevator_mapping = False
         if hasattr(self.multiworld, "re_gen_passthrough"):
             self.init_tracker_options()
+            skip_elevator_mapping = True
 
         init_starting_room_data(self)
         info(f"{self.player_name}'s Metroid Prime starting room data: {self.starting_room_data.name}")
-        if self.options.elevator_randomization.value:
+        if self.options.elevator_randomization.value and not skip_elevator_mapping:
             self.elevator_mapping = get_random_elevator_mapping(self)
             info(f"{self.multiworld.get_player_name(self.player)}'s Metroid Prime elevator_mapping data: {self.elevator_mapping.__str__()}")
         self.options.elevator_mapping.value = self.elevator_mapping

@@ -3,34 +3,37 @@ from BaseClasses import Item
 
 from typing import Dict, NamedTuple
 
+
 class ItemData(NamedTuple):
     code: int
 
+
 class BalatroItem(Item):
     game: str = "Balatro"
+
 
 offset = 5606_000
 
 # important when adding new items: Do not make any items end with ".. Deck" because that will fuck the item logic
 item_table: Dict[str, ItemData] = {
     # deck unlocks
-    "Red Deck"       : ItemData(offset + 1),
-    "Blue Deck"      : ItemData(offset + 2),
-    "Yellow Deck"    : ItemData(offset + 3),
-    "Green Deck"     : ItemData(offset + 4),
-    "Black Deck"     : ItemData(offset + 5),
-    "Magic Deck"     : ItemData(offset + 6),
-    "Nebula Deck"    : ItemData(offset + 7),
-    "Ghost Deck"     : ItemData(offset + 8),
-    "Abandoned Deck" : ItemData(offset + 9),
-    "Checkered Deck" : ItemData(offset + 10),
-    "Zodiac Deck"    : ItemData(offset + 11),
-    "Painted Deck"   : ItemData(offset + 12),
-    "Anaglyph Deck"  : ItemData(offset + 13),
-    "Plasma Deck"    : ItemData(offset + 14),
-    "Erratic Deck"   : ItemData(offset + 15),
+    "Red Deck": ItemData(offset + 1),
+    "Blue Deck": ItemData(offset + 2),
+    "Yellow Deck": ItemData(offset + 3),
+    "Green Deck": ItemData(offset + 4),
+    "Black Deck": ItemData(offset + 5),
+    "Magic Deck": ItemData(offset + 6),
+    "Nebula Deck": ItemData(offset + 7),
+    "Ghost Deck": ItemData(offset + 8),
+    "Abandoned Deck": ItemData(offset + 9),
+    "Checkered Deck": ItemData(offset + 10),
+    "Zodiac Deck": ItemData(offset + 11),
+    "Painted Deck": ItemData(offset + 12),
+    "Anaglyph Deck": ItemData(offset + 13),
+    "Plasma Deck": ItemData(offset + 14),
+    "Erratic Deck": ItemData(offset + 15),
 
-    #Jokers
+    # Jokers
     "Joker": ItemData(offset + 16),
     "Greedy Joker": ItemData(offset + 17),
     "Lusty Joker": ItemData(offset + 18),
@@ -183,38 +186,38 @@ item_table: Dict[str, ItemData] = {
     "Perkeo": ItemData(offset + 165),
 
     # Vouchers
-    "Overstock": ItemData(offset + 166),
-    "Clearance Sale": ItemData(offset + 167),
-    "Hone": ItemData(offset + 168),
-    "Reroll Surplus": ItemData(offset + 169),
-    "Crystal Ball": ItemData(offset + 170),
-    "Telescope": ItemData(offset + 171),
-    "Grabber": ItemData(offset + 172),
-    "Wasteful": ItemData(offset + 173),
-    "Tarot Merchant": ItemData(offset + 174),
-    "Planet Merchant": ItemData(offset + 175),
-    "Seed Money": ItemData(offset + 176),
-    "Blank": ItemData(offset + 177),
-    "Magic Trick": ItemData(offset + 178),
-    "Hieroglyph": ItemData(offset + 179),
-    "Director's Cut": ItemData(offset + 180),
-    "Paint Brush": ItemData(offset + 181),
-    "Overstock Plus": ItemData(offset + 182),
-    "Liquidation": ItemData(offset + 183),
-    "Glow Up": ItemData(offset + 184),
-    "Reroll Glut": ItemData(offset + 185),
-    "Omen Globe": ItemData(offset + 186),
-    "Observatory": ItemData(offset + 187),
-    "Nacho Tong": ItemData(offset + 188),
-    "Recyclomancy": ItemData(offset + 189),
-    "Tarot Tycoon": ItemData(offset + 190),
-    "Planet Tycoon": ItemData(offset + 191),
-    "Money Tree": ItemData(offset + 192),
-    "Antimatter": ItemData(offset + 193),
-    "Illusion": ItemData(offset + 194),
-    "Petroglyph": ItemData(offset + 195),
-    "Retcon": ItemData(offset + 196),
-    "Palette": ItemData(offset + 197),
+    "Overstock/Overstock Plus 1": ItemData(offset + 166),
+    "Clearance Sale/Liquidation 1": ItemData(offset + 167),
+    "Hone/Glow Up 1": ItemData(offset + 168),
+    "Reroll Surplus/Reroll Glut 1": ItemData(offset + 169),
+    "Crystal Ball/Omen Globe 1": ItemData(offset + 170),
+    "Telescope/Observatory 1": ItemData(offset + 171),
+    "Grabber/Nacho Tong 1": ItemData(offset + 172),
+    "Wasteful/Recyclomancy 1": ItemData(offset + 173),
+    "Tarot Merchant/Tarot Tycoon 1": ItemData(offset + 174),
+    "Planet Merchant/Planet Tycoon 1": ItemData(offset + 175),
+    "Seed Money/Money Tree 1": ItemData(offset + 176),
+    "Blank/Antimatter 1": ItemData(offset + 177),
+    "Magic Trick/Illusion 1": ItemData(offset + 178),
+    "Hieroglyph/Petroglyph 1": ItemData(offset + 179),
+    "Director's Cut/Retcon 1": ItemData(offset + 180),
+    "Paint Brush/Palette 1": ItemData(offset + 181),
+    "Overstock/Overstock Plus 2": ItemData(offset + 182),
+    "Clearance Sale/Liquidation 2": ItemData(offset + 183),
+    "Hone/Glow Up 2": ItemData(offset + 184),
+    "Reroll Surplus/Reroll Glut 2": ItemData(offset + 185),
+    "Crystal Ball/Omen Globe 2": ItemData(offset + 186),
+    "Telescope/Observatory 2": ItemData(offset + 187),
+    "Grabber/Nacho Tong 2": ItemData(offset + 188),
+    "Wasteful/Recyclomancy 2": ItemData(offset + 189),
+    "Tarot Merchant/Tarot Tycoon 2": ItemData(offset + 190),
+    "Planet Merchant/Planet Tycoon 2": ItemData(offset + 191),
+    "Seed Money/Money Tree 2": ItemData(offset + 192),
+    "Blank/Antimatter 2": ItemData(offset + 193),
+    "Magic Trick/Illusion 2": ItemData(offset + 194),
+    "Hieroglyph/Petroglyph 2": ItemData(offset + 195),
+    "Director's Cut/Retcon 2": ItemData(offset + 196),
+    "Paint Brush/Palette 2": ItemData(offset + 197),
 
     # Booster Packs
 
@@ -233,7 +236,7 @@ item_table: Dict[str, ItemData] = {
     "Buffoon Pack": ItemData(offset + 210),
     "Jumbo Buffoon Pack": ItemData(offset + 211),
     "Mega Buffoon Pack": ItemData(offset + 212),
-    
+
     # Tarot Cards
 
     "The Fool": ItemData(offset + 213),
@@ -297,92 +300,94 @@ item_table: Dict[str, ItemData] = {
 
     # OP Filler Bonus Items
     "Bonus Discards": ItemData(offset + 301),
-    "Bonus Starting Money" : ItemData(offset + 302),
-    "Bonus Hands"    : ItemData(offset + 303),
-    "Bonus Hand Size"    : ItemData(offset + 304),
-    "Bonus Max Interest" : ItemData(offset + 305),
-    "Bonus Joker Slot" : ItemData(offset + 306),
-    "Bonus Consumable Slot" : ItemData(offset + 307),
-    
+    "Bonus Starting Money": ItemData(offset + 302),
+    "Bonus Hands": ItemData(offset + 303),
+    "Bonus Hand Size": ItemData(offset + 304),
+    "Bonus Max Interest": ItemData(offset + 305),
+    "Bonus Joker Slot": ItemData(offset + 306),
+    "Bonus Consumable Slot": ItemData(offset + 307),
+
     # Filler Bonus Items
     "Bonus Money": ItemData(offset + 310),
-    "Receive Buffoon Pack" : ItemData(offset + 311),
-    "Receive Consumable Pack" : ItemData(offset + 312),
-    "Bonus Juggle Tag" : ItemData(offset + 313),
-    "Bonus D6 Tag" : ItemData(offset + 314),
-    "Bonus Uncommon Tag" : ItemData(offset + 315),
-    "Bonus Rare Tag" : ItemData(offset + 316),
-    "Bonus Negative Tag" : ItemData(offset + 317),
-    "Bonus Foil Tag" : ItemData(offset + 318),
-    "Bonus Holographic Tag" : ItemData(offset + 319),
-    "Bonus Polychrome Tag" : ItemData(offset + 320),
-    "Bonus Double Tag" : ItemData(offset + 321),
+    "Receive Buffoon Pack": ItemData(offset + 311),
+    "Receive Consumable Pack": ItemData(offset + 312),
+    "Bonus Juggle Tag": ItemData(offset + 313),
+    "Bonus D6 Tag": ItemData(offset + 314),
+    "Bonus Uncommon Tag": ItemData(offset + 315),
+    "Bonus Rare Tag": ItemData(offset + 316),
+    "Bonus Negative Tag": ItemData(offset + 317),
+    "Bonus Foil Tag": ItemData(offset + 318),
+    "Bonus Holographic Tag": ItemData(offset + 319),
+    "Bonus Polychrome Tag": ItemData(offset + 320),
+    "Bonus Double Tag": ItemData(offset + 321),
 
-    # Traps 
-    "Bankruptcy Trap" : ItemData(offset + 330),
-    "Discard Trap" : ItemData(offset + 331),
-    "Hand Trap" : ItemData(offset + 332),
-    "Perishable Trap" : ItemData(offset + 333),
-    "Eternal Trap" : ItemData(offset + 334),
-    "Rental Trap" : ItemData(offset + 335),
-    
+    # Traps
+    "Bankruptcy Trap": ItemData(offset + 330),
+    "Discard Trap": ItemData(offset + 331),
+    "Hand Trap": ItemData(offset + 332),
+    "Perishable Trap": ItemData(offset + 333),
+    "Eternal Trap": ItemData(offset + 334),
+    "Rental Trap": ItemData(offset + 335),
+
     # Joker Bundle (for short mode)
-    "Joker Bundle 1" : ItemData(offset + 351),
-    "Joker Bundle 2" : ItemData(offset + 352),
-    "Joker Bundle 3" : ItemData(offset + 353),
-    "Joker Bundle 4" : ItemData(offset + 354),
-    "Joker Bundle 5" : ItemData(offset + 355),
-    "Joker Bundle 6" : ItemData(offset + 356),
-    "Joker Bundle 7" : ItemData(offset + 357),
-    "Joker Bundle 8" : ItemData(offset + 358),
-    "Joker Bundle 9" : ItemData(offset + 359),
-    "Joker Bundle 10" : ItemData(offset + 360),
-    "Joker Bundle 11" : ItemData(offset + 361),
-    "Joker Bundle 12" : ItemData(offset + 362),
-    "Joker Bundle 13" : ItemData(offset + 363),
-    "Joker Bundle 14" : ItemData(offset + 364),
-    "Joker Bundle 15" : ItemData(offset + 365),
-    
+    "Joker Bundle 1": ItemData(offset + 351),
+    "Joker Bundle 2": ItemData(offset + 352),
+    "Joker Bundle 3": ItemData(offset + 353),
+    "Joker Bundle 4": ItemData(offset + 354),
+    "Joker Bundle 5": ItemData(offset + 355),
+    "Joker Bundle 6": ItemData(offset + 356),
+    "Joker Bundle 7": ItemData(offset + 357),
+    "Joker Bundle 8": ItemData(offset + 358),
+    "Joker Bundle 9": ItemData(offset + 359),
+    "Joker Bundle 10": ItemData(offset + 360),
+    "Joker Bundle 11": ItemData(offset + 361),
+    "Joker Bundle 12": ItemData(offset + 362),
+    "Joker Bundle 13": ItemData(offset + 363),
+    "Joker Bundle 14": ItemData(offset + 364),
+    "Joker Bundle 15": ItemData(offset + 365),
+
     # Consumable Bundles
-    "Tarot Bundle" : ItemData(offset + 371),
-    "Planet Bundle" : ItemData(offset + 372),
-    "Spectral Bundle" : ItemData(offset + 373),
-    
+    "Tarot Bundle": ItemData(offset + 371),
+    "Planet Bundle": ItemData(offset + 372),
+    "Spectral Bundle": ItemData(offset + 373),
+
     # Stakes as Items
-    "White Stake" : ItemData(offset + 390),
-    "Red Stake" : ItemData(offset + 391),
-    "Green Stake" : ItemData(offset + 392),
-    "Black Stake" : ItemData(offset + 393),
-    "Blue Stake" : ItemData(offset + 394),
-    "Purple Stake" : ItemData(offset + 395),
-    "Orange Stake" : ItemData(offset + 396),
-    "Gold Stake" : ItemData(offset + 397),   
+    "White Stake": ItemData(offset + 390),
+    "Red Stake": ItemData(offset + 391),
+    "Green Stake": ItemData(offset + 392),
+    "Black Stake": ItemData(offset + 393),
+    "Blue Stake": ItemData(offset + 394),
+    "Purple Stake": ItemData(offset + 395),
+    "Orange Stake": ItemData(offset + 396),
+    "Gold Stake": ItemData(offset + 397),
 }
 
 stake_to_number: Dict[str, int] = {
-    "White Stake" : 1,
-    "Red Stake" : 2, 
-    "Green Stake" : 3, 
-    "Black Stake" : 4, 
-    "Blue Stake" : 5, 
-    "Purple Stake" : 6, 
-    "Orange Stake" : 7, 
-    "Gold Stake" : 8
+    "White Stake": 1,
+    "Red Stake": 2,
+    "Green Stake": 3,
+    "Black Stake": 4,
+    "Blue Stake": 5,
+    "Purple Stake": 6,
+    "Orange Stake": 7,
+    "Gold Stake": 8
 }
 
 number_to_stake: Dict[int, str] = {
-    1 : "White Stake",
-    2 : "Red Stake", 
-    3: "Green Stake", 
-    4: "Black Stake" , 
-    5: "Blue Stake" , 
-    6: "Purple Stake" , 
-    7: "Orange Stake" , 
+    1: "White Stake",
+    2: "Red Stake",
+    3: "Green Stake",
+    4: "Black Stake",
+    5: "Blue Stake",
+    6: "Purple Stake",
+    7: "Orange Stake",
     8: "Gold Stake"
 }
 
+
 def is_deck(item_name: str) -> bool:
     return item_name.endswith("Deck")
+
 
 decks: Dict[int, str] = {
     data.code: item_name for item_name, data in item_table.items() if data.code and is_deck(item_name)
@@ -399,58 +404,69 @@ def is_joker(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 16 and item_id <= 165)
 
+
 def is_voucher(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 166 and item_id <= 197)
+
 
 def is_booster(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 198 and item_id <= 212)
 
+
 def is_tarot(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 213 and item_id <= 234)
+
 
 def is_planet(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 235 and item_id <= 246)
 
+
 def is_spectral(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 247 and item_id <= 264)
+
 
 def is_bundle(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 351 and item_id <= 373)
 
+
 def is_joker_bundle(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 351 and item_id <= 365)
 
+
 def is_stake(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 390 and item_id <= 397)
+
 
 def is_stake_per_deck(item_name: str) -> bool:
     item_id = item_name_to_id[item_name] - offset
     return (item_id >= 400 and item_id <= 520)
 
 
-
 def is_progression(item_name: str) -> bool:
-    return (is_deck(item_name) or 
-            is_joker(item_name) or 
-            is_tarot(item_name) or 
-            is_voucher(item_name) or 
-            is_planet(item_name) or 
-            is_spectral(item_name) or 
+    return (is_deck(item_name) or
+            is_joker(item_name) or
+            is_tarot(item_name) or
+            is_voucher(item_name) or
+            is_planet(item_name) or
+            is_spectral(item_name) or
             is_stake(item_name) or
             is_stake_per_deck(item_name) or
-            is_booster(item_name)
-    )
+            is_booster(item_name) or
+            is_bundle(item_name)
+            )
+
 
 def is_useful(item_name: str) -> bool:
-    return False # maybe we will find a useful items in the future
+    return False  # maybe we will find a useful items in the future
+
 
 item_id_to_name: Dict[int, str] = {
     data.code: item_name for item_name, data in item_table.items() if data.code
