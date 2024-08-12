@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import ClassVar, Dict, List, Optional, Set
 
 from BaseClasses import LocationProgressType
+from Fill import FillError
+from Options import OptionError
 from worlds.tww import Macros
 
 from .Locations import LOCATION_TABLE, TWWFlag, split_location_name_by_zone
@@ -207,19 +209,19 @@ ITEM_LOCATION_NAME_TO_EXIT_OVERRIDES = {
   "Earth Temple - Stalfos Miniboss Room"             : ZoneExit.all["Earth Temple Miniboss Arena"],
   "Wind Temple - Wizzrobe Miniboss Room"             : ZoneExit.all["Wind Temple Miniboss Arena"],
   "Hyrule - Master Sword Chamber"                    : ZoneExit.all["Master Sword Chamber"],
-  
+
   "Dragon Roost Cavern - Gohma Heart Container"      : ZoneExit.all["Gohma Boss Arena"],
   "Forbidden Woods - Kalle Demos Heart Container"    : ZoneExit.all["Kalle Demos Boss Arena"],
   "Tower of the Gods - Gohdan Heart Container"       : ZoneExit.all["Gohdan Boss Arena"],
   "Forsaken Fortress - Helmaroc King Heart Container": ZoneExit.all["Helmaroc King Boss Arena"],
   "Earth Temple - Jalhalla Heart Container"          : ZoneExit.all["Jalhalla Boss Arena"],
   "Wind Temple - Molgera Heart Container"            : ZoneExit.all["Molgera Boss Arena"],
-  
+
   "Pawprint Isle - Wizzrobe Cave"                    : ZoneExit.all["Pawprint Isle Wizzrobe Cave"],
-  
+
   "Ice Ring Isle - Inner Cave - Chest"               : ZoneExit.all["Ice Ring Isle Inner Cave"],
   "Cliff Plateau Isles - Highest Isle"               : ZoneExit.all["Cliff Plateau Isles Inner Cave"],
-  
+
   "Outset Island - Great Fairy"                      : ZoneExit.all["Outset Fairy Fountain"],
 }
 
@@ -460,7 +462,7 @@ class EntranceRandomizer:
 
         num_island_entrances_needed = len(nonprogress_exits) - len(nonprogress_entrances)
         if num_island_entrances_needed > len(possible_island_entrances):
-            raise Exception("Not enough island entrances left to split entrances.")
+            raise FillError("Not enough island entrances left to split entrances.")
 
         for _ in range(num_island_entrances_needed):
             # Note: `relevant_entrances` is already shuffled, so we can just take the first result from
@@ -537,7 +539,7 @@ class EntranceRandomizer:
                     ]
 
             if not possible_remaining_exits:
-                raise Exception(f"No valid exits to place for entrance: {zone_entrance.entrance_name}")
+                raise FillError(f"No valid exits to place for entrance: {zone_entrance.entrance_name}")
 
             zone_exit = self.multiworld.random.choice(possible_remaining_exits)
             remaining_exits.remove(zone_exit)
@@ -634,7 +636,7 @@ class EntranceRandomizer:
                 fountains=fountains,
             )
         else:
-            raise Exception(f"Invalid entrance randomization option: {mix_entrances}")
+            raise OptionError(f"Invalid entrance randomization option: {mix_entrances}")
 
     def get_one_entrance_set(
         self, *, dungeons=False, caves=False, minibosses=False, bosses=False, inner_caves=False, fountains=False
@@ -681,7 +683,7 @@ class EntranceRandomizer:
         while zone_entrance.is_nested:
             if zone_entrance in seen_entrances:
                 path_str = ", ".join([e.entrance_name for e in seen_entrances])
-                raise Exception(f"Entrances are in an infinite loop: {path_str}")
+                raise FillError(f"Entrances are in an infinite loop: {path_str}")
             seen_entrances.append(zone_entrance)
             if zone_entrance.nested_in not in self.done_exits_to_entrances:
                 # Undecided.

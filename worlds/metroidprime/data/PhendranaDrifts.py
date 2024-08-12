@@ -38,7 +38,7 @@ class PhendranaDriftsAreaData(AreaData):
         }),
         RoomName.Chozo_Ice_Temple: RoomData(doors={
             0: DoorData(RoomName.Temple_Entryway),
-            1: DoorData(RoomName.Chapel_Tunnel, rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player), tricks=[Tricks.ice_temple_no_sj]),
+            1: DoorData(RoomName.Chapel_Tunnel, rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player) and can_missile(state, player), tricks=[Tricks.ice_temple_to_chapel_no_sj]),
         },
             pickups=[PickupData('Phendrana Drifts: Chozo Ice Temple', rule_func=lambda state, player: can_morph_ball(state, player) and can_space_jump(state, player) and can_melt_ice(state, player)), ]),
         RoomName.Control_Tower: RoomData(doors={
