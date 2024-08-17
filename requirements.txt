@@ -12,3 +12,4 @@ cython>=3.0.10
 cymem>=2.0.8
 orjson>=3.10.3
 typing_extensions>=4.12.1
+dolphin_memory_engine>=1.2.0
