@@ -187,19 +187,19 @@ class JSONTypes(str, enum.Enum):
 
 class JSONtoTextParser(metaclass=HandlerMeta):
     color_codes = {
-        # not exact color names, close enough but decent looking
+        # Changed these so that the color name isn't directly linked to the action. Probably should use a fucking color library for it but whatever
         "black": "000000",
-        "red": "EE0000",
-        "green": "00FF7F",
-        "yellow": "FAFAD2",
-        "blue": "6495ED",
-        "magenta": "EE00EE",
-        "cyan": "00EEEE",
-        "slateblue": "6D8BE8",
-        "plum": "AF99EF",
-        "salmon": "FA8072",
-        "white": "FFFFFF",
-        "orange": "FF7700",
+        "notfoundcolor": "EE0000", #red
+        "foundcolor": "00c51b", #green
+        "friendcolor": "5fafff", #ltblue
+        "entrancecolor": "6495ED", #blue
+        "playercolor": "ff87d7", #atzpink
+        "junkcolor": "b2b2b2", #gray
+        "usefulcolor": "afd75f", #lime
+        "wothcolor": "FFC500", #gold
+        "trapcolor": "d75f5f", #salmon
+        "default": "FFFFFF", #white
+        "bcastcolor": "FF7700", #orange
     }
 
     def __init__(self, ctx):
@@ -223,27 +223,27 @@ class JSONtoTextParser(metaclass=HandlerMeta):
 
     def _handle_player_id(self, node: JSONMessagePart):
         player = int(node["text"])
-        node["color"] = 'magenta' if player == self.ctx.slot else 'yellow'
+        node["color"] = 'playercolor' if player == self.ctx.slot else 'friendcolor'
         node["text"] = self.ctx.player_names[player]
         return self._handle_color(node)
 
     # for other teams, spectators etc.? Only useful if player isn't in the clientside mapping
     def _handle_player_name(self, node: JSONMessagePart):
-        node["color"] = 'yellow'
+        node["color"] = 'friendcolor'
         return self._handle_color(node)
 
     def _handle_item_name(self, node: JSONMessagePart):
         flags = node.get("flags", 0)
         if flags == 0:
-            node["color"] = 'cyan'
+            node["color"] = 'junkcolor'
         elif flags & 0b001:  # advancement
-            node["color"] = 'plum'
+            node["color"] = 'wothcolor'
         elif flags & 0b010:  # useful
-            node["color"] = 'slateblue'
+            node["color"] = 'usefulcolor'
         elif flags & 0b100:  # trap
-            node["color"] = 'salmon'
+            node["color"] = 'trapcolor'
         else:
-            node["color"] = 'cyan'
+            node["color"] = 'junkcolor'
         return self._handle_color(node)
 
     def _handle_item_id(self, node: JSONMessagePart):
@@ -252,7 +252,7 @@ class JSONtoTextParser(metaclass=HandlerMeta):
         return self._handle_item_name(node)
 
     def _handle_location_name(self, node: JSONMessagePart):
-        node["color"] = 'green'
+        node["color"] = 'foundcolor'
         return self._handle_color(node)
 
     def _handle_location_id(self, node: JSONMessagePart):
@@ -261,7 +261,7 @@ class JSONtoTextParser(metaclass=HandlerMeta):
         return self._handle_location_name(node)
 
     def _handle_entrance_name(self, node: JSONMessagePart):
-        node["color"] = 'blue'
+        node["color"] = 'entrancecolor'
         return self._handle_color(node)
 
 
@@ -269,18 +269,29 @@ class RawJSONtoTextParser(JSONtoTextParser):
     def _handle_color(self, node: JSONMessagePart):
         return self._handle_text(node)
 
-
+# setting ansi colors - Added many 8 bit to go with the 4 bit.
 color_codes = {'reset': 0, 'bold': 1, 'underline': 4, 'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34,
-               'magenta': 35, 'cyan': 36, 'white': 37, 'black_bg': 40, 'red_bg': 41, 'green_bg': 42, 'yellow_bg': 43,
-               'blue_bg': 44, 'magenta_bg': 45, 'cyan_bg': 46, 'white_bg': 47}
-
+                'magenta': 35, 'cyan': 36, 'white': 37, 'black_bg': 40, 'red_bg': 41, 'green_bg': 42, 'yellow_bg': 43,
+                'blue_bg': 44, 'magenta_bg': 45, 'cyan_bg': 46, 'white_bg': 47,
+                'notfoundcolor': '38;5;196', #red
+                'foundcolor': '38;5;34', #green
+                'friendcolor': '38;5;75', #ltblue
+                'entrancecolor': '38;5;27', #blue
+                'playercolor': '38;5;212', #atzpink
+                'junkcolor': '38;5;249', #gray
+                'usefulcolor': '38;5;149', #lime
+                'wothcolor': '38;5;220', #gold
+                'trapcolor': '38;5;167', #salmon
+                'default': 37, #white
+                'bcastcolor': '38;5;208' #orange
+}
 
 def color_code(*args):
     return '\033[' + ';'.join([str(color_codes[arg]) for arg in args]) + 'm'
 
 
 def color(text, *args):
-    return color_code(*args) + text + color_code('reset')
+    return color_code(*args) + text + '\33[0m'
 
 
 def add_json_text(parts: list, text: typing.Any, **kwargs) -> None:
@@ -333,9 +344,9 @@ class Hint(typing.NamedTuple):
             add_json_text(parts, "'s World")
         add_json_text(parts, ". ")
         if self.found:
-            add_json_text(parts, "(found)", type="color", color="green")
+            add_json_text(parts, "(found)", type="color", color="foundcolor")
         else:
-            add_json_text(parts, "(not found)", type="color", color="red")
+            add_json_text(parts, "(not found)", type="color", color="notfoundcolor")
 
         return {"cmd": "PrintJSON", "data": parts, "type": "Hint",
                 "receiving": self.receiving_player,
