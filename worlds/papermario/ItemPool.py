@@ -505,6 +505,9 @@ def get_locations_to_exclude(world: "PaperMarioWorld", bc_removed_locations: lis
     late_game_locations.append("SSS Star Haven Shop Item 5")
     late_game_locations.append("SSS Star Haven Shop Item 6")
 
+    if world.options.shuffle_star_beam.value:
+        late_game_locations.append("SSS Star Sanctuary Gift of the Stars")
+
     late_game_exclude_rate = get_star_haven_access_ratio(world.options) * 100
 
     for location in late_game_locations:
@@ -542,12 +545,12 @@ def get_item_multiples_base_name(item_name: str) -> str:
 
 
 def get_star_haven_access_ratio(options: PaperMarioOptions):
-    if options.power_star_hunt.value:
-        if options.seed_goal.value == SeedGoal.option_Open_Star_Way:
-            return 1
-        else:
-            return options.star_way_power_stars.value / options.total_power_stars.value
-
+    if options.seed_goal.value == SeedGoal.option_Open_Star_Way:
+        return 1
     else:
-        return options.star_way_spirits.value / 7
+        if options.power_star_hunt.value:
+            return (options.star_way_power_stars.value / options.total_power_stars.value + options.star_way_spirits.value / 7) / 2
+        else:
+            return options.star_way_spirits.value / 7
+
 

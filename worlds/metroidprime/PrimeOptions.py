@@ -160,6 +160,7 @@ class StartingRoom(Choice):
        safe: Start in rooms that will not require a significant combat challenge to progress from
        buckle_up: Start in rooms that will pose a significant challenge to players with no energy tanks or suit upgrades. Fun for the aspiring masochist (less fun for their friends in BK).
     """
+    display_name = "Starting Room Randomization"
     option_normal = StartRoomDifficulty.Normal.value
     option_safe = StartRoomDifficulty.Safe.value
     option_buckle_up = StartRoomDifficulty.Buckle_Up.value
@@ -198,8 +199,54 @@ class ElevatorRandomization(Toggle):
 
 class ElevatorMapping(OptionDict):
     """Which elevators go to which regions, only visible for spoiler"""
-    visibility = Visibility.spoiler
+    display_name = "Elevator Mapping"
+    visibility = Visibility.none
     default = {}
+
+
+class DoorColorRandomization(Choice):
+    """Determine if/how door colors are randomized.
+       None: No door colors will be randomized
+       Global: All door colors of a given color will be randomized to another color
+       Regional: Each Region will have its door colors randomized to another color
+"""
+    display_name = "Door Color Randomization"
+    option_none = "None"
+    option_global = "Global"
+    option_regional = "Regional"
+    default = option_none
+
+
+class DoorColorMapping(OptionDict):
+    """Which door colors go to which colors"""
+    display_name = "Door Color Mapping"
+    visibility = Visibility.none
+    default = {}
+
+
+class IncludePowerBeamDoors(Toggle):
+    """If enabled, Power Beam doors will be an available door color for randomization. If the starting beam is also randomized, it will remove the new starting beam's color from the pool of available door colors"""
+    display_name = "Include Power Beam Doors"
+    default = False
+
+
+class IncludeMorphBallBombDoors(Toggle):
+    """If enabled, Morph Ball Bomb doors will be added as an available door color for door randomization"""
+    display_name = "Include Morph Ball Bomb Doors"
+    default = False
+
+
+class RandomizeStartingBeam(Toggle):
+    """If enabled, the starting beam will be randomized to a random beam that is not the Power Beam. Note that if vanilla start is used, the hive mecha boss will be disabled."""
+    display_name = "Randomize Starting Beam"
+    default = False
+
+
+class StartingBeam(TextChoice):
+    visibility = Visibility.spoiler
+    display_name = "Starting Beam"
+    default = "none"
+    """Used to override the starting beam if Randomize Starting Beam is disabled, or to display the starting beam if it is enabled"""
 
 
 class PreScanElevators(Toggle):
@@ -316,6 +363,12 @@ class MetroidPrimeOptions(PerGameCommonOptions):
     pre_scan_elevators: PreScanElevators
     elevator_randomization: ElevatorRandomization
     elevator_mapping: ElevatorMapping
+    door_color_randomization: DoorColorRandomization
+    door_color_mapping: DoorColorMapping
+    include_power_beam_doors: IncludePowerBeamDoors
+    include_morph_ball_bomb_doors: IncludeMorphBallBombDoors
+    randomize_starting_beam: RandomizeStartingBeam
+    starting_beam: StartingBeam
     starting_room: StartingRoom
     starting_room_name: StartingRoomName
     disable_starting_room_bk_prevention: DisableStartingRoomBKPrevention

@@ -49,4 +49,4 @@ Follow [the general Archipelago instructions](https://archipelago.gg/tutorial/Ar
 
 You should now be able to receive and send items. You'll need to do these steps every time you want to reconnect. It is perfectly safe to make progress offline; everything will re-sync when you reconnect.
 
-Note: After the first time you open an .appm64 file through the TreZapalooza Launcher, it should associate that file type with the launcher and all you should have to do is double click them.
+Note: After the first time you open an .appm64 file through the Archipelago Launcher, it should associate that file type with the launcher and all you should have to do is double click them.

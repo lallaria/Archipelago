@@ -1,17 +1,21 @@
 import copy
 from dataclasses import dataclass, field
 from enum import Enum
-import os
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+
+from ..DoorRando import BEAM_TO_LOCK_MAPPING
 
 from ..LogicCombat import CombatLogicDifficulty
 
-from ..Items import SuitUpgrade, get_item_for_options, get_progressive_upgrade_for_item
+from ..Items import SuitUpgrade, get_item_for_options
 from ..data.AreaNames import MetroidPrimeArea
 from ..data.RoomNames import RoomName
 
 if TYPE_CHECKING:
     from .. import MetroidPrimeWorld
+
+# TODO: Make starting_beam an attribute on the start room data instead of another regular item, update in init and tests
+BEAM_ITEMS = [SuitUpgrade.Power_Beam, SuitUpgrade.Ice_Beam, SuitUpgrade.Wave_Beam, SuitUpgrade.Plasma_Beam]
 
 
 class StartRoomDifficulty(Enum):
@@ -38,6 +42,8 @@ class StartRoomData:
     is_eligible: Callable[['MetroidPrimeWorld'], bool] = lambda world: True
     allowed_elevators: Optional[Dict[str, Dict[str, List[str]]]] = None
     denied_elevators: Optional[Dict[str, Dict[str, List[str]]]] = None
+    force_starting_beam: Optional[bool] = False
+    """Used for situations where starting beam cannot be randomized, disqualifies a room from being selected when randomizing blue doors is on"""
 
 
 all_start_rooms: Dict[str, StartRoomData] = {
@@ -108,20 +114,23 @@ all_start_rooms: Dict[str, StartRoomData] = {
         is_eligible=lambda world: world.options.shuffle_scan_visor.value == False or world.multiworld.players > 1,
         difficulty=StartRoomDifficulty.Buckle_Up),
 
-    RoomName.Save_Station_B.value: StartRoomData(area=MetroidPrimeArea.Phendrana_Drifts, loadouts=[
-        StartRoomLoadout([SuitUpgrade.Plasma_Beam, SuitUpgrade.Missile_Launcher],
-                         item_rules=[
-            {"Phendrana Drifts: Phendrana Shorelines - Behind Ice": [SuitUpgrade.Space_Jump_Boots, SuitUpgrade.Morph_Ball]},
-        ],
-        )
-    ], is_eligible=lambda world:
+    RoomName.Save_Station_B.value: StartRoomData(
+        area=MetroidPrimeArea.Phendrana_Drifts,
+        force_starting_beam=True,
+        loadouts=[
+            StartRoomLoadout([SuitUpgrade.Plasma_Beam, SuitUpgrade.Missile_Launcher],
+                             item_rules=[
+                {"Phendrana Drifts: Phendrana Shorelines - Behind Ice": [SuitUpgrade.Space_Jump_Boots, SuitUpgrade.Morph_Ball]},
+            ],
+            )
+        ], is_eligible=lambda world:
         world.options.combat_logic_difficulty.value == CombatLogicDifficulty.NO_LOGIC.value or world.options.elevator_randomization.value or world.multiworld.players > 1,
         denied_elevators={
             MetroidPrimeArea.Phendrana_Drifts.value: {
                 RoomName.Transport_to_Magmoor_Caverns_West.value: [RoomName.Transport_to_Phazon_Mines_East.value, RoomName.Transport_to_Tallon_Overworld_East.value, "Chozo Ruins :" + RoomName.Transport_to_Tallon_Overworld_South.value, RoomName.Transport_to_Tallon_Overworld_West.value, RoomName.Transport_to_Phendrana_Drifts_South.value, RoomName.Transport_to_Phazon_Mines_West.value],
                 "Phendrana Drifts: " + RoomName.Transport_to_Magmoor_Caverns_South.value: [RoomName.Transport_to_Chozo_Ruins_North.value]
             }
-    }
+        }
 
     ),
     RoomName.Arbor_Chamber.value: StartRoomData(
@@ -195,8 +204,6 @@ def _is_no_pre_scan_elevators_with_shuffle_scan_and_vanilla_starting_room(world:
 def init_starting_room_data(world: 'MetroidPrimeWorld'):
     difficulty = world.options.starting_room.value
     yaml_name = world.options.starting_room_name.value
-    disable_bk_prevention = world.options.disable_starting_room_bk_prevention.value
-
     world.prefilled_item_map = {}
     if yaml_name:
         if yaml_name in all_start_rooms:
@@ -212,9 +219,12 @@ def init_starting_room_data(world: 'MetroidPrimeWorld'):
             world.starting_room_data = get_random_start_room_by_difficulty(world, difficulty)
         world.options.starting_room_name.value = world.starting_room_data.name
 
-    # Clear non starting beam upgrades out of loadout
+
+def init_starting_loadout(world: 'MetroidPrimeWorld'):
+    disable_bk_prevention = world.options.disable_starting_room_bk_prevention.value
+   # Clear non starting beam upgrades out of loadout
     if disable_bk_prevention:
-        world.starting_room_data.selected_loadout.loadout = [item for item in world.starting_room_data.selected_loadout.loadout if item in [SuitUpgrade.Power_Beam, SuitUpgrade.Ice_Beam, SuitUpgrade.Wave_Beam, SuitUpgrade.Plasma_Beam]]
+        world.starting_room_data.selected_loadout.loadout = [item for item in world.starting_room_data.selected_loadout.loadout if item in BEAM_ITEMS]
 
     # Update the loadout with the correct items based on options (progressive upgrades, missile launcher, etc.)
     updated_loadout = []
@@ -228,3 +238,46 @@ def init_starting_room_data(world: 'MetroidPrimeWorld'):
             for location_name, potential_items in mapping.items():
                 required_item = get_item_for_options(world, world.random.choice(potential_items))
                 world.prefilled_item_map[location_name] = required_item.value
+
+
+# TODO: Make starting beam an explicit attribute on the start room data
+def init_starting_beam(world: 'MetroidPrimeWorld'):
+    loadout_beam = next((item for item in world.starting_room_data.selected_loadout.loadout if item in BEAM_ITEMS), None)
+
+    def replace_starting_beam(new_beam: SuitUpgrade):
+        if loadout_beam is not None:
+            world.starting_room_data.selected_loadout.loadout.remove(loadout_beam)
+        world.starting_room_data.selected_loadout.loadout.append(new_beam)
+        world.options.starting_beam.value = new_beam.value
+
+    # Use the starting beam if it was set in the options (or for UT)
+    if world.options.starting_beam.value is not None and world.options.starting_beam.value is not 'none':
+        new_beam = SuitUpgrade.get_by_value(world.options.starting_beam)
+        if new_beam is not None:
+          replace_starting_beam(new_beam)
+
+    # Remap beam to a new color based on door randomization
+    elif world.options.door_color_randomization != "none" and loadout_beam is not None and loadout_beam is not SuitUpgrade.Power_Beam and not world.starting_room_data.force_starting_beam:
+        # replace the beam with whatever the new one should be mapped to
+        original_door_color = BEAM_TO_LOCK_MAPPING[loadout_beam].value
+        # Select new beam based off of what the original color is now mapped to
+        new_beam = None
+        for original, new in world.door_color_mapping[world.starting_room_data.area.value].type_mapping.items():
+            if original == original_door_color:
+                # Find the beam that corresponds to the new color
+                for beam in BEAM_ITEMS:
+                    if BEAM_TO_LOCK_MAPPING[beam].value == new:
+                        new_beam = beam
+                        break
+                break
+        replace_starting_beam(new_beam)
+
+    # Randomize starting beam if enabled
+    elif world.options.randomize_starting_beam and not world.starting_room_data.force_starting_beam:
+        new_beam = world.random.choice([beam for beam in BEAM_ITEMS if beam != SuitUpgrade.Power_Beam])
+        replace_starting_beam(new_beam)
+
+    # Hive mecha needs to be disabled if we don't have power beam in vanilla start locations (otherwise no checks can be reached)
+    # TODO: Make this use the new starting beam data
+    if (world.starting_room_data.name == RoomName.Landing_Site.value or RoomName.Save_Station_1.value) and SuitUpgrade.Power_Beam not in world.starting_room_data.selected_loadout.loadout:
+        world.options.remove_hive_mecha.value = True

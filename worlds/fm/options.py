@@ -87,11 +87,57 @@ duelist_progression_map = {
 }
 
 
+class RandomizeDuelistOrder(Toggle):
+    """
+    If enabled, the order of the groups of duelists you unlock up until Final 6 will be randomized. Your starting
+    group of duelists remains unchanged.
+
+    For "Campaign" and "Singular" progression choices, you are guaranteed to unlock all of the Egypt 1 and
+    World Tournament duelists before unlocking any Egypt 2 duelists.
+    """
+    display_name = "Randomize Duelist Unlock Order"
+    default = False
+
+
+class ItemMode(Choice):
+    """
+    Selects what type of items to place at checks in addition to the required Progressive Duelist items.
+
+    "Starchips" places a value of starchips behind checks.
+
+    "Cards" splits the pool of accessible checks in half, reserving one half as reward items, and the other half as
+    check locations. The reward cards are used to fill the check locations instead of starchips. Using a tracker is
+    highly recommended for this setting since there's no other way to determine which cards are randomly selected to be
+    the check locations.
+    """
+    display_name = "Item Mode"
+    option_starchips = "Starchips"
+    option_cards = "Cards"
+    default = option_starchips
+
+
 class LocalStarchips(Toggle):
     """
     If enabled, 75% of your starchip items will be local to your world.
+
+    Has no effect unless "Starchips" is selected for Item Mode.
     """
     display_name = "Local Starchip Bias"
+    default = False
+
+
+class UnobtainableRewards(Toggle):
+    """
+    When using the "Cards" Item Mode, normally only cards that would be eligible as checks under your settings can be
+    selected as reward items. If this setting is enabled, any card can be selected as a reward, including cards that
+    cannot be otherwise obtained by the player like Black Luster Soldier.
+
+    Note that enabling this setting may trivialize the game if cards such as Blue-Eyes Ultimate Dragon or Gate Guardian
+    are rolled as item rewards.
+
+    Has no effect unless "Cards" is selected for Item Mode.
+    """
+    display_name = "Unobtainable Cards As Items"
     default = False
 
 
@@ -170,7 +216,7 @@ class ATecLogic(Choice):
 
 class ATecTrap(Choice):
     """
-    The weakest (i.e. lowest mox Life Point activation) trap card with which you can be expected to ATec a duelist.
+    The weakest (i.e. lowest mox Attack Point activation) trap card with which you can be expected to ATec a duelist.
     ATecs will be in logic as soon as you have access to a duelist who drops this card or a stronger trap card,
     excluding their SATec drop pool. Your other ATec settings are still respected.
 
@@ -184,12 +230,27 @@ class ATecTrap(Choice):
     default = option_acid_trap_hole
 
 
+class ExtraProgressiveDuelists(Range):
+    """
+    Adds extra Progressive Duelist items into the item pool. Note that this setting can allow all but the final Final 6
+    member to be skipped.
+    """
+    display_name = "Extra Progressive Duelist Items"
+    range_start = 0
+    range_end = 20
+    default = 0
+
+
 @dataclass
 class FMOptions(PerGameCommonOptions):
     duelist_progression: DuelistProgression
+    randomize_duelist_order: RandomizeDuelistOrder
+    item_mode: ItemMode
     local_starchips: LocalStarchips
+    unobtainable_rewards: UnobtainableRewards
     final6_progression: Final6Progression
     final6_sequence: Final6Sequence
+    extra_progressive_duelists: ExtraProgressiveDuelists
     atec_logic: ATecLogic
     atec_trap: ATecTrap
     drop_rate_logic: DropRateLogic

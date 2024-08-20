@@ -1,22 +1,30 @@
-# Setup local dependencies if running in an apworld
 from .PrimeUtils import setup_lib_path
 setup_lib_path()  # NOTE: This MUST be called before importing any other metroidprime modules (other than PrimeUtils)
+# Setup local dependencies if running in an apworld
+from .data.PhazonMines import PhazonMinesAreaData
+from .data.PhendranaDrifts import PhendranaDriftsAreaData
+from .data.MagmoorCaverns import MagmoorCavernsAreaData
+from .data.ChozoRuins import ChozoRuinsAreaData
+from .data.TallonOverworld import TallonOverworldAreaData
+from .data.RoomData import AreaData
+from .data.AreaNames import MetroidPrimeArea
+from .DoorRando import AreaDoorTypeMapping, get_world_door_mapping, remap_doors_to_power_beam_if_necessary
 
 from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
 import settings
 from worlds.AutoWorld import World, WebWorld
-from .data.Transports import default_elevator_mappings, get_random_elevator_mapping
+from .data.Transports import ELEVATOR_USEFUL_NAMES, default_elevator_mappings, get_random_elevator_mapping
 from .config import make_config
 from .Regions import create_regions
 from .Locations import every_location
 from .PrimeOptions import MetroidPrimeOptions, VariaSuitColorOverride
 from .Items import PROGRESSIVE_ITEM_MAPPING, MetroidPrimeItem, ProgressiveUpgrade, SuitUpgrade, get_item_for_options, get_progressive_upgrade_for_item, suit_upgrade_table, artifact_table, item_table
-from .data.StartRoomData import StartRoomData, init_starting_room_data
+from .data.StartRoomData import StartRoomData, init_starting_beam, init_starting_loadout, init_starting_room_data
 from .Container import MetroidPrimeContainer
-from BaseClasses import Item, Tutorial, ItemClassification
+from BaseClasses import Item, MultiWorld, Tutorial, ItemClassification
 import typing
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TextIO
 from logging import info
 
 
@@ -84,15 +92,37 @@ class MetroidPrimeWorld(World):
     starting_room_data: Optional[StartRoomData] = None
     prefilled_item_map: Dict[str, str] = {}  # Dict of location name to item name
     elevator_mapping: Dict[str, Dict[str, str]] = default_elevator_mappings
+    door_color_mapping: Optional[Dict[MetroidPrimeArea, AreaDoorTypeMapping]] = None
+    game_region_data: Dict[MetroidPrimeArea, AreaData]
+    has_generated_bomb_doors: bool = False
+
+    def __init__(self, multiworld: MultiWorld, player: int):
+        super().__init__(multiworld, player)
+        self.game_region_data = {
+            MetroidPrimeArea.Tallon_Overworld: TallonOverworldAreaData(),
+            MetroidPrimeArea.Chozo_Ruins: ChozoRuinsAreaData(),
+            MetroidPrimeArea.Magmoor_Caverns: MagmoorCavernsAreaData(),
+            MetroidPrimeArea.Phendrana_Drifts: PhendranaDriftsAreaData(),
+            MetroidPrimeArea.Phazon_Mines: PhazonMinesAreaData()
+        }
 
     def get_filler_item_name(self) -> str:
         return SuitUpgrade.Missile_Expansion.value
 
-    def init_tracker_options(self):
+    def init_tracker_data(self):
         # Universal tracker stuff, shouldn't do anything in standard gen
         if self.game in self.multiworld.re_gen_passthrough:
-            info("Setting options for tracker")
+            info("Setting data for tracker")
             passthrough = self.multiworld.re_gen_passthrough[self.game]
+            # Need to re initialize the game region data
+            self.game_region_data = {
+                MetroidPrimeArea.Tallon_Overworld: TallonOverworldAreaData(),
+                MetroidPrimeArea.Chozo_Ruins: ChozoRuinsAreaData(),
+                MetroidPrimeArea.Magmoor_Caverns: MagmoorCavernsAreaData(),
+                MetroidPrimeArea.Phendrana_Drifts: PhendranaDriftsAreaData(),
+                MetroidPrimeArea.Phazon_Mines: PhazonMinesAreaData()
+            }
+
             for key, value in passthrough.items():
                 option = getattr(self.options, key, None)
                 if option is not None:
@@ -103,17 +133,34 @@ class MetroidPrimeWorld(World):
                         option.value = value
 
     def generate_early(self) -> None:
-        skip_elevator_mapping = False
         if hasattr(self.multiworld, "re_gen_passthrough"):
-            self.init_tracker_options()
-            skip_elevator_mapping = True
+            self.init_tracker_data()
 
+        # Select Start Room
         init_starting_room_data(self)
-        info(f"{self.player_name}'s Metroid Prime starting room data: {self.starting_room_data.name}")
-        if self.options.elevator_randomization.value and not skip_elevator_mapping:
+
+        # Randomize Door Colors
+        if self.options.door_color_mapping:
+            self.door_color_mapping = {area: AreaDoorTypeMapping.from_dict(mapping) for area, mapping in self.options.door_color_mapping.value.items()}
+        elif self.options.door_color_randomization != "none":
+            self.door_color_mapping = get_world_door_mapping(self)
+            # TODO: Make these conversions happen at a parent object so you don't need to iterate
+            self.options.door_color_mapping.value = {area: mapping.to_dict() for area, mapping in self.door_color_mapping.items()}
+
+        init_starting_beam(self)
+
+        # Reconcile starting beam with door color mapping, if applicable
+        remap_doors_to_power_beam_if_necessary(self)
+
+        # Set starting loadout
+        init_starting_loadout(self)
+
+        # Randomize Elevators
+        if self.options.elevator_mapping:
+            self.elevator_mapping = self.options.elevator_mapping.value
+        elif self.options.elevator_randomization.value:
             self.elevator_mapping = get_random_elevator_mapping(self)
-            info(f"{self.multiworld.get_player_name(self.player)}'s Metroid Prime elevator_mapping data: {self.elevator_mapping.__str__()}")
-        self.options.elevator_mapping.value = self.elevator_mapping
+            self.options.elevator_mapping.value = self.elevator_mapping
 
     def create_regions(self) -> None:
         boss_selection = int(self.options.final_bosses)
@@ -267,7 +314,7 @@ class MetroidPrimeWorld(World):
 
     def fill_slot_data(self) -> Dict[str, Any]:
         exclude_options = ["fusion_suit", "show_suit_index_on_pause_menu", "as_dict", "artifact_hints", "staggered_suit_damage", "start_hints"]
-        non_cosmetic_options = [o for o in dir(self.options) if "color" not in o and o not in exclude_options and not o.startswith("__")]
+        non_cosmetic_options = [o for o in dir(self.options) if "suit_color" not in o and o not in exclude_options and not o.startswith("__")]
         slot_data: Dict[str, Any] = self.options.as_dict(*non_cosmetic_options)
 
         return slot_data
@@ -278,3 +325,24 @@ class MetroidPrimeWorld(World):
         # returning slot_data so it regens, giving it back in multiworld.re_gen_passthrough
         info("Regenerating world for tracker")
         return slot_data
+
+    def write_spoiler(self, spoiler_handle: TextIO):
+        player_name = self.multiworld.get_player_name(self.player)
+
+        if self.options.elevator_randomization:
+            spoiler_handle.write(f'\n\nElevator Mapping({player_name}):\n')
+            for area, mapping in self.elevator_mapping.items():
+                spoiler_handle.write(f'{area}:\n')
+                for source, target in mapping.items():
+                    spoiler_handle.write(f'    {ELEVATOR_USEFUL_NAMES[source]} -> {ELEVATOR_USEFUL_NAMES[target]}\n')
+
+        if self.options.door_color_randomization == "regional":
+            spoiler_handle.write(f'\n\nDoor Color Mapping({player_name}):\n')
+            for area, mapping in self.door_color_mapping.items():
+                spoiler_handle.write(f'{area}:\n')
+                for door, color in mapping.type_mapping.items():
+                    spoiler_handle.write(f'    {door} -> {color}\n')
+        elif self.options.door_color_randomization == "global":
+            spoiler_handle.write(f'\n\nDoor Color Mapping({player_name}):\n')
+            for door, color in self.door_color_mapping[MetroidPrimeArea.Tallon_Overworld.value].type_mapping.items():
+                spoiler_handle.write(f'    {door} -> {color}\n')
