@@ -5,7 +5,7 @@ from .Items import item_table, ItemData
 
 
 class KHDaysLocation(Location):
-    game: str = "Kingdom Hearts 358-2 Days"
+    game: str = "Kingdom Hearts 358%2 Days"
     code: int = 0
 
 

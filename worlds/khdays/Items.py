@@ -11,7 +11,7 @@ trap = ItemClassification.trap
 
 
 class KHDaysItem(Item):
-    game = 'Kingdom Hearts 358-2 Days'
+    game = 'Kingdom Hearts 358%2 Days'
 
 
 class ItemData(typing.NamedTuple):
