@@ -32,7 +32,7 @@ class KHDaysWeb(WebWorld):
     theme = "stone"
     setup = Tutorial(
         "Multiworld Setup Tutorial",
-        "A guide to setting up Kingdom Hearts Days for Archipelago on your computer.",
+        "A guide to setting up Kingdom Hearts 358/2 Days for Archipelago on your computer.",
         "English",
         "multiworld_en.md",
         "multiworld/en",
@@ -44,12 +44,12 @@ class KHDaysWeb(WebWorld):
 
 class KHDaysWorld(World):
     """
-    Kingdom Hearts Days is a game for the Nintendo DS! Complete tasks for the Organization, to get rewards!
+    Kingdom Hearts 358/2 Days is a game for the Nintendo DS! Complete tasks for the Organization, to get rewards!
     Your objective is to beat the final day and win the game!
     """
     options_dataclass = KHDaysOptions
     options: KHDaysOptions
-    game = "Kingdom Hearts Days"
+    game = "Kingdom Hearts 358/2 Days"
     topology_present = False
     data_version = 0
     web = KHDaysWeb()

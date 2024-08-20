@@ -185,7 +185,7 @@ class KHDaysContext(CommonContext):
         self.messages = {}
         self.locations_array = []
         self.nds_status = CONNECTION_INITIAL_STATUS
-        self.game = 'Kingdom Hearts Days'
+        self.game = 'Kingdom Hearts 358/2 Days'
         self.awaiting_rom = False
         self.shard_requirement = 5
         self.check_locs_count = {}
