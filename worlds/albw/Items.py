@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from enum import Enum
 from BaseClasses import Item, ItemClassification
 from .Options import ALBWOptions, LogicMode
-from lib.albwrandomizer import PyRandomizable, Item as RItem, Goal, Vane, new_item, new_goal, new_vane
+from albwrandomizer import PyRandomizable, Item as RItem, Goal, Vane, new_item, new_goal, new_vane
 
 class ALBWItem(Item):
     game = "A Link Between Worlds"

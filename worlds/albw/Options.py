@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from Options import PerGameCommonOptions, Choice, Range, Toggle
-import lib.albwrandomizer
+import albwrandomizer
 
 class LogicMode(Choice):
     """Logic to use for item placement.
@@ -194,8 +194,8 @@ class ALBWOptions(PerGameCommonOptions):
     purple_potion_bottles: PurplePotionBottles
     keysy: Keysy
 
-def create_randomizer_settings(options: ALBWOptions) -> lib.albwrandomizer.Settings:
-    settings = lib.albwrandomizer.Settings()
+def create_randomizer_settings(options: ALBWOptions) -> albwrandomizer.Settings:
+    settings = albwrandomizer.Settings()
 
     settings.dev_mode = False
     settings.lc_requirement = options.lorule_castle_requirement.value
@@ -206,7 +206,7 @@ def create_randomizer_settings(options: ALBWOptions) -> lib.albwrandomizer.Setti
     settings.maiamai_madness = bool(options.maiamai_mayhem.value)
     settings.super_items = bool(options.super_items.value)
     settings.lamp_and_net_as_weapons = bool(options.lamp_and_net_as_weapons.value)
-    settings.ravios_shop = lib.albwrandomizer.RaviosShop.Open
+    settings.ravios_shop = albwrandomizer.RaviosShop.Open
     settings.bow_of_light_in_castle = bool(options.bow_of_light_in_castle.value)
     settings.no_progression_enemies = bool(options.no_progression_enemies.value)
     settings.progressive_bow_of_light = False
@@ -226,80 +226,80 @@ def create_randomizer_settings(options: ALBWOptions) -> lib.albwrandomizer.Setti
     settings.user_exclusions = set()
 
     if options.logic_mode.value == LogicMode.option_normal:
-        settings.logic_mode = lib.albwrandomizer.LogicMode.Normal
+        settings.logic_mode = albwrandomizer.LogicMode.Normal
     elif options.logic_mode.value == LogicMode.option_hard:
-        settings.logic_mode = lib.albwrandomizer.LogicMode.Hard
+        settings.logic_mode = albwrandomizer.LogicMode.Hard
     elif options.logic_mode.value == LogicMode.option_glitched:
-        settings.logic_mode = lib.albwrandomizer.LogicMode.Glitched
+        settings.logic_mode = albwrandomizer.LogicMode.Glitched
     elif options.logic_mode.value == LogicMode.option_adv_glitched:
-        settings.logic_mode = lib.albwrandomizer.LogicMode.AdvGlitched
+        settings.logic_mode = albwrandomizer.LogicMode.AdvGlitched
     elif options.logic_mode.value == LogicMode.option_hell:
-        settings.logic_mode = lib.albwrandomizer.LogicMode.Hell
+        settings.logic_mode = albwrandomizer.LogicMode.Hell
     
     if options.pedestal_requirement == PedestalRequirement.option_vanilla:
-        settings.ped_requirement = lib.albwrandomizer.PedestalSetting.Vanilla
+        settings.ped_requirement = albwrandomizer.PedestalSetting.Vanilla
     elif options.pedestal_requirement == PedestalRequirement.option_standard:
-        settings.ped_requirement = lib.albwrandomizer.PedestalSetting.Standard
+        settings.ped_requirement = albwrandomizer.PedestalSetting.Standard
     
     if options.nice_items == NiceItems.option_vanilla:
-        settings.nice_items = lib.albwrandomizer.NiceItems.Vanilla
+        settings.nice_items = albwrandomizer.NiceItems.Vanilla
     elif options.nice_items == NiceItems.option_shuffled:
-        settings.nice_items = lib.albwrandomizer.NiceItems.Shuffled
+        settings.nice_items = albwrandomizer.NiceItems.Shuffled
     elif options.nice_items == NiceItems.option_off:
-        settings.nice_items = lib.albwrandomizer.NiceItems.Off
+        settings.nice_items = albwrandomizer.NiceItems.Off
 
     if options.initial_crack_state == InitialCrackState.option_closed:
-        settings.cracks = lib.albwrandomizer.Cracks.Closed
+        settings.cracks = albwrandomizer.Cracks.Closed
     elif options.initial_crack_state == InitialCrackState.option_open:
-        settings.cracks = lib.albwrandomizer.Cracks.Open
+        settings.cracks = albwrandomizer.Cracks.Open
     
     if options.crack_shuffle == CrackShuffle.option_off:
-        settings.cracksanity = lib.albwrandomizer.Cracksanity.Off
+        settings.cracksanity = albwrandomizer.Cracksanity.Off
     elif options.crack_shuffle == CrackShuffle.option_cross_world_pairs:
-        settings.cracksanity = lib.albwrandomizer.Cracksanity.CrossWorldPairs
+        settings.cracksanity = albwrandomizer.Cracksanity.CrossWorldPairs
     elif options.crack_shuffle == CrackShuffle.option_any_world_pairs:
-        settings.cracksanity = lib.albwrandomizer.Cracksanity.AnyWorldPairs
+        settings.cracksanity = albwrandomizer.Cracksanity.AnyWorldPairs
     elif options.crack_shuffle == CrackShuffle.option_mirrored_cross_world_pairs:
-        settings.cracksanity = lib.albwrandomizer.Cracksanity.MirroredCrossWorldPairs
+        settings.cracksanity = albwrandomizer.Cracksanity.MirroredCrossWorldPairs
     elif options.crack_shuffle == CrackShuffle.option_mirrored_any_world_pairs:
-        settings.cracksanity = lib.albwrandomizer.Cracksanity.MirroredAnyWorldPairs
+        settings.cracksanity = albwrandomizer.Cracksanity.MirroredAnyWorldPairs
     #TODO remove once crack shuffle is fixed
-    settings.cracksanity = lib.albwrandomizer.Cracksanity.Off
+    settings.cracksanity = albwrandomizer.Cracksanity.Off
     
     if options.weather_vanes == WeatherVanes.option_standard:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.Standard
+        settings.weather_vanes = albwrandomizer.WeatherVanes.Standard
     elif options.weather_vanes == WeatherVanes.option_shuffled:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.Shuffled
+        settings.weather_vanes = albwrandomizer.WeatherVanes.Shuffled
     elif options.weather_vanes == WeatherVanes.option_convenient:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.Convenient
+        settings.weather_vanes = albwrandomizer.WeatherVanes.Convenient
     elif options.weather_vanes == WeatherVanes.option_hyrule:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.Hyrule
+        settings.weather_vanes = albwrandomizer.WeatherVanes.Hyrule
     elif options.weather_vanes == WeatherVanes.option_lorule:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.Lorule
+        settings.weather_vanes = albwrandomizer.WeatherVanes.Lorule
     elif options.weather_vanes == WeatherVanes.option_all:
-        settings.weather_vanes = lib.albwrandomizer.WeatherVanes.All
+        settings.weather_vanes = albwrandomizer.WeatherVanes.All
 
     if options.keysy == Keysy.option_off:
-        settings.keysy = lib.albwrandomizer.Keysy.Off
+        settings.keysy = albwrandomizer.Keysy.Off
     elif options.keysy == Keysy.option_small:
-        settings.keysy = lib.albwrandomizer.Keysy.SmallKeysy
+        settings.keysy = albwrandomizer.Keysy.SmallKeysy
     elif options.keysy == Keysy.option_big:
-        settings.keysy = lib.albwrandomizer.Keysy.BigKeysy
+        settings.keysy = albwrandomizer.Keysy.BigKeysy
     elif options.keysy == Keysy.option_all:
-        settings.keysy = lib.albwrandomizer.Keysy.AllKeysy
+        settings.keysy = albwrandomizer.Keysy.AllKeysy
     
     if options.trials_required == 0:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.OpenFromInsideOnly
+        settings.trials_door = albwrandomizer.TrialsDoor.OpenFromInsideOnly
     elif options.trials_required == 1:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.OneTrialRequired
+        settings.trials_door = albwrandomizer.TrialsDoor.OneTrialRequired
     elif options.trials_required == 2:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.TwoTrialsRequired
+        settings.trials_door = albwrandomizer.TrialsDoor.TwoTrialsRequired
     elif options.trials_required == 3:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.ThreeTrialsRequired
+        settings.trials_door = albwrandomizer.TrialsDoor.ThreeTrialsRequired
     elif options.trials_required == 4:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.AllTrialsRequired
+        settings.trials_door = albwrandomizer.TrialsDoor.AllTrialsRequired
 
     if options.open_trials_door:
-        settings.trials_door = lib.albwrandomizer.TrialsDoor.OpenFromBothSides
+        settings.trials_door = albwrandomizer.TrialsDoor.OpenFromBothSides
 
     return settings

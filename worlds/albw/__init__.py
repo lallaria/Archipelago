@@ -1,3 +1,5 @@
+from .LibUtils import setup_lib_path
+setup_lib_path()
 import os
 import pickle
 from typing import ClassVar, Dict, List, Optional, Sequence, Tuple
@@ -15,7 +17,7 @@ from .Locations import ALBWLocation, LocationData, LocationType, all_locations, 
 from .Options import ALBWOptions, CrackShuffle, InitialCrackState, Keysy, LogicMode, NiceItems, WeatherVanes, \
     create_randomizer_settings
 from .Patch import PatchInfo, ALBWProcedurePatch
-from lib.albwrandomizer import ArchipelagoInfo, PyRandomizable, SeedInfo, randomize_pre_fill
+from albwrandomizer import ArchipelagoInfo, PyRandomizable, SeedInfo, randomize_pre_fill
 
 albw_base_id = 6242624000
 

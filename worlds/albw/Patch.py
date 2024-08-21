@@ -9,7 +9,7 @@ from Utils import Version
 from settings import get_settings
 from .Items import item_table, APItem
 from .Options import ALBWOptions, create_randomizer_settings
-from lib.albwrandomizer import ArchipelagoInfo, logging_on, randomize_pre_fill
+from albwrandomizer import ArchipelagoInfo, logging_on, randomize_pre_fill
 
 class PatchInfo:
     version: Version
