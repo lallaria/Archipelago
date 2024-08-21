@@ -1,5 +1,3 @@
-from .LibUtils import setup_lib_path
-setup_lib_path()
 import os
 import pickle
 from typing import ClassVar, Dict, List, Optional, Sequence, Tuple
