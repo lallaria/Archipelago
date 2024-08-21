@@ -32,7 +32,7 @@ class Component:
                  func: Optional[Callable] = None, file_identifier: Optional[Callable[[str], bool]] = None):
         self.display_name = display_name
         self.script_name = script_name
-        self.frozen_name = frozen_name or f'Archipelago{script_name}' if script_name else None
+        self.frozen_name = frozen_name or f'TreZapalooza{script_name}' if script_name else None
         self.icon = icon
         self.cli = cli
         if component_type == Type.FUNC:
@@ -161,11 +161,11 @@ components: List[Component] = [
     # Launcher
     Component('Launcher', 'Launcher', component_type=Type.HIDDEN),
     # Core
-    Component('Host', 'MultiServer', 'ArchipelagoServer', cli=True,
+    Component('Host', 'MultiServer', 'TreZapaloozaServer', cli=True,
               file_identifier=SuffixIdentifier('.archipelago', '.zip')),
     Component('Generate', 'Generate', cli=True),
     Component("Install APWorld", func=install_apworld, file_identifier=SuffixIdentifier(".apworld")),
-    Component('Text Client', 'CommonClient', 'ArchipelagoTextClient', func=launch_textclient),
+    Component('Text Client', 'CommonClient', 'TreZapaloozaTextClient', func=launch_textclient),
     Component('Links Awakening DX Client', 'LinksAwakeningClient',
               file_identifier=SuffixIdentifier('.apladx')),
     Component('LttP Adjuster', 'LttPAdjuster'),

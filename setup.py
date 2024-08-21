@@ -610,9 +610,9 @@ def find_libs(*args: str) -> typing.Sequence[typing.Tuple[str, str]]:
 
 
 cx_Freeze.setup(
-    name="Archipelago",
+    name="TreZapalooza",
     version=f"{version_tuple.major}.{version_tuple.minor}.{version_tuple.build}",
-    description="Archipelago",
+    description="TreZapalooza",
     executables=exes,
     ext_modules=cythonize("_speedups.pyx"),
     options={
