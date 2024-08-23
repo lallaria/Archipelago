@@ -190,6 +190,8 @@ class JSONtoTextParser(metaclass=HandlerMeta):
     color_codes = {
         # Changed these so that the color name isn't directly linked to the action. Probably should use a fucking color library for it but whatever
         "black": "000000",
+        "red": "FF0000", #red
+        "green": "00FF00", #green
         "notfoundcolor": "EE0000", #red
         "foundcolor": "00c51b", #green
         "friendcolor": "5fafff", #ltblue
@@ -345,9 +347,9 @@ class Hint(typing.NamedTuple):
             add_json_text(parts, "'s World")
         add_json_text(parts, ". ")
         if self.found:
-            add_json_text(parts, "(found)", type="color", color="foundcolor")
+            add_json_text(parts, "(found)", type="color", color="green")
         else:
-            add_json_text(parts, "(not found)", type="color", color="notfoundcolor")
+            add_json_text(parts, "(not found)", type="color", color="red")
 
         return {"cmd": "PrintJSON", "data": parts, "type": "Hint",
                 "receiving": self.receiving_player,
