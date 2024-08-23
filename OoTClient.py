@@ -116,7 +116,7 @@ class OoTContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Ocarina of Time Client"
+            base_title = "TreZapalooza Ocarina of Time Client"
 
         self.ui = OoTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

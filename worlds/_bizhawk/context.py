@@ -63,7 +63,7 @@ class BizHawkClientContext(CommonContext):
         from kvui import GameManager
 
         class BizHawkManager(GameManager):
-            base_title = "Archipelago BizHawk Client"
+            base_title = "TreZapalooza BizHawk Client"
 
         self.ui = BizHawkManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

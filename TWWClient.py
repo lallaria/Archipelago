@@ -119,7 +119,7 @@ class TWWContext(CommonContext):
 
         class TWWManager(GameManager):
             logging_pairs = [("Client", "Archipelago")]
-            base_title = "Archipelago The Wind Waker Client"
+            base_title = "TreZapalooza The Wind Waker Client"
 
         self.ui = TWWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

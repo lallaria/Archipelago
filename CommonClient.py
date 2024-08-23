@@ -670,7 +670,7 @@ class CommonContext:
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Text Client"
+            base_title = "TreZapalooza Text Client"
 
         self.ui = TextManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

@@ -148,7 +148,7 @@ class ZillionContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Zillion Client"
+            base_title = "TreZapalooza Zillion Client"
 
             class MapPanel(Widget):
                 MAP_WIDTH: ClassVar[int] = 281

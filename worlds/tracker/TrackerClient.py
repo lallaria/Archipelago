@@ -190,7 +190,7 @@ class TrackerGameContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Tracker Client"
+            base_title = "TreZapalooza Tracker Client"
 
             def build(self):
                 container = super().build()

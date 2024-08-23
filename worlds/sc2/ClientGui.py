@@ -74,7 +74,7 @@ class SC2Manager(GameManager):
         ("Client", "Archipelago"),
         ("Starcraft2", "Starcraft2"),
     ]
-    base_title = "Archipelago Starcraft 2 Client"
+    base_title = "TreZapalooza Starcraft 2 Client"
 
     campaign_panel: Optional[CampaignLayout] = None
     last_checked_locations: Set[int] = set()

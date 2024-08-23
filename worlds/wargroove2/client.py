@@ -330,7 +330,7 @@ class Wargroove2Context(CommonContext):
                 ("Client", "Archipelago"),
                 ("WG2", "WG2 Console"),
             ]
-            base_title = "Archipelago Wargroove 2 Client"
+            base_title = "TreZapalooza Wargroove 2 Client"
             ctx: Wargroove2Context
             unit_tracker: ItemTracker
             level_tracker: LevelTracker

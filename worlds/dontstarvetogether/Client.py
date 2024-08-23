@@ -44,7 +44,7 @@ class DSTContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("DSTInterface", "Don't Starve Together"),
             ]
-            base_title = "Archipelago Don't Starve Together Client"
+            base_title = "TreZapalooza Don't Starve Together Client"
 
         self.ui = DSTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

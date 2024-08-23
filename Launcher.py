@@ -101,7 +101,7 @@ components.extend([
     Component("Open host.yaml", func=open_host_yaml),
     Component("Open Patch", func=open_patch),
     Component("Generate Template Options", func=generate_yamls),
-    Component("Discord Server", icon="discord", func=lambda: webbrowser.open("https://discord.gg/zsr")),
+    Component("ZSR Discord", icon="discord", func=lambda: webbrowser.open("https://discord.gg/zsr")),
     Component("Browse Files", func=browse_files),
 ])
 
@@ -220,34 +220,44 @@ def run_gui():
             _adjusters = {c.display_name: c for c in components if c.type == Type.ADJUSTER}
             _miscs = {c.display_name: c for c in components if c.type == Type.MISC}
 
+            client_count = 0  # Initialize a counter to keep track of processed clients
+
             for (tool, client) in itertools.zip_longest(itertools.chain(
-                _tools.items(), _miscs.items(), _adjusters.items()
-            ), _clients.items()):
+                    _tools.items(), _miscs.items(), _adjusters.items()
+                ), _clients.items()):
                 # column 1
                 if tool:
                     self._tool_layout.layout.add_widget(build_button(tool[1]))
+
                 # column 2
                 if client:
-                    self._client_layout.layout.add_widget(build_button(client[1]))
+                    if client_count < 16:
+                        self._client_layout.layout.add_widget(build_button(client[1]))
+                    else:
+                        self._client_layout_2.layout.add_widget(build_button(client[1]))
+                    client_count += 1  # Increment the client counter
 
         def build(self):
             self.container = ContainerLayout()
-            self.grid = GridLayout(cols=2)
+            self.grid = GridLayout(cols=3)
             self.container.add_widget(self.grid)
             self.grid.add_widget(Label(text="General", size_hint_y=None, height=40))
-            self.grid.add_widget(Label(text="Clients", size_hint_y=None, height=40))
+            self.grid.add_widget(Label(text="Clients 1", size_hint_y=None, height=40))
+            self.grid.add_widget(Label(text="Clients 2", size_hint_y=None, height=40))
             self._tool_layout = ScrollBox()
             self._tool_layout.layout.orientation = "vertical"
             self.grid.add_widget(self._tool_layout)
             self._client_layout = ScrollBox()
             self._client_layout.layout.orientation = "vertical"
             self.grid.add_widget(self._client_layout)
-
+            self._client_layout_2 = ScrollBox()
+            self._client_layout_2.layout.orientation = "vertical"
+            self.grid.add_widget(self._client_layout_2)
             self._refresh_components()
 
             global refresh_components
             refresh_components = self._refresh_components
-
+            Window.size = (1024, 700)
             Window.bind(on_drop_file=self._on_drop_file)
 
             return self.container

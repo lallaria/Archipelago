@@ -605,7 +605,7 @@ class KH2Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago KH2 Client"
+            base_title = "TreZapalooza KH2 Client"
 
         self.ui = KH2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

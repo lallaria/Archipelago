@@ -252,7 +252,7 @@ class SNIContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("SNES", "SNES"),
             ]
-            base_title = "Archipelago SNI Client"
+            base_title = "TreZapalooza SNI Client"
 
         self.ui = SNIManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")  # type: ignore

@@ -131,7 +131,7 @@ class AHITContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago A Hat in Time Client"
+            base_title = "TreZapalooza A Hat in Time Client"
 
         self.ui = AHITManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

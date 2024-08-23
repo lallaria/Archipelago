@@ -102,7 +102,7 @@ class DiddyKongRacingContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Diddy Kong Racing Client"
+            base_title = "TreZapalooza Diddy Kong Racing Client"
 
         self.ui = DiddyKongRacingManager(self)
         self.ui_task = create_task(self.ui.async_run(), name="UI")
