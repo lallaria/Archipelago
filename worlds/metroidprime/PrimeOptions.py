@@ -142,22 +142,40 @@ class FlaahgraPowerBombs(Toggle):
     default = False
 
 
-class RemoveXrayRequirements(Toggle):
-    """If enabled, removes xray visor requirements for everything but omega pirate and metroid prime"""
+class RemoveXrayRequirements(Choice):
+    """Determines the xray visor requirements
+       remove_none: No xray visor requirements are removed.
+       remove_most: All xray visor requirements are removed except for metroid prime, chozo ghosts (normal/minimal combat difficulty), and omega pirate.
+       remove_all_but_omega_pirate: All xray visor requirements are removed except for omega pirate.
+    """
     display_name = "Remove Xray Visor Requirements"
-    default = False
+    option_remove_none = 0
+    alias_false = 0
+    option_remove_most = 1
+    alias_true = 1
+    option_remove_all_but_omega_pirate = 2
+    default = 0
 
 
-class RemoveThermalRequirements(Toggle):
-    """If enabled, removes thermal visor requirements for everything but metroid prime (note this means wave beam panels will be in logic without the visor to see them)"""
+class RemoveThermalRequirements(Choice):
+    """Determines the thermal visor requirements
+       remove_none: No thermal visor requirements are removed.
+       remove_most: All thermal visor requirements are removed except for metroid prime (note this means wave beam panels will be in logic without the visor to see them).
+       remove_all: All thermal visor requirements are removed (note this means wave beam panels will be in logic without the visor to see them).
+    """
     display_name = "Remove Thermal Visor Requirements"
-    default = False
+    option_remove_none = 0
+    alias_false = 0
+    option_remove_most = 1
+    alias_true = 1
+    option_remove_all = 2
+    default = 0
 
 
 class StartingRoom(Choice):
     """Determines the starting room of the game. This will change your starting loadout depending on the room
        normal: Start at the Talon Overworld Landing Site. If elevator randomization is enabled, or Shuffle Scan Visor + Don't Pre Scan Elevators, this will switch to Save Station 1 in Chozo Ruins
-       safe: Start in rooms that will not require a significant combat challenge to progress from
+       safe: Start in rooms that will not require a significant combat challenge to progress from. Without disable_starting_room_bk_prevention enabled, this may assign you a new beam and an item in order to make the seed feasible
        buckle_up: Start in rooms that will pose a significant challenge to players with no energy tanks or suit upgrades. Fun for the aspiring masochist (less fun for their friends in BK).
     """
     display_name = "Starting Room Randomization"

@@ -127,7 +127,7 @@ class MetroidPrimeContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "TreZapalooza Metroid Prime Client"
+            base_title = "Archipelago Metroid Prime Client"
 
         self.ui = MetroidPrimeManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

@@ -33,7 +33,7 @@ class PhendranaDriftsAreaData(AreaData):
                 1: DoorData(RoomName.Gravity_Chamber, defaultLock=DoorLockType.Wave),
             }),
             RoomName.Chapel_of_the_Elders: RoomData(doors={
-              # Force blue to prevent soft lock
+                # Force blue to prevent soft lock
                 0: DoorData(RoomName.Chapel_Tunnel, lock=DoorLockType.Blue, defaultLock=DoorLockType.Wave, exclude_from_rando=True, rule_func=lambda state, player: can_defeat_sheegoth(state, player) and can_space_jump(state, player) and can_wave_beam(state, player), tricks=[Tricks.chapel_of_elders_escape_no_sj]),
             }, pickups=[PickupData('Phendrana Drifts: Chapel of the Elders', rule_func=lambda state, player: can_space_jump(state, player), tricks=[Tricks.chapel_of_elders_escape_no_sj]), ]),
             RoomName.Chapel_Tunnel: RoomData(doors={
@@ -290,8 +290,8 @@ class PhendranaDriftsAreaData(AreaData):
                 1: DoorData(RoomName.Frost_Cave, rule_func=can_morph_ball, defaultLock=DoorLockType.Wave),
             }),
             RoomName.West_Tower_Entrance: RoomData(doors={
-                0: DoorData(RoomName.Observatory, defaultLock=DoorLockType.Wave),
-                1: DoorData(RoomName.West_Tower, defaultLock=DoorLockType.Missile),
+                0: DoorData(RoomName.West_Tower, defaultLock=DoorLockType.Missile),
+                1: DoorData(RoomName.Observatory, defaultLock=DoorLockType.Wave),
             }),
             RoomName.West_Tower: RoomData(doors={
                 0: DoorData(RoomName.West_Tower_Entrance, defaultLock=DoorLockType.Missile),
