@@ -653,12 +653,12 @@ def randomize_misc_pokemon(world: "PokemonFRLGWorld") -> None:
     game_version = world.options.game_version.current_key
 
     should_match_bst = world.options.misc_pokemon in {
-        RandomizeLegendaryPokemon.option_match_base_stats,
-        RandomizeLegendaryPokemon.option_match_base_stats_and_type
+        RandomizeMiscPokemon.option_match_base_stats,
+        RandomizeMiscPokemon.option_match_base_stats_and_type
     }
     should_match_type = world.options.misc_pokemon in {
-        RandomizeLegendaryPokemon.option_match_type,
-        RandomizeLegendaryPokemon.option_match_base_stats_and_type
+        RandomizeMiscPokemon.option_match_type,
+        RandomizeMiscPokemon.option_match_base_stats_and_type
     }
 
     for name, misc_pokemon in data.misc_pokemon.items():
@@ -757,19 +757,19 @@ def randomize_trainer_parties(world: "PokemonFRLGWorld") -> None:
                                                               False)
 
 
-def randomize_tm_hm_compatability(world: "PokemonFRLGWorld") -> None:
+def randomize_tm_hm_compatibility(world: "PokemonFRLGWorld") -> None:
     for species in world.modified_species.values():
-        compatability_array = int_to_bool_array(species.tm_hm_compatibility)
+        compatibility_array = int_to_bool_array(species.tm_hm_compatibility)
 
-        if world.options.tm_tutor_compatability != TmTutorCompatibility.special_range_names["vanilla"]:
+        if world.options.tm_tutor_compatibility != TmTutorCompatibility.special_range_names["vanilla"]:
             for i in range(0, 50):
-                compatability_array[i] = world.random.random() < world.options.tm_tutor_compatability / 100
+                compatibility_array[i] = world.random.random() < world.options.tm_tutor_compatibility / 100
 
-        if world.options.hm_compatability != HmCompatibility.special_range_names["vanilla"]:
+        if world.options.hm_compatibility != HmCompatibility.special_range_names["vanilla"]:
             for i in range(50, 58):
-                compatability_array[i] = world.random.random() < world.options.hm_compatability / 100
+                compatibility_array[i] = world.random.random() < world.options.hm_compatibility / 100
 
-        species.tm_hm_compatibility = bool_array_to_int(compatability_array)
+        species.tm_hm_compatibility = bool_array_to_int(compatibility_array)
 
 
 def randomize_tm_moves(world: "PokemonFRLGWorld") -> None:

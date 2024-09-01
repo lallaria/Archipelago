@@ -3,7 +3,7 @@ Download the following two files from the [Releases page in Github](https://gith
 - lethal_company.yaml
 - lethal_company.apworld
 
-You also need to install the [Trezapalooza Multiworld Randomizer version 0.4.4](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
+You also need to install the [Archipelago Multiworld Randomizer version 0.4.4](https://github.com/ArchipelagoMW/Archipelago/releases/latest) client.
 
 Install the APLC mod from the Thunderstore (you may also install the mod via the R2ModManager).
 
@@ -49,7 +49,7 @@ YAMLs of any other players participating in the multiworld (Note: Only one YAML 
 of Lethal Company. An example of such would be 2 players playing in the same LC lobby
 while another player plays a different Archipelago game (or LC lobby)). You would need only
 1 YAML for Lethal Company and 1 YAML for the other game/s.).In the lib/worlds folder, paste
-lethal_company.apworld. Then, open the TreZapalooza Launcher and click Generate which will
+lethal_company.apworld. Then, open the archipelago launcher and click Generate which will
 generate a .zip in the Output folder found in your archipelago installation, in the same path
 where the players folder is. Once the generation finishes, navigate to [the archipelago](https://archipelago.gg)
 website, click on get started, then click Host Game, then "Upload File" and select the zip
