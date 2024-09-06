@@ -10,9 +10,13 @@ def pascal_to_space(s):
 
 
 class Goal:
-    Emblems = 0
-    EmeraldHunt = 1
-    EmblemsAndEmeraldHunt = 2
+    Levels = 0
+    Emblems = 1
+    EmeraldHunt = 2
+    LevelsAndEmeraldHunt = 3
+    EmblemsAndEmeraldHunt = 4
+    Missions = 5
+    MissionsAndEmeraldHunt = 6
 
 
 class Character(Enum):
@@ -24,8 +28,16 @@ class Character(Enum):
     Gamma = auto()
 
 
+def remove_character_suffix(string: str) -> str:
+    for character in Character:
+        if string.endswith(f" ({character.name})"):
+            return re.sub(rf" \({character.name}\)$", "", string)
+    return string
+
+
 EVERYONE: List[Character] = [Character.Sonic, Character.Tails, Character.Knuckles,
                              Character.Amy, Character.Big, Character.Gamma]
+SONIC_TAILS: List[Character] = [Character.Sonic, Character.Tails]
 FLYERS: List[Character] = [Character.Tails, Character.Knuckles]
 
 
@@ -47,20 +59,6 @@ class Upgrade(Enum):
     Lure2 = auto()
     Lure3 = auto()
     Lure4 = auto()
-
-
-class Level(Enum):
-    EmeraldCoast = 0
-    WindyValley = auto()
-    Casinopolis = auto()
-    IceCap = auto()
-    TwinklePark = auto()
-    SpeedHighway = auto()
-    RedMountain = auto()
-    SkyDeck = auto()
-    LostWorld = auto()
-    FinalEgg = auto()
-    HotShelter = auto()
 
 
 class SubLevelMission(Enum):
@@ -88,23 +86,39 @@ class AdventureField(Enum):
     Past = auto()
 
 
-class StartingArea(Enum):
+class Area(Enum):
     StationSquareMain = 0
     Station = auto()
     Hotel = auto()
     Casino = auto()
-    MysticRuins = auto()
+    TwinkleParkLobby = auto()
+    MysticRuinsMain = auto()
+    AngelIsland = auto()
     Jungle = auto()
-    EggCarrier = auto()
+    EggCarrierMain = auto()
+    EmeraldCoast = auto()
+    WindyValley = auto()
+    Casinopolis = auto()
+    IceCap = auto()
+    TwinklePark = auto()
+    SpeedHighway = auto()
+    RedMountain = auto()
+    SkyDeck = auto()
+    LostWorld = auto()
+    FinalEgg = auto()
+    HotShelter = auto()
 
 
-class Area(Enum):
-    StationSquareMain = "Station Square"
-    Station = "Station"
-    Hotel = "Hotel Area"
-    Casino = "Casino Area"
-    TwinklePark = "Twinkle Park Area"
-    MysticRuinsMain = "Mystic Ruins"
-    AngelIsland = "Angel Island"
-    Jungle = "Jungle"
-    EggCarrierMain = "Egg Carrier"
+level_areas = [
+    Area.EmeraldCoast,
+    Area.WindyValley,
+    Area.Casinopolis,
+    Area.IceCap,
+    Area.TwinklePark,
+    Area.SpeedHighway,
+    Area.RedMountain,
+    Area.SkyDeck,
+    Area.LostWorld,
+    Area.FinalEgg,
+    Area.HotShelter
+]

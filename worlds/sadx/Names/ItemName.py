@@ -1,6 +1,3 @@
-from typing import List
-
-
 class Progression:
     Emblem = "Emblem"
     ChaosPeace = "Chaos' Peace"
@@ -92,6 +89,3 @@ class Groups:
     KeyItems = "Key Items"
     Fillers = "Fillers"
     Traps = "Traps"
-
-
-EVERY_LURE: List[str] = [Big.Lure1, Big.Lure2, Big.Lure3, Big.Lure4]
