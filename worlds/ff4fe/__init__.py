@@ -42,7 +42,7 @@ class FF4FESettings(settings.Group):
 
 
 class FF4FEWorld(World):
-    """Insert description of the world/game here."""
+    """An open-world romhack and scavenger hunt randomizer for Final Fantasy IV for the SNES."""
     game = "Final Fantasy IV Free Enterprise"
     options_dataclass = FF4FEOptions
     options: FF4FEOptions
