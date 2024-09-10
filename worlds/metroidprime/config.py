@@ -1,6 +1,5 @@
-from enum import Enum
 import os
-from typing import TYPE_CHECKING, Dict, Any, List, Optional
+from typing import TYPE_CHECKING, Dict, Any, List
 
 from .Items import ProgressiveUpgrade, SuitUpgrade
 
@@ -8,11 +7,6 @@ from .Items import ProgressiveUpgrade, SuitUpgrade
 from .PrimeOptions import HudColor, MetroidPrimeOptions
 from .data.RoomData import MetroidPrimeArea
 from .data.Transports import get_transport_data
-from .data.MagmoorCaverns import MagmoorCavernsAreaData
-from .data.PhazonMines import PhazonMinesAreaData
-from .data.PhendranaDrifts import PhendranaDriftsAreaData
-from .data.TallonOverworld import TallonOverworldAreaData
-from .data.ChozoRuins import ChozoRuinsAreaData
 
 MAX_32_BIT_INT = 0x7fffffff
 
@@ -111,21 +105,34 @@ def get_strg(world: 'MetroidPrimeWorld') -> Dict[str, List[str]]:
     elif world.options.final_bosses == 2:
         objective_text += "\nDefeat Metroid Prime"
 
-    strg[OBJECTIVE_STRG_KEY][2] = objective_text
-    if world.options.show_suit_index_on_pause_menu.value:
-        strg = {**strg, **PAUSE_STRG}
-        pause_menu_overrides = {
-            "Power Suit": world.options.power_suit_color.value,
-            "Varia Suit": world.options.varia_suit_color.value,
-            "Gravity Suit": world.options.gravity_suit_color.value,
-            "Phazon Suit": world.options.phazon_suit_color.value
-        }
-        # Update the name to include the color index if it is set
-        for item in strg[PAUSE_MENU_STRG_KEY]:
-            if item in pause_menu_overrides and pause_menu_overrides[item] != 0:
-                index = strg[PAUSE_MENU_STRG_KEY].index(item)
-                strg[PAUSE_MENU_STRG_KEY][index] = f"{item} (Color: {pause_menu_overrides[item]})"
+    strg[DEFAULT_OBJECTIVE_STRG_KEY][2] = objective_text
+
+    # Show suit colors in pause menu
+    strg = {**strg, **PAUSE_STRG}
+    pause_menu_overrides = {
+        "Power Suit": world.options.power_suit_color.value,
+        "Varia Suit": world.options.varia_suit_color.value,
+        "Gravity Suit": world.options.gravity_suit_color.value,
+        "Phazon Suit": world.options.phazon_suit_color.value
+    }
+    # Update the name to include the color index if it is set
+    for item in strg[PAUSE_MENU_STRG_KEY]:
+        if item in pause_menu_overrides and pause_menu_overrides[item] != 0:
+            index = strg[PAUSE_MENU_STRG_KEY].index(item)
+            strg[PAUSE_MENU_STRG_KEY][index] = f"{item} (Color: {pause_menu_overrides[item]})"
     return strg
+
+
+def make_version_specific_changes(config_json: Dict[str, Any], version: str) -> Dict[str, Any]:
+    if DEFAULT_OBJECTIVE_STRG_KEY in config_json["strg"] and version == "pal":
+        value = config_json["strg"][DEFAULT_OBJECTIVE_STRG_KEY]
+        del config_json["strg"][DEFAULT_OBJECTIVE_STRG_KEY]
+        config_json["strg"][get_objective_strg_key(version)] = value
+
+    # Pause Menu does not have correct id for non US versions right now
+    if PAUSE_MENU_STRG_KEY in config_json["strg"] and version not in ["0-00", "0-01", "0-02"]:
+        del config_json["strg"][PAUSE_MENU_STRG_KEY]
+    return config_json
 
 
 def make_config(world: 'MetroidPrimeWorld'):
@@ -210,10 +217,10 @@ def make_config(world: 'MetroidPrimeWorld'):
             "doorOpenMode": "Original",
             "etankCapacity": 100,
             "itemMaxCapacity": {
-                "Power Beam": 1,
-                "Ice Beam": 1,
-                "Wave Beam": 1,
-                "Plasma Beam": 1,
+                "Power Beam": 2 if bool(world.options.progressive_beam_upgrades.value) else 1,
+                "Ice Beam": 2 if bool(world.options.progressive_beam_upgrades.value) else 1,
+                "Wave Beam": 2 if bool(world.options.progressive_beam_upgrades.value) else 1,
+                "Plasma Beam": 2 if bool(world.options.progressive_beam_upgrades.value) else 1,
                 "Missile": 999,
                 "Scan Visor": 1,
                 "Morph Ball Bomb": 1,
@@ -299,9 +306,16 @@ def make_level_data(world: 'MetroidPrimeWorld') -> Dict[str, Any]:
     return level_data
 
 
-OBJECTIVE_STRG_KEY = "3012146902"
+def get_objective_strg_key(version: str) -> str:
+    if version == "pal":
+        return "3172743300"
+    else:
+        return "3012146902"
+
+
+DEFAULT_OBJECTIVE_STRG_KEY = "3012146902"
 OBJECTIVE_STRG = {
-    OBJECTIVE_STRG_KEY: [
+    DEFAULT_OBJECTIVE_STRG_KEY: [
         "Objective data decoded\n",
         "Mission Objectives",
         ""

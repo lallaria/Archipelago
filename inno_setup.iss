@@ -221,10 +221,10 @@ Root: HKCR; Subkey: "{#MyAppName}worlddata";                    ValueData: "TreZ
 Root: HKCR; Subkey: "{#MyAppName}worlddata\DefaultIcon";        ValueData: "{app}\TreZapaloozaLauncher.exe,0";                 ValueType: string;  ValueName: "";
 Root: HKCR; Subkey: "{#MyAppName}worlddata\shell\open\command"; ValueData: """{app}\TreZapaloozaLauncher.exe"" ""%1""";        ValueType: string;  ValueName: "";
 
-Root: HKCR; Subkey: "TreZapalooza"; ValueType: "string"; ValueData: "Archipegalo Protocol"; Flags: uninsdeletekey;
-Root: HKCR; Subkey: "TreZapalooza"; ValueType: "string"; ValueName: "URL Protocol"; ValueData: "";
-Root: HKCR; Subkey: "TreZapalooza\DefaultIcon"; ValueType: "string"; ValueData: "{app}\TreZapaloozaTextClient.exe,0";
-Root: HKCR; Subkey: "TreZapalooza\shell\open\command"; ValueType: "string"; ValueData: """{app}\TreZapaloozaTextClient.exe"" ""%1""";
+Root: HKCR; Subkey: "trezapalooza"; ValueType: "string"; ValueData: "TreZapalooza Protocol"; Flags: uninsdeletekey;
+Root: HKCR; Subkey: "trezapalooza"; ValueType: "string"; ValueName: "URL Protocol"; ValueData: "";
+Root: HKCR; Subkey: "trezapalooza\DefaultIcon"; ValueType: "string"; ValueData: "{app}\TreZapaloozaLauncher.exe,0";
+Root: HKCR; Subkey: "trezapalooza\shell\open\command"; ValueType: "string"; ValueData: """{app}\TreZapaloozaLauncher.exe"" ""%1""";
 
 [Code]
 // See: https://stackoverflow.com/a/51614652/2287576

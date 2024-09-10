@@ -46,10 +46,8 @@ def setup_lib_path():
 
         return temp_lib_path
     else:
-        #print("Using local lib folder")
         if lib_path not in sys.path:
             sys.path.append(lib_path)
-        #print(f"lib folder added to path: {lib_path}")
         return lib_path
 
 

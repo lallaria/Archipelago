@@ -662,17 +662,19 @@ class CommonContext:
         logger.exception(msg, exc_info=exc_info, extra={'compact_gui': True})
         self._messagebox_connection_loss = self.gui_error(msg, exc_info[1])
 
-    def run_gui(self):
-        """Import kivy UI system and start running it as self.ui_task."""
+    def make_gui(self) -> type:
+        """To return the Kivy App class needed for run_gui so it can be overridden before being built"""
         from kvui import GameManager
 
         class TextManager(GameManager):
-            logging_pairs = [
-                ("Client", "Archipelago")
-            ]
             base_title = "TreZapalooza Text Client"
 
-        self.ui = TextManager(self)
+        return TextManager
+
+    def run_gui(self):
+        """Import kivy UI system from make_gui() and start running it as self.ui_task."""
+        ui_class = self.make_gui()
+        self.ui = ui_class(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
 
     def run_cli(self):
@@ -707,7 +709,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
 
     # Wait for the user to provide a multiworld server address
     if not address:
-        logger.info('Please connect to an Archipelago server.')
+        logger.info('Please connect to a TreZapalooza server.')
         return
 
     ctx.cancel_autoreconnect()
@@ -727,7 +729,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
     def reconnect_hint() -> str:
         return ", type /connect to reconnect" if ctx.server_address else ""
 
-    logger.info(f'Connecting to Archipelago server at {address}')
+    logger.info(f'Connecting to TreZapalooza server at {address}')
     try:
         port = server_url.port or 38281  # raises ValueError if invalid
         socket = await websockets.connect(address, port=port, ping_timeout=None, ping_interval=None,
@@ -754,7 +756,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
                                        f"{reconnect_hint()}")
     except ConnectionRefusedError:
         ctx.handle_connection_loss("Connection refused by the server. "
-                                   "May not be running Archipelago on that address or port.")
+                                   "May not be running TreZapalooza on that address or port.")
     except websockets.InvalidURI:
         ctx.handle_connection_loss("Failed to connect to the multiworld server (invalid URI)")
     except OSError:
@@ -994,7 +996,7 @@ def get_base_parser(description: typing.Optional[str] = None):
     return parser
 
 
-def run_as_textclient():
+def run_as_textclient(*args):
     class TextContext(CommonContext):
         # Text Mode to use !hint and such with games that have no text entry
         tags = CommonContext.tags | {"TextOnly"}
@@ -1030,18 +1032,21 @@ def run_as_textclient():
 
     import colorama
 
-    parser = get_base_parser(description="Gameless Archipelago Client, for text interfacing.")
+    parser = get_base_parser(description="Gameless TreZapalooza Client, for text interfacing.")
     parser.add_argument('--name', default=None, help="Slot Name to connect as.")
-    parser.add_argument("url", nargs="?", help="Archipelago connection url")
-    args = parser.parse_args()
+    parser.add_argument("url", nargs="?", help="TreZapalooza connection url")
+    args = parser.parse_args(args)
 
     if args.url:
         url = urllib.parse.urlparse(args.url)
-        args.connect = url.netloc
-        if url.username:
-            args.name = urllib.parse.unquote(url.username)
-        if url.password:
-            args.password = urllib.parse.unquote(url.password)
+        if url.scheme == "archipelago":
+            args.connect = url.netloc
+            if url.username:
+                args.name = urllib.parse.unquote(url.username)
+            if url.password:
+                args.password = urllib.parse.unquote(url.password)
+        else:
+            parser.error(f"bad url, found {args.url}, expected url in form of archipelago://trezapalooza.com:38281")
 
     colorama.init()
 
@@ -1051,4 +1056,4 @@ def run_as_textclient():
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)  # force log-level to work around log level resetting to WARNING
-    run_as_textclient()
+    run_as_textclient(*sys.argv[1:])  # default value for parse_args

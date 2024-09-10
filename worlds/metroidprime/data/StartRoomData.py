@@ -91,6 +91,7 @@ all_start_rooms: Dict[str, StartRoomData] = {
     ]
     )]),
     RoomName.Warrior_Shrine.value: StartRoomData(
+        is_eligible=lambda world: world.options.disable_starting_room_bk_prevention.value != True,  # Varia suit is definitely required here
         area=MetroidPrimeArea.Magmoor_Caverns,
         loadouts=[
             StartRoomLoadout([SuitUpgrade.Varia_Suit], [
@@ -197,12 +198,16 @@ def get_starting_room_by_name(world: 'MetroidPrimeWorld', room_name: str) -> Sta
     return room
 
 
-def _is_elevator_rando_with_vanilla_starting_room(world: 'MetroidPrimeWorld') -> bool:
-    return world.options.elevator_randomization.value and world.options.starting_room.value == StartRoomDifficulty.Normal.value
+def _has_elevator_rando(world: 'MetroidPrimeWorld') -> bool:
+    return world.options.elevator_randomization.value
 
 
-def _is_no_pre_scan_elevators_with_shuffle_scan_and_vanilla_starting_room(world: 'MetroidPrimeWorld') -> bool:
-    return world.options.pre_scan_elevators.value == False and world.options.shuffle_scan_visor.value and world.options.starting_room.value == StartRoomDifficulty.Normal.value
+def _has_no_pre_scan_elevators_with_shuffle_scan(world: 'MetroidPrimeWorld') -> bool:
+    return world.options.pre_scan_elevators.value == False and world.options.shuffle_scan_visor.value
+
+
+def _has_options_that_allow_more_landing_site_checks(world: 'MetroidPrimeWorld') -> bool:
+    return world.options.blast_shield_randomization.value != 'None' or world.options.trick_difficulty.value != -1
 
 
 def init_starting_room_data(world: 'MetroidPrimeWorld'):
@@ -216,9 +221,16 @@ def init_starting_room_data(world: 'MetroidPrimeWorld'):
             world.starting_room_data = StartRoomData(name=world.options.starting_room_name.value)
             world.starting_room_data.loadouts = [StartRoomLoadout(loadout=[SuitUpgrade.Power_Beam])]
     else:
-        if _is_elevator_rando_with_vanilla_starting_room(world) or _is_no_pre_scan_elevators_with_shuffle_scan_and_vanilla_starting_room(world):
-            # Can't start at landing site since there are no pickups without tricks
-            world.starting_room_data = get_starting_room_by_name(world, RoomName.Save_Station_1.value)
+        if world.options.starting_room.value == StartRoomDifficulty.Normal.value:
+            if (_has_elevator_rando(world) or _has_no_pre_scan_elevators_with_shuffle_scan(world)) and not _has_options_that_allow_more_landing_site_checks(world):
+                # Can't start at landing site since there are no pickups without tricks
+                world.starting_room_data = get_starting_room_by_name(world, RoomName.Save_Station_1.value)
+
+            else:
+                world.starting_room_data = get_starting_room_by_name(world, RoomName.Landing_Site.value)
+            # Give the randomizer more flexibility if they have options that allow more starting_room checks
+            if _has_options_that_allow_more_landing_site_checks(world):
+                world.options.disable_starting_room_bk_prevention.value = True
         else:
             world.starting_room_data = get_random_start_room_by_difficulty(world, difficulty)
         world.options.starting_room_name.value = world.starting_room_data.name
@@ -249,7 +261,7 @@ def init_starting_beam(world: 'MetroidPrimeWorld'):
     loadout_beam = next((item for item in world.starting_room_data.selected_loadout.loadout if item in BEAM_ITEMS), None)
 
     def replace_starting_beam(new_beam: SuitUpgrade):
-        if loadout_beam is not None:
+        if loadout_beam != None:
             world.starting_room_data.selected_loadout.loadout.remove(loadout_beam)
         world.starting_room_data.selected_loadout.loadout.append(new_beam)
         world.options.starting_beam.value = new_beam.value
@@ -257,11 +269,11 @@ def init_starting_beam(world: 'MetroidPrimeWorld'):
     # Use the starting beam if it was set in the options (or for UT)
     if world.options.starting_beam.value is not None and world.options.starting_beam.value != "none":
         new_beam = SuitUpgrade.get_by_value(world.options.starting_beam)
-        if new_beam is not None:
+        if new_beam != None:
             replace_starting_beam(new_beam)
 
     # Remap beam to a new color based on door randomization
-    elif world.options.door_color_randomization != "none" and loadout_beam is not None and loadout_beam is not SuitUpgrade.Power_Beam and not world.starting_room_data.force_starting_beam:
+    elif world.options.door_color_randomization != "none" and loadout_beam != None and loadout_beam != SuitUpgrade.Power_Beam and not world.starting_room_data.force_starting_beam:
         # replace the beam with whatever the new one should be mapped to
         original_door_color = BEAM_TO_LOCK_MAPPING[loadout_beam].value
         # Select new beam based off of what the original color is now mapped to
