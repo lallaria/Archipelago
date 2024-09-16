@@ -1,17 +1,28 @@
 from dataclasses import dataclass
 
 from schema import Schema, And
+from typing import Set
 
 from Options import Choice, DefaultOnToggle, OptionDict, PerGameCommonOptions, Range, StartInventoryPool, Toggle
 
 
 class Goal(Choice):
-    """The victory condition for your Archipelago run.
-    Song of Five: Reach the Eye
-    Song of Six: Reach the Eye after meeting Solanum"""
+    """The victory condition for your Archipelago run. Goals involving the Prisoner require enable_eote_dlc to be true.
+
+    Song of Five:         Reach the Eye
+    Song of the Nomai:    Reach the Eye after meeting Solanum
+    Song of the Stranger: Reach the Eye after meeting the Prisoner
+    Song of Six:          Reach the Eye after meeting either Solanum or the Prisoner
+    Song of Seven:        Reach the Eye after meeting both Solanum and the Prisoner
+    Echoes of the Eye:    Meet the Prisoner and complete the DLC
+    """
     display_name = "Goal"
     option_song_of_five = 0
-    option_song_of_six = 1
+    option_song_of_the_nomai = 1
+    option_song_of_the_stranger = 2
+    option_song_of_six = 3
+    option_song_of_seven = 4
+    option_echoes_of_the_eye = 5
 
 
 class RandomizeCoordinates(DefaultOnToggle):
@@ -60,14 +71,18 @@ class DeathLink(Choice):
 
 # DLC + logsanity is another 71 checks. "rumor sanity" would be another 103 (+22 with DLC).
 class Logsanity(Toggle):
-    """Adds 176 locations for all the (non-DLC, non-rumor, non-missable) ship log facts in the game."""
+    """
+    Adds 176 locations for all the (non-rumor, non-missable) ship log facts in the game.
+    Also affects how many locations are added by enable_eote_dlc.
+    """
     display_name = "Logsanity"
 
 
 class ShuffleSpacesuit(Toggle):
     """
     Puts the spacesuit into the Archipelago item pool, forcing you to play suitless until it's found.
-    This option is not compatible with non-vanilla spawns.
+
+    This option is incompatible with non-vanilla spawns (i.e. generation will fail), since those imply playing "shipless" at first, and almost nothing can be done both shipless and suitless.
     """
     display_name = "Shuffle Spacesuit"
 
@@ -87,19 +102,22 @@ class RandomizeOrbits(DefaultOnToggle):
     """Randomizes:
     - The order of the five planets (the Hourglass Twins as a whole, Timber Hearth, Brittle Hollow, Giant's Deep, Dark Bramble), i.e. which ones are closer or farther from the sun
     - The orbit angles of the five planets, as well as four satellites (Sun Station, Attlerock, Hollow's Lantern, and the Orbital Probe Cannon)
-    - The axes of rotation for Ember Twin, Ash Twin, Timber Hearth and Brittle Hollow. This often causes the Hourglass Twins' sand pillar to pass through different areas."""
+    - The axes of rotation for Ember Twin, Ash Twin, Timber Hearth and Brittle Hollow. This often causes the Hourglass Twins' sand pillar to pass through different areas, or structures inside the ATP to move differently."""
     display_name = "Randomize Orbits"
 
 
 class Spawn(Choice):
     """
-    Where you start the game.
+    Where you wake up at the start of each loop.
+
     'vanilla' is the same as the base game: you wake up in TH Village, talk to Hornfels to get the Launch Codes, then walk by the Nomai statue to start the time loop.
     All other options (including timber_hearth) will spawn you in your spacesuit, with the time loop already started, and the Launch Codes item placed randomly like any other AP item.
+    stranger of course requires enable_eotc_dlc to be true.
+
     The idea is that non-vanilla spawns will require you to play "shipless" for a while, possibly using Nomai Warp Codes to visit other planets. The ship will still spawn nearby, so you can use the ship log/tracker right away.
     When playing with non-vanilla spawns, we recommend:
-    - Consider enabling randomize_warp_pads for greater variety if you get warp codes early
-    - Consider enabling early_key_item in non-solo games, or else your first session may end after only 4-10 checks
+    - Consider enabling randomize_warp_platforms for greater variety if you get warp codes early
+    - Consider using early_key_item, especially in non-solo games
     - Install a fast-forward mod such as Alter Time or Cheat And Debug Mod, since you may need to do a lot of waiting for e.g. Ash Twin sand or Giant's Deep islands
     """
     display_name = "Spawn"
@@ -108,6 +126,7 @@ class Spawn(Choice):
     option_timber_hearth = 2
     option_brittle_hollow = 3
     option_giants_deep = 4
+    option_stranger = 5
     default = 0
 
 
@@ -137,12 +156,24 @@ class RandomizeWarpPlatforms(Toggle):
     display_name = "Randomize Warp Platforms"
 
 
+class EnableEchoesOfTheEyeDLC(Toggle):
+    """
+    Incorporates Echoes of the Eye content into the randomizer with an additional 10 items and 34 locations.
+    If logsanity is enabled, that will add another 72 locations, for a total of 106 DLC locations.
+
+    When this is enabled, the randomizer mod will give you the "The Stranger" ship log automatically,
+    so you can fly there without repeating the satellite puzzle (once you have Launch Codes).
+    """
+    display_name = "Enable Echoes of the Eye DLC"
+
+
 @dataclass
 class OuterWildsGameOptions(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
     goal: Goal
     spawn: Spawn
     early_key_item: EarlyKeyItem
+    enable_eote_dlc: EnableEchoesOfTheEyeDLC
     randomize_coordinates: RandomizeCoordinates
     randomize_orbits: RandomizeOrbits
     randomize_warp_platforms: RandomizeWarpPlatforms
@@ -152,3 +183,12 @@ class OuterWildsGameOptions(PerGameCommonOptions):
     death_link: DeathLink
     logsanity: Logsanity
     shuffle_spacesuit: ShuffleSpacesuit
+
+
+def get_creation_settings(options: OuterWildsGameOptions) -> Set[str]:
+    relevant_settings = set()
+    if options.logsanity.value == 1:
+        relevant_settings.add("logsanity")
+    if options.enable_eote_dlc.value == 1:
+        relevant_settings.add("enable_eote_dlc")
+    return relevant_settings
