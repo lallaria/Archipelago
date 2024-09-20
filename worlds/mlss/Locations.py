@@ -4,9 +4,6 @@ from BaseClasses import Location
 
 
 class LocationData:
-    name: str = ""
-    id: int = 0x00
-
     def __init__(self, name, id_, itemType):
         self.name = name
         self.itemType = itemType
@@ -766,6 +763,10 @@ oasis: typing.List[LocationData] = [
     LocationData("Oho Oasis Thunderhand", 0x1E9409, 2),
 ]
 
+cacklettas_soul: typing.List[LocationData] = [
+    LocationData("Cackletta's Soul", None, 0),
+]
+
 nonBlock = [
     (0x434B, 0x1, 0x243844),  # Farm Mole 1
     (0x434B, 0x1, 0x24387D),  # Farm Mole 2
@@ -1171,15 +1172,15 @@ all_locations: typing.List[LocationData] = (
     + fungitownBeanstar
     + fungitownBirdo
     + bowsers
+    + bowsersMini
     + jokesEntrance
     + jokesMain
     + postJokes
     + theater
     + oasis
     + gwarharMain
-    + bowsersMini
     + baseUltraRocks
     + coins
 )
 
-location_table: typing.Dict[str, int] = {locData.name: locData.id for locData in all_locations}
+location_table: typing.Dict[str, int] = {location.name: location.id for location in all_locations}

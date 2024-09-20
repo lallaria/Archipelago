@@ -4,7 +4,7 @@ import typing
 import settings
 from BaseClasses import Tutorial, ItemClassification
 from worlds.AutoWorld import WebWorld, World
-from typing import List, Dict, Any
+from typing import Set, Dict, Any
 from .Locations import all_locations, location_table, bowsers, bowsersMini, hidden, coins
 from .Options import MLSSOptions
 from .Items import MLSSItem, itemList, item_frequencies, item_table
@@ -57,27 +57,27 @@ class MLSSWorld(World):
     location_name_to_id = {loc_data.name: loc_data.id for loc_data in all_locations}
     required_client_version = (0, 5, 0)
 
-    disabled_locations: List[str]
+    disabled_locations: Set[str]
 
     def generate_early(self) -> None:
-        self.disabled_locations = []
-        if self.options.chuckle_beans == 0:
-            self.disabled_locations += [location.name for location in all_locations if "Digspot" in location.name]
-        if self.options.castle_skip:
-            self.disabled_locations += [location.name for location in all_locations if "Bowser" in location.name]
-        if self.options.chuckle_beans == 1:
-            self.disabled_locations = [location.name for location in all_locations if location.id in hidden]
+        self.disabled_locations = set()
         if self.options.skip_minecart:
-            self.disabled_locations += [LocationName.HoohooMountainBaseMinecartCaveDigspot]
+            self.disabled_locations.update([LocationName.HoohooMountainBaseMinecartCaveDigspot])
         if self.options.disable_surf:
-            self.disabled_locations += [LocationName.SurfMinigame]
+            self.disabled_locations.update([LocationName.SurfMinigame])
         if self.options.disable_harhalls_pants:
-            self.disabled_locations += [LocationName.HarhallsPants]
+            self.disabled_locations.update([LocationName.HarhallsPants])
+        if self.options.chuckle_beans == 0:
+            self.disabled_locations.update([location.name for location in all_locations if "Digspot" in location.name])
+        if self.options.chuckle_beans == 1:
+            self.disabled_locations.update([location.name for location in all_locations if location.id in hidden])
+        if self.options.castle_skip:
+            self.disabled_locations.update([location.name for location in bowsers + bowsersMini])
         if not self.options.coins:
-            self.disabled_locations += [location.name for location in all_locations if location in coins]
+            self.disabled_locations.update([location.name for location in coins])
 
     def create_regions(self) -> None:
-        create_regions(self, self.disabled_locations)
+        create_regions(self)
         connect_regions(self)
 
         item = self.create_item("Mushroom")
@@ -90,6 +90,8 @@ class MLSSWorld(World):
         self.get_location(LocationName.PantsShopStartingFlag1).place_locked_item(item)
         item = self.create_item("Chuckle Bean")
         self.get_location(LocationName.PantsShopStartingFlag2).place_locked_item(item)
+        item = MLSSItem("Victory", ItemClassification.progression, None, self.player)
+        self.get_location("Cackletta's Soul").place_locked_item(item)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
@@ -143,14 +145,7 @@ class MLSSWorld(World):
 
     def set_rules(self) -> None:
         set_rules(self, self.disabled_locations)
-        if self.options.castle_skip:
-            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach(
-                "PostJokes", "Region", self.player
-            )
-        else:
-            self.multiworld.completion_condition[self.player] = lambda state: state.can_reach(
-                "Bowser's Castle Mini", "Region", self.player
-            )
+        self.multiworld.completion_condition[self.player] = lambda state: state.has("Victory", self.player)
 
     def create_item(self, name: str) -> MLSSItem:
         item = item_table[name]
