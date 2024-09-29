@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import random
 from schema import Schema, And
 from typing import Set
 
@@ -61,7 +62,8 @@ class TrapTypeWeights(OptionDict):
 
 class DeathLink(Choice):
     """When you die, everyone dies. Of course the reverse is true too.
-    The "default" option will not include deaths to meditation, the supernova or the time loop ending.
+    The "default" option will not include deaths to meditation, the supernova, the time loop ending,
+    or 'deaths' that merely enter or exit the dreamworld.
     Be aware that the game mod provides a 'Death Link Override' setting, in case you change your mind later."""
     display_name = "Death Link"
     option_off = 0
@@ -127,14 +129,17 @@ class Spawn(Choice):
     option_brittle_hollow = 3
     option_giants_deep = 4
     option_stranger = 5
+    option_random_non_vanilla = 6
     default = 0
 
 
 class EarlyKeyItem(Choice):
     """
-    Ensure that either Translator, Nomai Warp Codes, or Launch Codes will be somewhere in sphere 1 and
-    in your own world, guaranteeing you can find it without waiting on other players.
-    `any` randomly selects one of these items to place early.
+    Ensure that one of Translator, Nomai Warp Codes, Launch Codes, or Stranger Light Modulator will be somewhere
+    in sphere 1 and in your own world, guaranteeing you can find it without waiting on other players.
+
+    `any` will randomly select one of these items that's relevant to your spawn (especially useful with `spawn: random`).
+    For base game spawns it will choose Translator, NWC or LC, and for stranger spawns it will choose LC or SLM.
 
     Recommended for games with non-vanilla spawns, especially async games.
     In addition, without this AP seems to almost always put Launch Codes in sphere 1, so `any` also helps increase variety.
@@ -145,6 +150,7 @@ class EarlyKeyItem(Choice):
     option_translator = 2
     option_nomai_warp_codes = 3
     option_launch_codes = 4
+    option_stranger_light_modulator = 5
 
 
 class RandomizeWarpPlatforms(Toggle):
@@ -167,6 +173,16 @@ class EnableEchoesOfTheEyeDLC(Toggle):
     display_name = "Enable Echoes of the Eye DLC"
 
 
+class DLCOnly(Toggle):
+    """
+    Sets enable_eote_dlc to true, spawn to stranger, goal to echoes_of_the_eye (see descriptions of those options),
+    and then prevents generation of all the base game locations and of many items not useful in the DLC.
+
+    Not compatible with story mods (once those are implemented).
+    """
+    display_name = "DLC Only"
+
+
 @dataclass
 class OuterWildsGameOptions(PerGameCommonOptions):
     start_inventory_from_pool: StartInventoryPool
@@ -174,6 +190,7 @@ class OuterWildsGameOptions(PerGameCommonOptions):
     spawn: Spawn
     early_key_item: EarlyKeyItem
     enable_eote_dlc: EnableEchoesOfTheEyeDLC
+    dlc_only: DLCOnly
     randomize_coordinates: RandomizeCoordinates
     randomize_orbits: RandomizeOrbits
     randomize_warp_platforms: RandomizeWarpPlatforms

@@ -352,7 +352,6 @@ def __get_phazon_region():
                 }
             ),
             BlastShieldRegion(
-                can_be_locked=True,
                 doors={
                     RoomName.Main_Quarry: RoomName.Security_Access_A,
                     RoomName.Security_Access_B: RoomName.Elite_Research,

@@ -150,9 +150,8 @@ class TallonOverworldAreaData(AreaData):
 
             RoomName.Gully: RoomData(
                 doors={
-                    0: DoorData(RoomName.Tallon_Canyon, defaultLock=DoorLockType.Blue, exclude_from_rando=True, rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player)),
-                    1: DoorData(RoomName.Landing_Site, exclude_from_rando=True, rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player)),  # Alcove Via Landing Site
-                    2: DoorData(RoomName.Alcove, exclude_from_rando=True)  # Alcove Via Landing Site
+                    0: DoorData(RoomName.Tallon_Canyon, defaultLock=DoorLockType.Blue, rule_func=lambda state, player: can_bomb(state, player) and can_space_jump(state, player)),
+                    1: DoorData(RoomName.Landing_Site, sub_region_door_index=3),
                 },
             ),
 
@@ -183,7 +182,7 @@ class TallonOverworldAreaData(AreaData):
 
             RoomName.Life_Grove_Tunnel: RoomData(
                 doors={
-                    0: DoorData(RoomName.Great_Tree_Hall, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_power_bomb(state, player) and can_boost(state, player), exclude_from_rando=True),
+                    0: DoorData(RoomName.Great_Tree_Hall, defaultLock=DoorLockType.Ice, rule_func=lambda state, player: can_power_bomb(state, player) and can_boost(state, player)),
                     1: DoorData(RoomName.Life_Grove, defaultLock=DoorLockType.None_, rule_func=lambda state, player: can_power_beam(state, player) and can_combat_ghosts(state, player) and can_power_bomb(state, player) and can_boost(state, player), exclude_from_rando=True)
                 },
                 pickups=[
@@ -253,7 +252,7 @@ class TallonOverworldAreaData(AreaData):
                 doors={
                     0: DoorData(RoomName.Canyon_Cavern),
                     1: DoorData(RoomName.Transport_Tunnel_A, destination_area=MetroidPrimeArea.Tallon_Overworld),
-                    2: DoorData(RoomName.Gully, defaultLock=DoorLockType.Blue, rule_func=lambda state, player: can_space_jump(state, player) or (can_boost(state, player) and can_bomb(state, player))),
+                    2: DoorData(RoomName.Gully, defaultLock=DoorLockType.Blue, rule_func=lambda state, player: can_boost(state, player) and can_bomb(state, player)),
                     3: DoorData(RoomName.Root_Tunnel)
                 }
             ),
