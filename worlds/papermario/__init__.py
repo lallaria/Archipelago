@@ -567,7 +567,7 @@ class PaperMarioWorld(World):
             state = base_state.copy()
             for item in self.get_pre_fill_items():
                 self.collect(state, item)
-            state.sweep_for_events(locations=self.get_locations())
+            state.sweep_for_advancements(locations=self.get_locations())
             return state
 
         # Prefill required replenishable items, local key items depending on settings
@@ -578,7 +578,7 @@ class PaperMarioWorld(World):
         state = CollectionState(self.multiworld)
         for item in self.itempool:
             self.collect(state, item)
-        state.sweep_for_events(locations=self.get_locations())
+        state.sweep_for_advancements(locations=self.get_locations())
 
         # place progression items that are also consumables in locations that are replenishable
         replenish_locations = [name for name, data in location_table.items() if data[0] in replenishing_itemlocations]
