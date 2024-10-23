@@ -8,12 +8,13 @@ from worlds.Files import APProcedurePatch, APTokenMixin, APTokenTypes, APPatchEx
 from .local_data import (item_id_table, location_dialogue, present_locations, psi_item_table, npc_locations, psi_locations, 
                          special_name_table, character_item_table, character_locations, locker_locations, starting_psi_table, item_space_checks,
                          special_name_overrides, protection_checks, badge_names, protection_text, local_present_types, nonlocal_present_types,
-                         present_text_pointers, ap_text_pntrs, party_id_nums)
+                         present_text_pointers, ap_text_pntrs, party_id_nums, world_version)
 from .battle_bg_data import battle_bg_bpp
 from .psi_shuffle import write_psi
 from .text_data import barf_text, eb_text_table, text_encoder
 from .flavor_data import flavor_data
 from .enemy_data import combat_regions, scale_enemies
+from .boss_shuffle import write_bosses
 from BaseClasses import ItemClassification, CollectionState
 from settings import get_settings
 from typing import TYPE_CHECKING, Optional
@@ -314,13 +315,19 @@ def patch_rom(world, rom, player: int, multiworld):
         rom.write_bytes(0x0FF26D, bytearray([item_id_table[world.magicant_junk[5]]]))
 
     rom.write_bytes(0x02EC1AA, bytearray([world.options.sanctuaries_required.value]))
-    if world.options.alternate_sanctuary_goal:
+    if world.options.alternate_sanctuary_goal and world.options.giygas_required:
         rom.write_bytes(0x02EC1E2, bytearray([0xFD, 0xC1, 0xEE]))
 
-    if world.options.magicant_mode == 1:
+    if world.options.magicant_mode == 1 and world.options.giygas_required: #Apple kid text
         rom.write_bytes(0x2EC1D8, bytearray([0x33, 0xC2, 0xEE]))
     elif world.options.magicant_mode == 2:
         rom.write_bytes(0x2EC1D8, bytearray([0x6A, 0xC2, 0xEE]))
+
+    if not world.options.giygas_required:
+        rom.write_bytes(0x2EC164, bytearray([0xE8, 0xF0, 0xEE]))
+        rom.write_bytes(0x02EC1E2, bytearray([0x40, 0xC1, 0xEE]))
+        rom.write_bytes(0x02EC1E2, bytearray([0x40, 0xC1, 0xEE]))
+
     
     flavor_address = 0x3FAF10
     for i in range(4):
@@ -396,6 +403,25 @@ def patch_rom(world, rom, player: int, multiworld):
                 rom.write_bytes(0x0BD89A + (i * 4), drawn_background_2)
                 rom.write_bytes(0x0BD89C + (i * 4), drawn_background)
 
+    if world.options.random_swirl_colors:
+        if world.random.random() < 0.5:
+            rom.write_bytes(0x02E98A, bytearray([0x7F])) #Color math mode
+            rom.write_bytes(0x02E996, bytearray([0x3F]))
+
+        rom.write_bytes(0x300240, bytearray([world.random.randint(0x00,0x1F)])) #Normal swirls
+        rom.write_bytes(0x300245, bytearray([world.random.randint(0x00,0x1F)]))
+        rom.write_bytes(0x30024A, bytearray([world.random.randint(0x00,0x1F)]))
+
+        rom.write_bytes(0x300253, bytearray([world.random.randint(0x00,0x1F)])) #Green swirls
+        rom.write_bytes(0x300258, bytearray([world.random.randint(0x00,0x1F)]))
+        rom.write_bytes(0x30025D, bytearray([world.random.randint(0x00,0x1F)]))
+
+        rom.write_bytes(0x300269, bytearray([world.random.randint(0x00,0x1F)])) #Red swirls
+        rom.write_bytes(0x30026E, bytearray([world.random.randint(0x00,0x1F)]))
+        rom.write_bytes(0x300273, bytearray([world.random.randint(0x00,0x1F)]))
+
+
+
     if not world.options.prefixed_items:
         rom.write_bytes(0x15F9DB, bytearray([0x06]))
         rom.write_bytes(0x15F9DD, bytearray([0x08]))
@@ -422,6 +448,8 @@ def patch_rom(world, rom, player: int, multiworld):
 
     if world.options.psi_shuffle:
         write_psi(world, rom)
+
+    write_bosses(world, rom)
     scale_enemies(world, rom)
     world.badge_name = badge_names[world.franklin_protection]
     world.badge_name = text_encoder(world.badge_name, eb_text_table, 23)
@@ -480,7 +508,7 @@ class EBPatchExtensions(APPatchExtension):
         version_check = rom.read_bytes(0x3FF0A0, 16)
         version_check = version_check.split(b'\x00', 1)[0]
         version_check_str = version_check.decode("ascii")
-        client_version = "2.1"
+        client_version = world_version
         if client_version != version_check_str and version_check_str != "":
             raise Exception(f"Error! Patch generated on EarthBound APWorld version {version_check_str} doesn't match client version {client_version}! " +
                             f"Please use EarthBound APWorld version {version_check_str} for patching.")
