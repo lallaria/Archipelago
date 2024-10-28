@@ -702,3 +702,31 @@ def set_rules(world: "MLSSWorld", excluded):
                 world.get_location(LocationName.JokesEndNorthofBridgeRoomCoinBlock),
                 lambda state: StateLogic.canCrash(state, world.player),
             )
+            add_rule(
+                world.get_location(LocationName.JokesEndNortheastOfBoilerRoom1Block),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndNortheastOfBoilerRoom2Block1),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndNortheastOfBoilerRoom2Digspot),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndNortheastOfBoilerRoom3Digspot),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndFurnaceRoom1Block1),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndFurnaceRoom1Block2),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )
+            add_rule(
+                world.get_location(LocationName.JokesEndFurnaceRoom1Block3),
+                lambda state: StateLogic.canCrash(state, world.player),
+            )

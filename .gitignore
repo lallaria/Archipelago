@@ -11,7 +11,6 @@
 *.aptloz
 *.apemerald
 *.pyc
-*.pyd
 *.sfc
 *.z64
 *.n64
@@ -66,11 +65,9 @@ Output Logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
 *$py.class
 
 # C extensions
-*.so
 *.dll
 
 # Distribution / packaging
@@ -81,7 +78,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -200,3 +196,5 @@ minecraft_versions.json
 .LSOverride
 Thumbs.db
 [Dd]esktop.ini
+
+VC_redist.x64.exe
