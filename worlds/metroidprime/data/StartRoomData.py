@@ -1,11 +1,9 @@
 import copy
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, cast
 
 from ..DoorRando import BEAM_TO_LOCK_MAPPING
-
-from ..LogicCombat import CombatLogicDifficulty
 
 from ..Items import SuitUpgrade, get_item_for_options
 from ..data.AreaNames import MetroidPrimeArea
@@ -43,6 +41,7 @@ class StartRoomData:
     allowed_elevators: Optional[Dict[str, Dict[str, List[str]]]] = None
     denied_elevators: Optional[Dict[str, Dict[str, List[str]]]] = None
     force_starting_beam: Optional[bool] = False
+    local_early_items: Optional[List[SuitUpgrade]] = None
     """Used for situations where starting beam cannot be randomized, disqualifies a room from being selected when randomizing blue doors is on"""
 
     no_power_beam_door_on_starting_level: Optional[bool] = False
@@ -55,7 +54,11 @@ all_start_rooms: Dict[str, StartRoomData] = {
     ], starting_beam=SuitUpgrade.Power_Beam)]),
     RoomName.Arboretum.value: StartRoomData(
         area=MetroidPrimeArea.Chozo_Ruins,
-        loadouts=[StartRoomLoadout([SuitUpgrade.Missile_Launcher])],
+        loadouts=[StartRoomLoadout(
+            [SuitUpgrade.Missile_Launcher],
+        )],
+        is_eligible=lambda world: world.options.shuffle_scan_visor.value == False,
+        local_early_items=[SuitUpgrade.Morph_Ball]
     ),
     RoomName.Burn_Dome.value: StartRoomData(
         area=MetroidPrimeArea.Chozo_Ruins,
@@ -71,11 +74,12 @@ all_start_rooms: Dict[str, StartRoomData] = {
     ),
     RoomName.Ruined_Fountain.value: StartRoomData(
         area=MetroidPrimeArea.Chozo_Ruins,
-        loadouts=[StartRoomLoadout([SuitUpgrade.Missile_Launcher]),
-                  StartRoomLoadout([SuitUpgrade.Morph_Ball])],
+        loadouts=[StartRoomLoadout([SuitUpgrade.Missile_Launcher])],
+        local_early_items=[SuitUpgrade.Morph_Ball]
     ),
     RoomName.Save_Station_1.value: StartRoomData(
         area=MetroidPrimeArea.Chozo_Ruins,
+        local_early_items=[SuitUpgrade.Morph_Ball],
         loadouts=[StartRoomLoadout(
             starting_beam=SuitUpgrade.Power_Beam,
             item_rules=[
@@ -96,18 +100,12 @@ all_start_rooms: Dict[str, StartRoomData] = {
         is_eligible=lambda world: world.options.disable_starting_room_bk_prevention.value != True,  # Varia suit is definitely required here
         area=MetroidPrimeArea.Magmoor_Caverns,
         loadouts=[
-            StartRoomLoadout([SuitUpgrade.Varia_Suit], [
+            StartRoomLoadout([SuitUpgrade.Varia_Suit, SuitUpgrade.Morph_Ball], [
                 {
-                    "Magmoor Caverns: Warrior Shrine": [SuitUpgrade.Morph_Ball],
-                    "Magmoor Caverns: Storage Cavern": [SuitUpgrade.Morph_Ball_Bomb, SuitUpgrade.Main_Power_Bomb],
+                    "Magmoor Caverns: Storage Cavern": [SuitUpgrade.Morph_Ball_Bomb],
                 }
             ]),
         ],
-        allowed_elevators={
-            MetroidPrimeArea.Magmoor_Caverns.value: {
-                RoomName.Transport_to_Chozo_Ruins_North.value: [RoomName.Transport_to_Magmoor_Caverns_East.value, RoomName.Transport_to_Chozo_Ruins_West.value, RoomName.Transport_to_Tallon_Overworld_North.value]
-            }
-        }
     ),
     RoomName.East_Tower.value: StartRoomData(area=MetroidPrimeArea.Phendrana_Drifts, loadouts=[StartRoomLoadout(
         starting_beam=SuitUpgrade.Wave_Beam, loadout=[SuitUpgrade.Missile_Launcher],
@@ -129,29 +127,40 @@ all_start_rooms: Dict[str, StartRoomData] = {
             StartRoomLoadout(
                 starting_beam=SuitUpgrade.Plasma_Beam, loadout=[SuitUpgrade.Missile_Launcher],
                 item_rules=[
-                    {"Phendrana Drifts: Phendrana Shorelines - Behind Ice": [SuitUpgrade.Space_Jump_Boots, SuitUpgrade.Morph_Ball]},
+                    {"Phendrana Drifts: Phendrana Shorelines - Behind Ice": [SuitUpgrade.Space_Jump_Boots]},
                 ],
             )
-        ]
+        ],
+        is_eligible=lambda world: world.options.shuffle_scan_visor.value == False or world.multiworld.players > 1,
     ),
     RoomName.Arbor_Chamber.value: StartRoomData(
         area=MetroidPrimeArea.Tallon_Overworld,
         loadouts=[StartRoomLoadout([SuitUpgrade.Missile_Launcher])],
-        denied_elevators={
+        allowed_elevators={
             MetroidPrimeArea.Tallon_Overworld.value: {
-                RoomName.Transport_to_Chozo_Ruins_West.value: ["Phendrana Drifts: " + RoomName.Transport_to_Magmoor_Caverns_South.value, "Phazon Mines: " + RoomName.Transport_to_Magmoor_Caverns_South.value],
-                RoomName.Transport_to_Magmoor_Caverns_East.value: ["Phendrana Drifts: " + RoomName.Transport_to_Magmoor_Caverns_South.value, "Phazon Mines: " + RoomName.Transport_to_Magmoor_Caverns_South.value],
+                RoomName.Transport_to_Chozo_Ruins_West.value: [RoomName.Transport_to_Magmoor_Caverns_North.value, RoomName.Transport_to_Magmoor_Caverns_West.value],
+                RoomName.Transport_to_Magmoor_Caverns_East.value: [RoomName.Transport_to_Tallon_Overworld_North.value, RoomName.Transport_to_Magmoor_Caverns_West.value, RoomName.Transport_to_Magmoor_Caverns_North.value],
             }
         }
     ),
-    RoomName.Transport_to_Chozo_Ruins_East.value: StartRoomData(area=MetroidPrimeArea.Tallon_Overworld, loadouts=[StartRoomLoadout(
-        starting_beam=SuitUpgrade.Ice_Beam, loadout=[SuitUpgrade.Morph_Ball],
-        item_rules=[
-            {
-                "Tallon Overworld: Overgrown Cavern": [SuitUpgrade.Missile_Launcher]
+    RoomName.Transport_to_Chozo_Ruins_East.value: StartRoomData(
+        area=MetroidPrimeArea.Tallon_Overworld,
+        loadouts=[StartRoomLoadout(
+            starting_beam=SuitUpgrade.Ice_Beam, loadout=[SuitUpgrade.Morph_Ball],
+            item_rules=[
+                {
+                    "Tallon Overworld: Overgrown Cavern": [SuitUpgrade.Missile_Launcher]
+                }
+            ],
+
+        )],
+        allowed_elevators={
+            MetroidPrimeArea.Tallon_Overworld.value: {
+                RoomName.Transport_to_Chozo_Ruins_West.value: [RoomName.Transport_to_Magmoor_Caverns_North.value, RoomName.Transport_to_Magmoor_Caverns_West.value],
+                RoomName.Transport_to_Magmoor_Caverns_East.value: [RoomName.Transport_to_Tallon_Overworld_North.value, RoomName.Transport_to_Magmoor_Caverns_West.value, RoomName.Transport_to_Magmoor_Caverns_North.value],
             }
-        ]
-    )]),
+        }
+    ),
     RoomName.Quarantine_Monitor.value: StartRoomData(area=MetroidPrimeArea.Phendrana_Drifts, loadouts=[StartRoomLoadout(
         starting_beam=SuitUpgrade.Wave_Beam,
         loadout=[SuitUpgrade.Thermal_Visor],
@@ -170,7 +179,6 @@ all_start_rooms: Dict[str, StartRoomData] = {
         area=MetroidPrimeArea.Chozo_Ruins,
         loadouts=[
             StartRoomLoadout([SuitUpgrade.Morph_Ball, SuitUpgrade.Missile_Launcher, SuitUpgrade.Morph_Ball_Bomb]),
-            StartRoomLoadout([SuitUpgrade.Morph_Ball, SuitUpgrade.Missile_Launcher, SuitUpgrade.Main_Power_Bomb])
         ],
         difficulty=StartRoomDifficulty.Buckle_Up
     ),
@@ -198,15 +206,15 @@ def get_starting_room_by_name(world: 'MetroidPrimeWorld', room_name: str) -> Sta
 
 
 def _has_elevator_rando(world: 'MetroidPrimeWorld') -> bool:
-    return world.options.elevator_randomization.value
+    return cast(bool, world.options.elevator_randomization)
 
 
 def _has_no_pre_scan_elevators_with_shuffle_scan(world: 'MetroidPrimeWorld') -> bool:
-    return world.options.pre_scan_elevators.value == False and world.options.shuffle_scan_visor.value
+    return world.options.pre_scan_elevators.value == False and cast(bool, world.options.shuffle_scan_visor)
 
 
 def _has_options_that_allow_more_landing_site_checks(world: 'MetroidPrimeWorld') -> bool:
-    return world.options.blast_shield_randomization.value != 'None' or world.options.trick_difficulty.value != -1
+    return cast(str, world.options.blast_shield_randomization.value) != world.options.blast_shield_randomization.option_none or world.options.trick_difficulty.value != -1
 
 
 def init_starting_room_data(world: 'MetroidPrimeWorld'):
@@ -247,12 +255,17 @@ def init_starting_loadout(world: 'MetroidPrimeWorld'):
         updated_loadout.append(get_item_for_options(world, item))
     world.starting_room_data.selected_loadout.loadout = updated_loadout
 
-    # If we aren't preventing bk then set a few items for prefill if available
+    # If we are preventing bk then set a few items for prefill if available
     if not disable_bk_prevention:
         for mapping in world.starting_room_data.selected_loadout.item_rules:
             for location_name, potential_items in mapping.items():
                 required_item = get_item_for_options(world, world.random.choice(potential_items))
                 world.prefilled_item_map[location_name] = required_item.value
+        if world.starting_room_data.local_early_items:
+            for item in world.starting_room_data.local_early_items:
+                options_item = get_item_for_options(world, item)
+                if options_item not in world.starting_room_data.selected_loadout.loadout:
+                    world.multiworld.local_early_items[world.player][options_item] = 1
 
 
 def init_starting_beam(world: 'MetroidPrimeWorld'):
