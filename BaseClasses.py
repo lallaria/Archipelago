@@ -1482,8 +1482,8 @@ class Spoiler:
 
         with open(filename, 'w', encoding="utf-8-sig") as outfile:
             outfile.write(
-                'TreZapalooza Version %s  -  Seed: %s\n\n' % (
-                    Utils.__version__, self.multiworld.seed))
+                '%s Version %s  -  Seed: %s\n\n' % (
+                    Utils.archipelago_name, Utils.__version__, self.multiworld.seed))
             outfile.write('Filling Algorithm:               %s\n' % self.multiworld.algorithm)
             outfile.write('Players:                         %d\n' % self.multiworld.players)
             outfile.write(f'Plando Options:                  {self.multiworld.plando_options}\n')

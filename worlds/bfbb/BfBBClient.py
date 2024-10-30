@@ -640,7 +640,7 @@ class BfBBContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "TreZapalooza Battle for Bikini Bottom Client"
+            base_title = Utils.archipelago_name + " Battle for Bikini Bottom Client"
 
         self.ui = BfBBManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

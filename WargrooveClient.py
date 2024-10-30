@@ -253,7 +253,7 @@ class WargrooveContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("WG", "WG Console"),
             ]
-            base_title = "TreZapalooza Wargroove Client"
+            base_title = Utils.archipelago_name + " Wargroove Client"
             ctx: WargrooveContext
             unit_tracker: ItemTracker
             trigger_tracker: BoxLayout

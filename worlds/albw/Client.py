@@ -3,6 +3,7 @@ import asyncio
 import traceback
 from CommonClient import CommonContext, get_base_parser, gui_enabled, logger, server_loop
 from NetUtils import ClientStatus
+from Utils import archipelago_name
 from Patch import create_rom_file
 from .Citra import CitraInterface, CitraException
 from .Locations import LocationData, LocationType, all_locations, location_table
@@ -59,7 +60,7 @@ class ALBWClientContext(CommonContext):
         from kvui import GameManager
 
         class ALBWManager(GameManager):
-            base_title: str = "Archipelago A Link Between Worlds Client"
+            base_title: str = archipelago_name + " A Link Between Worlds Client"
 
         self.ui = ALBWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
