@@ -261,7 +261,7 @@ class ServerLabel(HovererableLabel):
             return text
 
         else:
-            return "No current server connection. \nPlease connect to a TreZaplooza server."
+            return f"No current server connection. \nPlease connect to a {Utils.archipelago_name} server."
 
 
 class MainLayout(GridLayout):
@@ -469,7 +469,7 @@ class GameManager(App):
     logging_pairs = [
         ("Client", "Archipelago"),
     ]
-    base_title: str = "TreZapalooza Client"
+    base_title: str = Utils.archipelago_name + " Client"
     last_autofillable_command: str
 
     main_area_container: GridLayout
@@ -516,7 +516,7 @@ class GameManager(App):
         # top part
         server_label = ServerLabel()
         self.connect_layout.add_widget(server_label)
-        self.server_connect_bar = ConnectBarTextInput(text=self.ctx.suggested_address or "trezapalooza.com:",
+        self.server_connect_bar = ConnectBarTextInput(text=self.ctx.suggested_address or "archipelago.gg:38281",
                                                       size_hint_y=None,
                                                       height=dp(30), multiline=False, write_tab=False)
 
@@ -552,7 +552,7 @@ class GameManager(App):
         self.log_panels["Hints"] = hint_panel.content
 
         if len(self.logging_pairs) == 1:
-            self.tabs.default_tab_text = "TreZapalooza Console"
+            self.tabs.default_tab_text = Utils.archipelago_name + " Console"
 
         self.main_area_container = GridLayout(size_hint_y=1, rows=1)
         self.main_area_container.add_widget(self.tabs)

@@ -199,7 +199,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
     if isinstance(component, str):
         name = component
         component = None
-        if name.startswith("Archipelago"):
+        if name.startswith(Utils.archipelago_name):
             name = name[11:]
         if name.endswith(".exe"):
             name = name[:-4]
@@ -208,7 +208,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
         if not name:
             return None
         for c in components:
-            if c.script_name == name or c.frozen_name == f"Archipelago{name}":
+            if c.script_name == name or c.frozen_name == f"{Utils.archipelago_name}{name}":
                 component = c
                 break
         if not component:
@@ -247,7 +247,7 @@ def run_gui():
     from kivy.uix.relativelayout import RelativeLayout
 
     class Launcher(App):
-        base_title: str = "Archipelago Launcher"
+        base_title: str = Utils.archipelago_name + " Launcher"
         container: ContainerLayout
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None

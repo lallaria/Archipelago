@@ -1,2 +1,2 @@
 Pymem>=1.10.0
-pyfasm=1.0.0
+pyfasm>=1.0.0

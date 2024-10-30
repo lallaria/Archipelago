@@ -8,7 +8,7 @@ import socket
 import random
 from NetUtils import ClientStatus
 from CommonClient import CommonContext, get_base_parser
-from Utils import async_start
+from Utils import async_start, archipelago_name
 from .Constants import LOCATION_RESEARCH_RANGE, VERSION
 
 class DSTInvalidRequest(Exception):
@@ -44,7 +44,7 @@ class DSTContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("DSTInterface", "Don't Starve Together"),
             ]
-            base_title = "TreZapalooza Don't Starve Together Client"
+            base_title = archipelago_name + " Don't Starve Together Client"
 
         self.ui = DSTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
