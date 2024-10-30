@@ -301,7 +301,7 @@ class KHDaysContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "TreZapalooza KH Days Client"
+            base_title = Utils.archipelago_name + " KH Days Client"
             ctx: KHDaysContext
             commander_buttons: Dict[int, List[CommanderButton]]
             day_buttons: List[CommanderButton]

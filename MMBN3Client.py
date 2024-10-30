@@ -95,7 +95,7 @@ class MMBN3Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "TreZapalooza MegaMan Battle Network 3 Client"
+            base_title = Utils.archipelago_name + " MegaMan Battle Network 3 Client"
 
         self.ui = MMBN3Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
