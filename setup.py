@@ -555,7 +555,7 @@ $APPDIR/$exe "$@"
         self.write_launcher(self.app_exec)
         print(f'{self.app_dir} -> {self.dist_file}')
         subprocess.call(f'ARCH={build_arch} ./appimagetool -n "{self.app_dir}" "{self.dist_file}"', shell=True)
-        
+
 
 def find_libs(*args: str) -> Sequence[Tuple[str, str]]:
     """Try to find system libraries to be included."""
