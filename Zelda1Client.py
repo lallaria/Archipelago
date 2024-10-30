@@ -127,7 +127,7 @@ class ZeldaContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "TreZapalooza Zelda 1 Client"
+            base_title = Utils.archipelago_name + " Zelda 1 Client"
 
         self.ui = ZeldaManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

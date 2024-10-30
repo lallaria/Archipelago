@@ -1,5 +1,5 @@
 """
-TreZapalooza Launcher for bundled app.
+Archipelago launcher for bundled app.
 
 * if run with APBP as argument, launch corresponding client.
 * if run with executable as argument, run it passing argv[2:] as arguments
@@ -104,7 +104,8 @@ components.extend([
     Component("Open host.yaml", func=open_host_yaml),
     Component("Open Patch", func=open_patch),
     Component("Generate Template Options", func=generate_yamls),
-    Component("ZSR Discord", icon="discord", func=lambda: webbrowser.open("https://discord.gg/zsr")),
+    Component("Discord Server", icon="discord", func=lambda: webbrowser.open("https://discord.gg/8Z65BR2")),
+    Component("Unrated/18+ Discord Server", icon="discord", func=lambda: webbrowser.open("https://discord.gg/fqvNCCRsu4")),
     Component("Browse Files", func=browse_files),
 ])
 
@@ -198,7 +199,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
     if isinstance(component, str):
         name = component
         component = None
-        if name.startswith("Archipelago"):
+        if name.startswith(Utils.archipelago_name):
             name = name[11:]
         if name.endswith(".exe"):
             name = name[:-4]
@@ -207,7 +208,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
         if not name:
             return None
         for c in components:
-            if c.script_name == name or c.frozen_name == f"Archipelago{name}":
+            if c.script_name == name or c.frozen_name == f"{Utils.archipelago_name}{name}":
                 component = c
                 break
         if not component:
@@ -246,7 +247,7 @@ def run_gui():
     from kivy.uix.relativelayout import RelativeLayout
 
     class Launcher(App):
-        base_title: str = "TreZapalooza Launcher"
+        base_title: str = Utils.archipelago_name + " Launcher"
         container: ContainerLayout
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None
@@ -297,44 +298,34 @@ def run_gui():
             _adjusters = {c.display_name: c for c in components if c.type == Type.ADJUSTER}
             _miscs = {c.display_name: c for c in components if c.type == Type.MISC}
 
-            client_count = 0  # Initialize a counter to keep track of processed clients
-
             for (tool, client) in itertools.zip_longest(itertools.chain(
-                    _tools.items(), _miscs.items(), _adjusters.items()
-                ), _clients.items()):
+                _tools.items(), _miscs.items(), _adjusters.items()
+            ), _clients.items()):
                 # column 1
                 if tool:
                     self._tool_layout.layout.add_widget(build_button(tool[1]))
-
                 # column 2
                 if client:
-                    if client_count < 16:
-                        self._client_layout.layout.add_widget(build_button(client[1]))
-                    else:
-                        self._client_layout_2.layout.add_widget(build_button(client[1]))
-                    client_count += 1  # Increment the client counter
+                    self._client_layout.layout.add_widget(build_button(client[1]))
 
         def build(self):
             self.container = ContainerLayout()
-            self.grid = GridLayout(cols=3)
+            self.grid = GridLayout(cols=2)
             self.container.add_widget(self.grid)
             self.grid.add_widget(Label(text="General", size_hint_y=None, height=40))
-            self.grid.add_widget(Label(text="Clients 1", size_hint_y=None, height=40))
-            self.grid.add_widget(Label(text="Clients 2", size_hint_y=None, height=40))
+            self.grid.add_widget(Label(text="Clients", size_hint_y=None, height=40))
             self._tool_layout = ScrollBox()
             self._tool_layout.layout.orientation = "vertical"
             self.grid.add_widget(self._tool_layout)
             self._client_layout = ScrollBox()
             self._client_layout.layout.orientation = "vertical"
             self.grid.add_widget(self._client_layout)
-            self._client_layout_2 = ScrollBox()
-            self._client_layout_2.layout.orientation = "vertical"
-            self.grid.add_widget(self._client_layout_2)
+
             self._refresh_components()
 
             global refresh_components
             refresh_components = self._refresh_components
-            Window.size = (1024, 700)
+
             Window.bind(on_drop_file=self._on_drop_file)
 
             return self.container
@@ -413,7 +404,7 @@ if __name__ == '__main__':
     Utils.freeze_support()
     multiprocessing.set_start_method("spawn")  # if launched process uses kivy, fork won't work
     parser = argparse.ArgumentParser(
-        description='TreZapalooza Launcher',
+        description='Archipelago Launcher',
         usage="[-h] [--update_settings] [Patch|Game|Component] [-- component args here]"
     )
     run_group = parser.add_argument_group("Run")

@@ -55,7 +55,7 @@ if __name__ == "__main__":
     ModuleUpdate.update(yes="--yes" in sys.argv or "-y" in sys.argv)
 
 from worlds.LauncherComponents import components, icon_paths
-from Utils import version_tuple, is_windows, is_linux
+from Utils import version_tuple, archipelago_name, archipelago_guid, is_windows, is_linux
 from Cython.Build import cythonize
 
 
@@ -555,7 +555,7 @@ $APPDIR/$exe "$@"
         self.write_launcher(self.app_exec)
         print(f'{self.app_dir} -> {self.dist_file}')
         subprocess.call(f'ARCH={build_arch} ./appimagetool -n "{self.app_dir}" "{self.dist_file}"', shell=True)
-
+        
 
 def find_libs(*args: str) -> Sequence[Tuple[str, str]]:
     """Try to find system libraries to be included."""
@@ -620,11 +620,19 @@ def find_libs(*args: str) -> Sequence[Tuple[str, str]]:
                 file = os.path.join(dirname, file)
     return res
 
+inno_lines = "" # Need to save unmodified inno to revert after build
+with open("inno_setup.iss", "r") as f:
+    inno_lines = f.read()
+inno_replace_lines = inno_lines
+inno_replace_lines = inno_replace_lines.replace("Archipelago", archipelago_name)
+inno_replace_lines = inno_replace_lines.replace("{{918BA46A-FAB8-460C-9DFF-AE691E1C865B}}",archipelago_guid)
+with open("inno_setup.iss", "w") as f:
+    f.write(inno_replace_lines)
 
 cx_Freeze.setup(
-    name="TreZapalooza",
+    name="Archipelago",
     version=f"{version_tuple.major}.{version_tuple.minor}.{version_tuple.build}",
-    description="TreZapalooza",
+    description=archipelago_name,
     executables=exes,
     ext_modules=cythonize("_speedups.pyx"),
     options={
@@ -655,3 +663,5 @@ cx_Freeze.setup(
         "bdist_appimage": AppImageCommand,
     },
 )
+with open("inno_setup.iss", "w") as f: # revert inno_setup.iss
+    f.write(inno_lines)

@@ -15,7 +15,7 @@ from BaseClasses import CollectionState, MultiWorld, LocationProgressType
 from worlds.generic.Rules import exclusion_rules, locality_rules
 from Options import StartInventoryPool
 from settings import get_settings
-from Utils import __version__, output_path
+from Utils import __version__, archipelago_name, output_path
 from worlds import AutoWorld
 from worlds.tracker import TrackerWorld, UTMapTabData
 from collections import Counter,defaultdict
@@ -354,7 +354,7 @@ class TrackerGameContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Tracker Client"
+            base_title = archipelago_name + " Tracker Client"
 
             def build(self):
                 container = super().build()
@@ -554,7 +554,7 @@ class TrackerGameContext(CommonContext):
         multiworld.set_options(args)
         multiworld.set_item_links()
         multiworld.state = CollectionState(multiworld)
-        logger.info('Archipelago Version %s  -  Seed: %s\n', __version__, multiworld.seed)
+        logger.info('%s Version %s  -  Seed: %s\n', archipelago_name, __version__, multiworld.seed)
 
         logger.info(f"Found {len(AutoWorld.AutoWorldRegister.world_types)} World Types:")
         longest_name = max(len(text) for text in AutoWorld.AutoWorldRegister.world_types)

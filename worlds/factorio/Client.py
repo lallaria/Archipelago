@@ -209,7 +209,7 @@ class FactorioContext(CommonContext):
                 ("FactorioServer", "Factorio Server Log"),
                 ("FactorioWatcher", "Bridge Data Log"),
             ]
-            base_title = "TreZapalooza Factorio Client"
+            base_title = Utils.archipelago_name + " Factorio Client"
 
         self.ui = FactorioManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

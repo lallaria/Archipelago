@@ -1,6 +1,7 @@
 from typing import *
 import asyncio
 
+from Utils import archipelago_name
 from NetUtils import JSONMessagePart
 from kvui import GameManager, HoverBehavior, ServerToolTip, KivyJSONtoTextParser
 from kivy.app import App
@@ -13,6 +14,8 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
+
+from test import netutils
 
 from .Client import SC2Context, calc_unfinished_missions, parse_unlock
 from .MissionTables import (lookup_id_to_mission, lookup_name_to_mission, campaign_race_exceptions, SC2Mission, SC2Race,
@@ -87,7 +90,7 @@ class SC2Manager(GameManager):
         ("Client", "Archipelago"),
         ("Starcraft2", "Starcraft2"),
     ]
-    base_title = "TreZapalooza Starcraft 2 Client"
+    base_title = archipelago_name + " Starcraft 2 Client"
 
     campaign_panel: Optional[CampaignLayout] = None
     last_checked_locations: Set[int] = set()

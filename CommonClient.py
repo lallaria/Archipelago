@@ -698,7 +698,7 @@ class CommonContext:
         from kvui import GameManager
 
         class TextManager(GameManager):
-            base_title = "TreZapalooza Text Client"
+            base_title = Utils.archipelago_name + " Text Client"
 
         return TextManager
 
@@ -740,7 +740,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
 
     # Wait for the user to provide a multiworld server address
     if not address:
-        logger.info('Please connect to a TreZapalooza server.')
+        logger.info('Please connect to an Archipelago server.')
         return
 
     ctx.cancel_autoreconnect()
@@ -760,7 +760,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
     def reconnect_hint() -> str:
         return ", type /connect to reconnect" if ctx.server_address else ""
 
-    logger.info(f'Connecting to TreZapalooza server at {address}')
+    logger.info(f'Connecting to Archipelago server at {address}')
     try:
         port = server_url.port or 38281  # raises ValueError if invalid
         socket = await websockets.connect(address, port=port, ping_timeout=None, ping_interval=None,
@@ -787,7 +787,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
                                        f"{reconnect_hint()}")
     except ConnectionRefusedError:
         ctx.handle_connection_loss("Connection refused by the server. "
-                                   "May not be running TreZapalooza on that address or port.")
+                                   "May not be running Archipelago on that address or port.")
     except websockets.InvalidURI:
         ctx.handle_connection_loss("Failed to connect to the multiworld server (invalid URI)")
     except OSError:
@@ -1064,9 +1064,9 @@ def run_as_textclient(*args):
 
     import colorama
 
-    parser = get_base_parser(description="Gameless TreZapalooza Client, for text interfacing.")
+    parser = get_base_parser(description="Gameless Archipelago Client, for text interfacing.")
     parser.add_argument('--name', default=None, help="Slot Name to connect as.")
-    parser.add_argument("url", nargs="?", help="TreZapalooza connection url")
+    parser.add_argument("url", nargs="?", help="Archipelago connection url")
     args = parser.parse_args(args)
 
     # handle if text client is launched using the "archipelago://name:pass@host:port" url from webhost
@@ -1079,7 +1079,7 @@ def run_as_textclient(*args):
             if url.password:
                 args.password = urllib.parse.unquote(url.password)
         else:
-            parser.error(f"bad url, found {args.url}, expected url in form of archipelago://trezapalooza.com:38281")
+            parser.error(f"bad url, found {args.url}, expected url in form of archipelago://archipelago.gg:38281")
 
     # use colorama to display colored text highlighting on windows
     colorama.init()

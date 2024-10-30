@@ -61,7 +61,7 @@ class BizHawkClientContext(CommonContext):
 
     def make_gui(self):
         ui = super().make_gui()
-        ui.base_title = "TreZapalooza BizHawk Client"
+        ui.base_title = Utils.archipelago_name + " BizHawk Client"
         return ui
 
     def on_package(self, cmd, args):

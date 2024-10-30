@@ -18,6 +18,7 @@ from .Names import ItemName
 from .WorldLocations import *
 from .Gamecall import Gamecall as DTD
 
+from Utils import archipelago_name
 from NetUtils import ClientStatus, JSONMessagePart, JSONtoTextParser
 from CommonClient import gui_enabled, logger, get_base_parser, CommonContext, server_loop, ClientCommandProcessor
 
@@ -694,7 +695,7 @@ class KH2DelilahContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago KH2 Delilah Client"
+            base_title = archipelago_name + " KH2 Delilah Client"
 
         self.ui = KH2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
