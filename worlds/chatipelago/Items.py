@@ -65,8 +65,8 @@ for item in item_table:
 
 # stuff that can be duplicated to fill in extras
 filler_list = [
-    "Drinking Water"
-    "Sunflower Seeds"
-    "The Top of the Hour Ad Break"
+    "Drinking Water",
+    "Sunflower Seeds",
+    "The Top of the Hour Ad Break",
     "Set of Broken Joycons"
     ]

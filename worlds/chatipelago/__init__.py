@@ -1,4 +1,4 @@
-from BaseClasses import Region, Entrance, Tutorial, ItemClassification
+from BaseClasses import Item, Region, Entrance, Tutorial, ItemClassification
 from .Items import *
 from .Regions import *
 from Options import PerGameCommonOptions
@@ -39,11 +39,10 @@ class ChatipelagoWorld(World):
                 itempool.append(self.create_item(name, prog, data))
             else:
                 itempool.append(self.create_item(name, data.classification, data))
+
+        itempool += [self.create_filler() for _ in range(len(location_data_table) - len(itempool))]
         self.multiworld.itempool += itempool
 
-    def get_filler_item_name(self) -> str:
-        return self.multiworld.random.choice(filler_list)
-    
     def create_regions(self) -> None:   
         for region_name in region_table.keys():
             chati_region = Region(region_name, self.player, self.multiworld)
@@ -59,6 +58,9 @@ class ChatipelagoWorld(World):
         for source, target in chati_region_conn.items():
             source_region = self.multiworld.get_region(source, self.player)
             source_region.add_exits(target)
+
+        for deprio_loc in region_table["Chatroom"]:
+            self.options.exclude_locations.value.add(deprio_loc)
 
         for prio_loc in region_table["Trees"]:
             self.options.priority_locations.value.add(prio_loc)
@@ -81,7 +83,7 @@ class ChatipelagoWorld(World):
                 if l in state.locations_checked:
                     any_check = True
                 else:
-                    any_check = False
+                    return False
             return any_check
 
     def fill_slot_data(self):
@@ -93,4 +95,8 @@ class ChatipelagoWorld(World):
 
     def create_item(self, name: str, prog: ItemClassification, data: ChatipelagoItemData) -> ChatipelagoItem:
         return ChatipelagoItem(name, prog, data.code, self.player)
+    def create_filler(self) -> ChatipelagoItem:
+        return self.create_item(self.get_filler_item_name(), ItemClassification.filler, ChatipelagoItemData())
+    def get_filler_item_name(self) -> str:
+        return self.multiworld.random.choice(filler_list)
 
