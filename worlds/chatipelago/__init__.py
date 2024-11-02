@@ -25,18 +25,20 @@ class ChatipelagoWorld(World):
     options_dataclass = PerGameCommonOptions
     web = ChatipelagoWeb()
 
-    location_name_to_id = {name: l_id.address for name, l_id in location_data_table}
-    item_name_to_id = {name: i_id.code for name, i_id in item_data_table}
+    location_name_to_id = {name: l_id.address for name, l_id in location_data_table.items()}
+    item_name_to_id = {name: i_id.code for name, i_id in item_data_table.items()}
 
     def create_items(self):
         #load up the items!
-        for item in item_table:
-            item_data_table[item].classification=self.random.choice(ItemClassification.filler, \
-                ItemClassification.useful) if not "Magpie" in item else ItemClassification.progression
-
         itempool = []
-        for name, data in item_data_table:
-            itempool.append(self.create_item(name, data))
+
+        for name, data in item_data_table.items():
+            prog: ItemClassification = self.random.choice([ItemClassification.filler,
+                ItemClassification.useful])
+            if not "Magpie" in name:
+                itempool.append(self.create_item(name, prog, data))
+            else:
+                itempool.append(self.create_item(name, data.classification, data))
         self.multiworld.itempool += itempool
 
     def get_filler_item_name(self) -> str:
@@ -47,28 +49,40 @@ class ChatipelagoWorld(World):
             chati_region = Region(region_name, self.player, self.multiworld)
             self.multiworld.regions.append(chati_region)
 
-        for name, data in region_table:
+        for name, data in region_table.items():
             chati_region = self.get_region(name)
-            chati_region.add_locations({                                                    \
-                loc_name: loc_data.address for loc_name, loc_data in location_data_table    \
+            chati_region.add_locations({                                                            \
+                loc_name: loc_data.address for loc_name, loc_data in location_data_table.items()    \
                 if loc_data.region == name
             },ChatipelagoLoc)
-            chati_region.add_exits(chati_region_conn[name])
+
+        for source, target in chati_region_conn.items():
+            source_region = self.multiworld.get_region(source, self.player)
+            source_region.add_exits(target)
 
         for prio_loc in region_table["Trees"]:
             self.options.priority_locations.value.add(prio_loc)
 
     def set_rules(self) -> None:
-        tree_list = List[Location] #For Completion
+        tree_list: list[Location] = [] #For Completion
         chat_rule = get_chat_rule(self)
         tree_rule = get_tree_rule(self)
-        for loc in self.get_location(region_table["Chatroom"]):
-            loc.access_rule = chat_rule
-        for loc in self.get_location(region_table["Trees"]):
-            loc.access_rule = tree_rule
-            tree_list.append(loc)
+        for loc in region_table["Chatroom"]:
+            self.get_location(loc).access_rule = chat_rule
+        for loc in region_table["Trees"]:
+            self.get_location(loc).access_rule = tree_rule
+            tree_list.append(self.get_location(loc))
 
-        self.multiworld.completion_condition[self.player] = lambda state: state.locations_checked[tree_list]
+        self.multiworld.completion_condition[self.player] = lambda state: has_win_locs(state)
+
+        def has_win_locs(state: CollectionState) -> bool:
+            any_check: bool = False
+            for l in tree_list:
+                if l in state.locations_checked:
+                    any_check = True
+                else:
+                    any_check = False
+            return any_check
 
     def fill_slot_data(self):
         return {
@@ -77,6 +91,6 @@ class ChatipelagoWorld(World):
             "player_id": self.player
         }
 
-    def create_item(self, name: str, data: ChatipelagoItemData) -> ChatipelagoItem:
-        return ChatipelagoItem(name, data.classification, data.code, self.player)
+    def create_item(self, name: str, prog: ItemClassification, data: ChatipelagoItemData) -> ChatipelagoItem:
+        return ChatipelagoItem(name, prog, data.code, self.player)
 

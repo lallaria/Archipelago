@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Dict
+from typing import NamedTuple, Optional
 from BaseClasses import Item, ItemClassification
 
 class ChatipelagoItem(Item):
@@ -6,7 +6,7 @@ class ChatipelagoItem(Item):
 
 class ChatipelagoItemData(NamedTuple):
     code: Optional[int] = None
-    classification: ItemClassification = ItemClassification.useful
+    classification: ItemClassification = ItemClassification.progression
 
 item_table = [
     "Adam's Couch",
@@ -56,10 +56,11 @@ item_table = [
     "Magpie Treasure"
     ]
 
-item_data_table = Dict[str, ChatipelagoItemData]
+item_data_table: dict[str, ChatipelagoItemData] = {}
+count = 0
 for item in item_table:
     item_data_table[item] = ChatipelagoItemData(
-        code=100+len(item_data_table)
+        code=100+count
     )
 
 # stuff that can be duplicated to fill in extras

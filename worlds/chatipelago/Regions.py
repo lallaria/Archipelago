@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from BaseClasses import Location, Region
 
@@ -10,9 +10,9 @@ class ChatipelagoLocationData(NamedTuple):
     address: Optional[int] = None
 
 class ChatipelagoRegionData(NamedTuple):
-    connecting_regions: List[str] = []
+    connecting_regions: list[str] = []
 
-region_table: Dict[str, List[str]] = {
+region_table: dict[str, list[str]] = {
     "Menu": [],
     "Chatroom": [
         "Treasure Chest",
@@ -121,20 +121,24 @@ region_table: Dict[str, List[str]] = {
         "Resting Aspen Tree"
     ]
 }
-chati_region_conn: Dict[str, Dict[str, str]] = {
+chati_region_conn: dict[str, dict[str, str]] = {
     "Menu": {"Chatroom": "Start Game"},
     "Chatroom": {"Trees": "Fly"}
 }
 
 # Give the locations IDs, and the Tree locations meme IDs
-location_data_table = Dict[str, ChatipelagoLocationData]
+location_data_table: dict[str, ChatipelagoLocationData] = {}
+count = 0
 for loc in region_table["Chatroom"]:
-    location_data_table[loc] = ChatipelagoLocationData(     \
-        region = "Chatroom",                                \
-        address=100+len(location_data_table)
+    location_data_table[loc] = ChatipelagoLocationData(
+        region = "Chatroom",
+        address = 100+count
     )
+    count+=1
+count = 0
 for loc in region_table["Trees"]:
-    location_data_table[loc] = ChatipelagoLocationData(     \
-        region = "Trees",                                   \
-        address=610+(len(location_data_table)-len(region_table["Chatroom"]))
-        )
+    location_data_table[loc] = ChatipelagoLocationData(
+        region = "Trees",
+        address = 600+count
+    )
+    count+=1
