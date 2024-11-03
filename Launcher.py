@@ -104,6 +104,7 @@ components.extend([
     Component("Open host.yaml", func=open_host_yaml),
     Component("Open Patch", func=open_patch),
     Component("Generate Template Options", func=generate_yamls),
+    Component("TreZapalooza Website", func=lambda: webbrowser.open("https://trezapalooza.com/")),
     Component("ZSR Discord", icon="discord", func=lambda: webbrowser.open("https://discord.gg/zsr")),
     Component("Browse Files", func=browse_files),
 ])
