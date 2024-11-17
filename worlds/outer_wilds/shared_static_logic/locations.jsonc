@@ -1480,7 +1480,10 @@
     {
         "category": "dlc", "logsanity": true, "address": 1085041031, "name": "DW Ship Log: Starlit Cove 4 - Upper Floors",
         "region": "Starlit Cove", "requires": [
-            { "item": "Dream Totem Patch" } // project dock w/ walkway to lower tower entrance
+            { "anyOf": [
+                { "item": "Dream Totem Patch" }, // project dock w/ walkway to lower tower entrance
+                { "item": "Raft Docks Patch" } // unless it's already there
+            ] }
         ]
     },
     {
@@ -2359,7 +2362,7 @@
 
     { // codex_interloper_recorder_warning
         "category": "ac", "address": 1085044012, "name": "AC: Missing Fuel Geode",
-        "region": "Interloper Core", "requires": [ { "item": "Translator (Other)" } ]
+        "region": "Interloper Core", "requires": [ { "item": "Translator (Other)" }, { "region": "Lingering Chime" } ]
     },
 
     { // codex_bramble_station
@@ -2537,7 +2540,7 @@
 
     { // codex_interloper_recorder_warning
         "category": "ac", "logsanity": true, "address": 1085044076, "name": "AC Ship Log: Missing Fuel Geode",
-        "region": "Interloper Core", "requires": [ { "item": "Translator (Other)" } ]
+        "region": "Interloper Core", "requires": [ { "item": "Translator (Other)" }, { "region": "Lingering Chime" } ]
     },
 
     { // codex_bramble_station

@@ -10,11 +10,9 @@
     { "from": "Space", "to": "Giant's Deep", "requires": [] },
     // the only astral body you can't land on without an item
     { "from": "Space", "to": "Quantum Moon", "requires": [
-        { "item": "Imaging Rule" },
-        { "anyOf": [
-            { "item": "Spacesuit" }, // in this case "Spacesuit" implies the Scout Launcher and its Photo Mode
-            { "item": "Scout" } // without Photo Mode, the only way to take a photo is launching a Scout from the ship
-        ] }
+        { "item": "Imaging Rule" }
+        // In the past, a suitless player without Scout would have no way of actually taking a photo,
+        // but now that "ship photo mode" is an intended feature, we no longer need additional logic here.
     ] },
 
     { "from": "Quantum Moon", "to": "Quantum Shrine", "requires": [ { "item": "Shrine Door Codes" } ] },
@@ -144,7 +142,10 @@
     // unlock the dock the vanilla way, this connection is no longer relevant
     { "category": "dlc", "from": "Dream Raft Loop", "to": "Shrouded Woodlands", "requires": [ { "item": "Raft Docks Patch" } ] },
     { "category": "dlc", "from": "Dream Raft Loop", "to": "Starlit Cove", "requires": [ { "item": "Raft Docks Patch" } ] },
-    { "category": "dlc", "from": "Dream Raft Loop", "to": "Endless Canyon", "requires": [ { "item": "Raft Docks Patch" } ] },
+    { "category": "dlc", "from": "Dream Raft Loop", "to": "Endless Canyon", "requires": [
+        { "item": "Raft Docks Patch" }, // take the elevator up from the dock
+        { "item": "Projection Range Patch" } // use the bonus invisible bridge you may have never noticed in vanilla
+    ] },
 
     { "category": "dlc", "from": "Dream Raft Loop", "to": "Subterranean Lake (Out of Bounds)", "requires": [ { "item": "Limbo Warp Patch" } ] },
     { "category": "dlc", "from": "Subterranean Lake (Out of Bounds)", "to": "Subterranean Lake", "requires": [] },
@@ -156,7 +157,18 @@
 
     { "category": "dlc", "from": "Cinder Isles", "to": "Cinder Isles Symbol Room", "requires": [
         { "region": "Starlit Cove" }, // to extinguish the dream candles that unlock the real door
-        { "item": "Dream Totem Patch" } // project the dock
+        { "anyOf": [
+            { "item": "Dream Totem Patch" }, // project the dock that adds a walkway to the tower's lower entrance
+            { "item": "Raft Docks Patch" } // unless it's already there
+        ] },
+        // This is the one case where entering DW via The Outsider does not work, because after
+        // using that fire you won't have a ship to fly back to the real world's Cinder Isles tower.
+        // The only good fix I can see for this is requiring that you have access to a normal DW entrance.
+        { "anyOf": [
+            { "item": "River Lowlands Painting Code" },
+            { "item": "Cinder Isles Painting Code" },
+            { "item": "Hidden Gorge Painting Code" }
+        ] }
     ] },
 
     { "category": "dlc", "from": "Shrouded Woodlands", "to": "Dream Raft Loop", "requires": [
@@ -269,9 +281,10 @@
         ] }
         // no logic needed for "can get ship into shuttle crusher then fly it over" since this already requires reaching DB
     ] },
-    { "category": "to&dlc", "from": "Cliffside Home", "to": "Endless Canyon", "requires": [
-        { "item": "Stranger Light Modulator" } // take the elevator down to the regular DLC content
-    ] },
+
+    { "category": "to&dlc", "from": "Cliffside Home", "to": "Endless Canyon", "requires": [] },
+    // since you could use this route to get to the SW archive, we need the (ADB) region too
+    { "category": "to&dlc", "from": "Cliffside Home", "to": "Endless Canyon (After Dam Breaks)", "requires": [] },
 
     { "category": "to", "from": "Dark Bramble", "to": "Projection Pool House", "requires": [ { "item": "Scout" } ] },
 
@@ -298,7 +311,7 @@
     { "category": "hn2", "from": "Magistarium", "to": "Magistarium Outer Planes", "requires": [
         { "item": "Magistarium Dormitory Access Code" }, // enter the Magister's room
         { "item": "Memory Cube Interface" }, // close the hatch so you can safely remove your spacesuit
-        { "item": "Magistarium Dormitory Access Code" } // to get the battery
+        { "item": "Magistarium Engine Access Code" } // to get the battery
     ] },
 
     { "category": "fq", "from": "Hourglass Twins", "to": "Lost Strings", "requires": [
