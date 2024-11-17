@@ -186,23 +186,41 @@ function check_spawn_silo(force)
         local surface = game.get_surface(1)
         local spawn_position = force.get_spawn_position(surface)
         spawn_entity(surface, force, "rocket-silo", spawn_position.x, spawn_position.y, 80, true, true)
+        spawn_entity(surface, force, "cargo-landing-pad", spawn_position.x, spawn_position.y, 80, true, true)
     end
 end
 
 function check_despawn_silo(force)
-    if not force.players or #force.players < 1 and force.get_entity_count("rocket-silo") > 0 then
-        local surface = game.get_surface(1)
-        local spawn_position = force.get_spawn_position(surface)
-        local x1 = spawn_position.x - 41
-        local x2 = spawn_position.x + 41
-        local y1 = spawn_position.y - 41
-        local y2 = spawn_position.y + 41
-        local silos = surface.find_entities_filtered{area = { {x1, y1}, {x2, y2} },
-                                                     name = "rocket-silo",
-                                                     force = force}
-        for i,silo in ipairs(silos) do
-            silo.destructible = true
-            silo.destroy()
+    if not force.players or #force.players < 1 then
+        if force.get_entity_count("rocket-silo") > 0 then
+            local surface = game.get_surface(1)
+            local spawn_position = force.get_spawn_position(surface)
+            local x1 = spawn_position.x - 41
+            local x2 = spawn_position.x + 41
+            local y1 = spawn_position.y - 41
+            local y2 = spawn_position.y + 41
+            local silos = surface.find_entities_filtered{area = { {x1, y1}, {x2, y2} },
+                                                         name = "rocket-silo",
+                                                         force = force}
+            for i, silo in ipairs(silos) do
+                silo.destructible = true
+                silo.destroy()
+            end
+        end
+        if force.get_entity_count("cargo-landing-pad") > 0 then
+            local surface = game.get_surface(1)
+            local spawn_position = force.get_spawn_position(surface)
+            local x1 = spawn_position.x - 41
+            local x2 = spawn_position.x + 41
+            local y1 = spawn_position.y - 41
+            local y2 = spawn_position.y + 41
+            local pads = surface.find_entities_filtered{area = { {x1, y1}, {x2, y2} },
+                                                        name = "cargo-landing-pad",
+                                                        force = force}
+            for i, pad in ipairs(pads) do
+                pad.destructible = true
+                pad.destroy()
+            end
         end
     end
 end
@@ -224,7 +242,7 @@ function on_force_created(event)
 {%- if silo == 2 %}
     check_spawn_silo(force)
 {%- endif %}
-{%- for tech_name in useless_technologies %}
+{%- for tech_name in removed_technologies %}
     force.technologies["{{ tech_name }}"].researched = true
 {%- endfor %}
 end
@@ -292,7 +310,12 @@ script.on_event(defines.events.on_player_removed, on_player_removed)
 
 function on_rocket_launched(event)
     if event.rocket and event.rocket.valid and storage.forcedata[event.rocket.force.name]['victory'] == 0 then
-        if event.rocket.get_item_count("satellite") > 0 or GOAL == 0 then
+        satellite_count = 0
+        cargo_pod = event.rocket.cargo_pod
+        if cargo_pod then
+            satellite_count = cargo_pod.get_item_count("satellite")
+        end
+        if satellite_count > 0 or GOAL == 0 then
             storage.forcedata[event.rocket.force.name]['victory'] = 1
             dumpInfo(event.rocket.force)
             game.set_game_state
@@ -326,7 +349,9 @@ function update_player(index)
     for name, count in pairs(samples) do
         stack.name = name
         stack.count = count
-        stack.quality = "{{ free_sample_quality_name }}"
+        if script.active_mods["quality"] then
+            stack.quality = "{{ free_sample_quality_name }}"
+        end
         if prototypes.item[name] then
             if character.can_insert(stack) then
                 sent = character.insert(stack)
@@ -334,7 +359,7 @@ function update_player(index)
                 sent = 0
             end
             if sent > 0 then
-                player.print("Received " .. sent .. "x [item=" .. name .. "]")
+                player.print("Received " .. sent .. "x [item=" .. name .. ",quality={{ free_sample_quality_name }}]")
                 data.suppress_full_inventory_message = false
             end
             if sent ~= count then               -- Couldn't full send.
@@ -537,7 +562,7 @@ function spawn_entity(surface, force, name, x, y, radius, randomize, avoid_ores)
             }
             local entities = surface.find_entities_filtered {
                 area = collision_area,
-                collision_mask = prototype.collision_mask
+                collision_mask = prototype.collision_mask.layers
             }
             local can_place = true
             for _, entity in pairs(entities) do
@@ -560,6 +585,9 @@ function spawn_entity(surface, force, name, x, y, radius, randomize, avoid_ores)
                 end
                 args.build_check_type = defines.build_check_type.script
                 args.create_build_effect_smoke = false
+                if script.active_mods["quality"] then
+                    args.quality = "{{ free_sample_quality_name }}"
+                end
                 new_entity = surface.create_entity(args)
                 if new_entity then
                     new_entity.destructible = false
@@ -726,7 +754,7 @@ end)
 
 
 {% if allow_cheats -%}
-commands.add_command("ap-spawn-silo", "Attempts to spawn a silo around 0,0", function(call)
+commands.add_command("ap-spawn-silo", "Attempts to spawn a silo and cargo landing pad around 0,0", function(call)
     spawn_entity(game.player.surface, game.player.force, "rocket-silo", 0, 0, 80, true, true)
 end)
 {% endif -%}
