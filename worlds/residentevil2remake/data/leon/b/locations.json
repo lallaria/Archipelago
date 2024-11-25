@@ -146,6 +146,17 @@
         "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/1F/1FE/PressRoom"
     },
     {
+        "name": "Hiding Place Drawer",
+        "region": "Press Room",
+        "original_item": "Flamethrower Fuel",
+        "condition": {
+            "items": ["Film - Hiding Place"]
+        },    
+        "item_object": "sm70_110",
+        "parent_object": "ItemPos_TreasureA_Leon",
+        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/Leon_common/1F/1FE/PressRoom/DrawerDesk_1FEPressRoom_TreasurePhotoItem"
+    },
+    {
         "name": "Second Stall",
         "region": "Bathroom",
         "original_item": "First Aid Spray",
@@ -306,10 +317,9 @@
         "region": "West Office",
         "original_item": "High-Capacity Magazine - Matilda",
         "condition": {},    
-        "item_object": "sm44_006_LeonDesk01A_control",
-        "parent_object": "",
-        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/LocationFsm_RPD/S02_0100/Leon_S02_0100/1FW/WestOffice/LeonDesk",
-        "randomized": 0
+        "item_object": "sm71_901",
+        "parent_object": "ItemPositionsCollider",
+        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/LocationFsm_RPD/S02_0100/Leon_S02_0100/1FW/WestOffice/LeonDesk"
     },
     {
         "name": "Outside Darkroom 1",
@@ -418,6 +428,28 @@
         "item_object": "sm70_101",
         "parent_object": "LEON_sm70_101_ShotgunB",
         "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/Leon_common/2F/2FW/Corrider"
+    },
+    {
+        "name": "Hiding Place Drawer",
+        "region": "STARS Office",
+        "original_item": "Red Dot Sight - Lightning Hawk",
+        "condition": {
+            "items": ["Film - Hiding Place"]
+        },    
+        "item_object": "sm77_005",
+        "parent_object": "ItemPos_TreasureB_Leon",
+        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/LocationFsm_RPD/S02_0200/Leon_S02_0200/2FW/StarsOffice/WeskerDesk_LEON"
+    },
+    {
+        "name": "Hiding Place Secret Film",
+        "region": "STARS Office",
+        "original_item": "Film - Rising Rookie",
+        "condition": {
+            "items": ["Film - Hiding Place"]
+        },    
+        "item_object": "sm72_201",
+        "parent_object": "itempos_sm72_201_FilmB_PosweskerDesk",
+        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/LocationFsm_RPD/S02_0200/Leon_S02_0200/2FW/StarsOffice/WeskerDesk_LEON"
     },
     {
         "name": "Boxes By Door",
@@ -1260,11 +1292,14 @@
         "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/OutdoorN"
     },
     {
-        "name": "After Helicopter Crash",
-        "region": "East Hallway 2F",
+        "name": "Room with Helicopter Crash",
+        "region": "Roof",
         "original_item": "Red Herb",
         "condition": {
-            "items": ["Lion Medallion", "Unicorn Medallion", "Maiden Medallion", "Spade Key", "Bolt Cutters", "Square Crank"]
+            "items": [
+                ["Lion Medallion", "Unicorn Medallion", "Maiden Medallion", "Spade Key", "Square Crank"],
+                ["Lion Medallion", "Unicorn Medallion", "Maiden Medallion", "Spade Key", "Mechanic Jack Handle"]
+            ]
         },
         "item_object": "sm70_002",
         "parent_object": "sm70_002_RedHerb",
@@ -1598,8 +1633,7 @@
         "condition": {},    
         "item_object": "sm73_411",
         "parent_object": "T_ji_crank",
-        "folder_path": "RopewayContents/World/Location_WasteWater/LocationLevel_WasteWater/Item/common/KeyItem",
-        "randomized": 0
+        "folder_path": "RopewayContents/World/Location_WasteWater/LocationLevel_WasteWater/Item/common/KeyItem"
     },
     {
         "name": "Downstairs Location 1",
@@ -1817,6 +1851,7 @@
         "item_object": "WW_WarpToLabo",
         "parent_object": "",
         "folder_path": "RopewayContents/World/Location_WasteWater/LocationLevel_WasteWater/LocationFsm_WasteWater/S04_0200/startLever_cableCar",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"],
         "randomized": 0
     },
     {
@@ -1826,7 +1861,8 @@
         "condition": {},    
         "item_object": "sm70_101",
         "parent_object": "sm70_101_shotgunB",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/SherryRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/SherryRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Downed Zombie at Entrance",
@@ -1835,7 +1871,8 @@
         "condition": {},    
         "item_object": "WP6200",
         "parent_object": "WP6200_grenade",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Booth by Door",
@@ -1844,7 +1881,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111_handgunB_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Coffee and Candy Counter",
@@ -1853,7 +1891,8 @@
         "condition": {},    
         "item_object": "sm70_110",
         "parent_object": "sm70_110_Fuel",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/DiningRoomCorridor"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/DiningRoomCorridor",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Location 1",
@@ -1862,7 +1901,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206_GunpowderBig",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Location 2",
@@ -1871,7 +1911,8 @@
         "condition": {},    
         "item_object": "WP4500",
         "parent_object": "wp4500_Knife",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/DiningRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Table with Lamp",
@@ -1880,7 +1921,8 @@
         "condition": {},    
         "item_object": "sm70_101",
         "parent_object": "sm70_101_ShotgunB",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/NapRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/NapRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Sleeping Pod",
@@ -1889,7 +1931,8 @@
         "condition": {},    
         "item_object": "sm73_423",
         "parent_object": "sm73_433_WristTagUpdater_Lv1",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/NapRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/NapRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Locker",
@@ -1898,7 +1941,8 @@
         "condition": {},    
         "item_object": "sm71_918",
         "parent_object": "ItemPositionsCollider",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/NapRoom/LockerT01_sm71_918_FireLauncherParts"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/StartArea/NapRoom/LockerT01_sm71_918_FireLauncherParts",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Sleeping Pod 2",
@@ -1909,7 +1953,8 @@
         },    
         "item_object": "sm74_200",
         "parent_object": "sm74_200_Sidepack",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/NapRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/StartArea/NapRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
 	{
         "name": "Next to Soldier",
@@ -1918,7 +1963,8 @@
         "condition": {},    
         "item_object": "sm73_424",
         "parent_object": "sm73_424_MenteTool_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/2ndPlay"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/2ndPlay",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Front Desk",
@@ -1927,7 +1973,8 @@
         "condition": {},    
         "item_object": "sm70_001",
         "parent_object": "sm70_002_Greenherb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/Lobby"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/Lobby",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Behind Front Desk",
@@ -1936,7 +1983,8 @@
         "condition": {},    
         "item_object": "sm70_205",
         "parent_object": "sm70_205_Gunpowder",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/Lobby"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/Lobby",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Ivy Room Before",
@@ -1945,7 +1993,8 @@
         "condition": {},    
         "item_object": "sm70_207",
         "parent_object": "sm70_207_LeonYakueki",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/CorridorA"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/CorridorA",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Middle Desk",
@@ -1954,7 +2003,8 @@
         "condition": {},    
         "item_object": "WP6300",
         "parent_object": "WP6300_flashgrenade_lab_1",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ControlRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ControlRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Dispersal Machine",
@@ -1964,6 +2014,7 @@
         "item_object": "sm42_222_SprayingMachine01A_control",
         "parent_object": "",
         "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/LocationFsm_Laboratory/S05_0100/T_Area/ControlRoom/SanpuSouchiTrue_CONV366,367,368_CF707",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"],
         "randomized": 0
     },
     {
@@ -1973,7 +2024,8 @@
         "condition": {},    
         "item_object": "sm70_002",
         "parent_object": "sm70_002_redherb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Past Ladder",
@@ -1982,7 +2034,8 @@
         "condition": {},    
         "item_object": "sm70_003",
         "parent_object": "sm70_003_BlueHerb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Location 1",
@@ -1991,7 +2044,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206_GunpowderBig",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ChemicalRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ChemicalRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Location 2",
@@ -2000,7 +2054,8 @@
         "condition": {},    
         "item_object": "WP6200",
         "parent_object": "WP6200_Grenade",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ChemicalRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/ChemicalRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Down Ladder Before Lounge",
@@ -2009,7 +2064,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206_GunpowderBig",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/UnderCollidor"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/UnderCollidor",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Bench By Entrance",
@@ -2018,7 +2074,8 @@
         "condition": {},    
         "item_object": "sm70_101",
         "parent_object": "sm70_101_ShotgunB",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/RestArea"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/RestArea",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Benches Across the Room",
@@ -2027,7 +2084,8 @@
         "condition": {},    
         "item_object": "sm70_001",
         "parent_object": "sm70_001_GreenHerb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/RestArea"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/RestArea",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Boxes By Door",
@@ -2036,7 +2094,8 @@
         "condition": {},    
         "item_object": "sm70_207",
         "parent_object": "sm70_207_LeonYakueki",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotA"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotA",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Locker",
@@ -2045,7 +2104,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "ItemPositionsCollider",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/DepotA/Locker03_HandgunB"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/DepotA/Locker03_HandgunB",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Table Across from Robot Arm",
@@ -2054,7 +2114,8 @@
         "condition": {},    
         "item_object": "sm70_205",
         "parent_object": "sm70_205_gunpowder",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/LowTempatureRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/LowTempatureRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
 	{
         "name": "Table near Entrance",
@@ -2063,7 +2124,8 @@
         "condition": {},    
         "item_object": "sm73_425",
         "parent_object": "sm43_425_Kibori no Kuma_2ndPlay",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/2ndPlay"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/2ndPlay",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Left of Door",
@@ -2072,7 +2134,8 @@
         "condition": {},    
         "item_object": "sm70_207",
         "parent_object": "sm70_207_LeonYakueki",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotB"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotB",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "On Cart By Laptop",
@@ -2081,7 +2144,8 @@
         "condition": {},    
         "item_object": "WP4500",
         "parent_object": "WP4500_Knife",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/DepotB"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/DepotB",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Shelves Left of Typewriter",
@@ -2090,7 +2154,8 @@
         "condition": {},    
         "item_object": "sm70_110",
         "parent_object": "sm70_110_Oil",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotB"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/TArea/DepotB",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Downed Employee",
@@ -2102,7 +2167,8 @@
         },    
         "item_object": "sm73_434",
         "parent_object": "sm73_434_WristtagUpdater_Lv2",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/T_Area/GreenHouse",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Downed Zombie",
@@ -2111,7 +2177,8 @@
         "condition": {},    
         "item_object": "sm73_438",
         "parent_object": "sm73_438_VideoTape",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Downed Zombie 2",
@@ -2120,7 +2187,8 @@
         "condition": {},    
         "item_object": "WP6200",
         "parent_object": "WP6200_Grenade",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Past Operating Area",
@@ -2129,7 +2197,8 @@
         "condition": {},    
         "item_object": "sm70_003",
         "parent_object": "sm70_003_BlueHerb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/P4ExperimentRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Before Sanitation Spray",
@@ -2138,7 +2207,8 @@
         "condition": {},    
         "item_object": "sm70_207",
         "parent_object": "sm70_207_LeonYakueki",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/Corridor"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/Corridor",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Cart By Doorway",
@@ -2147,7 +2217,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206_GunpowderBig",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/GVirusRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/GVirusRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Desk",
@@ -2156,7 +2227,8 @@
         "condition": {},    
         "item_object": "sm70_207",
         "parent_object": "sm70_207_LeonYakueki",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/GVirusRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/GVirusRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Locker by Desk",
@@ -2165,7 +2237,8 @@
         "condition": {},    
         "item_object": "sm70_002",
         "parent_object": "sm70_002_RedHerb",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/GVirusRoom"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/GVirusRoom",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Table Right of Elevator 1",
@@ -2174,7 +2247,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111_handgunB_01_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "First of Two Flashbangs",
@@ -2183,7 +2257,8 @@
         "condition": {},    
         "item_object": "WP6300",
         "parent_object": "WP6300_FlashBan",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "1st Table Left of Entrance",
@@ -2192,7 +2267,8 @@
         "condition": {},    
         "item_object": "sm70_000",
         "parent_object": "sm70_000_Spray",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "2nd Table Left of Entrance",
@@ -2201,7 +2277,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111_handgunB_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "1st Table Right of Entrance",
@@ -2210,7 +2287,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111_handgunB_03_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Table Right of Elevator 2",
@@ -2219,7 +2297,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111_handgunB_02_2nd",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Second of Two Flashbangs",
@@ -2228,7 +2307,8 @@
         "condition": {},    
         "item_object": "WP6300",
         "parent_object": "WP6300_FlashBan",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Right Side of Room 1",
@@ -2237,7 +2317,8 @@
         "condition": {},    
         "item_object": "sm70_110",
         "parent_object": "sm70_110_Fuel",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "2nd Table Right of Entrance",
@@ -2246,7 +2327,8 @@
         "condition": {},    
         "item_object": "sm70_103",
         "parent_object": "sm70_103_MagnumB",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/Leon_common/GArea/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Right Side of Room 2",
@@ -2255,7 +2337,8 @@
         "condition": {},    
         "item_object": "WP6200",
         "parent_object": "WP6200_Grenade",
-        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room"
+        "folder_path": "RopewayContents/World/Location_Laboratory/LocationLevel_Laboratory/Item/common/G_Area/G3Room",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Before Voice Call",
@@ -2264,7 +2347,8 @@
         "condition": {},    
         "item_object": "sm70_000",
         "parent_object": "sm70_000",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "After Voice Call",
@@ -2273,7 +2357,8 @@
         "condition": {},    
         "item_object": "WP4500",
         "parent_object": "WP4500",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Start of Ivy Room",
@@ -2282,7 +2367,8 @@
         "condition": {},    
         "item_object": "sm70_003",
         "parent_object": "sm70_003",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Before Ladder at Mr X",
@@ -2291,7 +2377,8 @@
         "condition": {},    
         "item_object": "sm70_001",
         "parent_object": "sm70_001",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "After Ladder at Mr X",
@@ -2300,7 +2387,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Final Battle Table Item",
@@ -2309,7 +2397,8 @@
         "condition": {},    
         "item_object": "sm73_418",
         "parent_object": "sm73_418_2wakuItem",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Final Battle Barrel Item",
@@ -2318,7 +2407,8 @@
         "condition": {},    
         "item_object": "sm70_111",
         "parent_object": "sm70_111",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Final Battle By Item Box",
@@ -2327,7 +2417,8 @@
         "condition": {},    
         "item_object": "sm70_002",
         "parent_object": "sm70_102_RHerb",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common/Leon_common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
     {
         "name": "Final Hit on Super Tyrant",
@@ -2337,6 +2428,7 @@
         "item_object": "WP4600",
         "parent_object": "wp4600_rocketLauncher",
         "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/Environments/st5_211_0/gimmick/CutScene",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"],
         "randomized": 0
     },
 	{
@@ -2346,7 +2438,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206-2_G5",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
 	{
         "name": "On Floor by Barrels",
@@ -2355,7 +2448,8 @@
         "condition": {},    
         "item_object": "sm70_206",
         "parent_object": "sm70_206_G5",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
 	{
         "name": "Stabbed into Cargo",
@@ -2364,7 +2458,8 @@
         "condition": {},    
         "item_object": "WP4500",
         "parent_object": "WP4500_G5",
-        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common"
+        "folder_path": "RopewayContents/World/Location_LaboratoryUndermost/LocationLevel_LaboratoryUndermost/Item/common",
+        "forbid_item": ["Sewers Key", "T-Bar Handle"]
     },
 
     {
