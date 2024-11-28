@@ -49,16 +49,6 @@ class StartingHipPouches(Choice):
     option_backpack = 3
     default = 0
 
-# class InfinityGauntlet(Choice):
-    # """Some players just wanna have fun, so here you go.
-
-    # False: Normal, you will only have infinite weapons if you unlocked them.
-    # True: All of your weapons will have infinite ammo, Nemmy better watch out."""
-    # display_name = "Infinity Gauntlet"
-    # option_false = 0
-    # option_true = 1
-    # default = 0
-
 class BonusStart(Choice):
     """Some players might want to start with a little help in the way of a few extra heal items and packs of ammo.
     This will give you grenades instead of ammo if Oops All Grenades option is set.
@@ -92,17 +82,18 @@ class ExtraSewerItems(Choice):
     option_true = 1
     default = 0
 
-class AllowProgressionDowntown(Choice):
+class AllowMissableLocations(Choice):
     """Accidentally skipping item locations early can lead to softlocking as certain story triggers make it impossible to backtrack. 
     This option seeks to avoid that by limiting item placements.
 
-    False: (Default) Will place items so they are not permanently missable after fighting Nemesis on the Demolition Site Rooftop.
-    This severely limits where progression can be to prevent softlocking of any kind. Will also remove progression for others if multiworld.
+    False: (Default) Will place items so they are not permanently missable.
+    This severely limits where progression can be to prevent softlocking of any kind. 
+    Will also remove progression for others if multiworld.
     
-    True: Progression can be placed Downtown in locations that can be missed if story progresses too far, you've been warned.
+    True: Progression can be placed in locations that can be missed if story progresses too far, you've been warned (use the poptracker).
 
-    NOTE - This option only affects *YOUR* Downtown. Your progression can still be in someone else's if they have this option enabled."""
-    display_name = "Allow Progression Downtown"
+    NOTE - This option only affects *YOUR* game. Your progression can still be in someone else's if they have this option enabled."""
+    display_name = "Allow Missable Locations"
     option_false = 0
     option_true = 1
     default = 0
@@ -115,7 +106,7 @@ class AllowProgressionInLabs(Choice):
 
     True: Progression can be placed in NEST, remind everyone it was your fault when you are holding them hostage.
 
-    NOTE - This option only affects *YOUR* NEST. Your progression can still be in someone else's if they have this option enabled."""
+    NOTE - This option only affects multiworlds."""
     display_name = "Allow Progression in Labs"
     option_false = 0
     option_true = 1
@@ -256,11 +247,10 @@ class RE3ROptions(StartInventoryFromPoolMixin, DeathLinkMixin, PerGameCommonOpti
     difficulty: Difficulty
     unlocked_typewriters: UnlockedTypewriters
     starting_hip_pouches: StartingHipPouches
-    # infinity_gauntlet: InfinityGauntlet
     bonus_start: BonusStart
     early_fire_hose: EarlyFireHose
     extra_sewer_items: ExtraSewerItems
-    allow_progression_downtown: AllowProgressionDowntown
+    allow_missable_locations: AllowMissableLocations
     allow_progression_in_labs: AllowProgressionInLabs
     oops_all_grenades: OopsAllGrenades
     oops_all_handguns: OopsAllHandguns
