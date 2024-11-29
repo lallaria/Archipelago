@@ -1,3 +1,4 @@
+from genericpath import isdir
 import logging
 
 import yaml
@@ -433,17 +434,29 @@ def patch_kh2(self, output_directory):
 
     iconbytes = bytes()
     previewbytes = bytes()
-    apworldloc = os.path.join("lib","worlds")
-    if not os.path.isfile(user_path(apworldloc, 'kh2delilah.apworld')): apworldloc = os.path.join("custom_worlds", "")
-    try: 
-        with zipfile.ZipFile(user_path(os.path.join(apworldloc, 'kh2delilah.apworld')), 'r') as apworld_archive:
-            with apworld_archive.open('kh2delilah/data/khapicon.png', 'r') as icon, apworld_archive.open('kh2delilah/data/preview.png', 'r') as preview:
+    apworldloc = os.path.join("worlds","kh2delilah","data")
+    if os.path.exists(apworldloc):
+        try:
+            with open(os.path.join(apworldloc, "khapicon.png"),'rb') as icon, open(os.path.join(apworldloc, "preview.png"),'rb') as preview:
                 iconbytes = icon.read()
                 previewbytes = preview.read()
             openkhmod["icon.png"] = iconbytes
             openkhmod["preview.png"] = previewbytes
-    except IOError as openerror:
-        logging.warn(openerror)
+        except IOError as openerror:
+            logging.warn(openerror)
+
+    apworldloc = os.path.join("lib","worlds")
+    if not os.path.isfile(user_path(apworldloc, 'kh2delilah.apworld')): apworldloc = os.path.join("custom_worlds", "")
+    if os.path.exists(os.path.join(apworldloc,"kh2delilah.apworld")):
+        try: 
+            with zipfile.ZipFile(user_path(os.path.join(apworldloc, 'kh2delilah.apworld')), 'r') as apworld_archive:
+                with apworld_archive.open('kh2delilah/data/khapicon.png', 'r') as icon, apworld_archive.open('kh2delilah/data/preview.png', 'r') as preview:
+                    iconbytes = icon.read()
+                    previewbytes = preview.read()
+                openkhmod["icon.png"] = iconbytes
+                openkhmod["preview.png"] = previewbytes
+        except IOError as openerror:
+            logging.warn(openerror)
 
     mod = KH2Container(openkhmod, mod_dir, output_directory, self.player,
             self.multiworld.get_file_safe_player_name(self.player))
