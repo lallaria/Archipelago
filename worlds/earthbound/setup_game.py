@@ -1,9 +1,9 @@
 import struct
-from .flavor_data import random_flavors
-from .text_data import lumine_hall_text, eb_text_table
-from .local_data import item_id_table
-from .psi_shuffle import shuffle_psi
-from .boss_shuffle import initialize_bosses
+from .modules.flavor_data import random_flavors
+from .game_data.text_data import lumine_hall_text, eb_text_table, text_encoder
+from .game_data.local_data import item_id_table
+from .modules.psi_shuffle import shuffle_psi
+from .modules.boss_shuffle import initialize_bosses
 
 
 def setup_gamevars(world):
@@ -58,28 +58,12 @@ def setup_gamevars(world):
     ]
 
     world.common_gear = [
-        "Cracked Bat",
-        "Tee Ball Bat",
-        "Sand Lot Bat",
-        "Minor League Bat",
-        "Fry Pan",
-        "Thick Fry Pan",
-        "Deluxe Fry Pan",
-        "Toy Air Gun",
-        "Zip Gun",
         "Yo-yo",
         "Slingshot",
         "Travel Charm",
         "Great Charm",
-        "Cheap Bracelet",
-        "Copper Bracelet",
-        "Baseball Cap",
-        "Mr. Baseball Cap",
-        "Holmes Hat",
-        "Hard Hat",
         "Ribbon",
-        "Red Ribbon",
-        "Coin of Defense"
+        "Red Ribbon"
     ]
 
     world.uncommon_items = [
@@ -116,29 +100,14 @@ def setup_gamevars(world):
     ]
 
     world.uncommon_gear = [
-        "Mr. Baseball Bat",
-        "T-Rex's Bat",
-        "Big League Bat",
-        "Chef's Fry Pan",
-        "Non-Stick Frypan",
-        "French Fry Pan",
-        "Hyper Beam",
-        "Crusher Beam",
         "Trick Yo-yo",
         "Bionic Slingshot",
         "Crystal Charm",
-        "Platinum Band",
-        "Diamond Band",
         "Defense Ribbon",
         "Earth Pendant",
         "Flame Pendant",
         "Rain Pendant",
-        "Night Pendant",
-        "Lucky Coin",
-        "Silver Bracelet",
-        "Gold Bracelet",
-        "Coin of Slumber",
-        "Coin of Silence",
+        "Night Pendant"
     ]
 
     world.rare_items = [
@@ -165,21 +134,93 @@ def setup_gamevars(world):
     ]
 
     world.rare_gear = [
+        "Combat Yo-yo",
+        "Sword of Kings",
+        "Sea Pendant",
+        "Star Pendant",
+        "Goddess Ribbon"
+    ]
+
+    if world.options.progressive_weapons:
+        for i in range(3):
+            world.common_gear.append("Progressive Bat")
+            world.common_gear.append("Progressive Gun")
+            world.common_gear.append("Progressive Fry Pan")
+        for i in range(3):
+            world.uncommon_gear.append("Progressive Bat")
+            world.uncommon_gear.append("Progressive Gun")
+            world.uncommon_gear.append("Progressive Fry Pan")
+        world.rare_gear.append("Progressive Bat")
+        world.rare_gear.append("Progressive Gun")
+        world.rare_gear.append("Progressive Fry Pan")
+    else:
+        world.common_gear.extend([
+        "Cracked Bat",
+        "Tee Ball Bat",
+        "Sand Lot Bat",
+        "Minor League Bat",
+        "Fry Pan",
+        "Thick Fry Pan",
+        "Deluxe Fry Pan",
+        "Toy Air Gun",
+        "Zip Gun"
+        ])
+
+        world.uncommon_gear.extend([
+        "Mr. Baseball Bat",
+        "T-Rex's Bat",
+        "Big League Bat",
+        "Chef's Fry Pan",
+        "Non-Stick Frypan",
+        "French Fry Pan",
+        "Hyper Beam",
+        "Crusher Beam"
+        ])
+
+        world.rare_gear.extend([
         "Hall of Fame Bat",
         "Ultimate Bat",
         "Gutsy Bat",
         "Casey Bat",
         "Holy Fry Pan",
-        "Magic Fry Pan",
-        "Combat Yo-yo",
-        "Sword of Kings",
-        "Sea Pendant",
-        "Star Pendant",
-        "Goddess Ribbon",
+        "Magic Fry Pan"
+        ])
+
+    if world.options.progressive_armor:
+        for i in range(3):
+            world.common_gear.append("Progressive Bracelet")
+            world.common_gear.append("Progressive Other")
+        for i in range(3):
+            world.uncommon_gear.append("Progressive Bracelet")
+            world.uncommon_gear.append("Progressive Other")
+        world.rare_gear.append("Progressive Bracelet")
+        world.rare_gear.append("Progressive Other")
+    else:
+        world.common_gear.extend([
+        "Cheap Bracelet",
+        "Copper Bracelet",
+        "Baseball Cap",
+        "Mr. Baseball Cap",
+        "Holmes Hat",
+        "Hard Hat",
+        "Coin of Defense"
+        ])
+
+        world.uncommon_gear.extend([
+        "Platinum Band",
+        "Diamond Band",
+        "Lucky Coin",
+        "Silver Bracelet",
+        "Gold Bracelet",
+        "Coin of Slumber",
+        "Coin of Silence"
+        ])
+
+        world.rare_gear.extend([
         "Talisman Coin",
         "Shiny Coin",
         "Charm Coin"
-    ]
+        ])
 
     valid_starts = 14
     if world.options.magicant_mode != 00:
@@ -192,32 +233,47 @@ def setup_gamevars(world):
 
     if world.options.prefixed_items:
         world.multiworld.itempool.append(world.create_item("Counter-PSI Unit"))
-        world.multiworld.itempool.append(world.create_item("Magnum Air Gun"))
-        world.multiworld.itempool.append(world.create_item("Laser Gun"))
         world.multiworld.itempool.append(world.create_item("Shield Killer"))
         world.multiworld.itempool.append(world.create_item("Hungry HP-Sucker"))
         world.multiworld.itempool.append(world.create_item("Defense Shower"))
-        world.multiworld.itempool.append(world.create_item("Baddest Beam"))
         world.multiworld.itempool.append(world.create_item("Heavy Bazooka"))
         world.common_items.append("Defense Spray")
-        world.common_gear.append("Double Beam")
         world.uncommon_items.append("Slime Generator")
-        world.uncommon_gear.append("Spectrum Beam")
-        world.rare_gear.append("Gaia Beam")
+        if world.options.progressive_weapons:
+            for i in range(3):
+                world.multiworld.itempool.append(world.create_item("Progressive Gun"))
+                world.common_gear.append("Progressive Gun")
+                world.uncommon_gear.append("Progressive Gun")
+                world.rare_gear.append("Progressive Gun")
+        else:
+            world.multiworld.itempool.append(world.create_item("Magnum Air Gun"))
+            world.multiworld.itempool.append(world.create_item("Laser Gun"))
+            world.multiworld.itempool.append(world.create_item("Baddest Beam"))
+            world.uncommon_gear.append("Spectrum Beam")
+            world.rare_gear.append("Gaia Beam")
+            world.common_gear.append("Double Beam")
     else:
         world.multiworld.itempool.append(world.create_item("Broken Machine"))
-        world.multiworld.itempool.append(world.create_item("Broken Air Gun"))
-        world.multiworld.itempool.append(world.create_item("Broken Laser"))
         world.multiworld.itempool.append(world.create_item("Broken Pipe"))
         world.multiworld.itempool.append(world.create_item("Broken Tube"))
         world.multiworld.itempool.append(world.create_item("Broken Trumpet"))
-        world.multiworld.itempool.append(world.create_item("Broken Harmonica"))
         world.multiworld.itempool.append(world.create_item("Broken Bazooka"))
         world.common_items.append("Broken Spray Can")
-        world.common_gear.append("Broken Gadget")
         world.uncommon_items.append("Broken Iron")
-        world.uncommon_gear.append("Broken Cannon")
-        world.rare_gear.append("Broken Antenna")
+
+        if world.options.progressive_weapons:
+            for i in range(3):
+                world.multiworld.itempool.append(world.create_item("Progressive Gun"))
+            world.common_gear.append("Progressive Gun")
+            world.uncommon_gear.append("Progressive Gun")
+            world.rare_gear.append("Progressive Gun")
+        else:
+            world.multiworld.itempool.append(world.create_item("Broken Air Gun"))
+            world.multiworld.itempool.append(world.create_item("Broken Laser"))
+            world.multiworld.itempool.append(world.create_item("Broken Harmonica"))
+            world.common_gear.append("Broken Gadget")
+            world.uncommon_gear.append("Broken Cannon")
+            world.rare_gear.append("Broken Antenna")
 
     world.franklinbadge_elements = [
         "thunder",
@@ -344,51 +400,6 @@ def setup_gamevars(world):
     else:
         world.franklin_protection = "thunder"
 
-    world.hinted_regions = [
-        "Northern Onett",
-        "Onett",
-        "Giant Step",
-        "Twoson",
-        "Peaceful Rest Valley",
-        "Happy-Happy Village",
-        "Lilliput Steps",
-        "Threed",
-        "Grapefruit Falls",
-        "Belch's Factory",
-        "Saturn Valley",
-        "Upper Saturn Valley",
-        "Milky Well",
-        "Dusty Dunes Desert",
-        "Gold Mine",
-        "Monkey Caves",
-        "Fourside",
-        "Magnet Hill",
-        "Monotoli Building",
-        "Winters",
-        "Snow Wood Boarding School",
-        "Southern Winters",
-        "Rainy Circle",
-        "Stonehenge Base",
-        "Summers",
-        "Dalaam",
-        "Pink Cloud",
-        "Scaraba",
-        "Pyramid",
-        "Southern Scaraba",
-        "Dungeon Man",
-        "Deep Darkness",
-        "Tenda Village",
-        "Lumine Hall",
-        "Lost Underworld",
-        "Fire Spring",
-        "Magicant",
-        "Cave of the Present",
-        "Cave of the Past"
-    ]
-    
-    world.random.shuffle(world.hinted_regions)
-    del world.hinted_regions[6:39]
-
     if world.options.random_start_location == 1:
         world.valid_teleports = [
             "Onett Teleport",
@@ -441,25 +452,32 @@ def setup_gamevars(world):
 
     world.lumine_text = []
     world.prayer_player = []
-    lumine_str = world.random.choice(lumine_hall_text)
+    if world.options.plando_lumine_hall_text == "":
+        lumine_str = world.random.choice(lumine_hall_text)
+    else:
+        lumine_str = world.options.plando_lumine_hall_text.value
+
     for char in lumine_str[:213]:
         world.lumine_text.extend(eb_text_table[char])
     world.lumine_text.extend([0x00])
     world.starting_money = struct.pack('<I', world.options.starting_money.value)
 
-    prayer_player = world.multiworld.get_player_name(world.random.randint(1, world.multiworld.players))
+    prayer_player = world.multiworld.get_player_name(world.random.randint(1, world.multiworld.players)) #todo; move to text converter
     for char in prayer_player[:24]:
         if char in eb_text_table:
             world.prayer_player.extend(eb_text_table[char])
         else:
             world.prayer_player.extend([0x6F])
     world.prayer_player.extend([0x00])
+
+    world.credits_player = world.multiworld.get_player_name(world.player)
+    world.credits_player = text_encoder(world.credits_player, eb_text_table, 16)
+    world.credits_player.extend([0x00])
     shuffle_psi(world)
     initialize_bosses(world)
 
 
 def place_static_items(world):
-    world.get_location("Onett Police Station").place_locked_item(world.create_item("Onett Roadblocks Removed"))
     world.get_location("Belch Defeated").place_locked_item(world.create_item("Threed Tunnels Clear"))
     world.get_location("Dungeon Man Submarine").place_locked_item(world.create_item("Submarine to Deep Darkness"))
 
@@ -511,4 +529,3 @@ def place_static_items(world):
         world.get_location("Monkey Caves - East 2F Right Chest").place_locked_item(world.create_item("Hamburger"))
         world.get_location("Monkey Caves - East West 3F Right Chest #1").place_locked_item(world.create_item("Hamburger"))
         world.get_location("Monkey Caves - East West 3F Right Chest #2").place_locked_item(world.create_item("Picnic Lunch"))
-

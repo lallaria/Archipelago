@@ -104,15 +104,15 @@ def init_areas(world: "EarthBoundWorld", locations: List[LocationData]) -> None:
                                                        "Threed": lambda state: state.has_any({"Threed Tunnels Clear", "Wad of Bills"}, player),
                                                        "Everdred's House": lambda state: state.has("Paula", player)})
 
-    multiworld.get_region("Peaceful Rest Valley", player).add_exits(["Twoson", "Happy-Happy Village",],
+    multiworld.get_region("Peaceful Rest Valley", player).add_exits(["Twoson", "Happy-Happy Village"],
                                                                     {"Twoson": lambda state: state.has_any({"Pencil Eraser", "Franklin Badge"}, player)})  # Change to franklin badge
 
     multiworld.get_region("Happy-Happy Village", player).add_exits(["Peaceful Rest Valley", "Lilliput Steps"])
     
-    multiworld.get_region("Threed", player).add_exits(["Twoson", "Dusty Dunes Desert", "Summers", "Threed Underground", "Boogey Tent"],
+    multiworld.get_region("Threed", player).add_exits(["Twoson", "Dusty Dunes Desert", "Southern Winters", "Threed Underground", "Boogey Tent"],
                                                       {"Twoson": lambda state: state.has("Threed Tunnels Clear", player),
                                                       "Dusty Dunes Desert": lambda state: state.has("Threed Tunnels Clear", player),
-                                                       "Summers": lambda state: state.has_all({"Jeff", "UFO Engine", "Bad Key Machine"}, player),
+                                                       "Southern Winters": lambda state: state.has_all({"UFO Engine", "Bad Key Machine"}, player),
                                                        "Threed Underground": lambda state: state.has("Zombie Paper", player),
                                                        "Boogey Tent": lambda state: state.has("Jeff", player)})
 
@@ -231,5 +231,7 @@ def connect_menu_region(world: "EarthBoundWorld") -> None:
         13: "Lost Underworld",
         14: "Magicant"
     }
-    world.multiworld.get_region("Menu", world.player).add_exits([starting_region_list[world.start_location], "Ness's Mind"])
+    #todo; change the coordinate dict to use names instead of numbers, change start_location instead of making a new var
+    world.starting_region = starting_region_list[world.start_location]
+    world.multiworld.get_region("Menu", world.player).add_exits([world.starting_region, "Ness's Mind"])
     

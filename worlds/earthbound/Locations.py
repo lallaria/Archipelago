@@ -58,7 +58,7 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Lilliput Steps", "Lilliput Steps - East Cliff Present", 0xEB002A),
         LocationData("Lilliput Steps", "Lilliput Steps - North Stream Present", 0xEB002B),
         LocationData("Boogey Tent", "Threed - Boogey Tent Trashcan", 0xEB002C),
-        LocationData("Threed", "Threed - Cemetary Trashcan", 0xEB002D),
+        LocationData("Threed", "Threed - Cemetery Trashcan", 0xEB002D),
         LocationData("Threed", "Threed - Downtown Trashcan", 0xEB002E),
         LocationData("Threed", "Threed - East Side Trashcan", 0xEB002F),
         LocationData("Threed", "Threed - Northeast Shack Trashcan", 0xEB0030),
@@ -101,7 +101,7 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Snow Wood Boarding School", "Snow Wood - Many Present Room Present #5", 0xEB0055),
         LocationData("Snow Wood Boarding School", "Snow Wood - Many Present Room Present #6", 0xEB0056),
         LocationData("Snow Wood Boarding School", "Snow Wood - Many Present Room Present #7", 0xEB0057),
-        LocationData("Scaraba", "Scaraba - Snake Bag Salesman", 0xEB0058),  # Commented out, location changed
+        LocationData("Scaraba", "Scaraba - Snake Bag Salesman", 0xEB0058),
         LocationData("Snow Wood Boarding School", "Snow Wood - Upper Right Locker", 0xEB0059),
         LocationData("Snow Wood Boarding School", "Snow Wood - Upper Left Locker", 0xEB005A),
         LocationData("Snow Wood Boarding School", "Snow Wood - Bottom Right Locker", 0xEB005B),
@@ -167,7 +167,7 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Fourside", "Moonside - Two Trees Present", 0xEB008E),
         LocationData("Fourside", "Moonside - East Island Present", 0xEB008F),
         LocationData("Fourside", "Moonside - Businessman Present", 0xEB0090),
-        LocationData("Fourside", "Moonside - Monotoli Building Present", 0xEB0091),
+        LocationData("Fourside", "Moonside - West Island Present", 0xEB0091),
         LocationData("Fourside", "Moonside - Hospital Present", 0xEB0092),
         LocationData("Fourside Dept. Store", "Fourside - Department Store Blackout", 0xEB0093),
         LocationData("Magnet Hill", "Magnet Hill - West Entrance Trashcan", 0xEB0094),
@@ -192,7 +192,7 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Dalaam", "Dalaam - Do Do Guy's House Chest", 0xEB00A7),
         LocationData("Dalaam", "Dalaam - Upper House Chest", 0xEB00A8),
         LocationData("Dalaam", "Dalaam - Throne Character", 0xEB00A9),
-        LocationData("Ness's Mind", "Poo Starting Item", 0xEB00AA),
+        LocationData("Ness's Mind", "Poo - Starting Item", 0xEB00AA),
         LocationData("Pink Cloud", "Pink Cloud - Three Holes Present", 0xEB00AB),
         LocationData("Pink Cloud", "Pink Cloud - Left Hole Present", 0xEB00AC),
         LocationData("Pink Cloud", "Pink Cloud - Ground Floor Present", 0xEB00AD),
@@ -257,7 +257,6 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Cave of the Present", "Cave of the Present - Star Master", 0xEB00EE),
         LocationData("Cave of the Present", "Cave of the Present - Broken Phase Distorter", 0xEB00EF),
 
-        LocationData("Onett", "Onett Police Station", None),
         LocationData("Belch's Factory", "Belch Defeated", None),
         LocationData("Dungeon Man", "Dungeon Man Submarine", None),
         LocationData("Giant Step", "Giant Step Sanctuary", None),
@@ -271,28 +270,28 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
         LocationData("Ness's Mind", "Sanctuary Goal", None),
     ]
 
-    if not world or world.options.giygas_required:
+    if world.options.giygas_required:
         location_table += [
             LocationData("Cave of the Past", "Cave of the Past - Present", 0xEB00F0),
             LocationData("Endgame", "Giygas", None),
         ]
 
-    if not world or world.options.alternate_sanctuary_goal:
+    if world.options.alternate_sanctuary_goal:
         location_table += [
             LocationData("Ness's Mind", "+2 Sanctuaries", None)
         ]
 
-    if not world or world.options.magicant_mode > 0 and world.options.magicant_mode < 3:
+    if world.options.magicant_mode > 0 and world.options.magicant_mode < 3:
         location_table += [
             LocationData("Magicant", "Magicant - Ness's Nightmare", None),
         ]
 
-    if not world or not world.options.magicant_mode:
+    if not world.options.magicant_mode:
         location_table += [
             LocationData("Magicant", "Magicant - Ness's Nightmare", 0xEB00ED),
         ]
 
-    if not world or world.options.magicant_mode < 2:
+    if world.options.magicant_mode < 2:
         location_table += [
             LocationData("Magicant", "Magicant - Ness's Gift", 0xEB00E8),
             LocationData("Magicant", "Magicant - Present Near Ness", 0xEB00E9),
@@ -301,7 +300,7 @@ def get_locations(world: "EarthBoundWorld") -> List[LocationData]:
             LocationData("Magicant", "Magicant - Hills Present", 0xEB00EC),
             LocationData("Magicant", "Magicant - Town Present", 0xEB00FA)
         ]
-    if not world or world.options.magicant_mode == 2:
+    if world.options.magicant_mode == 2:
         location_table += [
             LocationData("Ness's Mind", "+1 Sanctuary", None)
         ]

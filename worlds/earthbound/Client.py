@@ -3,8 +3,8 @@ import struct
 import typing
 import time
 from struct import pack, unpack
-from .local_data import check_table, client_specials, world_version
-from .text_data import eb_text_table
+from .game_data.local_data import check_table, client_specials, world_version, hint_bits
+from .game_data.text_data import eb_text_table
 
 from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
@@ -47,6 +47,8 @@ PLAYER_JUST_DIED_SEND_DEATHLINK = WRAM_START + 0xB584
 IS_ABLE_TO_RECEIVE_DEATHLINKS = WRAM_START + 0xB585
 CHAR_COUNT = WRAM_START + 0x98A4
 OSS_FLAG = WRAM_START + 0x5D98
+HINT_SCOUNT_IDS = ROM_START + 0x310250
+SCOUTED_HINT_FLAGS = WRAM_START + 0xB621
 already_tried_to_connect = False
 
 
@@ -55,6 +57,7 @@ class EarthBoundClient(SNIClient):
     patch_suffix = ".apeb"
     most_recent_connect: str = ""
     client_version = world_version
+    hint_list = []
 
     async def deathlink_kill_player(self, ctx: "SNIContext") -> None:
         import struct
@@ -115,7 +118,6 @@ class EarthBoundClient(SNIClient):
         if rom_name is None or rom_name[:6] != b"MOM2AP":
             return False
 
-
         apworld_version = apworld_version.decode("utf-8").strip("\x00")
         if apworld_version != self.most_recent_connect and apworld_version != self.client_version:
             ctx.gui_error("Bad Version", f"EarthBound APWorld version {self.client_version} does not match generated version {apworld_version}")
@@ -146,6 +148,7 @@ class EarthBoundClient(SNIClient):
         earth_power_absorbed = await snes_read(ctx, EARTH_POWER_FLAG, 1)
         cur_script = await snes_read(ctx, CUR_SCENE, 1)
         rom = await snes_read(ctx, EB_ROMHASH_START, ROMHASH_SIZE)
+        scouted_hint_flags = await snes_read(ctx, SCOUTED_HINT_FLAGS, 1)
         if rom != ctx.rom:
             ctx.rom = None
             return
@@ -162,6 +165,15 @@ class EarthBoundClient(SNIClient):
         if game_clear[0] & 0x01 == 0x01:  # Goal should ignore the item queue and textbox check
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
+        
+        for i in range(6):
+            if scouted_hint_flags[0] & hint_bits[i]:
+                scoutable_hint = await snes_read(ctx, HINT_SCOUNT_IDS + (i * 2), 2)
+                scoutable_hint = scoutable_hint[0] + 0xEB0000
+
+                if i not in self.hint_list:
+                    self.hint_list.append(i)
+                    await ctx.send_msgs([{"cmd": "LocationScouts", "locations": [scoutable_hint], "create_as_hint": 1}])
 
         await ctx.send_msgs([{
                     "cmd": "Set",
@@ -191,7 +203,7 @@ class EarthBoundClient(SNIClient):
             return
 
         new_checks = []
-        from .local_data import check_table
+        from .game_data.local_data import check_table
 
         location_ram_data = await snes_read(ctx, WRAM_START + 0x9C00, 0x88)
         for loc_id, loc_data in check_table.items():
