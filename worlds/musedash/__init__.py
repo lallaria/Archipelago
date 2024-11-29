@@ -184,7 +184,11 @@ class MuseDashWorld(World):
         if trap:
             return MuseDashFixedItem(name, ItemClassification.trap, trap, self.player)
 
-        song = self.md_collection.song_items.get(name)
+        album = self.md_collection.album_items.get(name)
+        if album:
+            return MuseDashSongItem(name, self.player, album)
+
+        song = self.md_collection.song_items[name]
         return MuseDashSongItem(name, self.player, song)
 
     def get_filler_item_name(self) -> str:
