@@ -144,6 +144,28 @@ class BossFightLocation:
     boss: Boss
     unified: bool
 
+    def get_boss_name(self) -> str:
+        if self.unified:
+            return f"{self.boss} Boss Fight"
+        else:
+            return f"{self.boss} Boss Fight ({self.characters[0].name})"
+
+
+@dataclass
+class ChaoEggLocation:
+    locationId: int
+    eggName: str
+    area: Area
+    characters: List[Character]
+    requirements: List[str]
+
+
+@dataclass
+class ChaoRaceLocation:
+    locationId: int
+    name: str
+    area: Area
+
 
 area_connections: Dict[Tuple[Character, Area, Area], Tuple[List[str], List[str], List[str]]] = {
     (Character.Sonic, Area.Hotel, Area.EmeraldCoast): ([], [], []),
@@ -906,4 +928,18 @@ boss_location_table: List[BossFightLocation] = [
                       LocationName.Boss.Chaos6, True),
     BossFightLocation(780, Area.EggCarrierMain, [Character.Gamma], LocationName.Boss.E101mkII, False),
     BossFightLocation(790, Area.EggCarrierMain, [Character.Amy], LocationName.Boss.Zero, False),
+]
+
+chao_egg_location_table: List[ChaoEggLocation] = [
+    ChaoEggLocation(900, LocationName.Chao.GoldEgg, Area.Hotel, EVERYONE, [ItemName.KeyItem.HotelKeys]),
+    ChaoEggLocation(901, LocationName.Chao.SilverEgg, Area.MysticRuinsMain, EVERYONE, []),
+    ChaoEggLocation(902, LocationName.Chao.BlackEgg, Area.EggCarrierMain,
+                    [Character.Amy, Character.Gamma, Character.Big], []),
+]
+chao_race_location_table: List[ChaoRaceLocation] = [
+    ChaoRaceLocation(905, LocationName.Chao.PearlCourse, Area.Hotel),
+    ChaoRaceLocation(906, LocationName.Chao.AmethystCourse, Area.Hotel),
+    ChaoRaceLocation(907, LocationName.Chao.SapphireCourse, Area.Hotel),
+    ChaoRaceLocation(908, LocationName.Chao.RubyCourse, Area.Hotel),
+    ChaoRaceLocation(909, LocationName.Chao.EmeraldCourse, Area.Hotel),
 ]

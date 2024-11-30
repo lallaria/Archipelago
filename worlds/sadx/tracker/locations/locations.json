@@ -28,7 +28,13 @@
       {"name": "Mission 3 (Sonic)"},
       {"name": "Mission 10 (Tails)"},
       {"name": "Chaos 2 Boss Fight (Knuckles)"},
-      {"name": "Mission 14 (Big)"}
+      {"name": "Mission 14 (Big)"},
+      {"name": "Gold Chao Egg"},
+      {"name": "Pearl Course"},
+      {"name": "Amethyst Course"},
+      {"name": "Sapphire Course"},
+      {"name": "Ruby Course"},
+      {"name": "Emerald Course"}
     ],
     "map_locations": [{"map": "all_maps", "x": 420, "y": 615}]
   },
@@ -67,7 +73,8 @@
       {"name": "Sky Chase Act 1 (Sub-Level - Mission A)"},
       {"name": "Tails' Workshop Emblem"},
       {"name": "Egg Hornet Boss Fight"},
-      {"name": "Chaos 4 Boss Fight"}
+      {"name": "Chaos 4 Boss Fight"},
+      {"name": "Silver Chao Egg"}
     ],
     "map_locations": [{"map": "all_maps", "x": 1700, "y": 450}]
   },
@@ -129,7 +136,8 @@
       {"name": "Spinning Platform Emblem"},
       {"name": "Hidden Bed Emblem"},
       {"name": "Main Platform Emblem"},
-      {"name": "Chaos 6 Boss Fight"}
+      {"name": "Chaos 6 Boss Fight"},
+      {"name": "Black Chao Egg"}
     ],
     "map_locations": [{"map": "all_maps", "x": 3150, "y": 427}]
   },
