@@ -112,7 +112,7 @@ class ChecksFinderContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago ChecksFinder Client"
+            base_title = Utils.archipelago_name + " ChecksFinder Client"
 
         self.ui = ChecksFinderManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

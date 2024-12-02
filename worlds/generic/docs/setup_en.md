@@ -1,7 +1,7 @@
 # Archipelago Setup Guide
 
 This guide is intended to provide an overview of how to:
-- Install, set up, and run the Archipelago multiworld software
+- Install, set up, and run the Trezapalooza Multiworld software
 - Generate and host multiworlds
 - Connect to the multiworld after hosting has begun
 

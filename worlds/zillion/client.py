@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Coroutine, Protocol, cast
 from CommonClient import CommonContext, server_loop, gui_enabled, \
     ClientCommandProcessor, logger, get_base_parser
 from NetUtils import ClientStatus
-from Utils import async_start
+from Utils import async_start, archipelago_name
 
 import colorama
 from typing_extensions import override
@@ -149,7 +149,7 @@ class ZillionContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Zillion Client"
+            base_title = archipelago_name + " Zillion Client"
 
             class MapPanel(Widget):
                 MAP_WIDTH: ClassVar[int] = 281

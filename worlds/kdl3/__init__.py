@@ -45,7 +45,7 @@ class KDL3WebWorld(WebWorld):
 
         Tutorial(
             "Multiworld Setup Guide",
-            "A guide to setting up the Kirby's Dream Land 3 randomizer connected to an Archipelago Multiworld.",
+            "A guide to setting up the Kirby's Dream Land 3 randomizer connected to an Trezapalooza Multiworld.",
             "English",
             "setup_en.md",
             "setup/en",

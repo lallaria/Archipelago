@@ -48,7 +48,7 @@ Por defecto, al abrir un archivo parcheado, se harán de manera automática 1-5 
 siguiente en caso de que debas cerrar y volver a abrir la ventana en mitad de la partida por algún motivo.
 
 1. Pokémon Emerald usa el Archipelago BizHawk Client. Si el cliente no se encuentra abierto al abrir la rom
-parcheada, puedes volver a abrirlo desde el Archipelago Launcher.
+parcheada, puedes volver a abrirlo desde el TreZapalooza Launcher.
 2. Asegúrate que EmuHawk está corriendo la ROM parcheada.
 3. En EmuHawk, ve a `Tools > Lua Console`. Debes tener esta ventana abierta mientras juegas.
 4. En la ventana de Lua Console, ve a `Script > Open Script…`.

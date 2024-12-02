@@ -47,8 +47,13 @@ class Version(typing.NamedTuple):
         return ".".join(str(item) for item in self)
 
 
-__version__ = "0.6.0"
+__version__ = "0.6.6"
 version_tuple = tuplize_version(__version__)
+
+archipelago_name = "TreZapalooza"
+archipelago_guid = "{{918BA46A-FAB8-460C-9DFF-AE691E1C865C}}"
+# archipelago_name = "Archipelago"
+# archipelago_guid = "{{918BA46A-FAB8-460C-9DFF-AE691E1C865B}}"
 
 is_linux = sys.platform.startswith("linux")
 is_macos = sys.platform == "darwin"
@@ -556,7 +561,7 @@ def init_logging(name: str, loglevel: typing.Union[str, int] = logging.INFO,
     threading.Thread(target=_cleanup, name="LogCleaner").start()
     import platform
     logging.info(
-        f"Archipelago ({__version__}) logging initialized"
+        f"{archipelago_name} ({__version__}) logging initialized"
         f" on {platform.platform()}"
         f" running Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         f"{' (frozen)' if is_frozen() else ''}"
@@ -823,10 +828,8 @@ def title_sorted(data: typing.Iterable, key=None, ignore: typing.AbstractSet[str
             element = element["title"]
 
         parts = element.split(maxsplit=1)
-        if parts[0].lower() in ignore:
-            return parts[1].lower()
-        else:
-            return element.lower()
+        
+        return element.lower()
     return sorted(data, key=lambda i: sorter(key(i)) if key else sorter(i))
 
 

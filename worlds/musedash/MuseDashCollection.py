@@ -41,7 +41,7 @@ class MuseDashCollections:
         "umpopoff",
         "P E R O P E R O Brother Dance",
     ]
-    
+
     REMOVED_SONGS = [
         "CHAOS Glitch",
         "FM 17314 SUGAR RADIO",
@@ -65,7 +65,7 @@ class MuseDashCollections:
         "Gray Scale Trap": STARTING_CODE + 7,
         "Nyaa SFX Trap": STARTING_CODE + 8,
         "Error SFX Trap": STARTING_CODE + 9,
-        "Focus Line Trap": STARTING_CODE + 10,  
+        "Focus Line Trap": STARTING_CODE + 10,
     }
 
     sfx_trap_items: List[str] = [
@@ -157,7 +157,7 @@ class MuseDashCollections:
         for songKey, songData in self.song_items.items():
             if not self.song_matches_dlc_filter(songData, dlc_songs):
                 continue
-                
+
             if songKey in self.REMOVED_SONGS:
                 continue
 
@@ -196,15 +196,14 @@ class MuseDashCollections:
 
     def parse_song_difficulty(self, difficulty: str) -> Optional[int]:
         """Attempts to parse the song difficulty."""
-        if len(difficulty) <= 0 or difficulty == "?" or difficulty == "¿":
+        if len(difficulty) <= 0 or difficulty == "?" or difficulty == "�":
             return None
 
         # 0 is used as a filler and no songs actually have a 0 difficulty song.
-        if difficulty == "0":
             return None
 
         # Curse the 2023 april fools update. Used on 3rd Avenue.
-        if difficulty == "〇":
+        if difficulty == "?":
             return 10
 
         return int(difficulty)

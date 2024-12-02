@@ -72,6 +72,7 @@ Currently, the following games are supported:
 * Aquaria
 * Yu-Gi-Oh! Ultimate Masters: World Championship Tournament 2006
 * A Hat in Time
+* Wargroove 2
 * Old School Runescape
 * Kingdom Hearts 1
 * Mega Man 2

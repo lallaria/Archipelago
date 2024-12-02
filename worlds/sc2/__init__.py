@@ -24,7 +24,7 @@ from .MissionTables import MissionInfo, SC2Campaign, lookup_name_to_mission, SC2
 class Starcraft2WebWorld(WebWorld):
     setup_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Starcraft 2 randomizer connected to an Archipelago Multiworld",
+        "A guide to setting up the Starcraft 2 randomizer connected to an Trezapalooza Multiworld",
         "English",
         "setup_en.md",
         "setup/en",

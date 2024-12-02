@@ -36,7 +36,7 @@ class DKC3Web(WebWorld):
 
     setup_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Donkey Kong Country 3 randomizer connected to an Archipelago Multiworld.",
+        "A guide to setting up the Donkey Kong Country 3 randomizer connected to an Trezapalooza Multiworld.",
         "English",
         "setup_en.md",
         "setup/en",

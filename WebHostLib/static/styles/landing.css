@@ -145,6 +145,18 @@ html{
     animation-iteration-count: infinite;
 }
 
+#landing-clouds #cloud4{
+    position: absolute;
+    left: 95px;
+    top: 620px;
+    width: 300px;
+    height: 300px;
+
+    animation-name: c4-float;
+    animation-duration: 20s;
+    animation-iteration-count: infinite;
+}
+
 #landing #first-line{
     font-family: LondrinaSolid-Light, sans-serif;
     font-size: 25px;
@@ -221,6 +233,29 @@ html{
     }
 }
 
+@keyframes c4-float {
+    from{
+        left: 95px;
+        top: 620px;
+    }
+    25%{
+        left: 98px;
+        top: 617px;
+    }
+    50%{
+        left: 94px;
+        top: 620px;
+    }
+    75%{
+        left: 92px;
+        top: 622px;
+    }
+    to{
+        left: 95px;
+        top: 620px;
+    }
+}
+
 #landing{
     max-width: 700px;
     min-height: 280px;
@@ -279,7 +314,7 @@ html{
 }
 
 @media all and (max-width: 1580px){
-    #landing-clouds #cloud1, #landing-clouds #cloud2, #landing-clouds #cloud3{
+    #landing-clouds #cloud1, #landing-clouds #cloud2, #landing-clouds #cloud3, #landing-clouds #cloud4{
         display: none;
     }
 
