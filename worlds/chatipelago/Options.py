@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from Options import FreeText, PerGameCommonOptions, Visibility
 
-class Item_List(FreeText):
+class Inventory_List(FreeText):
     """JSON style list of items to replace default items
     Max 25 items (will be truncated)
     '["a","b","c","d","e","f","g"]'
     Quote style does matter!"""
     display_name = "Items"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 class Progression_List(FreeText):
@@ -16,7 +16,7 @@ class Progression_List(FreeText):
     '["a","b","c"]'
     Quote style does matter!"""
     display_name = "Progression Items"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 class Filler_List(FreeText):
@@ -25,7 +25,7 @@ class Filler_List(FreeText):
     '["a","b","c"]'
     Quote style does matter! """
     display_name = "Filler Items"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 class Trap_List(FreeText):
@@ -34,7 +34,7 @@ class Trap_List(FreeText):
     '["a","b","c"]'
     Quote style does matter! """
     display_name = "Trap Items"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 class Location_List(FreeText):
@@ -43,7 +43,7 @@ class Location_List(FreeText):
     '["a","b","c","d","e","f","g"]'
     Quote style does matter! """
     display_name = "Location List"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 class Progression_Location_List(FreeText):
@@ -52,12 +52,12 @@ class Progression_Location_List(FreeText):
     '["a","b","c","d","e","f","g"]'
     Quote style does matter! """
     display_name = "Progression Locations"
-    default = ""
+    default = "[]"
     visibility = Visibility.template
 
 @dataclass
 class ChatipelagoOptions(PerGameCommonOptions):
-    Item_List: Item_List
+    Inventory_List: Inventory_List
     Progression_List: Progression_List
     Filler_List: Filler_List
     Trap_List: Trap_List
