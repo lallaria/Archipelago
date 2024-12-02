@@ -12,6 +12,7 @@ Scroll down to components= to add components to the launcher as well as setup.py
 import argparse
 import itertools
 import logging
+import logging.handlers
 import multiprocessing
 import shlex
 import subprocess
@@ -182,7 +183,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
         name = component
         component = None
         if name.startswith(Utils.archipelago_name):
-            name = name[11:]
+            name = name[len(Utils.archipelago_name):]
         if name.endswith(".exe"):
             name = name[:-4]
         if name.endswith(".py"):
@@ -190,7 +191,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
         if not name:
             return None
         for c in components:
-            if c.script_name == name or c.frozen_name == f"{Utils.archipelago_name}{name}":
+            if c.script_name == name or c.frozen_name == Utils.archipelago_name + name:
                 component = c
                 break
         if not component:
@@ -205,7 +206,10 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
 def launch(exe, in_terminal=False):
     if in_terminal:
         if is_windows:
-            subprocess.Popen(['start', *exe], shell=True)
+            try:
+                subprocess.Popen(["wt","-w","0",*exe], shell=True)
+            except FileNotFoundError:
+                subprocess.Popen([*exe], shell=True)
             return
         elif is_linux:
             terminal = which('x-terminal-emulator') or which('gnome-terminal') or which('xterm')

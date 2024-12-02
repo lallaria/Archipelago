@@ -1,5 +1,4 @@
-from typing import Self
-from BaseClasses import Item, Region, Entrance, Tutorial, ItemClassification
+from BaseClasses import Item, Region, Tutorial, ItemClassification
 from .Items import *
 from .Regions import *
 from .Options import ChatipelagoOptions
@@ -26,7 +25,7 @@ class ChatipelagoWorld(World):
     """
     game = "Chatipelago"
     options_dataclass = ChatipelagoOptions
-    options = ChatipelagoOptions
+    options: ChatipelagoOptions
     web = ChatipelagoWeb()
 
     location_name_to_id = dict()
@@ -35,14 +34,22 @@ class ChatipelagoWorld(World):
     def __init__(self, multiworld: "MultiWorld", player: int):
         super().__init__(multiworld, player)
 
-        self._item_list = loads(self.options.Item_List)
-        self._progression_list = loads(self.options.Progression_List)
-        self._filler_list = loads(self.options.Filler_List)
-        self._trap_list = loads(self.options.Trap_List)
-        self._location_list = loads(self.options.Location_List)
-        self._progression_location_list = loads(self.options.Progression_Location_List)
+        self._item_list = []
+        self._progression_list = []
+        self._filler_list = []
+        self._trap_list = []
+        self._location_list = []
+        self._progression_location_list = []
 
     def generate_early(self):
+        self._item_list = loads(self.options.Inventory_List.value)
+        self._progression_list = loads(self.options.Progression_List.value)
+        self._filler_list = loads(self.options.Filler_List.value)
+        self._trap_list = loads(self.options.Trap_List.value)
+        self._location_list = loads(self.options.Location_List.value)
+        self._progression_location_list = loads(self.options.Progression_Location_List.value)
+
+
         ## Replace any items before we set the pool
         if self._item_list:
             for i in item_table: item_table[i] = self._item_list.pop() 
