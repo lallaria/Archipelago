@@ -1,8 +1,11 @@
 from re import I
 from pymem import Pymem, logging, ptypes, memory, process
 from ctypes import *
-import os
-import pyfasm
+from struct import unpack_from
+from Utils import user_path
+
+logging.info(user_path("lib", "fasm.dll"))
+_fasm = WinDLL(user_path("lib", "fasm.dll"))
 
 class Gamecall(object):
 
@@ -77,7 +80,7 @@ class Gamecall(object):
                     _ = "jmp rax"
 
         logging.info(f"asmstr: {asmstr}\n extra_params {extra_params}")
-        self.instructions = pyfasm.assemble(asmstr)
+        self.instructions = assemble(asmstr)
 
     def remind_me(self, kh2address: ptypes.RemotePointer):
         pass
@@ -122,3 +125,16 @@ class Gamecall(object):
 
         # hpfunc = KH2DelilahContext.kh2_c_call_func(self.game_func_addrs["HitPointFunc"] + self.kh2.base_address)
         # hpfunc(c_write_int(self.Slot1, -120))
+def assemble(src, memorySize=0x10000, passesLimit=100):
+    """Assembles string and returns assembled bytes"""
+    buf = create_string_buffer(memorySize)
+    err = _fasm.fasm_Assemble(c_char_p(src), buf, len(buf), passesLimit, 0)
+    if err == 0:
+        cb, addr = unpack_from('II', buf, 4)
+        ofs = addr - addressof(buf)
+        return buf[ofs:ofs + cb]
+    if err != 2:
+        raise RuntimeError('FASM error: ' + err)
+    cb, addr = unpack_from('II', buf, 4)
+    errCode, errLine = unpack_from('iI', buf, 4)
+    raise RuntimeError('FASM error: ' + errCode + errLine)
