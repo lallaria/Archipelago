@@ -209,7 +209,7 @@ def launch(exe, in_terminal=False):
             try:
                 subprocess.Popen(["wt","-w","0",*exe], shell=True)
             except FileNotFoundError:
-                subprocess.Popen([*exe], shell=True)
+                subprocess.Popen(["start", *exe], shell=True)
             return
         elif is_linux:
             terminal = which('x-terminal-emulator') or which('gnome-terminal') or which('xterm')
