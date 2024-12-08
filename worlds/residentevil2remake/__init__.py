@@ -41,7 +41,7 @@ class ResidentEvil2Remake(World):
 
     data_version = 2
     required_client_version = (0, 4, 4)
-    apworld_release_version = "0.2.4" # defined to show in spoiler log
+    apworld_release_version = "0.2.5" # defined to show in spoiler log
 
     item_id_to_name = { item['id']: item['name'] for item in Data.item_table }
     item_name_to_id = { item['name']: item['id'] for item in Data.item_table }
@@ -328,6 +328,13 @@ class ResidentEvil2Remake(World):
                 pool.remove(replaceables[2]) # remove the 3rd item to make room for a 3rd medallion
                 pool.append(self.create_item('Maiden Medallion'))
 
+        if self._format_option_text(self.options.early_medallions) == 'True':
+            medallions = {i: len([i2 for i2 in pool if i2.name == i.name]) for i in pool if i.name in ['Lion Medallion', 'Unicorn Medallion', 'Maiden Medallion']}
+
+            for item_name, item_qty in medallions.items():
+                if item_qty > 0:
+                    self.multiworld.early_items[self.player][item_name] = item_qty
+   
 
         # check the "Oops! All Rockets" option. From the option description:
         #     Enabling this swaps all weapons, weapon ammo, and subweapons to Rocket Launchers. 
@@ -423,7 +430,8 @@ class ResidentEvil2Remake(World):
         else: # it's Lore
             classification = ItemClassification.filler
 
-        return Item(item['name'], classification, item['id'], player=self.player)
+        new_item = Item(item['name'], classification, item['id'], player=self.player)
+        return new_item
 
     def get_filler_item_name(self) -> str:
         return "Wooden Boards"
@@ -498,7 +506,7 @@ class ResidentEvil2Remake(World):
             # else, it requires some duplicates, so let's group them up and do some has w/ counts
             else:
                 item_counts = {
-                    item_name: len([i for i in item_names if i == item_name]) for item_name in set_of_requirements # e.g., { Spare Key: 2 }
+                    item_name: len([i for i in set_of_requirements if i == item_name]) for item_name in set_of_requirements # e.g., { Spare Key: 2 }
                 }
                 missing_an_item = False
 
