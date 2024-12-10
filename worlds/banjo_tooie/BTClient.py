@@ -57,7 +57,7 @@ bt_loc_name_to_id = network_data_package["games"]["Banjo-Tooie"]["location_name_
 bt_itm_name_to_id = network_data_package["games"]["Banjo-Tooie"]["item_name_to_id"]
 
 script_version: int = 4
-version: str = "V3.5"
+version: str = "V3.5.2"
 
 def get_item_value(ap_id):
     return ap_id
@@ -136,10 +136,10 @@ class BanjoTooieContext(CommonContext):
             "Gruntilda:    Grunty's fireball you did kiss, \n                     You're so slow I can hardly miss!",
             "Gruntilda:    In this world you breathe your last,\n                     Now your friends had better think fast!",
             "Gruntilda:    This is fun it's quite a treat, \n                     To see you suffer in defeat",
-            "Gruntilda:    That death just now, I saw coming, \n                Your skill issues are rather stunning!",
-            "Gruntilda:    Seeing this pathetic display, \n                Is serotonin in my day",
-            "Gruntilda:    What a selfish thing to do,\n                Your friends just died because of you!",
-            "Gruntilda:    You tried something rather stupid,\n                I hope no one will try what you did"
+            "Gruntilda:    That death just now, I saw coming, \n                     Your skill issues are rather stunning!",
+            "Gruntilda:    Seeing this pathetic display, \n                     Is serotonin in my day",
+            "Gruntilda:    What a selfish thing to do,\n                     Your friends just died because of you!",
+            "Gruntilda:    You tried something rather stupid,\n                     I hope no one will try what you did"
         ]
 
     async def server_auth(self, password_requested: bool = False):

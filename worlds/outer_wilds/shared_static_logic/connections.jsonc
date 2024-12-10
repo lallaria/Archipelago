@@ -235,13 +235,13 @@
 
     { "category": "hn1", "from": "Lonely Hermit", "to": "Alpine Core", "requires": [] },
 
-    { "category": "hn1", "from": "Lonely Hermit", "to": "Lava Core", "requires": [] },
-    { "category": "hn1", "from": "Lava Core", "to": "Lava Shrine", "requires": [
-        { "item": "Scout" }
-    ] },
-    { "category": "hn1", "from": "Lava Core", "to": "Lava Core Frequency", "requires": [
+    { "category": "hn1", "from": "Lonely Hermit", "to": "Lava Core Entrance", "requires": [] },
+    { "category": "hn1", "from": "Lava Core Entrance", "to": "Lava Core Structures", "requires": [
         { "item": "Signalscope" },
         { "item": "Lava Core Signals Frequency" }
+    ] },
+    { "category": "hn1", "from": "Lava Core Structures", "to": "Lava Shrine", "requires": [
+        { "item": "Scout" }
     ] },
 
     { "category": "hn1", "from": "Lonely Hermit", "to": "Lake Core Start Island", "requires": [] },
@@ -273,13 +273,8 @@
         { "region": "Feldspar's Camp" } // getting to the jellyfish the usual way
     ] },
     { "category": "to", "from": "Secluded Structure", "to": "Cliffside Home", "requires": [
-        // copy-pasted from "EotE: Find an Artifact", since you can generate Outsider locations without DLC locations
-        { "anyOf": [
-            { "item": "Ghost Matter Wavelength" }, // to safely enter River Lowlands Workshop
-            { "item": "Stranger Light Modulator" }, // to use a raft and an elevator to reach Hidden Gorge
-            { "item": "Breach Override Codes" } // to enter Hidden Gorge Laboratory
-        ] }
-        // no logic needed for "can get ship into shuttle crusher then fly it over" since this already requires reaching DB
+        // no logic needed for "can get artifact from Stranger" because Secluded Structure logically requires Jellyfish Painting Path which requires GMW
+        // also no logic needed for "can get ship into shuttle crusher then fly it over" since this already requires reaching DB
     ] },
 
     { "category": "to&dlc", "from": "Cliffside Home", "to": "Endless Canyon", "requires": [] },

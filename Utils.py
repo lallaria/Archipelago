@@ -562,7 +562,7 @@ def init_logging(name: str, loglevel: typing.Union[str, int] = logging.INFO,
     import platform
     logging.info(
         f"{archipelago_name} ({__version__}) logging initialized"
-        f" on {platform.platform()}"
+        f" on {platform.platform()} process {os.getpid()}"
         f" running Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
         f"{' (frozen)' if is_frozen() else ''}"
     )
