@@ -485,7 +485,7 @@ class LinksAwakeningContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("Tracker", "Tracker"),
             ]
-            base_title = "Archipelago Links Awakening DX Client"
+            base_title = Utils.archipelago_name + " Links Awakening DX Client"
 
             def build(self):
                 b = super().build()

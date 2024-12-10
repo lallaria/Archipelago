@@ -140,7 +140,7 @@ class AdventureContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Adventure Client"
+            base_title = Utils.archipelago_name + " Adventure Client"
 
         self.ui = AdventureManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

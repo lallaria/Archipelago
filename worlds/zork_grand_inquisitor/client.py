@@ -74,7 +74,7 @@ class ZorkGrandInquisitorContext(CommonClient.CommonContext):
 
         class TextManager(GameManager):
             logging_pairs: List[Tuple[str, str]] = [("Client", "Archipelago")]
-            base_title: str = "Archipelago Zork Grand Inquisitor Client"
+            base_title: str = Utils.archipelago_name + " Zork Grand Inquisitor Client"
 
         self.ui = TextManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

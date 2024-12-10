@@ -35,7 +35,7 @@ class MMBN3Web(WebWorld):
 
     setup_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the MegaMan Battle Network 3 Randomizer connected to an Archipelago Multiworld.",
+        "A guide to setting up the MegaMan Battle Network 3 Randomizer connected to an Trezapalooza Multiworld.",
         "English",
         "setup_en.md",
         "setup/en",

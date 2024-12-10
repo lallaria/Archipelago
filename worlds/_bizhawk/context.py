@@ -61,7 +61,7 @@ class BizHawkClientContext(CommonContext):
 
     def make_gui(self):
         ui = super().make_gui()
-        ui.base_title = "Archipelago BizHawk Client"
+        ui.base_title = Utils.archipelago_name + " BizHawk Client"
         return ui
 
     def on_package(self, cmd, args):
@@ -242,7 +242,7 @@ async def _patch_and_run_game(patch_file: str):
 def launch(*launch_args) -> None:
     async def main():
         parser = get_base_parser()
-        parser.add_argument("patch_file", default="", type=str, nargs="?", help="Path to an Archipelago patch file")
+        parser.add_argument("patch_file", default="", type=str, nargs="?", help="Path to a TreZapalooza patch file")
         args = parser.parse_args(launch_args)
 
         ctx = BizHawkClientContext(args.connect, args.password)

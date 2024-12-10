@@ -45,7 +45,7 @@ your Stardew Valley "Mods" folder
 
 Launch Stardew Valley with SMAPI. Once you have reached the Stardew Valley title screen, create a new farm.
 
-On the new character creation page, you will see 3 new fields, used to link your new character to an archipelago multiworld
+On the new character creation page, you will see 3 new fields, used to link your new character to an Trezapalooza Multiworld
 
 ![image](https://i.imgur.com/b8KZy2F.png)
 

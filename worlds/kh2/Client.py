@@ -10,6 +10,7 @@ from . import item_dictionary_table, exclusion_item_table, CheckDupingItems, all
 from .Names import ItemName
 from .WorldLocations import *
 
+from Utils import archipelago_name
 from NetUtils import ClientStatus
 from CommonClient import gui_enabled, logger, get_base_parser, CommonContext, server_loop
 
@@ -243,7 +244,7 @@ class KH2Context(CommonContext):
             self.kh2seedname = args['seed_name']
             if not os.path.exists(self.game_communication_path):
                 os.makedirs(self.game_communication_path)
-            if not os.path.exists(self.game_communication_path + f"\kh2save2{self.kh2seedname}{self.auth}.json"):
+            if not os.path.exists(self.game_communication_path + f"\\kh2save2{self.kh2seedname}{self.auth}.json"):
                 self.kh2_seed_save = {
                     "Levels":        {
                         "SoraLevel":   0,
@@ -260,8 +261,8 @@ class KH2Context(CommonContext):
                         'wt') as f:
                     pass
                 # self.locations_checked = set()
-            elif os.path.exists(self.game_communication_path + f"\kh2save2{self.kh2seedname}{self.auth}.json"):
-                with open(self.game_communication_path + f"\kh2save2{self.kh2seedname}{self.auth}.json", 'r') as f:
+            elif os.path.exists(self.game_communication_path + f"\\kh2save2{self.kh2seedname}{self.auth}.json"):
+                with open(self.game_communication_path + f"\\kh2save2{self.kh2seedname}{self.auth}.json", 'r') as f:
                     self.kh2_seed_save = json.load(f)
                     if self.kh2_seed_save is None:
                         self.kh2_seed_save = {
@@ -605,7 +606,7 @@ class KH2Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago KH2 Client"
+            base_title = archipelago_name + " KH2 Client"
 
         self.ui = KH2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

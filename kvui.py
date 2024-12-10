@@ -30,7 +30,10 @@ from kivy.config import Config
 
 Config.set("input", "mouse", "mouse,disable_multitouch")
 Config.set("kivy", "exit_on_escape", "0")
+#Config.set("kivy", "default_font", "TODO") #I want to put dyslexia safe fonts in
 Config.set("graphics", "multisamples", "0")  # multisamples crash old intel drivers
+#Config.set("graphics", "borderless", "1")
+#Config.set("graphics", "custom_titlebar", "1")
 
 from kivy.app import App
 from kivy.core.window import Window
@@ -79,7 +82,13 @@ else:
     context_type = object
 
 remove_between_brackets = re.compile(r"\[.*?]")
+Window.clearcolor = (0, 0, 0.169, 1)
 
+kivycolors = {"basecolor": [0.031, 0.024, 0.102, 1], #darker
+              "secondarycolor": [0, 0, 0.169, 1], #lighter
+              "buttoncolor": [0.839, 0.078, 0.078, 1], #this is an overlay
+              "accentcolor": [0.439, 0.078, 0.078, 1]
+              }
 
 # I was surprised to find this didn't already exist in kivy :(
 class HoverBehavior(object):
@@ -254,7 +263,7 @@ class ServerLabel(HovererableLabel):
             return text
 
         else:
-            return "No current server connection. \nPlease connect to an Archipelago server."
+            return f"No current server connection. \nPlease connect to a {Utils.archipelago_name} server."
 
 
 class MainLayout(GridLayout):
@@ -481,7 +490,7 @@ class MessageBox(Popup):
 
     def __init__(self, title, text, error=False, **kwargs):
         label = MessageBox.MessageBoxLabel(text=text)
-        separator_color = [217 / 255, 129 / 255, 122 / 255, 1.] if error else [47 / 255., 167 / 255., 212 / 255, 1.]
+        separator_color = kivycolors['accentcolor'] if error else kivycolors['basecolor']
         super().__init__(title=title, content=label, size_hint=(None, None), width=max(100, int(label.width) + 40),
                          separator_color=separator_color, **kwargs)
         self.height += max(0, label.height - 18)
@@ -491,7 +500,7 @@ class GameManager(App):
     logging_pairs = [
         ("Client", "Archipelago"),
     ]
-    base_title: str = "Archipelago Client"
+    base_title: str = Utils.archipelago_name + " Client"
     last_autofillable_command: str
 
     main_area_container: GridLayout
@@ -538,7 +547,7 @@ class GameManager(App):
         # top part
         server_label = ServerLabel()
         self.connect_layout.add_widget(server_label)
-        self.server_connect_bar = ConnectBarTextInput(text=self.ctx.suggested_address or "archipelago.gg:",
+        self.server_connect_bar = ConnectBarTextInput(text=self.ctx.suggested_address or "trezapalooza.com:",
                                                       size_hint_y=None,
                                                       height=dp(30), multiline=False, write_tab=False)
 
@@ -574,7 +583,7 @@ class GameManager(App):
         self.log_panels["Hints"] = hint_panel.content
 
         if len(self.logging_pairs) == 1:
-            self.tabs.default_tab_text = "Archipelago"
+            self.tabs.default_tab_text = Utils.archipelago_name + " Console"
 
         self.main_area_container = GridLayout(size_hint_y=1, rows=1)
         self.main_area_container.add_widget(self.tabs)
@@ -817,7 +826,7 @@ class HintLog(RecycleView):
                     "player": hint["finding_player"],
                 })},
                 "entrance": {"text": self.parser.handle_node({"type": "color" if hint["entrance"] else "text",
-                                                              "color": "blue", "text": hint["entrance"]
+                                                              "color": 'entrancecolor', "text": hint["entrance"]
                                                               if hint["entrance"] else "Vanilla"})},
                 "status": {
                     "text": hint_status_node,

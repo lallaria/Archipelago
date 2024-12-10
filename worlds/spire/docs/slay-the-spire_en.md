@@ -6,7 +6,7 @@ For Steam-based installation, subscribe to the following mods:
 
 - [ModTheSpire](https://steamcommunity.com/sharedfiles/filedetails/?id=1605060445)
 - [BaseMod](https://steamcommunity.com/workshop/filedetails/?id=1605833019)
-- [Archipelago Multiworld Randomizer](https://steamcommunity.com/sharedfiles/filedetails/?id=2596397288)
+- [Trezapalooza Multiworld Randomizer](https://steamcommunity.com/sharedfiles/filedetails/?id=2596397288)
 - (optional) [Downfall](https://steamcommunity.com/sharedfiles/filedetails/?id=1610056683)
 - (required for downfall) [StSLib](https://steamcommunity.com/workshop/filedetails/?id=1609158507)
 
@@ -57,7 +57,7 @@ which will give you the option to launch the game with mods.
 On the mod loader screen, ensure you only have the following mods enabled and then start the game:
 
 - BaseMod
-- Archipelago Multiworld Randomizer
+- Trezapalooza Multiworld Randomizer
 
 If playing with Downfall, also make sure the following are enabled:
 

@@ -36,7 +36,7 @@ class SMWWeb(WebWorld):
 
     setup_en = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Super Mario World randomizer connected to an Archipelago Multiworld.",
+        "A guide to setting up the Super Mario World randomizer connected to an Trezapalooza Multiworld.",
         "English",
         "setup_en.md",
         "setup/en",

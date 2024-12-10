@@ -176,7 +176,7 @@ class UndertaleContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Undertale Client"
+            base_title = Utils.archipelago_name + " Undertale Client"
 
         self.ui = UTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

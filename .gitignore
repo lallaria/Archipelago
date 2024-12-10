@@ -66,11 +66,9 @@ Output Logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
 *$py.class
 
 # C extensions
-*.so
 *.dll
 
 # Distribution / packaging
@@ -81,7 +79,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
