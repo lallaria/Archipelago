@@ -107,9 +107,10 @@ for item in filler_table:
         code=12490+count
     )
     count+=1
+count = 0
 for item in trap_item_table:
     item_data_table[item] = ChatipelagoItemData(
-        code=12490+count
+        code=13490+count
     )
     count+=1
 count = 0
