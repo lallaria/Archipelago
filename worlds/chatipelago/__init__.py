@@ -28,7 +28,6 @@ class ChatipelagoWorld(World):
     options: ChatipelagoOptions
 
     web = ChatipelagoWeb()
-
     
     world_item_data = item_data_table
     world_filler_data = filler_table
@@ -51,12 +50,14 @@ class ChatipelagoWorld(World):
         self._progression_location_list = []
 
     def generate_early(self):
-        self._item_list = loads(self.options.Inventory_List.value)
-        self._progression_list = loads(self.options.Progression_List.value)
-        self._filler_list = loads(self.options.Filler_List.value)
-        self._trap_list = loads(self.options.Trap_List.value)
-        self._location_list = loads(self.options.Location_List.value)
-        self._progression_location_list = loads(self.options.Progression_Location_List.value)
+        self._item_list = self.options.Inventory_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
+        logging.info(f"{self._item_list} | {self.options.Inventory_List.value}")
+        self._progression_list = self.options.Progression_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
+        logging.info(self._progression_list)
+        self._filler_list = self.options.Filler_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
+        self._trap_list = self.options.Trap_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
+        self._location_list = self.options.Location_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
+        self._progression_location_list = self.options.Progression_Location_List.value.rstrip("\"]'").lstrip("r'[\"").split('","')
 
         ## Replace any items before we set the pool
         new_item_dict = {}
