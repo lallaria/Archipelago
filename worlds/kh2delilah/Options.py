@@ -1,9 +1,22 @@
 from dataclasses import dataclass
 
-from Options import Choice, Range, Toggle, OptionDict, ItemDict, PerGameCommonOptions, StartInventoryPool
+from Options import Accessibility, Choice, Range, Toggle, OptionDict, ItemDict, PerGameCommonOptions, StartInventoryPool, ItemsAccessibility
 
 from . import default_itempool_option, default_keyblade_pool
 
+# class ItemAccess(ItemsAccessibility):
+#     """
+#     Set rules for reachability of your items/locations.
+    
+#     **Full:** ensure everything can be reached and acquired.
+
+#     **Minimal:** ensure what is needed to reach your goal can be acquired.
+
+#     **Items:** ensure all logically relevant items can be acquired. Some items, such as keys, may be self-locking, and
+#     some locations may be inaccessible.
+#     """
+#     option_items = 1
+#     default = 1
 
 class SoraEXP(Range):
     """Sora Level Exp Multiplier"""
@@ -321,7 +334,7 @@ class CorSkipToggle(Toggle):
     display_name = "CoR Skip Toggle"
     default = False
 
-class CustomKeybladePool(OptionDict):
+class CustomKeybladePool(ItemDict):
     """Abilities that are allowed to go onto Keyblades. 
     
     Note: Values will not change ability pool values.
@@ -360,6 +373,7 @@ class SummonLevelLocationToggle(Toggle):
 # shamelessly stolen from the messanger
 @dataclass
 class KingdomHearts2DelilahOptions(PerGameCommonOptions):
+    accessibility: ItemsAccessibility
     start_inventory: StartInventoryPool
     LevelDepth: LevelDepth
     Sora_Level_EXP: SoraEXP
