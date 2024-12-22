@@ -40,16 +40,6 @@ class ChatipelagoWorld(World):
         self.multiworld.itempool += itempool
 
     def create_regions(self) -> None:   
-<<<<<<< HEAD
-        for region_name in self.world_region_data.keys():
-            chati_region = Region(region_name, self.player, self.multiworld)
-            self.multiworld.regions.append(chati_region)
-
-        for name, data in self.world_region_data.items():
-            chati_region = self.get_region(name)
-            chati_region.add_locations({                                                                 \
-                loc_name: loc_data.address for loc_name, loc_data in self.world_location_data.items()    \
-=======
         for region_name in region_table.keys():
             chati_region = Region(region_name, self.player, self.multiworld)
             self.multiworld.regions.append(chati_region)
@@ -58,7 +48,6 @@ class ChatipelagoWorld(World):
             chati_region = self.get_region(name)
             chati_region.add_locations({                                                                 \
                 loc_name: loc_data.address for loc_name, loc_data in location_data_table.items()    \
->>>>>>> origin/upstream-delilah
                 if loc_data.region == name
             },ChatipelagoLoc)
 
@@ -66,28 +55,17 @@ class ChatipelagoWorld(World):
             source_region = self.multiworld.get_region(source, self.player)
             source_region.add_exits(target)
 
-<<<<<<< HEAD
-        for prio_loc in self.world_region_data["Prog"]:
-=======
         for prio_loc in region_table["Prog"]:
->>>>>>> origin/upstream-delilah
             self.options.priority_locations.value.add(prio_loc)
 
     def set_rules(self) -> None:
         prog_list: list[Location] = [] #For Completion
         chat_rule = get_chat_rule(self)
         prog_rule = get_prog_rule(self)
-<<<<<<< HEAD
-        for loc in self.world_region_data["Chatroom"]:
-            self.get_location(loc).access_rule = chat_rule
-            self.get_location(loc).item_rule = lambda item: ItemClassification.progression not in item.classification
-        for loc in self.world_region_data["Prog"]:
-=======
         for loc in region_table["Chatroom"]:
             self.get_location(loc).access_rule = chat_rule
             self.get_location(loc).item_rule = lambda item: ItemClassification.progression not in item.classification
         for loc in region_table["Prog"]:
->>>>>>> origin/upstream-delilah
             self.get_location(loc).access_rule = prog_rule
             prog_list.append(self.get_location(loc))
 
@@ -112,18 +90,6 @@ class ChatipelagoWorld(World):
     def create_item(self, name: str) -> Item:
         classification: ItemClassification = self.random.choice([ItemClassification.filler,
                                                        ItemClassification.useful])
-<<<<<<< HEAD
-        if name in self.world_prog_data:
-            return ChatipelagoItem(name, self.world_item_data[name].classification, self.world_item_data[name].code, self.player)
-        elif name in self.world_trap_data:
-            self.trapcode = self.world_item_data[name].code
-            return ChatipelagoItem(name, ItemClassification.trap, self.world_item_data[name].code, self.player)
-        else:
-            return ChatipelagoItem(name, classification, self.world_item_data[name].code, self.player)
-
-    def get_filler_item_name(self) -> str:
-        return self.multiworld.random.choice(self.world_filler_data + self.world_trap_data)
-=======
         if name in prog_item_table:
             return ChatipelagoItem(name, item_data_table[name].classification, item_data_table[name].code, self.player)
         elif name in trap_item_table:
@@ -134,4 +100,3 @@ class ChatipelagoWorld(World):
 
     def get_filler_item_name(self) -> str:
         return self.multiworld.random.choice(filler_table + trap_item_table)
->>>>>>> origin/upstream-delilah
