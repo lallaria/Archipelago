@@ -1,20 +1,27 @@
 
-from worlds.LauncherComponents import Component, components, Type, launch_subprocess
-from typing import Dict, Optional, List, Any, Union, ClassVar
-from settings import Group, Bool, LocalFolderPath, _world_settings_name_cache
+from worlds.LauncherComponents import Component, components, Type, launch_subprocess, icon_paths
+from settings import Group, Bool, UserFolderPath, _world_settings_name_cache
+from typing import Dict, Optional, List, Any, Union, ClassVar, NamedTuple
 from worlds.AutoWorld import World
+from BaseClasses import CollectionState
+from collections import Counter
 
-def launch_client():
+def launch_client(*args):
     import sys
     from .TrackerClient import launch as TCMain
     if not sys.stdout or "--nogui" not in sys.argv:
-        launch_subprocess(TCMain, name="Universal Tracker client")
+        launch_subprocess(TCMain, name="Universal Tracker client", args=args)
     else:
-        TCMain()
+        TCMain(*args)
 
+class CurrentTrackerState(NamedTuple):
+    all_items: Counter
+    prog_items: Counter
+    events: List[str]
+    state: CollectionState
 
 class TrackerSettings(Group):
-    class TrackerPlayersPath(LocalFolderPath):
+    class TrackerPlayersPath(UserFolderPath):
         """Players folder for UT look for YAMLs"""
 
     class RegionNameBool(Bool):
@@ -73,4 +80,5 @@ class UTMapTabData:
           Right now it should just return 0"""
         return 0
 
-components.append(Component("Universal Tracker", None, func=launch_client, component_type=Type.CLIENT))
+icon_paths["ut_ico"] = f"ap:{__name__}/icon.png"
+components.append(Component("Universal Tracker", None, func=launch_client, component_type=Type.CLIENT, icon="ut_ico"))

@@ -8,8 +8,8 @@ import socket
 import random
 from NetUtils import ClientStatus
 from CommonClient import CommonContext, get_base_parser
-from Utils import async_start, archipelago_name
-from .Constants import LOCATION_RESEARCH_RANGE, VERSION
+from Utils import async_start
+from .Constants import LOCATION_BOSS_RANGE, LOCATION_RESEARCH_RANGE, VERSION
 
 class DSTInvalidRequest(Exception):
     pass
@@ -44,7 +44,7 @@ class DSTContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("DSTInterface", "Don't Starve Together"),
             ]
-            base_title = archipelago_name + " Don't Starve Together Client"
+            base_title = "Archipelago Don't Starve Together Client"
 
         self.ui = DSTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
@@ -70,10 +70,13 @@ class DSTContext(CommonContext):
             "days_to_survive": self.slotdata.get("days_to_survive"),
             "required_bosses": self.slotdata.get("required_bosses"), # Legacy
             "goal_locations": self.slotdata.get("goal_locations"),
-            "craft_with_locked_items": self.slotdata.get("craft_with_locked_items", True),
+            "crafting_mode": self.slotdata.get("crafting_mode"),
+            "starting_season": self.slotdata.get("starting_season"),
+            "seasons": self.slotdata.get("seasons"),
             "finished_game": self.finished_game,
+            "death_link": self.slotdata.get("death_link"), # Game decides whether to use slot data or override
         })
-        
+
         self.dst_handler.enqueue({
             "datatype": "Locations",
             "resync": True,
@@ -94,18 +97,24 @@ class DSTContext(CommonContext):
         # Scout research locations
         async_start(self.send_msgs([{
             "cmd": "LocationScouts",
-            "locations": [id for id in self.missing_locations if (id >= LOCATION_RESEARCH_RANGE["start"] and id <= LOCATION_RESEARCH_RANGE["end"])],
+            "locations": [id for id in self.missing_locations
+                if (id >= LOCATION_RESEARCH_RANGE["start"] and id <= LOCATION_RESEARCH_RANGE["end"])
+                or (id >= LOCATION_BOSS_RANGE["start"] and id <= LOCATION_BOSS_RANGE["end"])
+            ],
         }]))
 
     def send_hints_to_dst(self):
         for hint in self.stored_data.get(f"_read_hints_{self.team}_{self.slot}", []):
-            if hint["found"]: 
+            if hint["found"]:
                 continue
             self.dst_handler.enqueue({
                 "datatype": "HintInfo",
                 "item": hint["item"],
+                "itemname": self.item_names.lookup_in_slot(hint["item"], hint["receiving_player"]),
+                "location": hint["location"],
                 "locationname": self.location_names.lookup_in_slot(hint["location"], hint["finding_player"]),
                 "findingname": self.player_names[hint["finding_player"]],
+                "receivingname": self.player_names[hint["receiving_player"]],
             }, False)
 
     def on_dst_handler_connected(self):
@@ -127,7 +136,6 @@ class DSTContext(CommonContext):
             elif cmd == "Connected":
                 self.connected_to_ap = True
                 self.slotdata = args.get('slot_data', {})
-                async_start(self.update_death_link(self.slotdata.get("death_link", False)))
                 if self.dst_handler.connected:
                     print("Connected to AP!")
                     self.on_dst_connect_to_ap()
@@ -136,18 +144,41 @@ class DSTContext(CommonContext):
                         await asyncio.sleep(1.0)
                         self.logger.info("Waiting for Don't Starve Together server.")
                     async_start(dst_connect_hint())
-                
-                # Remind player of their goal
+
+                # Remind player of their goal and world settings
                 async def goal_hint():
                     await asyncio.sleep(0.5)
+                    # Announce goal type
                     _goal = self.slotdata.get("goal")
-                    self.logger.info(f"Goal Type: {_goal}")
+                    self.logger.info(f"Goal type: {_goal}")
                     if _goal == "survival":
+                        # Announce survival day goal
                         _days_to_survive = self.slotdata.get("days_to_survive", "Unknown")
                         self.logger.info(f"Days to survive: {_days_to_survive}")
                     elif _goal == "bosses_all" or _goal == "bosses_any":
+                        # List goal bosses
                         _bosses = [self.location_names.lookup_in_game(loc_id) for loc_id in self.slotdata.get("goal_locations", [])]
                         self.logger.info(f"Bosses: {_bosses}")
+
+                    self.logger.info("The following settings need to be manually set in your world (if not default)!")
+                    # Announce cave settings
+                    self.logger.info(f"Caves Required: {'Yes' if self.slotdata.get('is_caves_enabled', True) else 'No'}")
+                    # Announce season settings
+                    _seasons = self.slotdata.get("seasons", ["Autumn", "Winter", "Spring", "Summer"])
+                    _starting_season = str(self.slotdata.get("starting_season", "Autumn")).capitalize()
+                    self.logger.info(f"Starting Season: {_starting_season}" + (" (Default)" if _starting_season == "Autumn" else ""))
+                    self.logger.info(f"Enabled Seasons: {'All (Default)' if len(_seasons) == 4 else _seasons}")
+                    # Announce season flow
+                    if self.slotdata.get("unlockable_seasons", False):
+                        self.logger.info("Unlockable seasons - Optionally, you may set all season lengths to their longest value.")
+                    # Announce day phases
+                    _day_phases = self.slotdata.get('day_phases', ["Day", "Dusk", "Night"])
+                    self.logger.info(f"Day Phases: {'All (Default)' if len(_day_phases) == 3 else _day_phases}"
+                                        + (f" (Lights Out)" if len(_day_phases) == 1 and _day_phases[0] == "Night" else "")
+                                    )
+                    # Announce intended character
+                    self.logger.info(f"Character Selection: {self.slotdata.get('character', 'Any')}")
+
                 async_start(goal_hint())
 
             elif cmd == "ReceivedItems":
@@ -188,7 +219,7 @@ class DSTContext(CommonContext):
                 # Send hints to DST
                 if f"_read_hints_{self.team}_{self.slot}" in args.get("keys"):
                     self.send_hints_to_dst()
-                    
+
             elif cmd == "SetReply":
                 # Send hints to DST
                 if f"_read_hints_{self.team}_{self.slot}" == args.get("key"):
@@ -250,6 +281,8 @@ class DSTContext(CommonContext):
             elif eventtype == "Hint": #I think this should be deterministic enough for races, does not account for manual hints
                 if len(self.missing_locations):
                     valid = list(self.missing_locations.difference(self.locations_scouted))
+                    random.seed(self.seed_name + str(self.slot) + str(len(valid)))
+                    valid.sort()
                     if len(valid):
                         hint = random.choice(valid)
                         self.locations_scouted.add(hint)
@@ -257,12 +290,14 @@ class DSTContext(CommonContext):
                                             "key": self.username + "_locations_scouted",
                                             "operations": [{"operation": "replace", "value": self.locations_scouted}]}])
                         await self.send_msgs([{"cmd": "LocationScouts", "locations": [hint], "create_as_hint": 2}])
-                        
+
             elif eventtype == "ScoutLocation":
-                await self.send_msgs([{
-                    "cmd": "LocationScouts",
-                    "locations": [event.get("id")],
-                }])
+                loc_id = event.get("id")
+                if loc_id and (loc_id in self.missing_locations or loc_id in self.locations_checked):
+                    await self.send_msgs([{
+                        "cmd": "LocationScouts",
+                        "locations": [loc_id],
+                    }])
 
             elif eventtype == "Victory":
                 await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
@@ -302,6 +337,9 @@ class DSTContext(CommonContext):
                 print("Disconnecting")
                 await self.disconnect(False)
 
+            elif eventtype == "DeathLink":
+                await self.update_death_link(event.get("enabled", False))
+
         except Exception as e:
             self.logger.error(f"Manage event error ({eventtype}): {e}")
 
@@ -340,7 +378,7 @@ def send_response(conn:socket.socket, content:Dict = {}, status=100):
 
     body = json.dumps(content).encode()
     try:
-        conn.send(header + body)
+        conn.sendall(header + body)
     except Exception as e:
         print(f"Could not send content: {content}")
 
@@ -377,13 +415,15 @@ class DSTHandler():
             if datatype == "Ping":
                 if len(self._sendqueue):
                     send_response(conn, self._sendqueue.pop(0), 100)
+                    return
                 elif len(self._sendqueue_lowpriority):
                     send_response(conn, self._sendqueue_lowpriority.pop(0), 100)
+                    return
                 else:
                     # No data to send. Delay next ping
                     await asyncio.sleep(1.0)
 
-            elif datatype in {"Chat", "Join", "Leave", "Death", "Connect", "Disconnect"}:
+            elif datatype in {"Chat", "Join", "Leave", "Death", "Connect", "Disconnect", "DeathLink"}:
                  # Instant event
                 await self.ctx.manage_event(data)
 
@@ -438,9 +478,8 @@ class DSTHandler():
     async def run_handler(self):
         while True:
             sock = socket.socket()
-            sock.bind(("", 8000))
-            sock.listen(2)
-            sock.setblocking(False)
+            sock.bind(("localhost", 8000))
+            sock.listen(5)
             try:
                 while True:
                     await self.handle_dst_request(sock)

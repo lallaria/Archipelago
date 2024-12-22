@@ -18,7 +18,7 @@ from Options import StartInventoryPool
 from settings import get_settings
 from Utils import __version__, output_path
 from worlds import AutoWorld
-from worlds.tracker import TrackerWorld, UTMapTabData
+from worlds.tracker import TrackerWorld, UTMapTabData, CurrentTrackerState
 from collections import Counter,defaultdict
 from MultiServer import mark_raw
 
@@ -36,7 +36,7 @@ if not sys.stdout:  # to make sure sm varia's "i'm working" dots don't break UT 
 
 logger = logging.getLogger("Client")
 
-UT_VERSION = "v0.1.12"
+UT_VERSION = "v0.1.14"
 DEBUG = False
 ITEMS_HANDLING = 0b111
 # REGEN_WORLDS = {name for name, world in AutoWorld.AutoWorldRegister.world_types.items() if getattr(world, "needs_regen", False)}  # TODO
@@ -49,22 +49,22 @@ class TrackerCommandProcessor(ClientCommandProcessor):
     def _cmd_inventory(self):
         """Print the list of current items in the inventory"""
         logger.info("Current Inventory:")
-        all_items, prog_items, events = updateTracker(self.ctx)
-        for item, count in sorted(all_items.items()):
+        currentState = updateTracker(self.ctx)
+        for item, count in sorted(currentState.all_items.items()):
             logger.info(str(count) + "x: " + item)
 
     def _cmd_prog_inventory(self):
         """Print the list of current items in the inventory"""
         logger.info("Current Inventory:")
-        all_items, prog_items, events = updateTracker(self.ctx)
-        for item, count in sorted(prog_items.items()):
+        currentState = updateTracker(self.ctx)
+        for item, count in sorted(currentState.prog_items.items()):
             logger.info(str(count) + "x: " + item)
 
     def _cmd_event_inventory(self):
         """Print the list of current items in the inventory"""
         logger.info("Current Inventory:")
-        all_items, prog_items, events = updateTracker(self.ctx)
-        for event in sorted(events):
+        currentState = updateTracker(self.ctx)
+        for event in sorted(currentState.events):
             logger.info(event)
 
     def _cmd_load_map(self,map_id: str="0"):
@@ -578,7 +578,7 @@ class TrackerGameContext(CommonContext):
                 g_args.player_ids = {1}
 
                 # TODO confirm that this will never not be filled
-                g_args = move_slots(g_args, self.player_names.get(self.slot, None))
+                g_args = move_slots(g_args, self.slot_info[self.slot].name)
 
                 self.multiworld = self.TMain(g_args, seed)
                 assert len(self.cached_slot_data) == len(self.cached_multiworlds)
@@ -740,7 +740,7 @@ def load_json(pack, path):
     import json
     return json.loads(pkgutil.get_data(pack, path).decode('utf-8-sig'))
 
-def updateTracker(ctx: TrackerGameContext):
+def updateTracker(ctx: TrackerGameContext) -> CurrentTrackerState:
     if ctx.tracker_failed:
         return #just return and don't bug the player
     if ctx.player_id is None or ctx.multiworld is None:
@@ -762,7 +762,7 @@ def updateTracker(ctx: TrackerGameContext):
         try:
             world_item = ctx.multiworld.create_item(item_name, ctx.player_id)
             state.collect(world_item, True)
-            if world_item.classification == ItemClassification.progression or world_item.classification == ItemClassification.progression_skip_balancing:
+            if ItemClassification.progression in world_item.classification:
                 prog_items[world_item.name] += 1
             if world_item.code is not None:
                 all_items[world_item.name] += 1
@@ -836,7 +836,7 @@ def updateTracker(ctx: TrackerGameContext):
             for coord in relevent_coords:
                 coord.update_status(loc_name,status)
 
-    return (all_items, prog_items, events)
+    return CurrentTrackerState(all_items, prog_items, events,state)
 
 
 async def game_watcher(ctx: TrackerGameContext) -> None:
@@ -867,11 +867,11 @@ async def main(args):
     await ctx.shutdown()
 
 
-def launch():
+def launch(*args):
     parser = get_base_parser(description="Gameless Archipelago Client, for text interfacing.")
     parser.add_argument('--name', default=None, help="Slot Name to connect as.")
     parser.add_argument("url", nargs="?", help="Archipelago connection url")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if args.url:
         url = urllib.parse.urlparse(args.url)
@@ -885,4 +885,4 @@ def launch():
 
 
 if __name__ == "__main__":
-    launch()
+    launch(*sys.argv[1:])
