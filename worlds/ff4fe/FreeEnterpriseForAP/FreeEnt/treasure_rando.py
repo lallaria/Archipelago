@@ -1,5 +1,6 @@
 import re
 import string
+import unicodedata
 
 from worlds.ff4fe.FreeEnterpriseForAP.FreeEnt.generate_wiki_tables import items_dbview
 from . import core_rando
@@ -142,6 +143,7 @@ def apply(env):
             id = t.flag
             ap_item = env.options.ap_data[str(id)]
             placement = items_dbview.find_one(lambda i: i.code == ap_item["item_data"]["fe_id"])
+            # If we don't have an FF4 item to place, it's an AP item, so we make the chest secretly a 0 GP box.
             if placement is None:
                 treasure_assignment.assign(t, '{} gp'.format(0))
             elif placement.tier <= env.options.ap_data["junk_tier"] and placement.flag != "K":
@@ -162,8 +164,11 @@ def apply(env):
             low_byte = pointer // 256
             env.add_script(f"patch({entry_location}) {{ {bank:X} {high_byte:02X} {low_byte:02X} }}")
             if ap_item["item_data"]["name"] == "Archipelago Item":
-                safe_item_name = re.sub(r"[^a-zA-Z0-9`\'.\-_!?%/:,\s]", "-", ap_item["item_name"])
-                env.add_script(f'{script_text} {{Found {ap_item["player_name"]}\'s \n{safe_item_name}. }}')
+                safe_item_name = unicodedata.normalize("NFKD",ap_item["item_name"])
+                safe_item_name = re.sub(r"[^a-zA-Z0-9`\'.\-_!?%/:,\s]", "-", safe_item_name)
+                safe_player_name = unicodedata.normalize("NFKD",ap_item["player_name"])
+                safe_player_name = re.sub(r"[^a-zA-Z0-9`\'.\-_!?%/:,\s]", "-", safe_player_name)
+                env.add_script(f'{script_text} {{Found {safe_player_name}\'s \n{safe_item_name}. }}')
             else:
                 if placement.tier <= env.options.ap_data["junk_tier"] and placement.flag != "K":
                     env.add_script(f'{script_text} {{Found your own\n{placement.name}.\nAutomatically converted\nto {price} GP.}}')
@@ -312,7 +317,7 @@ def apply(env):
             '{} {}'.format(chest_number[0], chest_number[1]),
             reward_slot_name,
             orig_chest.fight,
-            remap=True)
+            remap=False)
 
     env.add_script(treasure_assignment.get_script())
 
