@@ -48,7 +48,7 @@ class ONIWorld(World):
     base_id = 0x257514000  # 0xYGEN___, clever! Thanks, Medic
     data_version = 0
 
-    file = open(os.path.join(__file__, f"..\data\DefaultItemList.json"))
+    file = open("data/DefaultItemList.json")
     default_item_list = json.load(file, object_hook=item_decoder)
     #print(default_item_list[0].name)
     file.close()
