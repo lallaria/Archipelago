@@ -237,6 +237,7 @@ def run_gui():
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None
         _client_layout: Optional[ScrollBox] = None
+        _client_layout_2: Optional[ScrollBox] = None
 
         def __init__(self, ctx=None):
             self.title = self.base_title + " " + Utils.__version__
@@ -292,7 +293,7 @@ def run_gui():
                 if tool:
                     self._tool_layout.layout.add_widget(build_button(tool[1]))
 
-                # column 2
+                # column 2 & 3
                 if client:
                     if client_count < 16:
                         self._client_layout.layout.add_widget(build_button(client[1]))

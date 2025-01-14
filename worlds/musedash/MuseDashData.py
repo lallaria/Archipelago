@@ -559,7 +559,7 @@ SONG_DATA: Dict[str, SongData] = {
     "Heaven's Gradius": SongData(2900676, "73-5", "Happy Otaku Pack Vol.19", True, 6, 8, 10),
     "Ray Tuning": SongData(2900678, "74-0", "CHUNITHM COURSE MUSE", True, 6, 8, 10),
     "World Vanquisher": SongData(2900679, "74-1", "CHUNITHM COURSE MUSE", True, 6, 8, 10),
-    "Tsukuyomi Ni Naru": SongData(2900680, "74-2", "CHUNITHM COURSE MUSE", True, 5, 7, 9),
+    "Tsukuyomi Ni Naru Replaced": SongData(2900680, "74-2", "CHUNITHM COURSE MUSE", True, 5, 7, 9),
     "The wheel to the right": SongData(2900681, "74-3", "CHUNITHM COURSE MUSE", True, 5, 7, 9),
     "Climax": SongData(2900682, "74-4", "CHUNITHM COURSE MUSE", True, 4, 8, 11),
     "Spider's Thread": SongData(2900683, "74-5", "CHUNITHM COURSE MUSE", True, 5, 8, 10),
@@ -608,4 +608,8 @@ SONG_DATA: Dict[str, SongData] = {
     "Trance dance anarchy": SongData(2900732, "80-3", "Touhou Mugakudan -IV-", False, 4, 7, 10),
     "fairy stage": SongData(2900733, "80-4", "Touhou Mugakudan -IV-", False, 4, 6, 9),
     "Scarlet Police on Ghetto Patrol": SongData(2900734, "80-5", "Touhou Mugakudan -IV-", False, 5, 7, 10),
+    "Unwelcome School": SongData(2900735, "81-0", "MD-level Tactical Training Blu-ray", False, 6, 8, 10),
+    "Usagi Flap": SongData(2900736, "81-1", "MD-level Tactical Training Blu-ray", False, 3, 6, 8),
+    "RE Aoharu": SongData(2900737, "81-2", "MD-level Tactical Training Blu-ray", False, 3, 5, 8),
+    "Operation*DOTABATA!": SongData(2900738, "81-3", "MD-level Tactical Training Blu-ray", False, 5, 7, 10),
 }

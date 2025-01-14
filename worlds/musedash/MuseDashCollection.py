@@ -1,12 +1,7 @@
-from .Items import SongData, AlbumData
+from .Items import SongData
 from .MuseDashData import SONG_DATA
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set
 from collections import ChainMap
-
-
-def load_text_file(name: str) -> str:
-    import pkgutil
-    return pkgutil.get_data(__name__, name).decode()
 
 
 class MuseDashCollections:
@@ -32,15 +27,6 @@ class MuseDashCollections:
         "MSR Anthology",  # Now no longer available.
         "Miku in Museland",  # Paid DLC not included in Muse Plus
         "Rin Len's Mirrorland",  # Paid DLC not included in Muse Plus
-    ]
-
-    DIFF_OVERRIDES: List[str] = [
-        "MuseDash ka nanika hi",
-        "Rush-Hour",
-        "Find this Month's Featured Playlist",
-        "PeroPero in the Universe",
-        "umpopoff",
-        "P E R O P E R O Brother Dance",
     ]
 
     REMOVED_SONGS = [
@@ -140,6 +126,3 @@ class MuseDashCollections:
             return True
 
         return False
-
-    def get_songs(self) -> List[str]:
-        return [k for k, v in self.song_items]
