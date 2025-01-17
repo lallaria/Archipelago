@@ -5,8 +5,7 @@ ModuleUpdate.update()
 import os
 import asyncio
 import json
-import ctypes
-from pymem import pymem, ptypes
+from pymem import pymem
 
 from time import time
 

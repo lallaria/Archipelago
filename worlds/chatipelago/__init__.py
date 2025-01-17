@@ -84,7 +84,8 @@ class ChatipelagoWorld(World):
         return {
             "seed_name": self.multiworld.seed_name,
             "player_name": self.player_name,
-            "player_id": self.player
+            "player_id": self.player,
+            "prog_items": prog_item_table
         }
 
     def create_item(self, name: str) -> Item:
