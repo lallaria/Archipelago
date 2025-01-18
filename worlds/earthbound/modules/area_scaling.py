@@ -7,7 +7,7 @@ area_exits = {
     "Northern Onett": ["Onett"],
     "Onett": ["Northern Onett", "Twoson", "Giant Step"],
     "Giant Step": ["Giant Step"],
-    "Twoson": ["Onett", "Peaceful Rest Valley", "Threed", "Everdred's House"],
+    "Twoson": ["Onett", "Peaceful Rest Valley", "Threed", "Everdred's House", "Common Condiment Shop"],
     "Everdred's House": ["Everdred's House"],
     "Peaceful Rest Valley": ["Twoson", "Happy-Happy Village"],
     "Happy-Happy Village": ["Peaceful Rest Valley", "Lilliput Steps"],
@@ -36,7 +36,7 @@ area_exits = {
     "Summers Museum": ["Summers Museum"],
     "Dalaam": ["Pink Cloud"],
     "Pink Cloud": ["Pink Cloud"],
-    "Scaraba": ["Pyramid"],
+    "Scaraba": ["Pyramid", "Common Condiment Shop"],
     "Pyramid": ["Southern Scaraba"],
     "Southern Scaraba": ["Dungeon Man"],
     "Dungeon Man": ["Deep Darkness"],
@@ -49,7 +49,9 @@ area_exits = {
     "Magicant": ["Magicant"],
     "Cave of the Present": ["Cave of the Past"],
     "Cave of the Past": ["Endgame"],
-    "Endgame": ["Endgame"]
+    "Endgame": ["Endgame"],
+    "Global ATM Access": ["Global ATM Access"],
+    "Common Condiment Shop": ["Common Condiment Shop"]
 }
 
 area_rules = {
@@ -81,7 +83,8 @@ area_rules = {
     "Twoson": {"Onett": [["Police Badge"]],
                "Peaceful Rest Valley": [["Pencil Eraser"]],
                "Threed": [["Wad of Bills"], ["Threed Tunnels Clear"]],
-               "Everdred's House": [["Paula"]]},
+               "Everdred's House": [["Paula"]],
+               "Common Condiment Shop": [["Nothing"]]},
 
     "Everdred's House": {"Everdred's House": [["Nothing"]]},
 
@@ -162,7 +165,8 @@ area_rules = {
 
     "Pink Cloud": {"Pink Cloud": [["Nothing"]]},
 
-    "Scaraba": {"Pyramid": [["Hieroglyph Copy"]]},
+    "Scaraba": {"Pyramid": [["Hieroglyph Copy"]],
+                "Common Condiment Shop": [["Nothing"]]},
 
     "Pyramid": {"Southern Scaraba": [["Nothing"]]},
     
@@ -190,7 +194,12 @@ area_rules = {
 
     "Cave of the Past": {"Endgame": [["Paula"]]},
 
-    "Endgame": {"Endgame": [["Nothing"]]}
+    "Endgame": {"Endgame": [["Nothing"]]},
+
+    "Common Condiment Shop": {"Common Condiment Shop": [["Nothing"]]},
+
+    "Global ATM Access": {"Global ATM Access": [["Nothing"]]}
+    
 }
 
 teleports = {
@@ -211,12 +220,20 @@ teleports = {
     "Magicant Teleport": "Magicant"
 }
 
+
 def calculate_scaling(world):
+    if world.options.no_free_sanctuaries:
+        area_rules["Happy-Happy Village"]["Lilliput Steps"] = [["Tiny Key"]]
+        area_rules["Lost Underworld"]["Fire Spring"] = [["Tenda Lavapants"]]
+    else:
+        area_rules["Happy-Happy Village"]["Lilliput Steps"] = [["Nothing"]]
+        area_rules["Lost Underworld"]["Fire Spring"] = [["Nothing"]]
+
     inventory = {0: ["Nothing"]}  # Nothing means no item needed for connection
     item_regions = {}
 
     for item in world.multiworld.precollected_items[world.player]:
-        inventory[0].append([item.name])
+        inventory[0].append(item.name)
 
     unconnected_regions = [world.starting_region, "Ness's Mind"]
     world.accessible_regions = [world.starting_region, "Ness's Mind"]
@@ -226,6 +243,7 @@ def calculate_scaling(world):
 
     world.scaled_area_order = []
     passed_connections = []
+    local_prog = []
     sphere_count = 0
     last_region = "Ness's Mind"
     early_regions = []
@@ -245,6 +263,8 @@ def calculate_scaling(world):
 
             if location.item.player == world.player and location.item.advancement:
                 inventory[num + 1].append(location.item.name)
+                if location.player == world.player:
+                    local_prog.append(location.item.name)
                 if location.item.name not in item_regions:
                     item_regions[location.item.name] = []
                 item_regions[location.item.name].append(location.parent_region.name)
@@ -253,24 +273,23 @@ def calculate_scaling(world):
                 last_region = location.parent_region.name
 
             if location.item.player == world.player and location.item.name == "Paula":
-                if location.parent_region.name in combat_regions:
+                if location.parent_region.name in combat_regions and location.player == world.player:
                     world.Paula_region = location.parent_region.name
                 else:
                     world.Paula_region = last_region
 
             if location.item.player == world.player and location.item.name == "Jeff":
-                if location.parent_region.name in combat_regions:
+                if location.parent_region.name in combat_regions and location.player == world.player:
                     world.Jeff_region = location.parent_region.name
                 else:
                     world.Jeff_region = last_region
 
             if location.item.player == world.player and location.item.name == "Poo":
-                if location.parent_region.name in combat_regions:
+                if location.parent_region.name in combat_regions and location.player == world.player:
                     world.Poo_region = location.parent_region.name
                 else:
                     world.Poo_region = last_region
         sphere_count = num
-    #early_regions = sorted(early_regions, key = teleports)
 
     for item in range(1, len(inventory)):
         if item in inventory:
@@ -279,24 +298,25 @@ def calculate_scaling(world):
             inventory[item] = inventory[item - 1]
 
     for i in range(sphere_count):
-        new_regions = []
-        for region in unconnected_regions:
+        # Ness's mind needs to be calculated last, always. (Players are more likely to walk around
+        # and explore areas than suddenly leave with a teleport)
+        # Shuffle it to the end of the list on each loop so it gets deprioritized
+        # Is there a better way to do this?
+        if "Ness's Mind" in unconnected_regions:
             unconnected_regions.remove("Ness's Mind")
-            unconnected_regions.append("Ness's Mind")
+            unconnected_regions.append("Ness's Mind")  # probably do this differently earlier
+        for region in unconnected_regions:
             for connection in area_exits[region]:
                 if f"{region} -> {connection}" not in passed_connections:
                     for rule_set in area_rules[region][connection]:
                         # check if this sphere has the items needed to make this connection
-                        can_pass = all(
-                            item in inventory[i] and all(region in world.accessible_regions for region in item_regions.get(item, []))
-                            for item in rule_set
-                            )
-                        if can_pass:
+                        if all(item in inventory[i] for item in rule_set):
                             passed_connections.append(f"{region} -> {connection}")
                             if connection not in world.accessible_regions:
                                 world.accessible_regions.append(connection)
-                                new_regions.append(connection)
-        unconnected_regions.extend(new_regions)
+                                unconnected_regions.append(connection)
+                else:
+                    area_exits[region].remove(connection)
         if "Endgame" in unconnected_regions:
             unconnected_regions.remove("Endgame")
             unconnected_regions.insert(0, "Endgame")
@@ -328,4 +348,3 @@ def calculate_scaling(world):
 
     if world.Poo_region == "Ness's Mind":
         world.Poo_region = world.scaled_area_order[0]
-    #print(world.scaled_area_order)
