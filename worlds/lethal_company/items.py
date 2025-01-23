@@ -4,13 +4,14 @@ from BaseClasses import Item, ItemClassification
 from typing import Dict, Any, TYPE_CHECKING, Tuple, List
 from .locations import generate_locations
 from .imported import data
+from .custom_content import custom_content
 
 if TYPE_CHECKING:
     from . import LethalCompanyWorld
 
 
 class LethalCompanyItem(Item):
-    game: str = "Lethal Company"
+    game: str = f"Lethal Company{custom_content['name']}"
 
 
 class SlotItemData:
@@ -46,24 +47,22 @@ class LCItem:
 
     def create_item(self, lcworld: "LethalCompanyWorld"):
         names = []
-        match self.count_mode:
-            case 0:
-                # arg is # of item
-                for i in range(self.count_arg):
-                    names.append(self.name)
-            case 1:
-                # arg is name of option that contains the count of the item
-                for i in range(getattr(lcworld.options, self.count_arg).value):
-                    names.append(self.name)
-            case 2:
-                # arg is a lambda function that takes in the multiworld and outputs a number
-                for i in range(self.count_arg(lcworld)):
-                    names.append(self.name)
-            case 3:
-                # used for filler items
-                self.slot_item_data.filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
-                return []
-
+        if self.count_mode == 0:
+            # arg is # of item
+            for i in range(self.count_arg):
+                names.append(self.name)
+        elif self.count_mode == 1:
+            # arg is name of option that contains the count of the item
+            for i in range(getattr(lcworld.options, self.count_arg).value):
+                names.append(self.name)
+        elif self.count_mode == 2:
+            # arg is a lambda function that takes in the multiworld and outputs a number
+            for i in range(self.count_arg(lcworld)):
+                names.append(self.name)
+        elif self.count_mode == 3:
+            # used for filler items
+            self.slot_item_data.filler_items.update({self.name: getattr(lcworld.options, self.count_arg).value})
+            return []
         return names
 
 
@@ -128,6 +127,6 @@ def generate_items(imported_data) -> Tuple[List[LCItem], SlotItemData]:
         items.append(LCItem(slot_item_data, item, shop_item=True))
 
     for moon in imported_data.get("moons"):
-        items.append(LCItem(slot_item_data, " ".join(moon.split(" ")[1:]), environment=True))
+        items.append(LCItem(slot_item_data, moon, environment=True))
 
     return items, slot_item_data
