@@ -1,15 +1,14 @@
 # AP World Setup
 ## Required Software
 
-- [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases) v0.4.4 or higher. Make sure to install the
+- [Archipelago](https://github.com/ArchipelagoMW/Archipelago/releases) v0.5.1 or higher. Make sure to install the
   Generator. You will not be able to generate games with Paper Mario on the Archipelago site, only locally.
 - [The Paper Mario AP World](https://github.com/JKBSunshine/PMR_APWorld/tree/main). To download it, go to the [latest release](https://github.com/JKBSunshine/PMR_APWorld/releases) and download the papermario.apworld file.
 - A legally obtained US 1.0 Paper Mario ROM.
-- [BizHawk](https://tasvideos.org/BizHawk/ReleaseHistory) 2.7 or later
+- [BizHawk](https://tasvideos.org/BizHawk/ReleaseHistory) 2.7 to 2.9.1; 2.10 does not work.
 
 ## Add the Paper Mario AP World to your Archipelago install
-Place the .apworld file in the worlds folder in your Archipelago install.
-This is generally found at C:\ProgramData\Archipelago\lib\worlds.
+As of Archipelago v0.5.0, you can double click .apworld files to add apworlds to your Archipelago installation.
 
 ## Creating a YAML file
 
@@ -37,10 +36,10 @@ Note that since some settings are not yet implemented fully, not all of them wil
 to create your YAML.
 
 ## Generating a Game
-Follow [the general Archipelago instructions](https://trezapalooza.com/tutorial/Archipelago/setup/en#generating-a-game) for generating a game, specifically on your local installation. You cannot generate games using the Paper Mario AP World on the website.
+Follow [the general Archipelago instructions](https://archipelago.gg/tutorial/Archipelago/setup/en#generating-a-game) for generating a game, specifically on your local installation. You cannot generate games using the Paper Mario AP World on the website.
 
 ## Hosting a Game
-Follow [the general Archipelago instructions](https://trezapalooza.com/tutorial/Archipelago/setup/en#hosting-an-archipelago-server) for hosting an Archipelago server. You _can_ host games that use the Paper Mario AP World on the website, or you can host it locally.
+Follow [the general Archipelago instructions](https://archipelago.gg/tutorial/Archipelago/setup/en#hosting-an-archipelago-server) for hosting an Archipelago server. You _can_ host games that use the Paper Mario AP World on the website, or you can host it locally.
 
 ## Connecting to an Archipelago Server
 1. Obtain your .appm64 file from whoever is hosting the game. These files will not upload to the website even if it is hosted there, so you will have to send/receive them elsewhere.

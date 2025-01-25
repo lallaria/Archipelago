@@ -2,7 +2,7 @@ import settings
 import typing
 import os
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, TextIO
 from BaseClasses import (Tutorial, CollectionState, MultiWorld, ItemClassification as ic, LocationProgressType)
 from .modules.random_battles import get_boss_battles
 from .SettingsString import load_settings_from_site_string
@@ -35,7 +35,7 @@ from .options import (SeedGoal, PaperMarioOptions, ShuffleKootFavors, PartnerUpg
 from .data.node import Node
 from .data.starting_maps import starting_maps
 from .Rom import generate_output, PaperMarioDeltaPatch
-from Fill import fill_restrictive
+from Fill import fill_restrictive, remaining_fill
 from .modules.random_blocks import get_block_placement
 import pkg_resources
 from .client import PaperMarioClient  # unused but required for generic client to hook onto
@@ -119,6 +119,7 @@ class PaperMarioWorld(World):
         self.itempool = []
         self.pre_fill_items = []
         self.dungeon_restricted_items = {}
+        self.dro_shop_puzzle_items = []
         self.remove_from_start_inventory = []
         self.web_start_inventory = []
 
@@ -127,6 +128,8 @@ class PaperMarioWorld(World):
 
         self.regions = []
         self.battle_list = []
+
+        self.spoilerlog_puzzles = {}
 
     @classmethod
     def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
@@ -141,8 +144,6 @@ class PaperMarioWorld(World):
 
         # fail generation if attempting to use options that are not fully implemented yet
         nyi_warnings = ""
-        if self.options.random_puzzles.value:  # NYI
-            nyi_warnings += "\n'random_puzzles' must be set to False"
         if self.options.item_traps.value != ItemTraps.option_No_Traps:  # not possible with current base mod
             nyi_warnings += "\n'item_traps' must be set to No_Traps"
         if self.options.shuffle_dungeon_entrances.value != ShuffleDungeonEntrances.option_Off:  # NYI
@@ -157,11 +158,6 @@ class PaperMarioWorld(World):
                              "are not yet implemented in the .apworld being used for generation. "
                              "Please check for a newer release and/or adjust the settings below : ") + nyi_warnings)
             raise ValueError(nyi_warnings)
-
-        # Unclear which type of game is desired, raise error and have the player choose
-        if self.options.require_specific_spirits.value and self.options.power_star_hunt.value:
-            raise ValueError(f"Paper Mario: {self.player} ({self.multiworld.player_name[self.player]}) has power star "
-                             "hunt and require specific spirits enabled. One or both options must be disabled.")
 
         # LCL is not compatible with several options
         # Rather than generate with drastically different settings, compile list of incompatible settings
@@ -407,7 +403,7 @@ class PaperMarioWorld(World):
                 self.itempool.append(self.create_item(self.get_filler_item_name()))
 
         # remove prefill items from item pool to be randomized
-        self.itempool, self.pre_fill_items, self.dungeon_restricted_items = self.divide_itempools()
+        self.itempool, self.pre_fill_items, self.dungeon_restricted_items, self.dro_shop_puzzle_items = self.divide_itempools()
 
         self.multiworld.itempool.extend(self.itempool)
         self.remove_from_start_inventory.extend(removed_items)
@@ -510,6 +506,7 @@ class PaperMarioWorld(World):
         main_items = []
         prefill_item_names = []
         dungeon_restricted_items = {}
+        dro_shop_puzzle_item_names = []
 
         # progression items that need to be in replenishable locations
         for item in progression_miscitems:
@@ -541,12 +538,24 @@ class PaperMarioWorld(World):
                 if item.name in item_groups["PartnerUpgrade"]:
                     prefill_item_names.append(item.name)
 
+        # ensure DDO shop has 3 cheap consumables for puzzle purposes if needed
+        if self.options.random_puzzles.value and self.options.include_shops.value and not (
+                self.options.limit_chapter_logic.value and 2 in self.excluded_spirits):
+            for item in self.itempool:
+                if (item_table[item.name][0] == "ITEM"
+                        and item_table[item.name][3] <= 10 and item_table[item.name][2] <= 0xFF
+                        and len(dro_shop_puzzle_item_names) < 3 and item.name not in dro_shop_puzzle_item_names):
+                    dro_shop_puzzle_item_names.append(item.name)
+
         prefill_items = []
+        dro_shop_puzzle_items = []
         local_consumable_chance = self.options.local_consumables.value
         for item in self.itempool:
 
             if item.name in prefill_item_names and item not in prefill_items:
                 prefill_items.append(item)
+            elif item.name in dro_shop_puzzle_item_names and item not in dro_shop_puzzle_items:
+                dro_shop_puzzle_items.append(item)
             else:
                 # check if this item gets kept local or not
                 # sets extra copies of consumable progression items to be filler so that they aren't considered in logic
@@ -569,7 +578,7 @@ class PaperMarioWorld(World):
                 else:
                     main_items.append(item)
 
-        return main_items, prefill_items, dungeon_restricted_items
+        return main_items, prefill_items, dungeon_restricted_items, dro_shop_puzzle_items
 
     # handle player-specific stuff like cosmetics, audio, enemy stats, etc.
 
@@ -595,6 +604,14 @@ class PaperMarioWorld(World):
         for item in self.itempool:
             self.collect(state, item)
         state.sweep_for_advancements(locations=self.get_locations())
+
+        if self.options.random_puzzles.value and self.options.include_shops.value and not (
+                self.options.limit_chapter_logic.value and 2 in self.excluded_spirits):
+            dro_shop_locations = [self.multiworld.get_location(location, self.player)
+                                  for location in self.random.sample([location for location in location_table.keys()
+                                                                      if "DDO Outpost 1 Shop Item" in location], 3)]
+
+            remaining_fill(self.multiworld, dro_shop_locations, self.dro_shop_puzzle_items)
 
         # place progression items that are also consumables in locations that are replenishable
         replenish_locations = [name for name, data in location_table.items() if data[0] in replenishing_itemlocations]
@@ -707,6 +724,13 @@ class PaperMarioWorld(World):
 
     def generate_output(self, output_directory: str):
         generate_output(self, output_directory)
+
+
+    def write_spoiler(self, spoiler_handle: TextIO) -> None:
+        if self.spoilerlog_puzzles:
+            spoiler_handle.write(f"\n\nPuzzles ({self.multiworld.player_name[self.player]}):\n")
+            for puzzle, solution in self.spoilerlog_puzzles.items():
+                spoiler_handle.write(f"\n{puzzle}: {solution}")
 
     # handle star pieces from quizmo, triple star piece items
     def collect(self, state: CollectionState, item: PMItem) -> bool:
