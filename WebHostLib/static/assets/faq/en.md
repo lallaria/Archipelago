@@ -25,26 +25,26 @@ players to randomize any of the supported games, and send items between them. Th
 games to interact with one another in a single multiplayer environment.  Archipelago supports multi-game multiworld.
 Here is a list of our [Supported Games](https://archipelago.gg/games).
 
-## Can I generate a single-player game with Archipelago?
+## Can I generate a single-player game with TreZapalooza?
 
 Yes. All of our supported games can be generated as single-player experiences both on the website and by installing 
-the Archipelago generator software. The fastest way to do this is on the website. Find the Supported Game you wish to
+the TreZapalooza generator software. The fastest way to do this is on the website. Find the Supported Game you wish to
 play, open the Settings Page, pick your settings, and click Generate Game.
 
 ## How do I get started?
 
-We have a [Getting Started](https://archipelago.gg/tutorial/Archipelago/setup/en) guide that will help you get the
+We have a [Getting Started](https://trezapalooza.com/tutorial/Archipelago/setup/en) guide that will help you get the
 software set up. You can use that guide to learn how to generate multiworlds. There are also basic instructions for
 including multiple games, and hosting multiworlds on the website for ease and convenience.
 
 If you are ready to start randomizing games, or want to start playing your favorite randomizer with others, please join
-our discord server at the [Archipelago Discord](https://discord.gg/8Z65BR2). There are always people ready to answer
+the upstream discord at the [Archipelago Discord](https://discord.gg/8Z65BR2). There are always people ready to answer
 any questions you might have.
 
 ## What are some common terms I should know?
 
 As randomizers and multiworld randomizers have been around for a while now, there are quite a few common terms used
-by the communities surrounding them. A list of Archipelago jargon and terms commonly used by the community can be
+by the communities surrounding them. A list of TreZapalooza jargon and terms commonly used by the community can be
 found in the [Glossary](/glossary/en).
 
 ## Does everyone need to be connected at the same time?
@@ -55,9 +55,9 @@ where players connect and play at their own pace. The setup for both is identica
 you and your friends choose to organize and play your multiworld. Most groups decide on the format before creating
 their multiworld.
 
-If a player must leave early, they can use Archipelago's release system. When a player releases their game, all items
+If a player must leave early, they can use TreZapalooza's release system. When a player releases their game, all items
 in that game belonging to other players are sent out automatically. This allows other players to continue to play
-uninterrupted. Here is a list of all of our [Server Commands](https://archipelago.gg/tutorial/Archipelago/commands/en).
+uninterrupted. Here is a list of all of our [Server Commands](https://trezapalooza.com/tutorial/Archipelago/commands/en).
 
 ## What happens if an item is placed somewhere it is impossible to get?
 
