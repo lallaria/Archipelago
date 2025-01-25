@@ -24,7 +24,8 @@ This can take a while to finish (30+ minutes) depending on your connection speed
 or else the download may potentially become corrupted (see first FAQ issue below).
 
 
-3. Once the download finishes, go to `steamapps/content/app_253230` in Steam's program folder.
+3. Click the **Betas** tab. In the **Beta Participation** dropdown, select `tcplink`.  
+   While it downloads, you can subscribe to the [Archipelago workshop mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3026842601).
 
 
 4. There should be a folder named `depot_253232`. Rename it to HatinTime_AP and move it to your `steamapps/common` folder.
