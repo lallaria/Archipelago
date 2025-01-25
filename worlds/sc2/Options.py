@@ -678,7 +678,7 @@ class VanillaLocations(LocationInclusion):
     Disabled: Removes item rewards from these locations.
 
     Note: Individual locations subject to plando are always enabled, so the plando can be placed properly.
-    See also: Excluded Locations, Item Plando (https://archipelago.gg/tutorial/Archipelago/plando/en#item-plando)
+    See also: Excluded Locations, Item Plando (https://trezapalooza.com/tutorial/Archipelago/plando/en#item-plando)
     """
     display_name = "Vanilla Locations"
 
@@ -696,7 +696,7 @@ class ExtraLocations(LocationInclusion):
     Disabled: Removes item rewards from these locations.
 
     Note: Individual locations subject to plando are always enabled, so the plando can be placed properly.
-    See also: Excluded Locations, Item Plando (https://archipelago.gg/tutorial/Archipelago/plando/en#item-plando)
+    See also: Excluded Locations, Item Plando (https://trezapalooza.com/tutorial/Archipelago/plando/en#item-plando)
     """
     display_name = "Extra Locations"
 
@@ -713,7 +713,7 @@ class ChallengeLocations(LocationInclusion):
     Disabled: Removes item rewards from these locations.
 
     Note: Individual locations subject to plando are always enabled, so the plando can be placed properly.
-    See also: Excluded Locations, Item Plando (https://archipelago.gg/tutorial/Archipelago/plando/en#item-plando)
+    See also: Excluded Locations, Item Plando (https://trezapalooza.com/tutorial/Archipelago/plando/en#item-plando)
     """
     display_name = "Challenge Locations"
 
@@ -729,7 +729,7 @@ class MasteryLocations(LocationInclusion):
     Disabled: Removes item rewards from these locations.
 
     Note: Individual locations subject to plando are always enabled, so the plando can be placed properly.
-    See also: Excluded Locations, Item Plando (https://archipelago.gg/tutorial/Archipelago/plando/en#item-plando)
+    See also: Excluded Locations, Item Plando (https://trezapalooza.com/tutorial/Archipelago/plando/en#item-plando)
     """
     display_name = "Mastery Locations"
 

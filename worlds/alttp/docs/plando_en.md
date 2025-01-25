@@ -12,7 +12,7 @@
 
 ### Bosses
 
-- This module is enabled by default and available to be used on [https://archipelago.gg/generate](/generate)
+- This module is enabled by default and available to be used on [https://trezapalooza.com/generate](/generate)
 - Plando versions of boss shuffles can be added like any other boss shuffle option in a yaml and weighted.
 - Boss Plando works as a list of instructions from left to right, if any arenas are empty at the end, it defaults to
   vanilla.

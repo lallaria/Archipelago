@@ -21,7 +21,7 @@
 3. The next settlement you start, check your Makeshift Post or Field Kitchen for shuffled recipes!
 
 ## Generating and Hosting a Seed
-* If you are unfamiliar with Archipelago, I recommend reading through the [Archipelago Setup Guide](https://archipelago.gg/tutorial/Archipelago/setup/en) to gain an understanding of how Archipelago works and to better understand the steps below. This is *not* the kind of randomizer you might be expecting!
+* If you are unfamiliar with Archipelago, I recommend reading through the [Archipelago Setup Guide](https://trezapalooza.com/tutorial/Archipelago/setup/en) to gain an understanding of how Archipelago works and to better understand the steps below. This is *not* the kind of randomizer you might be expecting!
 1. Download the `against_the_storm.apworld` and `AgainstTheStorm.yaml` files from the latest [Against The Storm for Archipelago](https://github.com/RyanCirincione/ArchipelagoATS/releases) release.
 2. Put the `against_the_storm.apworld` file in the `/Archipelago/lib/worlds` folder where you installed Archipelago.
 3. Edit the `AgainstTheStorm.yaml`.
@@ -30,7 +30,7 @@
     3. The one option you may want to pay attention to is `enable_dlc`, if you have Keepers of the Stone and want to include its locations, make sure to flip that to `true`!
 4. Place the edited `AgainstTheStorm.yaml` in the `/Archipelago/Players` folder.
 5. Run `ArchipelagoGenerate.exe` from the `/Archipelago` folder.
-6. Upload the `AP_#######.zip` file from `/Archipelago/output` to [the Archipelago website](https://archipelago.gg/uploads) to host the game.
+6. Upload the `AP_#######.zip` file from `/Archipelago/output` to [the Archipelago website](https://trezapalooza.com/uploads) to host the game.
 
 ## Joining an Archipelago Game in Against The Storm
 * Optional: backup your save files located in `%userprofile%\AppData\LocalLow\Eremite Games\Against the Storm`

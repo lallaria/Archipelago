@@ -19,7 +19,7 @@
 1. Create your player options YAML file. A sample YAML is included.
 2. Gather the YAMLs of all players into the `Archipelago/Players` folder.
 3. Run the Archipelago Launcher and select Generate.
-4. A zip file will be created in the `Archipelago/output` folder. Upload this to [the Archipelago website](https://archipelago.gg/uploads) to host your game.
+4. A zip file will be created in the `Archipelago/output` folder. Upload this to [the Archipelago website](https://trezapalooza.com/uploads) to host your game.
 5. Inside the zip file is a `.apalbw` file. You will need this file to play the game.
 
 ## Playing a Game

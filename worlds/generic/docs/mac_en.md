@@ -24,7 +24,7 @@ It is generally recommended that you use a virtual environment to run python bas
 2. If your game does have a patch file, move the base rom to the Archipelago directory and run the command `python3 SNIClient.py 'patchfile'` with the filename extension for the patch file (apsm, aplttp, apsmz3, etc.) included and changing the filename with the file of the client you want to run.
 3. Your client should now be running and rom created (where applicable).
 ## Additional Steps for SNES Games
-1. If using RetroArch, the instructions to set up your emulator [here in the Link to the Past setup guide](https://archipelago.gg/tutorial/A%20Link%20to%20the%20Past/multiworld/en) also work on the macOS version of RetroArch.
+1. If using RetroArch, the instructions to set up your emulator [here in the Link to the Past setup guide](https://trezapalooza.com/tutorial/A%20Link%20to%20the%20Past/multiworld/en) also work on the macOS version of RetroArch.
 2. Double click on the SNI tar.gz download to extract the files to an SNI directory. If it isn't already, rename this directory to SNI to make some steps easier.
 3. Move the SNI directory out of the downloads directory, preferably into the Archipelago directory created earlier.
 4. If the SNI directory is correctly named and moved into the Archipelago directory, it should auto run with the SNI client. If it doesn't automatically run, open up the SNI directory and run the SNI executable file manually.

@@ -62,8 +62,8 @@ to futher customize their experience.
 > ⚠ Pre-Release Note: The above links do not work because it would go to the live Archipelago site.
 > See these links instead:
 >
-> - <https://archipelago.gg/tutorial/Archipelago/advanced_settings/en>
-> - <https://archipelago.gg/tutorial/Archipelago/plando/en>
+> - <https://trezapalooza.com/tutorial/Archipelago/advanced_settings/en>
+> - <https://trezapalooza.com/tutorial/Archipelago/plando/en>
 
 ## Prepare to Host Your Own Satisfactory Game
 
@@ -165,7 +165,7 @@ You may wish to use the Text Client to run commands since Satisfactory's in game
 
 > ⚠ Pre-Release Note: The above link does not work because it would go to the live Archipelago site.
 > Use this link instead:
-> <https://archipelago.gg/tutorial/Archipelago/commands/en>
+> <https://trezapalooza.com/tutorial/Archipelago/commands/en>
 
 <!-- ## Other Settings
 

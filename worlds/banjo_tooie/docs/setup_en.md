@@ -53,7 +53,7 @@ For those who wish to play this randomizer on Actual N64 Hardware:
 - Install banjo_tooie.apworld
 
 ## Generate your world
-- Familiarize yourself on how Archipelago works. Here is a guide to learn how to generate your world: https://archipelago.gg/tutorial/Archipelago/setup/en#on-your-local-installation
+- Familiarize yourself on how Archipelago works. Here is a guide to learn how to generate your world: https://trezapalooza.com/tutorial/Archipelago/setup/en#on-your-local-installation
 - In quick summary:
     - Generate your YAML template either using the Archipelago Launcher Or using our template here: https://github.com/jjjj12212/Archipelago-BanjoTooie/blob/main/yaml-template/template.yaml
     - Put your YAML in the Players folder

@@ -13,7 +13,7 @@
 
  Place the `pokemon_frlg.apworld` file in your Archipelago installation's `lib/worlds` or `custom_worlds` folder (Default location for Windows: `%programdata%/Archipelago`). Do not place it into both folders.
 
-It is recommended you follow the setup guide for Bizhawk in the [Pokémon Emerald Setup Guide](https://archipelago.gg/tutorial/Pokemon%20Emerald/setup/en#configuring-bizhawk).
+It is recommended you follow the setup guide for Bizhawk in the [Pokémon Emerald Setup Guide](https://trezapalooza.com/tutorial/Pokemon%20Emerald/setup/en#configuring-bizhawk).
 
 ## Optional Software
 

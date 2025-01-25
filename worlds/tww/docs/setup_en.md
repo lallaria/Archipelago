@@ -66,7 +66,7 @@ their slot (player) name. Distribute each file to the appropriate player.
 
 If you're generating the multiworld, follow the instructions in the previous section. Once you have the zip file
 corresponding to your multiworld, follow
-[these steps](https://archipelago.gg/tutorial/Archipelago/setup/en#hosting-an-archipelago-server) to host a room. Follow
+[these steps](https://trezapalooza.com/tutorial/Archipelago/setup/en#hosting-an-archipelago-server) to host a room. Follow
 the instructions for hosting on the website from a locally generated game or on a local machine.
 
 ## Connecting to a Room

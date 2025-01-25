@@ -37,7 +37,7 @@ Other than these requests, we tend to judge code on a case-by-case basis.
 For contribution to the website, please refer to the [WebHost README](/WebHostLib/README.md).
 
 If you want to contribute to the core, you will be subject to stricter review on your pull requests. It is recommended
-that you get in touch with other core maintainers via the [Discord](https://archipelago.gg/discord).
+that you get in touch with other core maintainers via the [Discord](https://trezapalooza.com/discord).
 
 If you want to add Archipelago support for a new game, please take a look at
 the [adding games documentation](/docs/adding%20games.md)
@@ -46,4 +46,4 @@ If you want to merge a new game into the main Archipelago repo, please make sure
 [world maintainer](/docs/world%20maintainer.md).
 
 For other questions, feel free to explore the [main documentation folder](/docs), and ask us questions in the
-#ap-world-dev channel of the [Discord](https://archipelago.gg/discord).
+#ap-world-dev channel of the [Discord](https://trezapalooza.com/discord).
