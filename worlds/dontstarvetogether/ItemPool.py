@@ -106,6 +106,9 @@ class DSTItemPool:
             self.nonfiller_itempool.append("Damage Bonus")
 
     def create_item(self, world:World, name: str) -> DSTItem:
+        """
+        Create an item for DST. Use this function instead of the world's create_item to get the correct classification.
+        """
         itemtype = (
             IC.progression if name in self.progression_items
             else item_data_table[name].type if name in item_name_to_id
@@ -147,7 +150,7 @@ class DSTItemPool:
                     items_by_classification["filler"].append(item)
 
         for _list in items_by_classification.values():
-            world.multiworld.random.shuffle(_list) # In case of overflow, shuffle so our overflows are random
+            world.random.shuffle(_list) # In case of overflow, shuffle so our overflows are random
 
         unfilled_locations = world.multiworld.get_unfilled_locations(world.player)
         num_total_locations = len(unfilled_locations)
@@ -189,7 +192,7 @@ class DSTItemPool:
 
         # Fill up with junk items
         while len(item_pool) < len(world.multiworld.get_unfilled_locations(world.player)):
-            item_pool.append(world.create_item(world.get_filler_item_name()))
+            item_pool.append(self.create_item(world, world.get_filler_item_name()))
 
         if len(item_pool) > len(world.multiworld.get_unfilled_locations(world.player)):
             print(f"{world.multiworld.get_player_name(world.player)} (Don't Starve Together): Warning! More items than locations!")
@@ -202,7 +205,7 @@ class DSTItemPool:
         regulartrap_chance = float(options.trap_items.value) / 100
         seasontrap_chance = float(options.season_trap_items.value) / 100
         trap_percent = max(regulartrap_chance, seasontrap_chance)
-        roll = world.multiworld.random.random()
+        roll = world.random.random()
         # Decide if we get a trap, and split chance between the two kinds
         target_pool = (
             self.filler_items if roll >= trap_percent
@@ -210,7 +213,7 @@ class DSTItemPool:
             else self.seasontrap_items
         )
         if len(target_pool) > 0:
-            return world.multiworld.random.choice(target_pool)
+            return world.random.choice(target_pool)
         return "20 Health"
 
     def set_progression_items(self, progression_dict:Dict[str, bool]):

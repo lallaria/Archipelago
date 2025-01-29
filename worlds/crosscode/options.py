@@ -77,7 +77,7 @@ class HiddenQuestObfuscationLevel(Choice):
     [Hide Item] Only hides the item name. The icon and receiving player are still accurate.
     [Hide Text] Obscures item name and receiving player. The icon will still be accurate.
     [Hide All] The item name and receiving player will all be hidden and the icon will be replaced with a generic
-               archipelago logo.
+               Archipelago logo.
     """
     display_name = "Hidden Quest Obfuscation Level"
 
@@ -89,8 +89,8 @@ class HiddenQuestObfuscationLevel(Choice):
 
 class QuestDialogHints(DefaultOnToggle):
     """
-    If enabled, upon viewing the quest dialog for a quest with rewards that are not hidden, corresponding hints are sent
-    to the archipelago server.
+    If enabled, upon viewing the quest dialog for a quest with rewards that are not hidden, hints are sent to the
+    Archipelago server for all non-filler quest rewards.
     """
     display_name = "Quest Dialog Hints"
 
@@ -139,7 +139,8 @@ class ShopReceiveMode(Choice):
 
 class ShopDialogHints(DefaultOnToggle):
     """
-    If enabled, upon opening the dialog for a shop, corresponding hints are sent to the Archipelago server.
+    If enabled, upon opening the dialog for a shop, corresponding hints are sent to the Archipelago server for all
+    non-filler shop items.
     """
     display_name = "Shop Dialog Hints"
 
@@ -383,6 +384,12 @@ class GoldChestLockWeight(Range):
     range_end = 100
     default = 10
 
+class ForceFillerLocal(Toggle):
+    """
+    If selected, forces all filler items to be placed in your own world.
+    """
+    display_name = "Force Filler Local"
+
 class CommonPoolWeight(Range):
     """
     Controls the likelihood of choosing a common filler item when filling the world.
@@ -484,6 +491,7 @@ class CrossCodeOptions(PerGameCommonOptions):
     silver_chest_lock_weight: SilverChestLockWeight
     gold_chest_lock_weight: GoldChestLockWeight
 
+    force_filler_local: ForceFillerLocal
     common_pool_weight: CommonPoolWeight
     rare_pool_weight: RarePoolWeight
     epic_pool_weight: EpicPoolWeight
@@ -544,6 +552,7 @@ option_groups: list[OptionGroup] = [
     OptionGroup(
         name="Pools",
         options=[
+            ForceFillerLocal,
             CommonPoolWeight,
             RarePoolWeight,
             EpicPoolWeight,

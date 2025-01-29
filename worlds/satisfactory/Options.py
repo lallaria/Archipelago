@@ -62,6 +62,7 @@ class ElevatorTier(NamedRange):
 class ResourceSinkPoints(NamedRange):
     """
     Sink an amount of items totalling this amount of points to finish.
+    This setting is a *point count*, not a *coupon* count!
     Does nothing if *AWESOME Sink Points* goal is not enabled.
 
     In the base game, it takes 347 coupons to unlock every non-repeatable purchase, or 1895 coupons to purchase every non-producible item.
@@ -101,9 +102,9 @@ class ResourceSinkPoints(NamedRange):
 class HardDriveProgressionLimit(Range):
     """
     How many Hard Drives can contain progression items.
-    Hard Drives above this count cannot contain progression, but can still be useful.
+    Hard Drives above this count cannot contain progression, but can still be Useful.
     
-    There are 118 total hard drives.
+    There are 118 total hard drives in the world and the current implementation supports up to 100 progression hard drives.
     """
     display_name = "Hard Drive Progression Items"
     default = 20
@@ -230,7 +231,7 @@ class TrapSelectionPreset(ChoiceMap):
         "Nicholas Cage": ["Trap: Hatcher", "Trap: Elite Hatcher", "Trap: Not the Bees"],
         "Fallout": ["Trap: Doggo with Nuke Nobelisk", "Trap: Nuclear Hog", "Trap: Nuclear Waste Drop", "Trap: Plutonium Waste Drop", "Bundle: Uranium", "Bundle: Uranium Fuel Rod", "Bundle: Uranium Waste", "Bundle: Plutonium Fuel Rod", "Bundle: Plutonium Waste", "Bundle: Ficsonium", "Bundle: Ficsonium Fuel Rod"],
     }
-    default="Normal"
+    # default="Normal" # TODO `default` doesn't do anything, default is always the first `choices` value. if uncommented it messes up the template file generation (caps mismatch)
 
 class TrapSelectionOverride(OptionSet):
     """
@@ -244,7 +245,7 @@ class TrapSelectionOverride(OptionSet):
 class EnergyLink(Toggle):
     """
     Allow transferring energy to and from other worlds using the Power Storage building.
-    0% of the energy is lost in the transfer.
+    No energy is lost in the transfer on Satisfactory's side, but other worlds may have other settings.
     """
     display_name = "EnergyLink"
 
@@ -330,7 +331,7 @@ class StartingInventoryPreset(ChoiceMap):
         "Foundations": _default_plus_foundations_starting_items,
         "Foundation Lover": _foundation_lover_starting_items
     }
-    default = "Archipelago"
+    # default = "Archipelago" # TODO `default` doesn't do anything, default is always the first `choices` value. if uncommented it messes up the template file generation (caps mismatch)
 
 class GoalSelection(OptionSet):
     """

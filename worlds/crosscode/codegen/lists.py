@@ -3,6 +3,7 @@ Provides the ListInfo class, which stores most of the world data during the code
 """
 
 from collections import defaultdict
+from enum import StrEnum
 import typing
 
 from BaseClasses import ItemClassification
@@ -15,6 +16,15 @@ from ..types.items import ItemData, ProgressiveItemChainSingle, SingleItemData, 
 from ..types.locations import AccessInfo, LocationData
 from ..types.condition import Condition, RegionCondition, OrCondition, ShopSlotCondition
 from ..types.shops import ShopData
+
+class LocationCategory(StrEnum):
+    """
+    Enum of check types, used for location categorization and markers.
+    """
+    CHEST = "Chest"
+    CUTSCENE = "Cutscene"
+    ELEMENT = "Element"
+    QUEST = "Quest"
 
 
 class ListInfo:
@@ -30,6 +40,7 @@ class ListInfo:
     locations_data: dict[str, LocationData]
     events_data: dict[str, LocationData]
     pool_locations: list[LocationData]
+    location_groups: dict[str, list[LocationData]]
 
     locked_locations: list[int]
 
@@ -71,6 +82,7 @@ class ListInfo:
         self.locations_data = {}
         self.events_data = {}
         self.pool_locations = []
+        self.location_groups = defaultdict(list)
 
         self.locked_locations = []
 
@@ -110,13 +122,13 @@ class ListInfo:
         file = self.ctx.rando_data
 
         if "chests" in file:
-            self.__add_location_list(file["chests"])
+            self.__add_location_list(file["chests"], LocationCategory.CHEST)
         if "cutscenes" in file:
-            self.__add_location_list(file["cutscenes"])
+            self.__add_location_list(file["cutscenes"], LocationCategory.CUTSCENE)
         if "elements" in file:
-            self.__add_location_list(file["elements"])
+            self.__add_location_list(file["elements"], LocationCategory.ELEMENT)
         if "quests" in file:
-            self.__add_location_list(file["quests"], True)
+            self.__add_location_list(file["quests"], LocationCategory.QUEST, True)
 
         self.__add_shop_list(self.ctx.rando_data["shops"])
 
@@ -172,7 +184,7 @@ class ListInfo:
 
         return item_id
 
-    def __add_location(self, name: str, raw_loc: dict[str, typing.Any], create_event: bool = False):
+    def __add_location(self, name: str, raw_loc: dict[str, typing.Any], category: LocationCategory, create_event: bool = False):
         """
         Add a location to the lists.
         """
@@ -192,12 +204,11 @@ class ListInfo:
                     "Cannot add or overwrite with {num_rewards}."
                 )
 
-        try:
-            area = raw_loc["location"]["map"].split('.')[0]
-            if area not in self.ctx.rando_data["dungeons"]:
-                area = None
-        except (KeyError, AttributeError):
-            area = None
+        if category == LocationCategory.QUEST:
+            area = dbentry["area"]
+        else:
+            area = raw_loc.get("location", {}).get("area", None)
+        area_name = self.ctx.area_names[area]
 
         location_names: list[str] = []
 
@@ -226,6 +237,12 @@ class ListInfo:
 
             self.locations_data[full_name] = loc
             self.pool_locations.append(loc)
+            if area != None:
+                try:
+                    self.location_groups[area_name].append(loc)
+                    self.location_groups[f"{area_name} {category}s"].append(loc)
+                except KeyError:
+                    print(f"Cannot add location '{name}' in area '{area}'")
 
             if locked:
                 self.locked_locations.append(locid)
@@ -241,12 +258,12 @@ class ListInfo:
             )
             self.events_data[event_name] = event
 
-    def __add_location_list(self, loc_list: dict[str, dict[str, typing.Any]], create_events: bool = False):
+    def __add_location_list(self, loc_list: dict[str, dict[str, typing.Any]], category: LocationCategory, create_events: bool = False):
         """
         Add a list of locations to the list.
         """
         for name, raw_loc in loc_list.items():
-            self.__add_location(name, raw_loc, create_events)
+            self.__add_location(name, raw_loc, category, create_events)
 
     def __add_item_data(self, name: str, raw_item: dict[str, typing.Any]) -> tuple[SingleItemData, ItemData]:
         """
@@ -288,6 +305,8 @@ class ListInfo:
 
     def __add_shop(self, shop_display_name: str, raw_shop: dict[str, typing.Any]):
         shop_name = raw_shop["location"]["shop"]
+        area = raw_shop["location"]["area"]
+        area_name = self.ctx.area_names[area]
         shop_base_name = shop_display_name.split(" +")[0] # this is a hack until there are heirarchical shops
 
         dbentry = self.ctx.database["shops"][shop_name]
@@ -319,13 +338,16 @@ class ListInfo:
             slot_location = LocationData(
                 name=slot_location_name,
                 code=locid,
-                area=None,
+                area=area,
                 metadata=metadata,
                 access=AccessInfo(
                     region={ name: shop_display_name for name in access_info.region },
                     cond=[ShopSlotCondition(shop_name, item_id)],
                 ),
             )
+
+            self.location_groups[area_name].append(slot_location)
+            self.location_groups[f"{area_name} Shops"].append(slot_location)
 
             shop_locs[item_id] = slot_location
             self.locations_data[slot_location.name] = slot_location

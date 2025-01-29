@@ -1,9 +1,12 @@
-VERSION:str = "1.2.1.1"
+VERSION:str = "1.3.0.1"
 ITEM_ID_OFFSET:int = 264000
 LOCATION_ID_OFFSET:int = 264000
 LOCATION_DAY_OFFSET = 266000
 LOCATION_BOSS_RANGE = {"start": 264251, "end": 264300}
 LOCATION_RESEARCH_RANGE = {"start": 264501, "end": 264900}
+# If for some reason you want the client to connect to DST across different machines, this should be changed to "0.0.0.0", and in DST: ArchipelagoDST.AP_CLIENT_IP should be changed
+CLIENT_HOSTNAME = "localhost"
+CLIENT_PORT = 8000
 
 class REGION:
     NONE = "None"
@@ -482,7 +485,7 @@ DSTAP_LOCATIONS = [
     [108,   "Honey Ham",                "honeyham",                 [ "cooking", "meat" ] ],
     [109,   "Dragonpie",                "dragonpie",                [ "cooking", "veggie", "spring", "summer", "seasons_passed_1" ] ],
     [110,   "Kabobs",                   "kabobs",                   [ "cooking", "meat" ] ],
-    [111,   "Mandrake Soup",            "mandrakesoup",             [ "cooking", "veggie", "advanced" ] ],
+    [111,   "Mandrake Soup",            "mandrakesoup",             [ "cooking", "veggie" ] ],
     [112,   "Bacon and Eggs",           "baconeggs",                [ "cooking", "meat" ] ],
     [113,   "Meatballs",                "meatballs",                [ "cooking", "meat" ] ],
     [114,   "Meaty Stew",               "bonestew",                 [ "cooking", "meat" ] ],
@@ -493,7 +496,7 @@ DSTAP_LOCATIONS = [
     [119,   "Fruit Medley",             "fruitmedley",              [ "cooking", "veggie", "special_fruits" ] ],
     [120,   "Fish Tacos",               "fishtacos",                [ "cooking", "meat", "special_corn" ] ],
     [121,   "Waffles",                  "waffles",                  [ "cooking", "veggie", "rng", "day", "nonwinter" ] ],
-    [122,   "Monster Lasagna",          "monsterlasagna",           [ "cooking", "meat", "advanced" ] ],
+    [122,   "Monster Lasagna",          "monsterlasagna",           [ "cooking", "meat" ] ],
     [123,   "Powdercake",               "powcake",                  [ "cooking", "veggie", "special_corn" ] ],
     [124,   "Unagi",                    "unagi",                    [ "cooking", "meat", "ruins" ] ],
     [125,   "Wet Goop",                 "wetgoop",                  [ "cooking", "other" ] ],
@@ -575,7 +578,7 @@ DSTAP_LOCATIONS = [
     [266,   "Nightmare Werepig",        "daywalker",                [ "boss", "ruins", "priority_scrappywerepig_boss" ] ],
     [267,   "Scrappy Werepig",          "daywalker2",               [ "boss", "ruins" ] ],
     [268,   "Dragonfly",                "dragonfly",                [ "boss", "raidboss" ] ],
-    [269,   "Klaus",                    "klaus",                    [ "boss", "raidboss", "seasonal", "winter" ] ],
+    [269,   "Klaus",                    "klaus",                    [ "boss", "raidboss", "seasonal", "winter", "seasons_passed_1" ] ],
     [270,   "Frostjaw",                 "sharkboi",                 [ "boss", "ocean" ] ],
     [271,   "Ancient Fuelweaver",       "stalker_atrium",           [ "boss", "raidboss", "ruins", "night" ] ],
     [272,   "Retinazor",                "twinofterror1",            [ "boss", "raidboss", "night" ] ],
@@ -624,18 +627,18 @@ DSTAP_LOCATIONS = [
     [337,   "Mosling",                  "mossling",             [ "creature", "seasonal", "spring", "seasons_passed_2", "special_moosegoose" ] ],
     [338,   "Mush Gnome",               "mushgnome",            [ "creature", "cave" ] ],
     [339,   "Terrorclaw",               "oceanhorror",          [ "creature", "ocean", "deprecated" ] ],
-    [340,   "Pengull",                  "penguin",              [ "creature", "ocean", "seasonal", "winter" ] ],
+    [340,   "Pengull",                  "penguin",              [ "creature", "seasonal", "winter" ] ],
     [341,   "Gobbler",                  "perd",                 [ "creature", "day" ] ],
     [342,   "Pig Man",                  "pigman",               [ "creature", "peaceful" ] ],
     [343,   "Powder Monkey",            "powder_monkey",        [ "creature", "moonquay" ] ],
     [344,   "Prime Mate",               "prime_mate",           [ "creature", "moonquay" ] ],
-    [345,   "Puffin",                   "puffin",               [ "creature", "ocean", "peaceful", "day" ] ],
+    [345,   "Puffin",                   "puffin",               [ "creature", "ocean", "peaceful", "day", "dusk" ] ],
     [346,   "Rabbit",                   "rabbit",               [ "creature", "peaceful" ] ],
     [347,   "Redbird",                  "robin",                [ "creature", "nonwinter", "peaceful", "day", "dusk" ] ],
     [348,   "Snowbird",                 "robin_winter",         [ "creature", "seasonal", "winter" , "peaceful", "day", "dusk" ] ],
-    [349,   "Rock Lobster",             "rocky",                [ "creature", "cave", "advanced", "peaceful" ] ],
+    [349,   "Rock Lobster",             "rocky",                [ "creature", "cave", "peaceful" ] ],
     [350,   "Clockwork Rook",           "rook",                 [ "creature", "ruins", "priority" ] ],
-    [351,   "Rockjaw",                  "shark",                [ "creature", "ocean", "advanced", "rng" ] ],
+    [351,   "Rockjaw",                  "shark",                [ "creature", "ocean", "rng" ] ],
     [352,   "Slurper",                  "slurper",              [ "creature", "ruins" ] ],
     [353,   "Slurtle",                  "slurtle",              [ "creature", "cave" ] ],
     [354,   "Snurtle",                  "snurtle",              [ "creature", "cave", "rng" ] ],
@@ -660,7 +663,7 @@ DSTAP_LOCATIONS = [
     [373,   "Lure Plant",               "lureplant",            [ "creature", "spring", "rng" ] ],
     [374,   "Glommer",                  "glommer",              [ "creature", "peaceful", "night", "seasonal", "seasons_passed_half" ] ],
     [375,   "Dust Moth",                "dustmoth",             [ "creature", "archive", "peaceful" ] ],
-    [376,   "No-Eyed Deer",             "deer",                 [ "creature", "seasonal", "winter", "peaceful" ] ],
+    [376,   "No-Eyed Deer",             "deer",                 [ "creature", "seasonal", "winter", "peaceful", "seasons_passed_1" ] ],
     [377,   "Moonblind Crow",           "bird_mutant",          [ "creature", "moonstorm", "peaceful" ] ],
     [378,   "Misshapen Bird",           "bird_mutant_spitter",  [ "creature", "moonstorm", "peaceful" ] ],
     [379,   "Moonrock Pengull",         "mutated_penguin",      [ "creature", "moonstorm", "seasonal", "winter", "rng" ] ],
@@ -709,7 +712,7 @@ DSTAP_LOCATIONS = [
     [518,   "Science (Cactus Flower)",          "cactus_flower",            [ "research", "science", "tier_2", "seasonal", "summer" ] ],
     [519,   "Science (Honeycomb)",              "honeycomb",                [ "research", "science", "tier_2" ] ],
     [520,   "Science (Petals)",                 "petals",                   [ "research", "science", "tier_2" ] ],
-    [521,   "Science (Succulent)",              "succulent_picked",         [ "research", "science", "tier_2" ] ],
+    [521,   "Science (Succulent)",              "succulent_picked",         [ "research", "science", "tier_2", "seasonal", "summer" ] ],
     [522,   "Science (Foliage)",                "foliage",                  [ "research", "science", "tier_2" ] ],
     [523,   "Science (Tillweeds)",              "tillweed",                 [ "research", "science", "tier_2" ] ],
     [524,   "Science (Lichen)",                 "cutlichen",                [ "research", "science", "tier_1", "veggie_research", "ruins" ] ],
@@ -759,7 +762,7 @@ DSTAP_LOCATIONS = [
     # Magic (601-700)
     [601,   "Magic (Blue Gem)",                 "bluegem",                  [ "research", "magic", "tier_1" ] ],
     [602,   "Magic (Living Log)",               "livinglog",                [ "research", "magic", "tier_2" ] ],
-    [603,   "Magic (Glommer's Goop)",           "glommerfuel",              [ "research", "magic", "tier_1", "seasonal", "seasons_passed_half" ] ],
+    [603,   "Magic (Glommer's Goop)",           "glommerfuel",              [ "research", "magic", "tier_1", "seasonal", "seasons_passed_half", "night" ] ],
     [604,   "Magic (Dark Petals)",              "petals_evil",              [ "research", "magic", "tier_2" ] ],
     [605,   "Magic (Red Gem)",                  "redgem",                   [ "research", "magic", "tier_2" ] ],
     [606,   "Magic (Slurper Pelt)",             "slurper_pelt",             [ "research", "magic", "tier_2", "ruins" ] ],
@@ -784,7 +787,7 @@ DSTAP_LOCATIONS = [
     [625,   "Magic (Bunny Puff)",               "manrabbit_tail",           [ "research", "magic", "tier_1", "cave" ] ],
     [626,   "Magic (Mosquito Sack)",            "mosquitosack",             [ "research", "magic", "tier_1", "nonwinter", "dusk", "night" ] ],
     [627,   "Magic (Spider Gland)",             "spidergland",              [ "research", "magic", "tier_1" ] ],
-    [628,   "Magic (Monster Jerky)",            "monstermeat_dried",        [ "research", "magic", "tier_2", "excluded" ] ],
+    [628,   "Magic (Monster Jerky)",            "monstermeat_dried",        [ "research", "magic", "tier_2" ] ],
     [629,   "Magic (Pig Skin)",                 "pigskin",                  [ "research", "magic", "tier_2" ] ],
     [630,   "Magic (Batilisk Wing)",            "batwing",                  [ "research", "magic", "tier_2", "cave" ] ],
     [631,   "Magic (Stinger)",                  "stinger",                  [ "research", "magic", "tier_1" ] ],
@@ -792,7 +795,7 @@ DSTAP_LOCATIONS = [
     [633,   "Magic (Green Cap)",                "green_cap",                [ "research", "magic", "tier_1" ] ],
     [634,   "Magic (Blue Cap)",                 "blue_cap",                 [ "research", "magic", "tier_1" ] ],
     [635,   "Magic (Red Cap)",                  "red_cap",                  [ "research", "magic", "tier_1" ] ],
-    [636,   "Magic (Iridescent Gem)",           "opalpreciousgem",          [ "research", "magic", "tier_1", "ruins", "nounlock", "advanced", "seasons_passed_half" ] ],
+    [636,   "Magic (Iridescent Gem)",           "opalpreciousgem",          [ "research", "magic", "tier_1", "ruins", "nounlock", "advanced", "seasons_passed_half", "night" ] ],
     [637,   "Magic (Desert Stone)",             "townportaltalisman",       [ "research", "magic", "tier_2", "seasonal", "summer" ] ],
     [638,   "Magic (Naked Nostrils)",           "batnose",                  [ "research", "magic", "tier_2", "cave" ] ],
     [639,   "Magic (Frog Legs)",                "froglegs",                 [ "research", "magic", "tier_2", "day", "nonwinter" ] ],

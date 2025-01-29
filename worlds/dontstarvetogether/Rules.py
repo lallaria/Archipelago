@@ -68,6 +68,9 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
     player = dst_world.player
     options:DSTOptions = dst_world.options
 
+    # I don't know if this is something I want to make an option for, so we'll just have priority locations controlled by this
+    USE_PRIORITY_TAGS = False
+
     WHITELIST = Util.build_whitelist(options)
     EXISTING_LOCATIONS = {location.name for location in multiworld.get_locations(player)}
     SEASON_HELPER_ITEMS = {name for name, data in item_data_table.items() if "seasonhelper" in data.tags}
@@ -214,7 +217,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         return add_event(event, REGION.OCEAN if is_rule else REGION.NONE, rule, "Crabby Hermit Friendship")
 
     # Misc rules
-    def has_survived_num_days (day_goal:int, state: CollectionState) -> bool:
+    def has_survived_num_days_rule(day_goal: int) -> Callable[[CollectionState], bool]:
         conditions = {basic_survival.event}
         if day_goal > 7: conditions.add(basic_exploration.event)
         if day_goal > 11: conditions.add(seasons_passed_half.event)
@@ -224,8 +227,8 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         if day_goal > 55: conditions.add(seasons_passed_3.event)
         if day_goal > 70: conditions.add(seasons_passed_4.event)
         if day_goal > 90: conditions.add(seasons_passed_5.event)
-
-        return state.has_all(conditions, player)
+        
+        return lambda state: state.has_all(conditions, player)
 
     # Create a cache to store progression item number later, since we don't know how many there are yet
     _prog_item_num_cache:Dict[float, int] = {}
@@ -566,7 +569,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         (lambda state: state.has_all({pre_basic_boating.event, mining.event, basic_combat.event}, player)) if WEAPON_LOGIC
         else lambda state: state.has_all({pre_basic_boating.event, mining.event}, player)
     )
-    thulecite = add_event("Thulecite", REGION.DUALREGION,
+    thulecite = add_event("Thulecite", REGION.DUALREGION if REGION.OCEAN in WHITELIST else REGION.RUINS,
         combine_rules(
             (
                 (lambda state: state.has("Thulecite", player)) if LOCKED_INGREDIENTS_LOGIC and is_locked("Thulecite")
@@ -575,8 +578,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             (
                 (lambda state: state.has(ruins_exploration.event, player)) if REGION.RUINS in WHITELIST
                 else (lambda state: state.has(archive_exploration.event, player)) if REGION.ARCHIVE in WHITELIST
-                else (lambda state: state.has(sunken_chest.event, player)) if REGION.OCEAN in WHITELIST
-                else ALWAYS_FALSE # Player probably chose caves but not ruins or ocean
+                else (lambda state: state.has(sunken_chest.event, player))
             )
         ),
         hide_in_spoiler = True
@@ -766,12 +768,13 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         else ALWAYS_TRUE
     )
     nonperishable_quick_healing = add_event("Nonperishable Quick Healing", REGION.FOREST,
-        (
+        either_rule(
             lambda state: (
                 state.has_all({"Healing Salve", firestarting.event, mining.event}, player) # Ash and rocks
                 or state.has_all({"Honey Poultice", "Papyrus", honey_farming.event}, player)
-                or (WEAPON_LOGIC and state.has_all({"Bat Bat", purple_gem.event, batilisk.event}, player))
-            )
+            ),
+            (lambda state: state.has_all({"Bat Bat", purple_gem.event, batilisk.event}, player)) if WEAPON_LOGIC
+            else ALWAYS_FALSE
         ) if HEALING_LOGIC
         else ALWAYS_TRUE
     )
@@ -781,13 +784,14 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         hide_in_spoiler = True
     )
     slow_healing = add_event("Slow Healing", REGION.FOREST,
-        (
+        # TODO: Wickerbottom can't sleep
+        either_rule(
             lambda state: (
                 state.has_all({"Tent", "Rope"}, player)
                 or state.has_all({"Siesta Lean-to", "Rope", "Boards", chopping.event}, player)
-                or (REGION.CAVE in WHITELIST and state.has_all({"Rope", "Straw Roll", "Fur Roll", mining.event, basic_combat.event, basic_sanity_management.event}, player))
-            )
-            # TODO: Wickerbottom can't sleep
+            ),
+            lambda state: state.has_all({"Rope", "Straw Roll", "Fur Roll", mining.event, basic_combat.event}, player) if REGION.CAVE in WHITELIST
+            else ALWAYS_FALSE
         ) if HEALING_LOGIC
         else ALWAYS_TRUE,
         hide_in_spoiler = True
@@ -1043,7 +1047,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
     speed_boost = add_event("Speed Boost",
         (
             REGION.FOREST if SEASON.WINTER in WHITELIST
-            else REGION.DUALREGION if is_locked("Magiluminescence")
+            else REGION.DUALREGION if REGION.OCEAN in WHITELIST else REGION.RUINS if is_locked("Magiluminescence")
             else REGION.RUINS,
         ),
         either_rule(
@@ -1060,7 +1064,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         (
             either_rule (
                 (
-                    (lambda state: state.has_all({"Lantern", "Rope"}, player)) if REGION.CAVE in WHITELIST
+                    (lambda state: state.has_all({"Lantern", "Rope", mining.event}, player)) if REGION.CAVE in WHITELIST
                     else (lambda state: state.has_all({"Lantern", "Rope", sea_fishing.event}, player)) # Skittersquids
                 ),
                 lambda state: (
@@ -1149,7 +1153,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
                         or state.has(potato_farming.event, player) # Farming potato
                     )
                 )
-            ) if REGION.MOONSTORM
+            ) if REGION.MOONSTORM in WHITELIST
             else ALWAYS_FALSE
         )
     )
@@ -1425,7 +1429,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
     retinazor = add_boss_event("Retinazor", REGION.FOREST, lambda state: state.has(epic_combat.event, player))
     spazmatism = add_boss_event("Spazmatism", REGION.FOREST, lambda state: state.has(epic_combat.event, player))
     nightmare_werepig = add_boss_event("Nightmare Werepig", REGION.RUINS,
-        lambda state: state.has_all({advanced_boss_combat.event, pick_axe.event, speed_boost.optional_event}, player)
+        lambda state: state.has_all({advanced_boss_combat.event, pick_axe.event, cave_exploration.event, speed_boost.optional_event}, player)
     )
     scrappy_werepig = add_boss_event("Scrappy Werepig", REGION.RUINS, lambda state: state.has_all({nightmare_werepig.event, arena_building.event}, player))
     frostjaw = add_boss_event("Frostjaw", REGION.OCEAN, lambda state: state.has_all({advanced_boating.event, advanced_boss_combat.event, "Sea Fishing Rod"}, player))
@@ -1446,8 +1450,8 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
     add_hermit_event("Hermit Island Plant 10 Flowers",                  lambda state: state.has_all({hermit_island.event, bug_catching.event}, player), butterfly.is_rule)
     add_hermit_event("Hermit Island Plant 8 Berry Bushes",              lambda state: state.has_all({hermit_island.event, digging.event}, player))
     add_hermit_event("Hermit Island Clear Underwater Salvageables",     lambda state: state.has_all({hermit_sea_quests.event, "Pinchin' Winch"}, player))
-    add_hermit_event("Hermit Island Kill Lure Plant",                   lambda state: state.has_all({hermit_island.event, seasons_passed_2.event}, player),
-                                                                        seasons_passed_2.is_progression)
+    add_hermit_event("Hermit Island Kill Lure Plant",                   combine_rules(hermit_island.rule, spring.rule, either_rule(autumn.rule, winter.rule, summer.rule)),
+                                                                        spring.is_rule and SEASON.NONSPRING in WHITELIST)
     add_hermit_event("Hermit Island Build Wooden Chair",                lambda state: state.has_all({hermit_island.event, "Sawhorse"}, player))
     add_hermit_event("Give Crabby Hermit Umbrella",                     combine_rules(
                                                                             lambda state: state.has_any({"Umbrella", "Pretty Parasol"}, player),
@@ -1467,10 +1471,12 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
 
     survival_goal = add_event("Survival Goal", REGION.FOREST if options.goal.value == options.goal.option_survival else REGION.NONE,
         combine_rules(
-            lambda state: has_survived_num_days(options.days_to_survive.value, state),
-            (lambda state: state.has_all({advanced_boss_combat.event, basic_boating.optional_event, cave_exploration.optional_event}, player))
-            if options.days_to_survive.value < 21 # Generic non-seasonal goal
-            else ALWAYS_TRUE
+            has_survived_num_days_rule(options.days_to_survive.value),
+            (
+                (lambda state: state.has_all({advanced_boss_combat.event, basic_boating.optional_event, cave_exploration.optional_event}, player))
+                if options.days_to_survive.value < 21 # Generic non-seasonal goal
+                else ALWAYS_TRUE
+            )
         )
     )
 
@@ -1555,7 +1561,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Moleworm":                         moleworm.rule if PEACEFUL_LOGIC else lambda state: state.has_any({dusk.event, night.event, digging.event}, player),
             "Naked Mole Bat":                   lambda state: state.has_all({basic_combat.event, cave_exploration.event}, player),
             "Splumonkey":                       ruins_exploration.rule,
-            "Moon Moth":                        combine_rules(can_reach_islands.rule, bug_catching.rule if PEACEFUL_LOGIC else ALWAYS_TRUE),
+            "Moon Moth":                        combine_rules(can_reach_islands.rule, chopping.rule, bug_catching.rule if PEACEFUL_LOGIC else ALWAYS_TRUE),
             "Mosquito":                         combine_rules(swamp_exploration.rule, bug_catching.rule if PEACEFUL_LOGIC else ALWAYS_TRUE),
             "Mosling":                          moosegoose.rule,
             "Mush Gnome":                       lambda state: state.has_all({basic_combat.event, cave_exploration.event}, player),
@@ -1577,7 +1583,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Snurtle":                          cave_exploration.rule,
             "Ewecus":                           lambda state: state.has_all({advanced_combat.event, advanced_exploration.event}, player),
             "Spider":                           (lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE,
-            "Dangling Depth Dweller":           combine_rules((lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE, ruins_exploration.rule),
+            "Dangling Depth Dweller":           combine_rules((lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE, basic_combat.rule, cave_exploration.rule),
             "Cave Spider":                      combine_rules((lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE, basic_combat.rule, cave_exploration.rule),
             "Nurse Spider":                     combine_rules((lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE, advanced_combat.rule),
             "Shattered Spider":                 combine_rules((lambda state: state.has("Trap", player)) if PEACEFUL_LOGIC else ALWAYS_TRUE, basic_combat.rule, lunar_island.rule),
@@ -1650,7 +1656,8 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Banana Pop":                       lambda state: state.has_any({cave_exploration.event, moon_quay_exploration.event}, player),
             "Frozen Banana Daiquiri":           lambda state: state.has_any({cave_exploration.event, moon_quay_exploration.event}, player),
             "Banana Shake":                     lambda state: state.has_any({cave_exploration.event, moon_quay_exploration.event}, player),
-            "Ceviche":                          fishing.rule,
+            "Ceviche":                          either_rule(sea_fishing.rule,
+                                                (lambda state: state.has_all({cave_exploration.event, "Freshwater Fishing Rod"}, player)) if REGION.CAVE in WHITELIST else ALWAYS_FALSE),
             "Salsa Fresca":                     tomaroot_farming.rule,
             "Stuffed Pepper Poppers":           pepper_farming.rule,
             "California Roll":                  sea_fishing.rule,
@@ -1668,10 +1675,10 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Beefy Greens":                     leafy_meat.rule,
             "Mushy Cake":                       cave_exploration.rule,
             "Soothing Tea":                     basic_farming.rule,
-            "Fig-Stuffed Trunk":                sea_fishing.rule,
-            "Figatoni":                         sea_fishing.rule,
-            "Figkabab":                         sea_fishing.rule,
-            "Figgy Frogwich":                   sea_fishing.rule,
+            "Fig-Stuffed Trunk":                advanced_boating.rule,
+            "Figatoni":                         advanced_boating.rule,
+            "Figkabab":                         advanced_boating.rule,
+            "Figgy Frogwich":                   advanced_boating.rule,
             "Bunny Stew":                       ALWAYS_TRUE,
             "Plain Omelette":                   bird_eggs.optional_rule,
             "Breakfast Skillet":                bird_eggs.rule,
@@ -1694,20 +1701,20 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Bone Bouillon":                    lambda state: state.has_all({hammering.event, onion_farming.event}, player),
             "Moqueca":                          lambda state: state.has_all({sea_fishing.event, tomaroot_farming.event}, player),
             # Farming
-            "Grow Giant Asparagus":             lambda state: FARMPLANT_SEASON_RULES["Asparagus"](state) and asparagus_farming.rule(state),
-            "Grow Giant Garlic":                lambda state: FARMPLANT_SEASON_RULES["Garlic"](state) and garlic_farming.rule(state),
-            "Grow Giant Pumpkin":               lambda state: FARMPLANT_SEASON_RULES["Pumpkin"](state) and pumpkin_farming.rule(state),
-            "Grow Giant Corn":                  lambda state: FARMPLANT_SEASON_RULES["Corn"](state) and corn_farming.rule(state),
-            "Grow Giant Onion":                 lambda state: FARMPLANT_SEASON_RULES["Onion"](state) and onion_farming.rule(state),
-            "Grow Giant Potato":                lambda state: FARMPLANT_SEASON_RULES["Potato"](state) and potato_farming.rule(state),
-            "Grow Giant Dragon Fruit":          lambda state: FARMPLANT_SEASON_RULES["Dragon Fruit"](state) and dragonfruit_farming.rule(state),
-            "Grow Giant Pomegranate":           lambda state: FARMPLANT_SEASON_RULES["Pomegranate"](state) and pomegranate_farming.rule(state),
-            "Grow Giant Eggplant":              lambda state: FARMPLANT_SEASON_RULES["Eggplant"](state) and eggplant_farming.rule(state),
-            "Grow Giant Toma Root":             lambda state: FARMPLANT_SEASON_RULES["Toma Root"](state) and tomaroot_farming.rule(state),
-            "Grow Giant Watermelon":            lambda state: FARMPLANT_SEASON_RULES["Watermelon"](state) and watermelon_farming.rule(state),
-            "Grow Giant Pepper":                lambda state: FARMPLANT_SEASON_RULES["Pepper"](state) and pepper_farming.rule(state),
-            "Grow Giant Durian":                lambda state: FARMPLANT_SEASON_RULES["Durian"](state) and durian_farming.rule(state),
-            "Grow Giant Carrot":                lambda state: FARMPLANT_SEASON_RULES["Carrot"](state) and carrot_farming.rule(state),
+            "Grow Giant Asparagus":             combine_rules(FARMPLANT_SEASON_RULES["Asparagus"], asparagus_farming.rule),
+            "Grow Giant Garlic":                combine_rules(FARMPLANT_SEASON_RULES["Garlic"], garlic_farming.rule),
+            "Grow Giant Pumpkin":               combine_rules(FARMPLANT_SEASON_RULES["Pumpkin"], pumpkin_farming.rule),
+            "Grow Giant Corn":                  combine_rules(FARMPLANT_SEASON_RULES["Corn"], corn_farming.rule),
+            "Grow Giant Onion":                 combine_rules(FARMPLANT_SEASON_RULES["Onion"], onion_farming.rule),
+            "Grow Giant Potato":                combine_rules(FARMPLANT_SEASON_RULES["Potato"], potato_farming.rule),
+            "Grow Giant Dragon Fruit":          combine_rules(FARMPLANT_SEASON_RULES["Dragon Fruit"], dragonfruit_farming.rule),
+            "Grow Giant Pomegranate":           combine_rules(FARMPLANT_SEASON_RULES["Pomegranate"], pomegranate_farming.rule),
+            "Grow Giant Eggplant":              combine_rules(FARMPLANT_SEASON_RULES["Eggplant"], eggplant_farming.rule),
+            "Grow Giant Toma Root":             combine_rules(FARMPLANT_SEASON_RULES["Toma Root"], tomaroot_farming.rule),
+            "Grow Giant Watermelon":            combine_rules(FARMPLANT_SEASON_RULES["Watermelon"], watermelon_farming.rule),
+            "Grow Giant Pepper":                combine_rules(FARMPLANT_SEASON_RULES["Pepper"], pepper_farming.rule),
+            "Grow Giant Durian":                combine_rules(FARMPLANT_SEASON_RULES["Durian"], durian_farming.rule),
+            "Grow Giant Carrot":                combine_rules(FARMPLANT_SEASON_RULES["Carrot"], carrot_farming.rule),
             # Research
             "Science (Nitre)":                  mining.rule,
             "Science (Salt Crystals)":          salt_crystals.rule,
@@ -1725,7 +1732,8 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Science (Ashes)":                  firestarting.rule,
             "Science (Cut Grass)":              ALWAYS_TRUE,
             "Science (Beefalo Horn)":           basic_combat.rule,
-            "Science (Beefalo Wool)":           basic_combat.rule if ADVANCED_PLAYER_BIAS else combine_rules(shaving.rule, either_rule(autumn.rule, winter.rule, summer.rule)),
+            "Science (Beefalo Wool)":           basic_combat.rule if not shaving.is_progression or not SEASON.NONSPRING in WHITELIST
+                                                else combine_rules(shaving.rule, either_rule(autumn.rule, winter.rule, summer.rule)),
             "Science (Cactus Flower)":          ALWAYS_TRUE,
             "Science (Honeycomb)":              basic_combat.rule,
             "Science (Petals)":                 ALWAYS_TRUE,
@@ -1752,7 +1760,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Science (Frazzled Wires)":         (lambda state: state.has_all({ruins_exploration.event, hammering.event}, player)) if REGION.RUINS in WHITELIST
                                                 else (lambda state: state.has_all({digging.event, basic_sanity_management.event}, player)),
             "Science (Charcoal)":               charcoal.rule,
-            "Science (Butter)":                 butter.rule, # Excluded
+            "Science (Butter)":                 butter.rule,
             "Science (Asparagus)":              asparagus_farming.rule,
             "Science (Garlic)":                 garlic_farming.rule,
             "Science (Pumpkin)":                pumpkin_farming.rule,
@@ -1805,7 +1813,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
                                                 and state.has_any({dusk.event, night.event, hammering.event, deconstruction_staff.event}, player)),
             "Magic (Mosquito Sack)":            swamp_exploration.rule,
             "Magic (Spider Gland)":             ALWAYS_TRUE,
-            "Magic (Monster Jerky)":            (lambda state: state.has_all({"Drying Rack", "Rope", charcoal.event}, player)) if BASE_MAKING_LOGIC else charcoal.rule, # Excluded
+            "Magic (Monster Jerky)":            (lambda state: state.has_all({"Drying Rack", "Rope", charcoal.event}, player)) if BASE_MAKING_LOGIC else charcoal.rule,
             "Magic (Pig Skin)":                 lambda state: state.has_any({hammering.event, deconstruction_staff.event}, player) or state.has_all({day.event, basic_combat.event}, player),
             "Magic (Batilisk Wing)":            batilisk.rule,
             "Magic (Stinger)":                  ALWAYS_TRUE,
@@ -1879,13 +1887,13 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
             "Bottle Exchange (10)":             lambda state: state.count("Crabby Hermit Friendship", player) >= 8,
 
             # Experimental; Will probably won't keep at all
-            **{f"Survive {i} Days":             (lambda state: has_survived_num_days(i, state)) for i in range(1, 100)},
+            # **{f"Survive {i} Days":             has_survived_num_days_rule(i) for i in range(1, 100)},
         },
     }
 
     excluded:Set[str] = set()
     no_advancement:Set[str] = set()
-    progression_required_bosses:Set = set()
+    progression_required_bosses:Set[str] = set()
 
     if options.goal.value != options.goal.option_survival:
         _required_bosses = frozenset(options.required_bosses.value)
@@ -1918,7 +1926,6 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
     # Set location rules
     for location_name, rule in rules_lookup["location_rules"].items():
         Util.assert_rule(rule, multiworld) # DEBUG
-        assert callable(rule), f"Invalid rule for {location_name}"
 
         if not location_name in location_data_table:
             continue
@@ -1934,25 +1941,28 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
                     required = True
                     break
 
-            if required:
+            if required and USE_PRIORITY_TAGS:
                 multiworld.priority_locations[player].value.add(location_name)
-            elif ("priority" in location_data.tags
-            or (options.boss_fill_items.value == options.boss_fill_items.option_priority and "boss" in location_data.tags and not "excluded" in location_data.tags)
+            elif (
+                ("priority" in location_data.tags and USE_PRIORITY_TAGS)
+                or (options.boss_fill_items.value == options.boss_fill_items.option_priority and "boss" in location_data.tags)
             ):
                 # Prioritize generic priority tag
                 multiworld.priority_locations[player].value.add(location_name)
 
             # Exclude from having progression items if it meets the conditions
-            if not required and ("excluded" in location_data.tags
-            or (options.boss_fill_items.value == options.boss_fill_items.option_filler and "boss" in location_data.tags)
-            or (options.boss_fill_items.value == options.boss_fill_items.option_filler and "raidboss" in location_data.tags)
-            or (not ADVANCED_PLAYER_BIAS and "advanced" in location_data.tags)
-            or (not EXPERT_PLAYER_BIAS and "expert" in location_data.tags)
+            if not required and (
+                   (options.boss_fill_items.value == options.boss_fill_items.option_filler and "boss" in location_data.tags)
+                or (options.boss_fill_items.value == options.boss_fill_items.option_filler and "raidboss" in location_data.tags)
             ):
                 excluded.add(location_name)
 
-            # Diallow progression for rng locations
-            if "rng" in location_data.tags:
+            # Disallow progression for rng or advanced locations
+            if (
+                "rng" in location_data.tags
+                or (not ADVANCED_PLAYER_BIAS and "advanced" in location_data.tags)
+                # or (not EXPERT_PLAYER_BIAS and "expert" in location_data.tags) # There's no expert tags rn
+            ):
                 no_advancement.add(location_name)
 
             if not UNLOCKABLE_SEASON_LOGIC and "seasonal" in location_data.tags:
@@ -1990,6 +2000,8 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
                     add_rule(location, think_tank.rule)
                 elif "ancient" in location_data.tags:
                     add_rule(location, ancient_altar.rule)
+                elif "hermitcrab" in location_data.tags:
+                    add_rule(location, pre_basic_boating.rule) # Getting bottles from ocean
 
             elif "farming" in location_data.tags:
                 add_rule(location, advanced_farming.rule)
@@ -2019,7 +2031,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
 
             # Season passed rules
             def get_season_passed_event() -> Optional[DSTRule]:
-                _season_passed_event:DSTRule = (
+                _season_passed_event:Optional[DSTRule] = (
                     seasons_passed_half if "seasons_passed_half" in location_data.tags
                     else seasons_passed_1 if "seasons_passed_1" in location_data.tags
                     else seasons_passed_2 if "seasons_passed_2" in location_data.tags
@@ -2208,7 +2220,7 @@ def set_rules(dst_world: World, itempool:DSTItemPool) -> None:
         "Thulecite Wall":           ADVANCED_PLAYER_BIAS,
         "Potter's Wheel":           True,
         "Telltale Heart":           True,
-        "Magiluminescence":         ADVANCED_PLAYER_BIAS,
+        "Magiluminescence":         True,
         "Lantern":                  LIGHTING_LOGIC,
         "Miner Hat":                LIGHTING_LOGIC,
         "Boat Kit":                 True,

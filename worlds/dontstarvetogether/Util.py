@@ -96,10 +96,6 @@ def build_whitelist(options: DSTOptions) -> FrozenSet[str]:
     if len(_whitelist.intersection({SEASON.AUTUMN, SEASON.WINTER, SEASON.SUMMER})): _whitelist.add(SEASON.NONSPRING)
     if len(_whitelist.intersection({SEASON.AUTUMN, SEASON.WINTER, SEASON.SPRING})): _whitelist.add(SEASON.NONSUMMER)
 
-
-    # Force more time in logic for farming locations
-    if options.farming_locations.value: _whitelist.update({SEASONS_PASSED.SEASONS_HALF, SEASONS_PASSED.SEASONS_1})
-
     # Region
     _whitelist.update({REGION.MENU, REGION.FOREST})
     if options.cave_regions.value >= options.cave_regions.option_light: _whitelist.add(REGION.CAVE)
@@ -110,6 +106,10 @@ def build_whitelist(options: DSTOptions) -> FrozenSet[str]:
     if REGION.CAVE in _whitelist or REGION.OCEAN in _whitelist: _whitelist.add(REGION.DUALREGION)
     if REGION.CAVE in _whitelist and REGION.OCEAN in _whitelist: _whitelist.add(REGION.BOTHREGIONS)
 
+    # Force more time in logic for farming locations, and moonstorm too since potato is required for astroggles
+    if options.farming_locations.value or REGION.MOONSTORM in _whitelist:
+        _whitelist.update({SEASONS_PASSED.SEASONS_HALF, SEASONS_PASSED.SEASONS_1})
+
     # Hermit Crab Friendship (Min reachable 7)
     _HERMIT_FRIENDSHIP_CONDITIONS = [
         PHASE.NIGHT in _whitelist or REGION.CAVE in _whitelist, # Hermit Home 1
@@ -119,9 +119,9 @@ def build_whitelist(options: DSTOptions) -> FrozenSet[str]:
         PHASE.DAY in _whitelist and SEASON.NONWINTER in _whitelist, # Plant flowers
         True, # Berry bushes
         True, # Clear underwater salvageables
-        SEASONS_PASSED.SEASONS_2 in _whitelist, # Lure plant
+        SEASON.SPRING in _whitelist and SEASON.NONSPRING in _whitelist, # Lure plant; Spawns when changing to or from spring
         True, # Wooden chair
-        SEASON.AUTUMN in _whitelist and SEASON.SPRING in _whitelist, # Umbrella
+        SEASON.AUTUMN in _whitelist or SEASON.SPRING in _whitelist, # Umbrella
         SEASON.WINTER in _whitelist, # Warm clothing
         SEASON.SUMMER in _whitelist, # Flower Salad
         SEASON.AUTUMN in _whitelist, # Fallounder
