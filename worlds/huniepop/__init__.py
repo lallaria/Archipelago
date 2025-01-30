@@ -9,7 +9,7 @@ from worlds.huniepop.Rules import set_rules
 
 class HuniePop(World):
     game = "Hunie Pop"
-    worldversion = "0.3.0"
+    worldversion = "0.4.0"
 
     item_name_to_id = item_table
     location_name_to_id = location_table
@@ -299,6 +299,10 @@ class HuniePop(World):
         returndict = {
             "start_girl": self.startgirl,
             "number_of_shop_items": self.shopslots,
+            "shop_item_cost": self.options.shop_item_cost.value,
+            "puzzle_moves": self.options.puzzle_moves.value,
+            "puzzle_affection_base": self.options.puzzle_affection_base.value,
+            "puzzle_affection_add": self.options.puzzle_affection_add.value,
             "world_version": self.worldversion
         }
 
