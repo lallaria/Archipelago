@@ -198,3 +198,6 @@ Thumbs.db
 [Dd]esktop.ini
 
 VC_redist.x64.exe
+
+certs/*.pem
+certs/README
