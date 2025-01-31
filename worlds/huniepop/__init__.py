@@ -9,7 +9,7 @@ from worlds.huniepop.Rules import set_rules
 
 class HuniePop(World):
     game = "Hunie Pop"
-    worldversion = "0.4.0"
+    worldversion = "0.4.1"
 
     item_name_to_id = item_table
     location_name_to_id = location_table
@@ -67,6 +67,8 @@ class HuniePop(World):
             totallocations += (24*len(self.enabledgirls))
         if True:
             totallocations += (12*len(self.enabledgirls))
+        if True:
+            totallocations += self.options.number_shop_items.value
 
 
         #total items
