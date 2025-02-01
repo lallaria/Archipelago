@@ -17,9 +17,8 @@ class TestAdvancedNormal(TestNormal):
             ['Doodle Woods - Blue Escape Box', True, []],
 
             ['Doodle Woods - CD Box', False, []],
-            ['Doodle Woods - CD Box', False, [], ['Progressive Ground Pound', 'Progressive Grab']],
+            ['Doodle Woods - CD Box', False, [], ['Progressive Ground Pound']],
             ['Doodle Woods - CD Box', True, ['Progressive Ground Pound']],
-            ['Doodle Woods - CD Box', True, ['Progressive Grab']],
         ])
 
     def _test_domino_row(self):
@@ -78,14 +77,14 @@ class TestAdvancedHard(TestHard):
             ['Doodle Woods - Gray Square Box', True, ['Progressive Grab']],
 
             ['Doodle Woods - Pink Circle Box', False, []],
-            ['Doodle Woods - Pink Circle Box', False, [], ['Progressive Ground Pound']],
-            ['Doodle Woods - Pink Circle Box', True, ['Progressive Ground Pound']],
+            ['Doodle Woods - Pink Circle Box', False, [], ['Enemy Jump']],
+            ['Doodle Woods - Pink Circle Box', True, ['Enemy Jump']],
 
             ['Doodle Woods - Purple Square Box', True, []],
 
             ['Doodle Woods - Blue Circle Box', False, []],
-            ['Doodle Woods - Blue Circle Box', False, [], ['Enemy Jump']],
-            ['Doodle Woods - Blue Circle Box', True, ['Enemy Jump']],
+            ['Doodle Woods - Blue Circle Box', False, [], ['Progressive Ground Pound']],
+            ['Doodle Woods - Blue Circle Box', True, ['Progressive Ground Pound']],
 
             ['Doodle Woods - CD Box', True, []],
         ])
@@ -146,14 +145,14 @@ class TestAdvancedSHard(TestSHard):
             ['Doodle Woods - Gray Square Box', True, ['Progressive Grab']],
 
             ['Doodle Woods - Pink Circle Box', False, []],
-            ['Doodle Woods - Pink Circle Box', False, [], ['Progressive Ground Pound']],
-            ['Doodle Woods - Pink Circle Box', True, ['Progressive Ground Pound']],
+            ['Doodle Woods - Pink Circle Box', False, [], ['Enemy Jump']],
+            ['Doodle Woods - Pink Circle Box', True, ['Enemy Jump']],
 
             ['Doodle Woods - Purple Square Box', True, []],
 
             ['Doodle Woods - Blue Circle Box', False, []],
-            ['Doodle Woods - Blue Circle Box', False, [], ['Enemy Jump']],
-            ['Doodle Woods - Blue Circle Box', True, ['Enemy Jump']],
+            ['Doodle Woods - Blue Circle Box', False, [], ['Progressive Ground Pound']],
+            ['Doodle Woods - Blue Circle Box', True, ['Progressive Ground Pound']],
 
             ['Doodle Woods - CD Box', True, []],
         ])

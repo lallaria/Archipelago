@@ -9,9 +9,8 @@ from typing import Dict, List, NamedTuple, Optional, TYPE_CHECKING
 import Utils
 from worlds.Files import APPatchExtension, APProcedurePatch, APTokenMixin, APTokenTypes
 
-from .data import ap_id_offset, encode_str, get_symbol
-from .items import WL4Item, filter_items
-from .types import ItemType, Passage
+from .data import Passage, ap_id_offset, encode_str, get_symbol
+from .items import ItemType, WL4Item, filter_items
 from .options import Difficulty, Goal, MusicShuffle, OpenDoors, Portal, SmashThroughHardBlocks
 
 if TYPE_CHECKING:
@@ -79,22 +78,24 @@ class WL4ProcedurePatch(APProcedurePatch, APTokenMixin):
     patch_file_ending = '.apwl4'
     result_file_ending = '.gba'
 
-    procedure = [
-        ("apply_bsdiff4", ["basepatch.bsdiff"]),
-        ("apply_tokens", ["token_data.bin"]),
-        ("update_header", []),
-    ]
+    def __init__(self, *args, **kwargs):
+        super(WL4ProcedurePatch, self).__init__(*args, **kwargs)
+        self.procedure = [
+            ('apply_bsdiff4', ['basepatch.bsdiff']),
+            ('apply_tokens', ['token_data.bin']),
+            ('update_header', []),
+        ]
 
     @classmethod
     def get_source_data(cls) -> bytes:
-        with open(get_base_rom_path(), "rb") as stream:
+        with open(get_base_rom_path(), 'rb') as stream:
             return stream.read()
 
 
 def get_base_rom_path(file_name: str = '') -> Path:
-    options = Utils.get_options()
+    from . import WL4World
     if not file_name:
-        file_name = options['wl4_options']['rom_file']
+        file_name = WL4World.settings.rom_file
 
     file_path = Path(file_name)
     if file_path.exists():
@@ -147,14 +148,18 @@ def write_tokens(world: WL4World, patch: WL4ProcedurePatch):
         patch_instructions(patch, 0x06EDD0, 0xD00E)  # beq 0x806EDF0  ; WarDownPanel_Attack()
         patch_instructions(patch, 0x06EE68, 0xE010)  # b 0x806EE8C    ; WarUpPanel_Attack()
 
-    # Multiworld send
     patch.write_token(
         APTokenTypes.WRITE,
         get_rom_address('SendMultiworldItemsImmediately'),
         world.options.send_locations_to_server.value.to_bytes(1, 'little')
     )
+    patch.write_token(
+        APTokenTypes.WRITE,
+        get_rom_address('TrapBehavior'),
+        world.options.trap_behavior.value.to_bytes(1, 'little')
+    )
 
-    patch.write_file("token_data.bin", patch.get_token_binary())
+    patch.write_file('token_data.bin', patch.get_token_binary())
 
 
 class MultiworldExtData(NamedTuple):
@@ -208,7 +213,7 @@ class StartInventory:
     junk_counts: List[int]
 
     def __init__(self):
-        self.level_table = [[0] * 6 for _ in range(5)]
+        self.level_table = [[0] * 6 for _ in Passage]
         self.abilities = 0
         self.junk_counts = [0] * 5
 
@@ -242,7 +247,7 @@ class StartInventory:
         patch.write_token(
             APTokenTypes.WRITE,
             get_rom_address('StartingInventoryItemStatus'),
-            struct.pack("<30B", *(level
+            struct.pack('<36B', *(level
                                   for passage in self.level_table
                                   for level in passage))
         )
@@ -254,7 +259,7 @@ class StartInventory:
         patch.write_token(
             APTokenTypes.WRITE,
             get_rom_address('StartingInventoryJunkCounts'),
-            struct.pack("<5B", *(min(255, item) for item in self.junk_counts))
+            struct.pack('<5B', *(min(255, item) for item in self.junk_counts))
         )
 
     def __repr__(self):
@@ -285,7 +290,7 @@ def create_starting_inventory(world: WL4World, patch: WL4ProcedurePatch):
             copies = 4 - required_jewels
 
         for _ in range(copies):
-            start_inventory.add(WL4Item.from_name(name, world.player))
+            start_inventory.add(WL4Item(name, world.player))
 
     # Free Keyzer
     def set_keyzer(passage, level):

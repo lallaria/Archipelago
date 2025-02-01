@@ -30,6 +30,8 @@
             This room has a <a href="{{ url_for("get_multiworld_tracker", tracker=room.tracker) }}">Multiworld Tracker</a>
             and a <a href="{{ url_for("get_multiworld_sphere_tracker", tracker=room.tracker) }}">Sphere Tracker</a> enabled.
             <br />
+            Alternatively, you can use the 3rd party <a href="https://cheesetrackers.trezapalooza.com">Cheese Trackers</a> solution.
+            <br />
         {% endif %}
         The server for this room will be paused after {{ room.timeout//60//60 }} hours of inactivity.
         Should you wish to continue later,
