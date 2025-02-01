@@ -190,19 +190,12 @@ def modify_dungeon_location_rules(locations: list[Location], dungeon_specific: s
     :param dungeon_specific: Set of dungeon-specific item constraints.
     """
     for location in locations:
-        orig_rule = location.item_rule
         if dungeon_specific:
-            # Restrict dungeon items to be in their own dungeons.
             dungeon = location.dungeon
+            orig_rule = location.item_rule
             location.item_rule = lambda item, dungeon=dungeon, orig_rule=orig_rule: (
                 not (item.player, item.name) in dungeon_specific or item.dungeon is dungeon
             ) and orig_rule(item)
-        else:
-            # Restrict dungeon items to be in any dungeon in the player's local world.
-            player = location.player
-            location.item_rule = lambda item, player=player, orig_rule=orig_rule: (item.player == player) and orig_rule(
-                item
-            )
 
 
 def fill_dungeons_restrictive(multiworld: MultiWorld) -> None:
@@ -228,12 +221,11 @@ def fill_dungeons_restrictive(multiworld: MultiWorld) -> None:
             multiworld.random.shuffle(locations)
 
             # Dungeon-locked items have to be placed first so as not to run out of space for dungeon-locked items.
-            # Subsort in the order Small Key, Big Key, Other before placing dungeon items.
-            sort_order = {"Small Key": 3, "Big Key": 2}
+            # Subsort in the order Big Key, Small Key, Other before placing dungeon items.
+            sort_order = {"Big Key": 3, "Small Key": 2}
             in_dungeon_items.sort(
                 key=lambda item: sort_order.get(item.type, 1)
-                + (5 if (item.player, item.name) in dungeon_specific else 0),
-                reverse=True,
+                + (5 if (item.player, item.name) in dungeon_specific else 0)
             )
 
             # Construct a partial `all_state` that contains only the items from `get_pre_fill_items` that aren't in a
