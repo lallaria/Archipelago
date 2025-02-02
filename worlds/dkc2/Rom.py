@@ -156,7 +156,7 @@ class DKC2PatchExtension(APPatchExtension):
             text_data = text_data.split(b'\x00')
             question = []
             for _ in range(6):
-                question.append(text_data.pop(0).decode() + "°")
+                question.append(text_data.pop(0).decode() + "�")
 
             offset = int.from_bytes(rom[start_addr+idx+4:start_addr+idx+6], "little")
             offset |= 0x370000
@@ -164,7 +164,7 @@ class DKC2PatchExtension(APPatchExtension):
             text_data = text_data.split(b'\x00')
             answers = []
             for _ in range(3):
-                text = text_data.pop(0).decode() + "°" + text_data.pop(0).decode() + "°"
+                text = text_data.pop(0).decode() + "�" + text_data.pop(0).decode() + "�"
                 text = text[8:]
                 answers.append(text)
 
@@ -392,7 +392,7 @@ def patch_rom(world: "DKC2World", patch: DKC2ProcedurePatch):
     for line in text:
         line = line.replace("TOKENS", str(world.options.krock_boss_tokens.value))
         line = line.replace("ROCKS", str(world.options.lost_world_rocks.value))
-        line = line.center(32, " ").rstrip() + "°"
+        line = line.center(32, " ").rstrip() + "�"
         line = string_to_bytes(line)
         data += line
 
@@ -479,7 +479,7 @@ def compute_cranky_hints(world: "DKC2World", patch: DKC2ProcedurePatch):
             line = line.replace("NUM", hint.bonus)
             line = line.replace("PLAYER", hint.player)
             line = line.replace("ITEM", hint.item)
-            line = line.center(32, " ").rstrip() + "°"
+            line = line.center(32, " ").rstrip() + "�"
             line = string_to_bytes(line)
             hint_data += line
             addr += len(line)
@@ -589,7 +589,7 @@ def compute_wrinkly_hints(world: "DKC2World", patch: DKC2ProcedurePatch):
             line = line.replace("PLAYER", hint.player)
             line = line.replace("ITEM", hint.item)
             line = line.replace("GAME", hint.game)
-            line = line.center(32, " ").rstrip() + "°"
+            line = line.center(32, " ").rstrip() + "�"
             line = string_to_bytes(line)
             hint_data += line
             addr += len(line)
