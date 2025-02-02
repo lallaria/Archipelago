@@ -816,7 +816,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
                                        f"{reconnect_hint()}")
     except ConnectionRefusedError:
         ctx.handle_connection_loss("Connection refused by the server. "
-                                   "May not be running TreZapalooza on that address or port.")
+                                   f"May not be running {Utils.archipelago_name} on that address or port.")
     except websockets.InvalidURI:
         ctx.handle_connection_loss("Failed to connect to the multiworld server (invalid URI)")
     except OSError:

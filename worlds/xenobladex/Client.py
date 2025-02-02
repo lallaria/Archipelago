@@ -365,7 +365,7 @@ class XenobladeXContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Xenoblade X Client"
+            base_title = Utils.archipelago_name + " Xenoblade X Client"
 
         self.ui = XenobladeXManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

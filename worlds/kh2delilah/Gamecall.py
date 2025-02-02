@@ -1,4 +1,4 @@
-from pymem import Pymem, logging, ptypes, memory, process
+from pymem import Pymem, logging, memory, process
 from ctypes import *
 #from struct import unpack_from
 #from Utils import user_path
@@ -77,7 +77,7 @@ class Gamecall(object):
         logging.info(f"asmstr: {asmstr}\n extra_params {extra_params}")
         #self.instructions = create_string_buffer(asmstr)
 
-    def remind_me(self, kh2address: ptypes.RemotePointer):
+    def remind_me(self, kh2address: int):
         pass
 
 

@@ -253,7 +253,7 @@ class TWWContext(CommonContext):
         :return: The client's GUI.
         """
         ui = super().make_gui()
-        ui.base_title = "Archipelago The Wind Waker Client"
+        ui.base_title = Utils.archipelago_name + " The Wind Waker Client"
         return ui
 
     async def update_visited_stages(self, newly_visited_stage_name: str) -> None:
