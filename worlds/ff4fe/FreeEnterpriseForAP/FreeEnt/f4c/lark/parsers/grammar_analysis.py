@@ -1,55 +1,76 @@
+"Provides for superficial grammar analysis."
 
-from ..utils import bfs, fzset
-from ..common import GrammarError, is_terminal
+from collections import Counter, defaultdict
+from typing import List, Dict, Iterator, FrozenSet, Set
 
-class Rule(object):
-    """
-        origin : a symbol
-        expansion : a list of symbols
-    """
-    def __init__(self, origin, expansion, alias=None, options=None):
-        self.origin = origin
-        self.expansion = expansion
-        self.alias = alias
-        self.options = options
+from ..utils import bfs, fzset, classify, OrderedSet
+from ..exceptions import GrammarError
+from ..grammar import Rule, Terminal, NonTerminal, Symbol
+from ..common import ParserConf
 
-    def __repr__(self):
-        return '<%s : %s>' % (self.origin, ' '.join(map(str,self.expansion)))
 
-class RulePtr(object):
-    def __init__(self, rule, index):
+class RulePtr:
+    __slots__ = ('rule', 'index')
+    rule: Rule
+    index: int
+
+    def __init__(self, rule: Rule, index: int):
         assert isinstance(rule, Rule)
         assert index <= len(rule.expansion)
         self.rule = rule
         self.index = index
 
     def __repr__(self):
-        before = self.rule.expansion[:self.index]
-        after = self.rule.expansion[self.index:]
-        return '<%s : %s * %s>' % (self.rule.origin, ' '.join(before), ' '.join(after))
+        before = [x.name for x in self.rule.expansion[:self.index]]
+        after = [x.name for x in self.rule.expansion[self.index:]]
+        return '<%s : %s * %s>' % (self.rule.origin.name, ' '.join(before), ' '.join(after))
 
     @property
-    def next(self):
+    def next(self) -> Symbol:
         return self.rule.expansion[self.index]
 
-    def advance(self, sym):
+    def advance(self, sym: Symbol) -> 'RulePtr':
         assert self.next == sym
         return RulePtr(self.rule, self.index+1)
 
     @property
-    def is_satisfied(self):
+    def is_satisfied(self) -> bool:
         return self.index == len(self.rule.expansion)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, RulePtr):
+            return NotImplemented
         return self.rule == other.rule and self.index == other.index
-    def __hash__(self):
+
+    def __hash__(self) -> int:
         return hash((self.rule, self.index))
 
 
-def pairs(lst):
-    return zip(lst[:-1], lst[1:])
+State = FrozenSet[RulePtr]
+
+# state generation ensures no duplicate LR0ItemSets
+class LR0ItemSet:
+    __slots__ = ('kernel', 'closure', 'transitions', 'lookaheads')
+
+    kernel: State
+    closure: State
+    transitions: Dict[Symbol, 'LR0ItemSet']
+    lookaheads: Dict[Symbol, Set[Rule]]
+
+    def __init__(self, kernel, closure):
+        self.kernel = fzset(kernel)
+        self.closure = fzset(closure)
+        self.transitions = {}
+        self.lookaheads = defaultdict(set)
+
+    def __repr__(self):
+        return '{%s | %s}' % (', '.join([repr(r) for r in self.kernel]), ', '.join([repr(r) for r in self.closure]))
+
 
 def update_set(set1, set2):
+    if not set2 or set1 > set2:
+        return False
+
     copy = set(set1)
     set1 |= set2
     return set1 != copy
@@ -59,7 +80,6 @@ def calculate_sets(rules):
 
     Adapted from: http://lara.epfl.ch/w/cc09:algorithm_for_first_and_follow_sets"""
     symbols = {sym for rule in rules for sym in rule.expansion} | {rule.origin for rule in rules}
-    symbols.add('$root')    # what about other unused rules?
 
     # foreach grammar rule X ::= Y(1) ... Y(k)
     # if k=0 or {Y(1),...,Y(k)} subset of NULLABLE then
@@ -78,9 +98,10 @@ def calculate_sets(rules):
     FIRST = {}
     FOLLOW = {}
     for sym in symbols:
-        FIRST[sym]={sym} if is_terminal(sym) else set()
+        FIRST[sym]={sym} if sym.is_term else set()
         FOLLOW[sym]=set()
 
+    # Calculate NULLABLE and FIRST
     changed = True
     while changed:
         changed = False
@@ -94,7 +115,17 @@ def calculate_sets(rules):
                 if set(rule.expansion[:i]) <= NULLABLE:
                     if update_set(FIRST[rule.origin], FIRST[sym]):
                         changed = True
-                if i==len(rule.expansion)-1 or set(rule.expansion[i:]) <= NULLABLE:
+                else:
+                    break
+
+    # Calculate FOLLOW
+    changed = True
+    while changed:
+        changed = False
+
+        for rule in rules:
+            for i, sym in enumerate(rule.expansion):
+                if i==len(rule.expansion)-1 or set(rule.expansion[i+1:]) <= NULLABLE:
                     if update_set(FOLLOW[sym], FOLLOW[rule.origin]):
                         changed = True
 
@@ -106,52 +137,67 @@ def calculate_sets(rules):
     return FIRST, FOLLOW, NULLABLE
 
 
-class GrammarAnalyzer(object):
-    def __init__(self, rule_tuples, start_symbol, debug=False):
-        self.start_symbol = start_symbol
+class GrammarAnalyzer:
+    def __init__(self, parser_conf: ParserConf, debug: bool=False, strict: bool=False):
         self.debug = debug
-        rule_tuples = list(rule_tuples)
-        rule_tuples.append(('$root', [start_symbol, '$end']))
-        rule_tuples = [(t[0], t[1], None, None) if len(t)==2 else t for t in rule_tuples]
+        self.strict = strict
 
-        self.rules = set()
-        self.rules_by_origin = {o: [] for o, _x, _a, _opt in rule_tuples}
-        for origin, exp, alias, options in rule_tuples:
-            r =  Rule( origin, exp, alias, options )
-            self.rules.add(r)
-            self.rules_by_origin[origin].append(r)
+        root_rules = {start: Rule(NonTerminal('$root_' + start), [NonTerminal(start), Terminal('$END')])
+                      for start in parser_conf.start}
 
-        for r in self.rules:
+        rules = parser_conf.rules + list(root_rules.values())
+        self.rules_by_origin: Dict[NonTerminal, List[Rule]] = classify(rules, lambda r: r.origin)
+
+        if len(rules) != len(set(rules)):
+            duplicates = [item for item, count in Counter(rules).items() if count > 1]
+            raise GrammarError("Rules defined twice: %s" % ', '.join(str(i) for i in duplicates))
+
+        for r in rules:
             for sym in r.expansion:
-                if not (is_terminal(sym) or sym in self.rules_by_origin):
+                if not (sym.is_term or sym in self.rules_by_origin):
                     raise GrammarError("Using an undefined rule: %s" % sym)
 
-        self.init_state = self.expand_rule(start_symbol)
+        self.start_states = {start: self.expand_rule(root_rule.origin)
+                             for start, root_rule in root_rules.items()}
 
-        self.FIRST, self.FOLLOW, self.NULLABLE = calculate_sets(self.rules)
+        self.end_states = {start: fzset({RulePtr(root_rule, len(root_rule.expansion))})
+                           for start, root_rule in root_rules.items()}
 
-    def expand_rule(self, rule):
+        lr0_root_rules = {start: Rule(NonTerminal('$root_' + start), [NonTerminal(start)])
+                for start in parser_conf.start}
+
+        lr0_rules = parser_conf.rules + list(lr0_root_rules.values())
+        assert(len(lr0_rules) == len(set(lr0_rules)))
+
+        self.lr0_rules_by_origin = classify(lr0_rules, lambda r: r.origin)
+
+        # cache RulePtr(r, 0) in r (no duplicate RulePtr objects)
+        self.lr0_start_states = {start: LR0ItemSet([RulePtr(root_rule, 0)], self.expand_rule(root_rule.origin, self.lr0_rules_by_origin))
+                for start, root_rule in lr0_root_rules.items()}
+
+        self.FIRST, self.FOLLOW, self.NULLABLE = calculate_sets(rules)
+
+    def expand_rule(self, source_rule: NonTerminal, rules_by_origin=None) -> OrderedSet[RulePtr]:
         "Returns all init_ptrs accessible by rule (recursive)"
-        init_ptrs = set()
-        def _expand_rule(rule):
-            assert not is_terminal(rule), rule
 
-            for r in self.rules_by_origin[rule]:
+        if rules_by_origin is None:
+            rules_by_origin = self.rules_by_origin
+
+        init_ptrs = OrderedSet[RulePtr]()
+        def _expand_rule(rule: NonTerminal) -> Iterator[NonTerminal]:
+            assert not rule.is_term, rule
+
+            for r in rules_by_origin[rule]:
                 init_ptr = RulePtr(r, 0)
                 init_ptrs.add(init_ptr)
 
                 if r.expansion: # if not empty rule
                     new_r = init_ptr.next
-                    if not is_terminal(new_r):
+                    if not new_r.is_term:
+                        assert isinstance(new_r, NonTerminal)
                         yield new_r
 
-        _ = list(bfs([rule], _expand_rule))
+        for _ in bfs([source_rule], _expand_rule):
+            pass
 
-        return fzset(init_ptrs)
-
-    def _first(self, r):
-        if is_terminal(r):
-            return {r}
-        else:
-            return {rp.next for rp in self.expand_rule(r) if is_terminal(rp.next)}
-
+        return init_ptrs

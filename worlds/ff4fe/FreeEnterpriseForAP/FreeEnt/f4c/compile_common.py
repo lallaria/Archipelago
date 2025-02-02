@@ -1,5 +1,6 @@
 import pkgutil
 
+import Utils
 from . import lark
 from . import consts
 import os
@@ -18,12 +19,13 @@ def get_parser(name, start='start'):
     global _common_grammar
 
     if _common_grammar is None:
-        _common_grammar = pkgutil.get_data(__name__, "grammar_common.lark").decode()
+        _common_grammar = pkgutil.get_data(__name__, 'grammar_common.lark').decode("utf-8")
 
     key = '{}|{}'.format(name, start)
     if key not in _parsers:
-        grammar = pkgutil.get_data(__name__, f'grammar_{name}.lark').decode()
-        _parsers[key] = lark.Lark(grammar + _common_grammar, start=start)
+        grammar = pkgutil.get_data(__name__, f'grammar_{name}.lark').decode("utf-8")
+
+        _parsers[key] = lark.Lark(grammar + _common_grammar, parser='lalr', start=start, maybe_placeholders=False, import_paths=[Utils.user_path("data", "ff4fe")])
 
     return _parsers[key]
 

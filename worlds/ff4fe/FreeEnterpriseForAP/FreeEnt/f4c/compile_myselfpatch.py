@@ -5,6 +5,8 @@ import math
 import hashlib
 import pickle
 
+import Utils
+
 try:
     from . import ff4struct
     from . import lark
@@ -53,8 +55,8 @@ def _extract_part(value, part):
 def _load_parser():
     global _msf_parser
     if _msf_parser is None:
-        infile = pkgutil.get_data(__name__, "grammar_myselfpatch.lark").decode()
-        _msf_parser = lark.Lark(infile)
+        infile = pkgutil.get_data(__name__, "grammar_myselfpatch.lark").decode("utf-8")
+        _msf_parser = lark.Lark(infile, maybe_placeholders=False, import_paths=[Utils.user_path("data", "ff4fe")])
 
     global _expr_transformer
     if _expr_transformer is None:
@@ -242,7 +244,7 @@ def process_msfpatch_block(block, rom, env):
 
     try:
         tree = _msf_parser.parse(block['body'])
-    except lark.common.ParseError as e:
+    except lark.ParseError as e:
         print(block['body'])
         raise e
 
@@ -852,6 +854,7 @@ def _test_check_opcodes():
     for c in range(256):
         if c not in codes:
             print("Could not find opcode {:2X}".format(c))
+
 
 if __name__ == '__main__':
     test_script = '''

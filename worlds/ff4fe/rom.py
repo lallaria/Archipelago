@@ -1,17 +1,17 @@
 import argparse
-import io
 import json
+import logging
 import os
-import random
-import typing
+import pkgutil
+import tempfile
 
-from typing import TYPE_CHECKING, Optional, BinaryIO
+from typing import TYPE_CHECKING
 
 import Utils
-from BaseClasses import Item, Location
 from settings import get_settings
-from worlds.Files import APProcedurePatch, APTokenMixin, APTokenTypes, APPatchExtension
+from worlds.Files import APProcedurePatch, APTokenMixin, APPatchExtension
 from .FreeEnterpriseForAP.FreeEnt.cmd_make import MakeCommand
+from .items import all_items
 
 if TYPE_CHECKING:
     from . import FF4FEWorld
@@ -43,6 +43,10 @@ key_items_found_location = 0xF51578
 gp_byte_location = 0xF516A0
 gp_byte_size = 3
 junk_tier_byte = 0x1FFC00
+junked_items_length_byte = 0x1FFC01
+junked_items_array_start = 0x1FFD00
+kept_items_length_byte = 0x1FFC02
+kept_items_array_start = 0x1FFE00
 
 sell_value_byte = 0x00C951
 
@@ -75,32 +79,37 @@ class FF4FEPatchExtension(APPatchExtension):
         output_file = placements["output_file"]
         rom_name = placements["rom_name"]
         flags = placements["flags"]
-        junk_tier = 1
-        try:
-            junk_tier = placements["junk_tier"]
-        except KeyError:
-            junk_tier = 1
+        junk_tier = placements["junk_tier"]
+        junked_items = placements["junked_items"]
+        kept_items = placements["kept_items"]
         placements = json.dumps(json.loads(caller.get_file(placement_file)))
         cmd = MakeCommand()
         parser = argparse.ArgumentParser()
         cmd.add_parser_arguments(parser)
-        with open("ff4base.sfc", "wb") as file:
+        directory = tempfile.gettempdir()
+        with open(os.path.join(directory, "ff4base.sfc"), "wb") as file:
             file.write(rom)
             arguments = [
-                "ff4base.sfc",
+                os.path.join(directory, "ff4base.sfc"),
                 f"-s={seed}",
                 f"-f={flags}",
-                f"-o={output_file}",
+                f"-o={os.path.join(directory, output_file)}",
                 f"-a={placements}"
             ]
             args = parser.parse_args(arguments)
             cmd.execute(args)
-        os.unlink("ff4base.sfc")
-        with open(output_file, "rb") as file:
+        with open(os.path.join(directory, output_file), "rb") as file:
             rom_data = bytearray(file.read())
             rom_data[ROM_NAME:ROM_NAME+20] = bytes(rom_name, encoding="utf-8")
             rom_data[junk_tier_byte:junk_tier_byte + 1] = bytes([junk_tier])
-        os.unlink(output_file)
+            rom_data[junked_items_length_byte] = len(junked_items)
+            rom_data[kept_items_length_byte] = len(kept_items)
+            for i, item_name in enumerate(junked_items):
+                item_id = [item for item in all_items if item.name == item_name].pop().fe_id
+                rom_data[junked_items_array_start + i] = item_id
+            for i, item_name in enumerate(kept_items):
+                item_id = [item for item in all_items if item.name == item_name].pop().fe_id
+                rom_data[kept_items_array_start + i] = item_id
         return rom_data
 
 

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-
+from .items import sellable_item_names
 from Options import (Toggle, Range, Choice, PerGameCommonOptions, DefaultOnToggle, StartInventoryPool, OptionGroup,
-                     OptionSet)
+                     OptionSet, ItemSet, Visibility)
 
 
 class ForgeTheCrystal(Toggle):
@@ -334,6 +334,18 @@ class StarterKitThree(Choice):
     option_random_kit = 26
     default = 0
 
+class JunkedItems(OptionSet):
+    """Items that will always be sold for GP regardless of your junk tier settings."""
+    display_name = "Junked Items"
+    valid_keys = sorted(sellable_item_names)
+    visibility = Visibility.complex_ui | Visibility.template | Visibility.spoiler
+
+class KeptItems(OptionSet):
+    """Items that will never be sold for GP regardless of your junk tier settings. Takes priority over Junked Items."""
+    display_name = "Kept Items"
+    valid_keys = sorted(sellable_item_names)
+    visibility = Visibility.complex_ui | Visibility.template | Visibility.spoiler
+
 @dataclass
 class FF4FEOptions(PerGameCommonOptions):
     ForgeTheCrystal: ForgeTheCrystal
@@ -370,6 +382,8 @@ class FF4FEOptions(PerGameCommonOptions):
     StarterKitOne: StarterKitOne
     StarterKitTwo: StarterKitTwo
     StarterKitThree: StarterKitThree
+    JunkedItems: JunkedItems
+    KeptItems: KeptItems
     start_inventory_from_pool: StartInventoryPool
 
 ff4fe_option_groups = [
@@ -393,10 +407,13 @@ ff4fe_option_groups = [
     OptionGroup("Item Options", [
         ItemPlacement,
         UsefulPercentage,
+        PassEnabled,
         PassInShops,
         MinTier,
         MaxTier,
-        JunkTier
+        JunkTier,
+        JunkedItems,
+        KeptItems
     ]),
     OptionGroup("Challenge Flags", [
         HeroChallenge,

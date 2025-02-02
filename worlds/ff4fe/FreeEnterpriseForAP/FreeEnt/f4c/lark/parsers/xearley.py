@@ -1,135 +1,165 @@
-"This module implements an experimental Earley Parser with a dynamic lexer"
+"""This module implements an Earley parser with a dynamic lexer
 
-# The parser uses a parse-forest to keep track of derivations and ambiguations.
-# When the parse ends successfully, a disambiguation stage resolves all ambiguity
-# (right now ambiguity resolution is not developed beyond the needs of lark)
-# Afterwards the parse tree is reduced (transformed) according to user callbacks.
-# I use the no-recursion version of Transformer and Visitor, because the tree might be
-# deeper than Python's recursion limit (a bit absurd, but that's life)
-#
-# The algorithm keeps track of each state set, using a corresponding Column instance.
-# Column keeps track of new items using NewsList instances.
-#
-# Instead of running a lexer beforehand, or using a costy char-by-char method, this parser
-# uses regular expressions by necessity, achieving high-performance while maintaining all of
-# Earley's power in parsing any CFG.
-#
-#
-# Author: Erez Shinan (2017)
-# Email : erezshin@gmail.com
+The core Earley algorithm used here is based on Elizabeth Scott's implementation, here:
+    https://www.sciencedirect.com/science/article/pii/S1571066108001497
 
+That is probably the best reference for understanding the algorithm here.
+
+The Earley parser outputs an SPPF-tree as per that document. The SPPF tree format
+is better documented here:
+    http://www.bramvandersanden.com/post/2014/06/shared-packed-parse-forest/
+
+Instead of running a lexer beforehand, or using a costy char-by-char method, this parser
+uses regular expressions by necessity, achieving high-performance while maintaining all of
+Earley's power in parsing any CFG.
+"""
+
+from typing import TYPE_CHECKING, Callable, Optional, List, Any
 from collections import defaultdict
 
-from ..common import ParseError, UnexpectedToken, Terminal
-from ..lexer import Token
 from ..tree import Tree
-from .grammar_analysis import GrammarAnalyzer
+from ..exceptions import UnexpectedCharacters
+from ..lexer import Token
+from ..grammar import Terminal
+from .earley import Parser as BaseParser
+from .earley_forest import TokenNode
 
-from .earley import ResolveAmbig, ApplyCallbacks, Item, NewsList, Derivation, END_TOKEN, Column
+if TYPE_CHECKING:
+    from ..common import LexerConf, ParserConf
 
-class Parser:
-    def __init__(self, rules, start_symbol, callback, resolve_ambiguity=True, ignore=()):
-        self.analysis = GrammarAnalyzer(rules, start_symbol)
-        self.start_symbol = start_symbol
-        self.resolve_ambiguity = resolve_ambiguity
-        self.ignore = list(ignore)
+class Parser(BaseParser):
+    def __init__(self, lexer_conf: 'LexerConf', parser_conf: 'ParserConf', term_matcher: Callable,
+                 resolve_ambiguity: bool=True, complete_lex: bool=False, debug: bool=False,
+                 tree_class: Optional[Callable[[str, List], Any]]=Tree, ordered_sets: bool=True):
+        BaseParser.__init__(self, lexer_conf, parser_conf, term_matcher, resolve_ambiguity,
+                            debug, tree_class, ordered_sets)
+        self.ignore = [Terminal(t) for t in lexer_conf.ignore]
+        self.complete_lex = complete_lex
 
+    def _parse(self, stream, columns, to_scan, start_symbol=None):
 
-        self.postprocess = {}
-        self.predictions = {}
-        for rule in self.analysis.rules:
-            if rule.origin != '$root':  # XXX kinda ugly
-                a = rule.alias
-                self.postprocess[rule] = a if callable(a) else (a and getattr(callback, a))
-                self.predictions[rule.origin] = [x.rule for x in self.analysis.expand_rule(rule.origin)]
+        def scan(i, to_scan):
+            """The core Earley Scanner.
 
-    def parse(self, stream, start_symbol=None):
-        # Define parser functions
-        start_symbol = start_symbol or self.start_symbol
-        delayed_matches = defaultdict(list)
+            This is a custom implementation of the scanner that uses the
+            Lark lexer to match tokens. The scan list is built by the
+            Earley predictor, based on the previously completed tokens.
+            This ensures that at each phase of the parse we have a custom
+            lexer context, allowing for more complex ambiguities."""
 
-        text_line = 1
-        text_column = 0
+            node_cache = {}
 
-        def predict(nonterm, column):
-            assert not isinstance(nonterm, Terminal), nonterm
-            return [Item(rule, 0, column, None) for rule in self.predictions[nonterm]]
-
-        def complete(item):
-            name = item.rule.origin
-            return [i.advance(item.tree) for i in item.start.to_predict if i.expect == name]
-
-        def predict_and_complete(column):
-            while True:
-                to_predict = {x.expect for x in column.to_predict.get_news()
-                              if x.ptr}  # if not part of an already predicted batch
-                to_reduce = column.to_reduce.get_news()
-                if not (to_predict or to_reduce):
-                    break
-
-                for nonterm in to_predict:
-                    column.add( predict(nonterm, column) )
-                for item in to_reduce:
-                    column.add( complete(item) )
-
-        def scan(i, token, column):
-            for x in self.ignore:
-                m = x.match(stream, i)
-                if m:
-                    return column
-
-            to_scan = column.to_scan.get_news()
-
-            for item in to_scan:
-                m = item.expect.match(stream, i)
+            # 1) Loop the expectations and ask the lexer to match.
+            # Since regexp is forward looking on the input stream, and we only
+            # want to process tokens when we hit the point in the stream at which
+            # they complete, we push all tokens into a buffer (delayed_matches), to
+            # be held possibly for a later parse step when we reach the point in the
+            # input stream at which they complete.
+            for item in self.Set(to_scan):
+                m = match(item.expect, stream, i)
                 if m:
                     t = Token(item.expect.name, m.group(0), i, text_line, text_column)
-                    delayed_matches[m.end()].append(item.advance(t))
+                    delayed_matches[m.end()].append( (item, i, t) )
 
-                    s = m.group(0)
-                    for j in range(1, len(s)):
-                        m = item.expect.match(s[:-j])
-                        if m:
-                            delayed_matches[m.end()].append(item.advance(m.group(0)))
+                    if self.complete_lex:
+                        s = m.group(0)
+                        for j in range(1, len(s)):
+                            m = match(item.expect, s[:-j])
+                            if m:
+                                t = Token(item.expect.name, m.group(0), i, text_line, text_column)
+                                delayed_matches[i+m.end()].append( (item, i, t) )
 
-            next_set = Column(i+1)
-            next_set.add(delayed_matches[i+1])
+                    # XXX The following 3 lines were commented out for causing a bug. See issue #768
+                    # # Remove any items that successfully matched in this pass from the to_scan buffer.
+                    # # This ensures we don't carry over tokens that already matched, if we're ignoring below.
+                    # to_scan.remove(item)
+
+            # 3) Process any ignores. This is typically used for e.g. whitespace.
+            # We carry over any unmatched items from the to_scan buffer to be matched again after
+            # the ignore. This should allow us to use ignored symbols in non-terminals to implement
+            # e.g. mandatory spacing.
+            for x in self.ignore:
+                m = match(x, stream, i)
+                if m:
+                    # Carry over any items still in the scan buffer, to past the end of the ignored items.
+                    delayed_matches[m.end()].extend([(item, i, None) for item in to_scan ])
+
+                    # If we're ignoring up to the end of the file, # carry over the start symbol if it already completed.
+                    delayed_matches[m.end()].extend([(item, i, None) for item in columns[i] if item.is_complete and item.s == start_symbol])
+
+            next_to_scan = self.Set()
+            next_set = self.Set()
+            columns.append(next_set)
+            transitives.append({})
+
+            ## 4) Process Tokens from delayed_matches.
+            # This is the core of the Earley scanner. Create an SPPF node for each Token,
+            # and create the symbol node in the SPPF tree. Advance the item that completed,
+            # and add the resulting new item to either the Earley set (for processing by the
+            # completer/predictor) or the to_scan buffer for the next parse step.
+            for item, start, token in delayed_matches[i+1]:
+                if token is not None:
+                    token.end_line = text_line
+                    token.end_column = text_column + 1
+                    token.end_pos = i + 1
+
+                    new_item = item.advance()
+                    label = (new_item.s, new_item.start, i + 1)
+                    token_node = TokenNode(token, terminals[token.type])
+                    new_item.node = node_cache[label] if label in node_cache else node_cache.setdefault(label, self.SymbolNode(*label))
+                    new_item.node.add_family(new_item.s, item.rule, new_item.start, item.node, token_node)
+                else:
+                    new_item = item
+
+                if new_item.expect in self.TERMINALS:
+                    # add (B ::= Aai+1.B, h, y) to Q'
+                    next_to_scan.add(new_item)
+                else:
+                    # add (B ::= Aa+1.B, h, y) to Ei+1
+                    next_set.add(new_item)
+
             del delayed_matches[i+1]    # No longer needed, so unburden memory
 
-            return next_set
+            if not next_set and not delayed_matches and not next_to_scan:
+                considered_rules = list(sorted(to_scan, key=lambda key: key.rule.origin.name))
+                raise UnexpectedCharacters(stream, i, text_line, text_column, {item.expect.name for item in to_scan},
+                                           set(to_scan), state=frozenset(i.s for i in to_scan),
+                                           considered_rules=considered_rules
+                                           )
 
-        # Main loop starts
-        column0 = Column(0)
-        column0.add(predict(start_symbol, column0))
+            return next_to_scan
 
-        column = column0
-        for i, token in enumerate(stream):
-            predict_and_complete(column)
-            column = scan(i, token, column)
+
+        delayed_matches = defaultdict(list)
+        match = self.term_matcher
+        terminals = self.lexer_conf.terminals_by_name
+
+        # Cache for nodes & tokens created in a particular parse step.
+        transitives = [{}]
+
+        text_line = 1
+        text_column = 1
+
+        ## The main Earley loop.
+        # Run the Prediction/Completion cycle for any Items in the current Earley set.
+        # Completions will be added to the SPPF tree, and predictions will be recursively
+        # processed down to terminals/empty nodes to be added to the scanner for the next
+        # step.
+        i = 0
+        for token in stream:
+            self.predict_and_complete(i, to_scan, columns, transitives)
+
+            to_scan = scan(i, to_scan)
 
             if token == '\n':
                 text_line += 1
-                text_column = 0
+                text_column = 1
             else:
                 text_column += 1
+            i += 1
 
+        self.predict_and_complete(i, to_scan, columns, transitives)
 
-        predict_and_complete(column)
-
-        # Parse ended. Now build a parse tree
-        solutions = [n.tree for n in column.to_reduce
-                     if n.rule.origin==start_symbol and n.start is column0]
-
-        if not solutions:
-            raise ParseError('Incomplete parse: Could not find a solution to input')
-        elif len(solutions) == 1:
-            tree = solutions[0]
-        else:
-            tree = Tree('_ambig', solutions)
-
-        if self.resolve_ambiguity:
-            ResolveAmbig().visit(tree) 
-
-        return ApplyCallbacks(self.postprocess).transform(tree)
-
-
+        ## Column is now the final column in the parse.
+        assert i == len(columns)-1
+        return to_scan

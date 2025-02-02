@@ -1,0 +1,24 @@
+ov36 3702C (RAM 0x23DE0AC - ID 0) - start with bag
+ov36 37030 (RAM 0x23DE0B0 - ID 1) - start with recruitment enabled
+ov36 37034 (RAM 0x23DE0B4 - ID 2) - start with recruitment evolution enabled
+ov36 37038 (RAM 0x23DE0B8 - ID 3) - start with full team formation control
+ov36 3703C (RAM 0x23DE0B8 - ID 4) - enable level scaling
+
+
+ov36 3702C (RAM 0x23DE0AC - ID 0) - start with recruitment enabled
+ov36 37030 (RAM 0x23DE0B0 - ID 1) - start with recruitment evolution enabled
+ov36 37034 (RAM 0x23DE0B4 - ID 2) - start with full team formation control
+ov36 37038 (RAM 0x23DE0B8 - ID 3) - enable level scaling
+
+
+
+
+we have 1->16->24->32->40->48. that's 5 progressive bag upgrade items. presumably on the python side, we'll have something that counts the number of bag upgrades items collected, and updates variables according to that number.
+
+IF the number collected is NOT zero, PERFORMANCE_PROGRESS_LIST[2] should be enabled.
+
+IF the number collected is 1, set SCENARIO_BALANCE_FLAG to 0.
+ELSE IF the number collected is 2, set SCENARIO_BALANCE_FLAG to 1.
+ELSE IF the number collected is 3, set SCENARIO_BALANCE_FLAG to 2.
+ELSE IF the number collected is 4, set SCENARIO_BALANCE_FLAG to 3.
+ELSE IF the number collected is 5, set SCENARIO_BALANCE_FLAG to 6.
