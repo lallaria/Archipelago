@@ -124,7 +124,7 @@ class Rac2Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Ratchet & Clank 2 Client"
+            base_title = Utils.archipelago_name + " Ratchet & Clank 2 Client"
 
         self.ui = Rac2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

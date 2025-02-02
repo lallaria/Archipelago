@@ -225,7 +225,7 @@ class BanjoTooieContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago Banjo-Tooie Client"
+            base_title = Utils.archipelago_name + " Banjo-Tooie Client"
 
         self.ui = BanjoTooieManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
