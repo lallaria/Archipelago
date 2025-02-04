@@ -98,6 +98,10 @@ def download_slot_file(room_id, player_id: int):
             fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.aptww"
         elif slot_data.game == "Mario & Luigi Superstar Saga":
             fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.apmlss"
+        elif slot_data.game == "Zelda II: The Adventure of Link":
+            fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.apz2"
+        elif slot_data.game == "EarthBound":
+            fname = f"AP+{app.jinja_env.filters['suuid'](room_id)}_P{slot_data.player_id}_{slot_data.player_name}.apeb"
         else:
             return "Game download not supported."
         return send_file(io.BytesIO(slot_data.data), as_attachment=True, download_name=fname)
