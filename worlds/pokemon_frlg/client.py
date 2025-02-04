@@ -296,7 +296,7 @@ class PokemonFRLGClient(BizHawkClient):
             local_set_events = {flag_name: False for flag_name in TRACKER_EVENT_FLAGS}
             local_set_fly_unlocks = {flag_name: False for flag_name in TRACKER_FLY_UNLOCK_FLAGS}
             local_hints = {flag_name: False for flag_name in HINT_FLAGS.keys()}
-            local_checked_locations = set()
+            local_checked_locations: Set[int] = set()
             caught_pokemon = 0
 
             # Check set flags
