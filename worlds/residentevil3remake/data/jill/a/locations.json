@@ -414,6 +414,7 @@
         "parent_object": "sm70_101_sgshell",
         "folder_path": "RopewayContents/World/Location_DownTown/LocationLevel_DownTown/LocationFsm_DownTown/S03_1000/ES_S03_1000/Item/ES_S03_1000/I_700_Garage",
         "allow_item": [
+            "Lock Pick",
             "Battery Pack",
             "Kendo Gate Key",
             "Locker Room Key",
@@ -1611,7 +1612,16 @@
         "condition": {},
         "item_object": "sm70_102",
         "parent_object": "ItemPositions",
-        "folder_path": "RopewayContents/World/Location_RPD/Environments/st02_0301_0/gimmick_Escape"
+        "folder_path": "RopewayContents/World/Location_RPD/Environments/st02_0301_0/gimmick_Escape",
+        "allow_item": [
+            "Locker Room Key",
+            "Tape Player",
+            "Fuse 1",
+            "Fuse 2",
+            "Fuse 3",
+            "Override Key",
+            "Culture Sample"
+        ]
     },
     {
         "name": "Near Breakable Box",
@@ -1620,7 +1630,16 @@
         "condition": {},
         "item_object": "sm70_002",
         "parent_object": "sm70_002_0301",
-        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/ES_common"
+        "folder_path": "RopewayContents/World/Location_RPD/LocationLevel_RPD/Item/common/ES_common",
+        "allow_item": [
+            "Locker Room Key",
+            "Tape Player",
+            "Fuse 1",
+            "Fuse 2",
+            "Fuse 3",
+            "Override Key",
+            "Culture Sample"
+        ]
     },
     {
         "name": "Brad's Corpse",
@@ -1629,7 +1648,16 @@
         "condition": {},
         "item_object": "sm73_203",
         "parent_object": "sm73_203",
-        "folder_path": "RopewayManagers/TemporaryObjects/Enemy"
+        "folder_path": "RopewayManagers/TemporaryObjects/Enemy",
+        "allow_item": [
+            "Locker Room Key",
+            "Tape Player",
+            "Fuse 1",
+            "Fuse 2",
+            "Fuse 3",
+            "Override Key",
+            "Culture Sample"
+        ]
     },
     {
         "name": "Crates Near Medallion Statue",

@@ -38,7 +38,7 @@ CKE = "Cauldron Keep - Main Entrance"
 SMBH = "Spiral Mountain - Banjo's House"
 SMGL = "Spiral Mountain - Gruntilda's Lair"
 SMBW = "Spiral Mountain - Behind Waterfall"
-SM   = "Spiral Mountain" 
+SM   = "Spiral Mountain"
 SMDT = "Sprial Mountain - Digger Tunnel"
 
 MT = "Mayahem Temple"
@@ -54,6 +54,7 @@ GMFD = "Glitter Gulch Mine - Fuel Depot, Behind the Rocks"
 
 WW = "Witchyworld"
 WWS = "Witchyworld Station"
+WWA51NESTS = "Witchyworld - Area 51 Egg Nests"
 
 JR = "Jolly Roger's Lagoon - Town Center"
 JRU = "Jolly Roger's Lagoon - Underwater"
