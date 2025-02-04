@@ -60,7 +60,7 @@ class ALBWClientContext(CommonContext):
         from kvui import GameManager
 
         class ALBWManager(GameManager):
-            base_title: str = archipelago_name + " A Link Between Worlds Client"
+            base_title: str = "Archipelago A Link Between Worlds Client"
 
         self.ui = ALBWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
