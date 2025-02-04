@@ -56,12 +56,6 @@
                             {% elif patch.game == "Metroid Prime" %}
                             <a href="{{ url_for("download_slot_file", room_id=room.id, player_id=patch.player_id) }}" download>
                                 Download APMP1 File...</a>
-                            {% elif patch.game == "Zelda II: The Adventure of Link" %}
-                            <a href="{{ url_for("download_slot_file", room_id=room.id, player_id=patch.player_id) }}" download>
-                                Download APZ2 File...</a>
-                            {% elif patch.game == "EarthBound" %}
-                            <a href="{{ url_for("download_slot_file", room_id=room.id, player_id=patch.player_id) }}" download>
-                                Download APEB File...</a>
                             {% else %}
                                 No file to download for this game.
                             {% endif %}
