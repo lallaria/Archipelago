@@ -1,9 +1,8 @@
 import logging
-import os
 from typing import List
 
 from BaseClasses import Tutorial, ItemClassification
-from worlds.LauncherComponents import Component, components, icon_paths, Type, launch_subprocess
+from worlds.LauncherComponents import Component, components, Type, launch_subprocess, icon_paths
 from worlds.AutoWorld import World, WebWorld
 from Utils import local_path, user_path
 from .Items import *
@@ -107,7 +106,18 @@ class KH2DelilahWorld(World):
             if ability in self.goofy_ability_dict and self.goofy_ability_dict[ability] >= 1:
                 self.goofy_ability_dict[ability] -= 1
 
-        slot_data = self.options.as_dict("Goal", "FinalXemnas", "LuckyEmblemsRequired", "BountyRequired")
+        slot_data = self.options.as_dict(
+            "Goal", 
+            "FinalXemnas", 
+            "LuckyEmblemsRequired", 
+            "BountyRequired",
+            "FightLogic",
+            "FinalFormLogic",
+            "AutoFormLogic",
+            "LevelDepth",
+            "DonaldGoofyStatsanity",
+            "CorSkipToggle"
+        )
         slot_data.update({
             "hitlist":                [],  # remove this after next update
             "PoptrackerVersionCheck": 4.3,
@@ -288,8 +298,6 @@ class KH2DelilahWorld(World):
                 else: 
                     similar_boss = ""
 
-        # self.weaponitem_gen_early()
-
         self.donald_gen_early()
         self.goofy_gen_early()
         self.keyblade_gen_early()
@@ -314,7 +322,7 @@ class KH2DelilahWorld(World):
 
     def pre_fill(self):
         """
-        Plandoing Events and Fill_Restrictive for donald,goofy and sora
+        Plandoing Events and filling weapons for donald,goofy and sora
 
         Abilities on weapons need to be placed first so that the location is tangible
         """
@@ -474,7 +482,7 @@ class KH2DelilahWorld(World):
     def keyblade_pre_fill(self):
         """
         Fills keyblade slots with abilities determined on player's setting
-        """   
+        """
 
         keyblade_locations = [self.multiworld.get_location(location, self.player) for location in Keyblade_Slots.keys()]
         for location in keyblade_locations:
@@ -607,4 +615,3 @@ class KH2DelilahWorld(World):
         Returns random filler item name.
         """
         return self.random.choice(filler_items)
-    

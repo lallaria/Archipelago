@@ -1,4 +1,3 @@
-from calendar import firstweekday
 from typing import Dict, Callable, TYPE_CHECKING
 
 from BaseClasses import CollectionState
@@ -157,7 +156,7 @@ class KH2DelilahRules:
     def form_list_unlock(self, state: CollectionState, parent_form_list, level_required, fight_logic=False) -> bool:
         form_access = {parent_form_list}
         if self.world.options.AutoFormLogic and state.has(ItemName.SecondChance, self.player) and not fight_logic:
-            form_access.add(auto_form_dict[parent_form_list])
+                    form_access.add(auto_form_dict[parent_form_list])
         return state.has_any(form_access, self.player) \
             and self.get_form_level_requirement(state, level_required)
 
@@ -189,8 +188,8 @@ class KH2DelilahWorldRules(KH2DelilahRules):
             RegionName.Oc:                 lambda state: self.oc_unlocked(state, 1),
             RegionName.Oc2:                lambda state: self.oc_unlocked(state, 2),
 
+            #twtnw1 is actually the roxas fight region thus roxas requires 1 way to the dawn
             RegionName.Twtnw2:             lambda state: self.twtnw_unlocked(state, 2),
-            # These will be swapped and First Visit lock for twtnw is in development.
             # RegionName.Twtnw1: lambda state: self.lod_unlocked(state, 2),
 
             RegionName.Ht:                 lambda state: self.ht_unlocked(state, 1),
@@ -406,6 +405,16 @@ class KH2FormRules(KH2DelilahRules):
             RegionName.Master: lambda state: self.multi_form_region_access(),
             RegionName.Final:  lambda state: self.final_form_region_access(state)
         }
+        # Accessing Final requires being able to reach one of the locations in final_leveling_access, but reaching a
+        # location requires being able to reach the region the location is in, so an indirect condition is required.
+        # The access rules of each of the locations in final_leveling_access do not check for being able to reach other
+        # locations or other regions, so it is only the parent region of each location that needs to be added as an
+        # indirect condition.
+        self.form_region_indirect_condition_regions = {
+            RegionName.Final: {
+                self.world.get_location(location).parent_region for location in final_leveling_access
+            }
+        }
 
     def final_form_region_access(self, state: CollectionState) -> bool:
         """
@@ -439,12 +448,15 @@ class KH2FormRules(KH2DelilahRules):
         for region_name in drive_form_list:
             if region_name == RegionName.Summon and not self.world.options.SummonLevelLocationToggle:
                 continue
+            indirect_condition_regions = self.form_region_indirect_condition_regions.get(region_name, ())
             # could get the location of each of these, but I feel like that would be less optimal
             region = self.multiworld.get_region(region_name, self.player)
             # if region_name in form_region_rules
             if region_name != RegionName.Summon:
                 for entrance in region.entrances:
                     entrance.access_rule = self.form_region_rules[region_name]
+                    for indirect_condition_region in indirect_condition_regions:
+                        self.multiworld.register_indirect_condition(indirect_condition_region, entrance)
             for loc in region.locations:
                 loc.access_rule = self.form_rules[loc.name]
 
