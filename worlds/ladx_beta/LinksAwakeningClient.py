@@ -590,7 +590,7 @@ class LinksAwakeningContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("Tracker", "Tracker"),
             ]
-            base_title = f"Archipelago {Common.LINKS_AWAKENING} Client"
+            base_title = f"{Utils.archipelago_name} {Common.LINKS_AWAKENING} Client"
 
             def build(self):
                 b = super().build()

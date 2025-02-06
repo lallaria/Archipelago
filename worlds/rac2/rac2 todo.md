@@ -17,3 +17,5 @@ https://clips.twitch.tv/VastPlainCormorantPeoplesChamp-giutrFhx7YW9aYLx
 - Investigate Grelbin bridge extend conditions.
 - Deal the taxi spawn conditions the Hypnotist on Damosel.
 - Prevent default popups when checking hypnomatic part locations
+- Some/All Hypnomatic Part locations may still give their original items.
+- Megacorp Scientist broken if Shop route is completed first
