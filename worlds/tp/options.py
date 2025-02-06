@@ -620,8 +620,6 @@ tp_option_groups: list[OptionGroup] = [
         "Logic Settings",
         [
             LogicRules,
-            CastleRequirements,
-            PalaceRequirements,
             FaronWoodsLogic,
         ],
         start_collapsed=True,
