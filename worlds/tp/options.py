@@ -629,7 +629,6 @@ tp_option_groups: list[OptionGroup] = [
         [
             CastleRequirements,
             PalaceRequirements,
-            FaronWoodsLogic,
         ],
         start_collapsed=True,
     ),
