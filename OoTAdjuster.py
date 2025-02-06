@@ -44,9 +44,10 @@ def adjustGUI():
         OptionMenu, filedialog, messagebox, ttk
     from argparse import Namespace
     from Utils import __version__ as MWVersion
+    from Utils import archipelago_name
 
     window = tk.Tk()
-    window.wm_title(f"Archipelago {MWVersion} OoT Adjuster")
+    window.wm_title(f"{archipelago_name} {MWVersion} OoT Adjuster")
     set_icon(window)
 
     opts = Namespace()
