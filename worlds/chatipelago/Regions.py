@@ -58,7 +58,7 @@ region_table: dict[str, list[str]] = {
         "Moonlit Meadows",
     ],
     "Prog": [
-        "\u2605AGDQ2025 Main Stage\u2605",
+        "\u2605SGDQ Main Stage\u2605",
         "\u2605Tier 3 Subscriber Lounge\u2605",
         "\u2605The Elite 4\u2605",
         "\u2605Kitten's Chair\u2605",
