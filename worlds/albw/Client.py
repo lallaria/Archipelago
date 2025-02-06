@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Set
 import asyncio
 import traceback
+import Utils
 from CommonClient import CommonContext, get_base_parser, gui_enabled, logger, server_loop
 from NetUtils import ClientStatus
 from Patch import create_rom_file
@@ -60,7 +61,7 @@ class ALBWClientContext(CommonContext):
         from kvui import GameManager
 
         class ALBWManager(GameManager):
-            base_title: str = "Archipelago A Link Between Worlds Client"
+            base_title: str = Utils.archipelago_name + " A Link Between Worlds Client"
 
         self.ui = ALBWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
