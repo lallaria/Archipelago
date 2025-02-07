@@ -10,7 +10,6 @@ if typing.TYPE_CHECKING:
 
 from Utils import ByValue, Version
 
-
 class HintStatus(ByValue, enum.IntEnum):
     HINT_FOUND = 0
     HINT_UNSPECIFIED = 1
@@ -152,7 +151,7 @@ decode = JSONDecoder(object_hook=_object_hook).decode
 
 
 class Endpoint:
-    socket: "ServerConnection"
+    socket: websockets.WebSocketServerProtocol
 
     def __init__(self, socket):
         self.socket = socket
@@ -195,24 +194,25 @@ class JSONTypes(str, enum.Enum):
     location_name = "location_name"
     location_id = "location_id"
     entrance_name = "entrance_name"
-    hint_status = "hint_status"
 
 
 class JSONtoTextParser(metaclass=HandlerMeta):
     color_codes = {
-        # not exact color names, close enough but decent looking
+        # Changed these so that the color name isn't directly linked to the action. Probably should use a fucking color library for it but whatever
         "black": "000000",
-        "red": "EE0000",
-        "green": "00FF7F",
-        "yellow": "FAFAD2",
-        "blue": "6495ED",
-        "magenta": "EE00EE",
-        "cyan": "00EEEE",
-        "slateblue": "6D8BE8",
-        "plum": "AF99EF",
-        "salmon": "FA8072",
-        "white": "FFFFFF",
-        "orange": "FF7700",
+        "red": "FF0000", #red
+        "green": "00FF00", #green
+        "notfoundcolor": "EE0000", #red
+        "foundcolor": "00c51b", #green
+        "friendcolor": "5fafff", #ltblue
+        "entrancecolor": "6495ED", #blue
+        "playercolor": "ff87d7", #atzpink
+        "junkcolor": "b2b2b2", #gray
+        "usefulcolor": "afd75f", #lime
+        "wothcolor": "FFC500", #gold
+        "trapcolor": "d75f5f", #salmon
+        "default": "FFFFFF", #white
+        "bcastcolor": "FF7700", #orange
     }
 
     def __init__(self, ctx):
@@ -389,7 +389,8 @@ class Hint(typing.NamedTuple):
         else:
             add_json_text(parts, "'s World")
         add_json_text(parts, ". ")
-        add_json_hint_status(parts, self.status)
+        add_json_text(parts, status_names.get(self.status, "(unknown)"), type="color",
+                      color=status_colors.get(self.status, "red"))
 
         return {"cmd": "PrintJSON", "data": parts, "type": "Hint",
                 "receiving": self.receiving_player,
