@@ -26,7 +26,7 @@ def launch_client():
     launch_subprocess(launch, name="FactorioSAWSClient")
 
 
-components.append(Component("Factorio - Space Age Without Space Client", "FactorioSAWSClient", func=launch_client, component_type=Type.CLIENT))
+components.append(Component("Factorio - Space Age Without Space Client", func=launch_client, component_type=Type.CLIENT))
 
 
 class FactorioSettings(settings.Group):

@@ -295,7 +295,7 @@ def run_gui():
 
                 # column 2 & 3
                 if client:
-                    if client_count < 16:
+                    if client_count < 21:
                         self._client_layout.layout.add_widget(build_button(client[1]))
                     else:
                         self._client_layout_2.layout.add_widget(build_button(client[1]))
@@ -321,7 +321,7 @@ def run_gui():
 
             global refresh_components
             refresh_components = self._refresh_components
-            Window.size = (1024, 700)
+            Window.size = (1024, 850)
             Window.bind(on_drop_file=self._on_drop_file)
 
             return self.container
