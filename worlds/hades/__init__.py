@@ -22,7 +22,7 @@ def launch_client():
 
 icon_paths['hades_icon'] = local_path('data', 'hades_icon.png')
 
-components.append(Component("Hades Client",
+components.append(Component("Hades Client", "HadesClient",
                   func=launch_client, component_type=Type.CLIENT, icon='hades_icon'))
 
 
