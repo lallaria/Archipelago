@@ -16,12 +16,12 @@ from worlds.AutoWorld import WebWorld, World
 from .client import PokemonFRLGClient
 from .data import (data as frlg_data, ALL_SPECIES, LEGENDARY_POKEMON, NAME_TO_SPECIES_ID, EventData, MapData,
                    MiscPokemonData, SpeciesData, StarterData, TrainerData)
-from .items import (ITEM_GROUPS, create_item_name_to_id_map, get_random_item, get_item_classification,
-                    reverse_offset_item_value, PokemonFRLGItem)
+from .items import (PokemonFRLGItem, ITEM_GROUPS, create_item_name_to_id_map, get_random_item, get_item_classification)
 from .level_scaling import ScalingData, create_scaling_data, level_scaling
 from .locations import (LOCATION_GROUPS, create_location_name_to_id_map, create_locations_from_tags, set_free_fly,
                         PokemonFRLGLocation)
-from .logic import can_cut, can_flash, can_fly, can_rock_smash, can_strength, can_surf, can_waterfall
+from .logic import (can_cut, can_flash, can_fly, can_rock_smash, can_strength, can_surf, can_waterfall,
+                    has_badge_requirement)
 from .options import (PokemonFRLGOptions, CeruleanCaveRequirement, Dexsanity, FlashRequired, FreeFlyLocation,
                       GameVersion, Goal, RandomizeLegendaryPokemon, RandomizeMiscPokemon, RandomizeWildPokemon,
                       SeviiIslandPasses, ShuffleFlyDestinationUnlocks, ShuffleHiddenItems, ShuffleBadges,
@@ -403,7 +403,17 @@ class PokemonFRLGWorld(World):
             itempool = [item for item in itempool if item.name != "Tea"]
             itempool.append(self.create_item("Green Tea"))
 
-        self.filler_items = [item for item in itempool if item.classification == ItemClassification.filler]
+        unique_items = set()
+        for item in itempool.copy():
+            if "Unique" in item.tags and "Progressive" not in item.name:
+                if item in unique_items:
+                    itempool.remove(item)
+                    itempool.append(self.create_item(get_random_item(self, ItemClassification.filler)))
+                else:
+                    unique_items.add(item)
+
+        self.filler_items = [item for item in itempool if item.classification == ItemClassification.filler and
+                             "Unique" not in item.tags]
         self.random.shuffle(self.filler_items)
 
         if self.options.kanto_only:
@@ -414,9 +424,9 @@ class PokemonFRLGWorld(World):
                 itempool.remove(item_to_remove)
 
         for item, quantity in self.options.start_inventory.value.items():
-            if "Unique" in frlg_data.items[reverse_offset_item_value(self.item_name_to_id[item])].tags:
+            if "Unique" in frlg_data.items[self.item_name_to_id[item]].tags:
                 if (not self.options.shuffle_badges and
-                        "Badge" in frlg_data.items[reverse_offset_item_value(self.item_name_to_id[item])].tags):
+                        "Badge" in frlg_data.items[self.item_name_to_id[item]].tags):
                     continue
                 removed_items_count = 0
                 for _ in range(quantity):
@@ -492,6 +502,8 @@ class PokemonFRLGWorld(World):
             if locs_to_remove > 0:
                 self.random.shuffle(trainer_locations)
                 for location in trainer_locations:
+                    if location.name in self.options.priority_locations.value:
+                        continue
                     region = location.parent_region
                     region.locations.remove(location)
                     item_to_remove = self.filler_items.pop(0)
@@ -514,6 +526,8 @@ class PokemonFRLGWorld(World):
                 pokedex_region_locations = pokedex_region.locations.copy()
                 self.random.shuffle(pokedex_region_locations)
                 for location in pokedex_region_locations:
+                    if location.name in self.options.priority_locations.value:
+                        continue
                     pokedex_region.locations.remove(location)
                     item_to_remove = self.filler_items.pop(0)
                     self.multiworld.itempool.remove(item_to_remove)
@@ -824,7 +838,8 @@ class PokemonFRLGWorld(World):
         while len(hms) > 0:
             hm_to_verify = hms[0]
             all_state = self.multiworld.get_all_state(False)
-            if not can_use_hm(all_state, hm_to_verify):
+            if (not can_use_hm(all_state, hm_to_verify) and
+                    has_badge_requirement(all_state, self.player, self.options, hm_to_verify)):
                 if hm_to_verify == last_hm_verified:
                     raise Exception(f"Failed to ensure access to {hm_to_verify} for player {self.player}")
                 last_hm_verified = hm_to_verify
