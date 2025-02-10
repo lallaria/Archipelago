@@ -64,7 +64,14 @@ class SSWeb(WebWorld):
 
     The web interface includes the setup guide and the options page for generating YAMLs.
     """
-
+    tutorials = [Tutorial(
+        "Skyward Sword Setup Guide",
+        "A guide to setting up SSR for Archipelago on your computer.",
+        "English",
+        "APSetup.md",
+        "setup/en",
+        ["bcats"]
+    )]
     theme = "ice"
     rich_text_options_doc = True
 
