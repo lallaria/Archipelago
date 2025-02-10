@@ -230,12 +230,14 @@ def run_gui():
     from kvui import App, ContainerLayout, GridLayout, Button, Label, ScrollBox, Widget, ApAsyncImage
     from kivy.core.window import Window
     from kivy.uix.relativelayout import RelativeLayout
+    from kivy.uix.widget import Widget
 
     class Launcher(App):
         base_title: str = Utils.archipelago_name + " Launcher"
         container: ContainerLayout
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None
+        _shared_client_layout: Optional[ScrollBox] = None
         _client_layout: Optional[ScrollBox] = None
         _client_layout_2: Optional[ScrollBox] = None
 
@@ -248,16 +250,6 @@ def run_gui():
         def _refresh_components(self) -> None:
 
             def build_button(component: Component) -> Widget:
-                """
-                Builds a button widget for a given component.
-
-                Args:
-                    component (Component): The component associated with the button.
-
-                Returns:
-                    None. The button is added to the parent grid layout.
-
-                """
                 button = Button(text=component.display_name, size_hint_y=None, height=40)
                 button.component = component
                 button.bind(on_release=self.component_action)
@@ -271,43 +263,46 @@ def run_gui():
                 return button
 
             # clear before repopulating
-            assert self._tool_layout and self._client_layout, "must call `build` first"
-            tool_children = reversed(self._tool_layout.layout.children)
-            for child in tool_children:
-                self._tool_layout.layout.remove_widget(child)
-            client_children = reversed(self._client_layout.layout.children)
-            for child in client_children:
-                self._client_layout.layout.remove_widget(child)
+            for layout in (self._tool_layout.layout,
+                        self._client_layout.layout,
+                        self._client_layout_2.layout):
+                for child in list(layout.children):
+                    layout.remove_widget(child)
 
-            _tools = {c.display_name: c for c in components if c.type == Type.TOOL}
-            _clients = {c.display_name: c for c in components if c.type == Type.CLIENT}
-            _adjusters = {c.display_name: c for c in components if c.type == Type.ADJUSTER}
-            _miscs = {c.display_name: c for c in components if c.type == Type.MISC}
+            tools = [c for c in components if c.type in (Type.TOOL, Type.MISC, Type.ADJUSTER)]
 
-            client_count = 0  # Initialize a counter to keep track of processed clients
+            for tool in tools:
+                self._tool_layout.layout.add_widget(build_button(tool))
 
-            for (tool, client) in itertools.zip_longest(itertools.chain(
-                    _tools.items(), _miscs.items(), _adjusters.items()
-                ), _clients.items()):
-                # column 1
-                if tool:
-                    self._tool_layout.layout.add_widget(build_button(tool[1]))
+            all_clients = [c for c in components if c.type == Type.CLIENT]
+            all_clients = sorted(all_clients, key=lambda c: c.display_name)
 
-                # column 2 & 3
-                if client:
-                    if client_count < 21:
-                        self._client_layout.layout.add_widget(build_button(client[1]))
-                    else:
-                        self._client_layout_2.layout.add_widget(build_button(client[1]))
-                    client_count += 1  # Increment the client counter
+            shared_client_names = {"SNI Client", "Manual Client", "Text Client", "BizHawk Client", "Universal Tracker"}
+            shared_clients = [c for c in all_clients if c.display_name in shared_client_names]
+
+            if shared_clients:      
+                self._tool_layout.layout.add_widget(Widget(size_hint_y=None, height=10))
+                self._tool_layout.layout.add_widget(Label(text="Shared Clients", size_hint_y=None, height=40))
+                for client in shared_clients:
+                    self._tool_layout.layout.add_widget(build_button(client))
+
+            game_clients = [c for c in all_clients if c.display_name not in shared_client_names]
+            split_index = len(game_clients) // 2
+            first_column_clients = game_clients[:split_index+1]
+            second_column_clients = game_clients[split_index+1:]
+
+            for client in first_column_clients:
+                self._client_layout.layout.add_widget(build_button(client))
+            for client in second_column_clients:
+                self._client_layout_2.layout.add_widget(build_button(client))
 
         def build(self):
             self.container = ContainerLayout()
             self.grid = GridLayout(cols=3)
             self.container.add_widget(self.grid)
             self.grid.add_widget(Label(text="General", size_hint_y=None, height=40))
-            self.grid.add_widget(Label(text="Clients 1", size_hint_y=None, height=40))
-            self.grid.add_widget(Label(text="Clients 2", size_hint_y=None, height=40))
+            self.grid.add_widget(Label(text="Game Clients 1", size_hint_y=None, height=40))
+            self.grid.add_widget(Label(text="Game Clients 2", size_hint_y=None, height=40))
             self._tool_layout = ScrollBox()
             self._tool_layout.layout.orientation = "vertical"
             self.grid.add_widget(self._tool_layout)
@@ -321,7 +316,7 @@ def run_gui():
 
             global refresh_components
             refresh_components = self._refresh_components
-            Window.size = (1024, 850)
+            Window.size = (1100, 800)
             Window.bind(on_drop_file=self._on_drop_file)
 
             return self.container
