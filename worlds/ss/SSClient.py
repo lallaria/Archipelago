@@ -55,6 +55,7 @@ class SSContext(CommonContext):
 
     command_processor = SSCommandProcessor
     game: str = "Skyward Sword"
+    patch_suffix: str = ".apssr"
     items_handling: int = 0b001
 
     def __init__(self, server_address: Optional[str], password: Optional[str]) -> None:
