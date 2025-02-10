@@ -448,9 +448,8 @@ class SSWorld(World):
             ),
             player=player,
             player_name=self.player_name,
-            data=b64encode(bytes(yaml.safe_dump(output_data, sort_keys=False), "utf-8")),
+            data=output_data,
         )
-
         apssr.write()
 
         self.hint_data = hints

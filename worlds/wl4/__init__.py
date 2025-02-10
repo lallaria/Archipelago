@@ -206,7 +206,7 @@ class WL4World(World):
     def generate_output(self, output_directory: str):
         output_path = Path(output_directory)
 
-        patch = WL4ProcedurePatch()
+        patch = WL4ProcedurePatch(player=self.player, player_name=self.multiworld.player_name[self.player])
         patch.write_file('basepatch.bsdiff', data_path('basepatch.bsdiff'))
         write_tokens(self, patch)
         patch.procedure.append((
