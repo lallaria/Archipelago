@@ -1,4 +1,5 @@
 import os
+import zipfile
 from base64 import b64encode
 from collections.abc import Mapping
 from dataclasses import fields
@@ -449,7 +450,7 @@ class SSWorld(World):
             player_name=self.player_name,
             data=b64encode(bytes(yaml.safe_dump(output_data, sort_keys=False), "utf-8")),
         )
-        
+
         apssr.write()
 
         self.hint_data = hints
