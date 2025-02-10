@@ -235,10 +235,6 @@ components: List[Component] = [
     # Zillion
     Component('Zillion Client', 'ZillionClient',
               file_identifier=SuffixIdentifier('.apzl')),
-    # Kingdom Hearts 2
-    Component('KH2 Client', "KH2Client"),
-    #MegaMan Battle Network 3
-    Component('MMBN3 Client', 'MMBN3Client', file_identifier=SuffixIdentifier('.apbn3')),
     # Manual games in Arch
     Component('Manual Client', 'ManualClient', file_identifier=SuffixIdentifier('.apmanual'))
 ]
