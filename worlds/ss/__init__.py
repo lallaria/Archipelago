@@ -92,6 +92,7 @@ class SSWorld(World):
 
     game: ClassVar[str] = "Skyward Sword"
     topology_present: bool = True
+    web = SSWeb()
     required_client_version: tuple[int, int, int] = (0, 5, 1)
     origin_region_name: str = "Upper Skyloft"
 
