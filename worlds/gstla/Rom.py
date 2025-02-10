@@ -17,7 +17,8 @@ class GSTLADeltaPatch(APProcedurePatch, APTokenMixin):
     patch_file_ending = ".apgstla"
     result_file_ending = ".gba"
     procedure = [
-        ("apply_gstla_rando", ["ap_settings.gstlarando"])
+        ("apply_gstla_rando", ["ap_settings.gstlarando"]),
+        ("apply_tokens", ["token_data.bin"]),
     ]
 
     @classmethod

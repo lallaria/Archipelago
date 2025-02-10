@@ -44,6 +44,20 @@ class SecondStartingCharacter(Choice):
     option_mia = 6
     default = "random"
 
+class ScaleCharacters(Toggle):
+    """Whether to scale character levels by spheres.  Increases generation time."""
+    internal_name = "scale_characters"
+    display_name = "Scale Characters"
+    default = 1
+
+class MaxScaledLevel(Range):
+    """The maximum level a scaled character should have.  Only valid if scale_characters is true."""
+    internal_name = "max_scaled_level"
+    display_name = "Max Scaled Level"
+    range_start = 5
+    range_end = 99
+    default = 24
+
 class DjinnLogic(NamedRange):
     """How much do Djinn affect logic for being able to defeat bosses?
     Assuming this is set to 100 (Normal) beating Briggs expects 6 djinn, Poseidon 24 djinn and Doom Dragon 56 djinn.
@@ -501,6 +515,12 @@ class MimicTrapWeight(Range):
     range_end = 100
     default = 5
 
+class ScaleMimics(Toggle):
+    """Whether the strength of mimics should be scaled based on the sphere they are in.  Increases generation time"""
+    internal_name = "scale_mimics"
+    display_name = "Scale Mimics"
+    default = 1
+
 class ForgeMaterialsFillerWeight(Range):
     """The weight for a filler item to be a forge material. These will be forged into any of their regular results.
     Note that forging results are RNG based in the game and the randomizer does not alter this behaviour.
@@ -510,6 +530,12 @@ class ForgeMaterialsFillerWeight(Range):
     range_start = 0
     range_end = 100
     default = 25
+
+class ForgeMaterialsAreFiller(Toggle):
+    """Whether Forge Materials should be marked as filler instead of useful"""
+    internal_name = "forge_materials_are_filler"
+    display_name = "Forge Materials are Filler"
+    default = 0
 
 class RustyMaterialsFillerWeight(Range):
     """The weight for a filler item to be a rusty weapon. These weapons will forge into their counterparts as per usual.
@@ -565,6 +591,13 @@ class ShopEquipmentFillerWeight(Range):
     range_end = 100
     default = 10
 
+class ArtifactsAreFiller(Toggle):
+    """Whether "Rare" Equipment should be considered filler instead of useful.  Rings, Shirts, and Boots are
+    not reclassified by this option."""
+    internal_name = "artifacts_are_filler"
+    display_name = "Artifacts are Filler"
+    default = 0
+
 class CoinsFillerWeight(Range):
     """The weight for a filler item to be coins.
     The coin amounts are the vanilla coin items you can find. These vary from 3 coins to 911 coins. Majority is around or below 300."""
@@ -583,6 +616,12 @@ class CommonConsumablesFillerWeight(Range):
     range_end = 100
     default = 50
 
+class AutoRun(Toggle):
+    """Swaps the behavior of holding B when moving (default is now run instead of walk)"""
+    internal_name = "auto_run"
+    display_name = "Auto Run"
+    default = 1
+
 @dataclass
 class GSTLAOptions(PerGameCommonOptions):
     #Pool and Logic settings
@@ -600,6 +639,8 @@ class GSTLAOptions(PerGameCommonOptions):
     second_starting_character: SecondStartingCharacter
 
     #Char And Class Settings
+    scale_characters: ScaleCharacters
+    max_scaled_level: MaxScaledLevel
     character_stats: CharStatShuffle
     character_elements: CharEleShuffle
 
@@ -660,20 +701,24 @@ class GSTLAOptions(PerGameCommonOptions):
     manual_retreat_glitch: ManualRetreatGlitch
     shuffle_music: MusicShuffle
     teleport_to_dungeons_and_towns: TelportEverywhere
+    auto_run: AutoRun
     
     start_inventory_from_pool: StartInventoryPool
 
     #traps
     trap_chance: TrapChance
     mimic_trap_weight: MimicTrapWeight
+    scale_mimics: ScaleMimics
 
     #filler
     forge_material_filler_weight: ForgeMaterialsFillerWeight
+    forge_materials_are_filler: ForgeMaterialsAreFiller
     rusty_material_filler_weight: RustyMaterialsFillerWeight
     stat_boost_filler_weight: StatBoostFillerWeight
     uncommon_consumable_filler_weight: UncommonConsumableFillerWeight
     forged_equipment_filler_weight: ForgedEquipmentFillerWeight
     lucky_equipment_filler_weight: LuckyFountainEquipmentFillerWeight
+    artifacts_are_filler: ArtifactsAreFiller
     shop_equipment_filler_weight: ShopEquipmentFillerWeight
     coins_filler_weight: CoinsFillerWeight
     common_consumable_filler_weight: CommonConsumablesFillerWeight
