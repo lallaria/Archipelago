@@ -68,7 +68,7 @@ class SSWeb(WebWorld):
         "Skyward Sword Setup Guide",
         "A guide to setting up SSR for Archipelago on your computer.",
         "English",
-        "APSetup.md",
+        "setup_en.md",
         "setup/en",
         ["bcats"]
     )]
