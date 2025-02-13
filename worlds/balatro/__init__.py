@@ -8,7 +8,6 @@ from .Items import item_name_to_id, item_id_to_name, item_table, is_joker, is_jo
     is_deck, is_progression, is_useful, is_bundle, tarots, planets, vouchers, spectrals, is_voucher, is_booster, is_stake, is_stake_per_deck, \
     stake_to_number, number_to_stake, is_tarot, is_planet, is_spectral
 from .BalatroDecks import deck_id_to_name, deck_name_to_key
-import random
 import math
 from worlds.generic.Rules import add_rule
 from .Options import BalatroOptions, Traps, IncludeDecksMode, StakeUnlockMode, \
@@ -63,7 +62,6 @@ class BalatroWorld(World):
     required_stake = "White Stake"
 
     short_mode_pool = list(jokers.keys())
-    random.shuffle(short_mode_pool)
 
     joker_bundles = []
     tarot_bundles = []
@@ -74,8 +72,21 @@ class BalatroWorld(World):
     bundle_with_custom_spectral = "Spectral Bundle"
 
     itempool: Dict[str, int]
+    
+    distributed_fillers = dict()
 
     def generate_early(self):
+        # item groups
+        self.item_name_groups = {
+            "jokers": [jokers.values()],
+            "planets" : [planets.values()],
+            "tarots" : [tarots.values()],
+            "spectrals" : [spectrals.values()],
+            "vouchers" : [vouchers.values()]            
+        }   
+        
+        self.random.shuffle(self.short_mode_pool)
+        
         # decks
         if self.options.include_decksMode.value == IncludeDecksMode.option_all:
             self.playable_decks = [value for _,
@@ -83,7 +94,7 @@ class BalatroWorld(World):
         elif self.options.include_decksMode.value == IncludeDecksMode.option_number:
             playable_deck_choice = list(
                 [value for key, value in deck_id_to_name.items()])
-            random.shuffle(playable_deck_choice)
+            self.random.shuffle(playable_deck_choice)
             self.playable_decks = playable_deck_choice[0:
                                                        self.options.include_deckNumber.value]
         elif self.options.include_decksMode.value == IncludeDecksMode.option_choose:
@@ -93,11 +104,11 @@ class BalatroWorld(World):
         if self.options.include_stakesMode == IncludeStakesMode.option_all:
             self.playable_stakes = [value for _,
                                     value in number_to_stake.items()]
-            random.shuffle(self.playable_stakes)
+            self.random.shuffle(self.playable_stakes)
         elif self.options.include_stakesMode == IncludeStakesMode.option_number:
             playable_stake_choice = list(
                 [value for key, value in number_to_stake.items()])
-            random.shuffle(playable_stake_choice)
+            self.random.shuffle(playable_stake_choice)
             self.playable_stakes = playable_stake_choice[0:
                                                          self.options.include_stakesNumber.value]
         elif self.options.include_stakesMode == IncludeStakesMode.option_choose:
@@ -110,7 +121,7 @@ class BalatroWorld(World):
             self.playable_stakes = list(
                 map(lambda x: number_to_stake[x], unsorted_stakes))
 
-        if list(self.options.required_stake_for_goal.value)[0] in self.playable_stakes:
+        if len(list(self.options.required_stake_for_goal.value)) > 0 and list(self.options.required_stake_for_goal.value)[0] in self.playable_stakes:
             self.required_stake = list(
                 self.options.required_stake_for_goal.value)[0]
         else:
@@ -146,13 +157,12 @@ class BalatroWorld(World):
         # Consumable Bundles
         if (self.options.tarot_bundle == TarotBundle.option_custom_bundles):
             if len(self.options.custom_tarot_bundles.value) == 0:
-                raise OptionError("No Custom Tarots Specified. To avoid this turn off custom tarot bundles")
-            
+                raise OptionError(
+                    "No Custom Tarots Specified. To avoid this turn off custom tarot bundles")
+
             if len(self.options.custom_tarot_bundles.value) > 5:
                 raise OptionError("Too many custom Tarot Bundles specified.")
-            
-            
-            
+
             self.tarot_bundles = get_bundles_from_option(
                 self.options.custom_tarot_bundles.value)
             for index, value in enumerate(self.tarot_bundles):
@@ -162,12 +172,12 @@ class BalatroWorld(World):
 
         if (self.options.planet_bundle == PlanetBundle.option_custom_bundles):
             if len(self.options.custom_planet_bundles.value) == 0:
-                raise OptionError("No Custom Planets Specified. To avoid this turn off custom planet bundles")
-            
+                raise OptionError(
+                    "No Custom Planets Specified. To avoid this turn off custom planet bundles")
+
             if len(self.options.custom_tarot_bundles.value) > 5:
                 raise OptionError("Too many custom Planet Bundles specified.")
-            
-            
+
             self.planet_bundles = get_bundles_from_option(
                 self.options.custom_planet_bundles.value)
             if (value).__contains__(item_name_to_id["Archipelago Belt"]):
@@ -176,22 +186,24 @@ class BalatroWorld(World):
 
         if (self.options.spectral_bundle == SpectralBundle.option_custom_bundles):
             if len(self.options.custom_spectral_bundles.value) == 0:
-                raise OptionError("No Custom Spectrals Specified. To avoid this turn off custom spectral bundles")
-            
+                raise OptionError(
+                    "No Custom Spectrals Specified. To avoid this turn off custom spectral bundles")
+
             if len(self.options.custom_tarot_bundles.value) > 5:
-                raise OptionError("Too many custom Spectral Bundles specified.")
-            
+                raise OptionError(
+                    "Too many custom Spectral Bundles specified.")
+
             self.spectral_bundles = get_bundles_from_option(
                 self.options.custom_spectral_bundles.value)
             if (value).__contains__(item_name_to_id["Archipelago Spectral"]):
                 self.bundle_with_custom_spectral = "Spectral Bundle " + \
                     str(index+1)
-                    
-                   
-        # make consumable pool accessible as soon as possible
-        self.multiworld.local_early_items[self.player][random.choice(["Archipelago Tarot", "Archipelago Belt"])] = 1        
-        self.multiworld.local_early_items[self.player][random.choice([self.bundle_with_custom_tarot, self.bundle_with_custom_planet])] = 1
 
+        # make consumable pool accessible as soon as possible
+        self.multiworld.local_early_items[self.player][self.random.choice(
+            ["Archipelago Tarot", "Archipelago Belt"])] = 1
+        self.multiworld.local_early_items[self.player][self.random.choice(
+            [self.bundle_with_custom_tarot, self.bundle_with_custom_planet])] = 1
 
     def create_items(self):
         decks_to_unlock = self.options.decks_unlocked_from_start.value
@@ -203,7 +215,7 @@ class BalatroWorld(World):
         if decks_to_unlock > 0:
             # unlock first stake
             if self.options.stake_unlock_mode == StakeUnlockMode.option_stake_as_item:
-                stake_name = random.choice(self.playable_stakes)
+                stake_name = self.random.choice(self.playable_stakes)
                 stake_data = item_table[stake_name]
                 excludedItems[stake_name] = stake_data
                 preCollected_item = self.create_item(
@@ -218,7 +230,7 @@ class BalatroWorld(World):
 
             deck_table = list(deck_table.items())
             while decks_to_unlock > 0:
-                deck = random.choice(deck_table)
+                deck = self.random.choice(deck_table)
                 deck_name = deck[0]
                 deck_data = deck[1]
                 if self.options.stake_unlock_mode != StakeUnlockMode.option_stake_as_item_per_deck:
@@ -231,7 +243,7 @@ class BalatroWorld(World):
 
                 if self.options.stake_unlock_mode == StakeUnlockMode.option_stake_as_item_per_deck:
                     stake_name = deck_name + " " + \
-                        random.choice(self.playable_stakes)
+                        self.random.choice(self.playable_stakes)
                     stake_data = item_table[stake_name]
                     preCollected_stake = self.create_item(
                         stake_name, ItemClassification.progression)
@@ -340,7 +352,7 @@ class BalatroWorld(World):
             counter += 1
 
             if (trap_amount != -1 and counter % trap_amount == 0):
-                trap_id = random.randint(330, 335)
+                trap_id = self.random.randint(330, 335)
                 self.itempool.append(self.create_item(
                     item_id_to_name[trap_id + offset], ItemClassification.trap))
             else:
@@ -354,7 +366,7 @@ class BalatroWorld(World):
 
                 # after all good filler items are placed, fill the rest with normal filler items
                 else:
-                    filler_id = random.randint(310, 321)
+                    filler_id = self.random.randint(310, 321)
 
                 self.itempool.append(self.create_item(
                     item_id_to_name[filler_id + offset], ItemClassification.filler))
@@ -373,6 +385,13 @@ class BalatroWorld(World):
             classification = ItemClassification.filler
 
         # print(item_name + str(classification))
+        
+        if classification is ItemClassification.filler:
+            if self.distributed_fillers.get(item_name) is None:
+                self.distributed_fillers[item_name] = 1
+            else:
+                self.distributed_fillers[item_name] += 1
+        
         return BalatroItem(item_name, classification, item.code, self.player)
 
     def create_regions(self) -> None:
@@ -544,6 +563,12 @@ class BalatroWorld(World):
         if min_price > max_price:
             min_price, max_price = max_price, min_price
 
+        created_regions = self.multiworld.get_regions(self.player)
+        created_regions = list(map(lambda region: region.name, created_regions))
+        
+        def get_addresses_from_region(region: str):
+            return list(map(lambda location: location.address, self.get_region(region).locations)) if (region in created_regions) else [],
+
         base_data = {
             "goal": self.options.goal.value,
             "ante_win_goal": self.options.ante_win_goal.value,
@@ -553,15 +578,15 @@ class BalatroWorld(World):
             "required_stake": stake_to_number[self.required_stake],
             "included_stakes": [stake_to_number.get(key) for key in self.playable_stakes],
             "included_decks": [deck_name_to_key.get(key) for key in self.playable_decks],
-            "stake1_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[1])],
-            "stake2_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[2])],
-            "stake3_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[3])],
-            "stake4_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[4])],
-            "stake5_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[5])],
-            "stake6_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[6])],
-            "stake7_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[7])],
-            "stake8_shop_locations": [key for key, value in self.shop_locations.items() if str(value).__contains__(number_to_stake[8])],
-            "consumable_pool_locations" : [key for key, _ in self.consumable_locations.items()], 
+            "stake1_shop_locations": get_addresses_from_region("Shop White Stake")[0],
+            "stake2_shop_locations": get_addresses_from_region("Shop Red Stake")[0],
+            "stake3_shop_locations": get_addresses_from_region("Shop Green Stake")[0],
+            "stake4_shop_locations": get_addresses_from_region("Shop Black Stake")[0],
+            "stake5_shop_locations": get_addresses_from_region("Shop Blue Stake")[0],
+            "stake6_shop_locations": get_addresses_from_region("Shop Purple Stake")[0], 
+            "stake7_shop_locations": get_addresses_from_region("Shop Orange Stake")[0], 
+            "stake8_shop_locations": get_addresses_from_region("Shop Gold Stake")[0],
+            "consumable_pool_locations": [key for key, _ in self.consumable_locations.items()],
             "jokerbundles": self.joker_bundles,
             "tarot_bundles": self.tarot_bundles,
             "planet_bundles": self.planet_bundles,
@@ -572,5 +597,6 @@ class BalatroWorld(World):
             "stake_unlock_mode": self.options.stake_unlock_mode.value,
             "remove_jokers": bool(self.options.remove_or_debuff_jokers),
             "remove_consumables": bool(self.options.remove_or_debuff_consumables),
+            "distributed_fillers" : self.distributed_fillers
         }
         return base_data
