@@ -1,7 +1,9 @@
+import random
+
 from BaseClasses import ItemClassification, Region
 from worlds.AutoWorld import World
 from worlds.huniepop.Items import HPItem, girl_unlock_table, item_table, panties_item_table, gift_item_table, \
-    unique_item_table, token_item_table, girl_gift
+    unique_item_table, girl_gift, progressive_token_item_table, itemgen_to_name
 from worlds.huniepop.Locations import HPLocation, location_table
 from worlds.huniepop.Options import HPOptions
 from worlds.huniepop.Rules import set_rules
@@ -9,9 +11,14 @@ from worlds.huniepop.Rules import set_rules
 
 class HuniePop(World):
     game = "Hunie Pop"
-    worldversion = "0.4.1"
+    worldversion = {
+        "major":0,
+        "minor":6,
+        "build":0
+    }
 
     item_name_to_id = item_table
+    item_id_to_name = {item_table[name]: name for name in item_table}
     location_name_to_id = location_table
 
     options_dataclass = HPOptions
@@ -32,6 +39,21 @@ class HuniePop(World):
         "venus"
     )
 
+    giftsets = {
+        "academy":0,
+        "toys":0,
+        "fitness":0,
+        "rave":0,
+        "sports":0,
+        "artist":0,
+        "baking":0,
+        "yoga":0,
+        "dancer":0,
+        "aquarium":0,
+        "scuba":0,
+        "garden":0,
+    }
+
     startgirls = []
     startgirl = -1
     enabledgirls = []
@@ -42,18 +64,27 @@ class HuniePop(World):
     def generate_early(self):
         self.startgirls = []
         self.startgirl = -1
+        for key in self.giftsets:
+            self.giftsets[key] = 0
 
         self.options.enabled_girls.value.add("kyu")
-        tmpgirls = self.options.enabled_girls.value.copy()
+        tmpgirls = list(self.options.enabled_girls.value.copy())
         #tmpgirls.add("kyu")
         self.enabledgirls = tmpgirls.copy()
-        for i in range(self.options.number_of_staring_girls):
-            girl = tmpgirls.pop()
-            self.startgirls.append(girl)
-            if self.startgirl == -1:
-                self.startgirl = self.girllist.index(girl) + 1
+        self.startgirls = random.sample(tmpgirls, self.options.number_of_staring_girls.value)
+        self.startgirl = self.girllist.index(random.sample(self.startgirls, 1)[0])+1
 
-        print(self.startgirls)
+        print(f"girls unlocked: {self.startgirls}")
+        print(f"starting girl: {self.girllist[(self.startgirl-1)]}")
+
+        for g in self.enabledgirls:
+            for gift in girl_gift[g]:
+                self.giftsets[gift] += 1
+
+        if self.options.number_extra_gifts.value >0:
+            for x in self.giftsets:
+                if self.giftsets[x] >0:
+                    self.giftsets[x] += self.options.number_extra_gifts.value
 
         totallocations = 0
         totalitems = 0
@@ -65,23 +96,27 @@ class HuniePop(World):
             totallocations += len(self.enabledgirls)
         if True: #gift locations
             totallocations += (24*len(self.enabledgirls))
-        if True:
+        if True: #question locations
             totallocations += (12*len(self.enabledgirls))
-        if True:
+        if True: #shop locations
             totallocations += self.options.number_shop_items.value
 
 
         #total items
-        if True: #pantie items
+        if True: #girl unlock items
             totalitems += len(self.enabledgirls) - len(self.startgirls)
-        if True: #unlock items
+        if True: #pantie items
             totalitems += len(self.enabledgirls)
         if True: #gift items
-            totalitems += (24*len(self.enabledgirls))
+            for gift in self.giftsets:
+                totalitems += (self.giftsets[gift] * 6)
+        if True: #unique gift items
+            totalitems += (len(self.enabledgirls) * 6)
         if True: #token items
             totalitems += (8*6)
 
         print(f"totalitems: {totalitems}")
+        print(self.giftsets)
         print(f"totallocations: {totallocations}")
 
         if totallocations != totalitems:
@@ -164,7 +199,7 @@ class HuniePop(World):
             return HPItem(name, ItemClassification.progression, 42069999, self.player)
         if name in girl_unlock_table or name in panties_item_table or name in girl_unlock_table or name in gift_item_table or name in unique_item_table:
             return HPItem(name, ItemClassification.progression, self.item_name_to_id[name], self.player)
-        if name in token_item_table:
+        if name in progressive_token_item_table:
             return HPItem(name, ItemClassification.useful, self.item_name_to_id[name], self.player)
 
         return HPItem(name, ItemClassification.filler, self.item_name_to_id[name], self.player)
@@ -179,114 +214,124 @@ class HuniePop(World):
                 self.multiworld.itempool.append(self.create_item(f"Unlock Girl({girl})"))
             self.multiworld.itempool.append((self.create_item(f"{girl}'s panties")))
 
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 1")))
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 2")))
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 3")))
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 4")))
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 5")))
-            self.multiworld.itempool.append((self.create_item(f"{girl} unique item 6")))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 1"])))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 2"])))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 3"])))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 4"])))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 5"])))
+            self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{girl} unique item 6"])))
 
             for gift in girl_gift[girl]:
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 1")))
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 2")))
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 3")))
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 4")))
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 5")))
-                self.multiworld.itempool.append((self.create_item(f"{gift} gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name[f"{gift} gift item 6"])))
 
         for x in range(self.options.number_extra_gifts.value):
             if "tiffany" in self.enabledgirls or "nikki" in self.enabledgirls or "celeste" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("academy gift item 1")))
-                self.multiworld.itempool.append((self.create_item("academy gift item 2")))
-                self.multiworld.itempool.append((self.create_item("academy gift item 3")))
-                self.multiworld.itempool.append((self.create_item("academy gift item 4")))
-                self.multiworld.itempool.append((self.create_item("academy gift item 5")))
-                self.multiworld.itempool.append((self.create_item("academy gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["academy gift item 6"])))
             if "aiko" in self.enabledgirls or "audrey" in self.enabledgirls or "momo" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("toys gift item 1")))
-                self.multiworld.itempool.append((self.create_item("toys gift item 2")))
-                self.multiworld.itempool.append((self.create_item("toys gift item 3")))
-                self.multiworld.itempool.append((self.create_item("toys gift item 4")))
-                self.multiworld.itempool.append((self.create_item("toys gift item 5")))
-                self.multiworld.itempool.append((self.create_item("toys gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["toys gift item 6"])))
             if "kyanna" in self.enabledgirls or "jessie" in self.enabledgirls or "celeste" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("fitness gift item 1")))
-                self.multiworld.itempool.append((self.create_item("fitness gift item 2")))
-                self.multiworld.itempool.append((self.create_item("fitness gift item 3")))
-                self.multiworld.itempool.append((self.create_item("fitness gift item 4")))
-                self.multiworld.itempool.append((self.create_item("fitness gift item 5")))
-                self.multiworld.itempool.append((self.create_item("fitness gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["fitness gift item 6"])))
             if "tiffany" in self.enabledgirls or "audrey" in self.enabledgirls or "kyu" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("rave gift item 1")))
-                self.multiworld.itempool.append((self.create_item("rave gift item 2")))
-                self.multiworld.itempool.append((self.create_item("rave gift item 3")))
-                self.multiworld.itempool.append((self.create_item("rave gift item 4")))
-                self.multiworld.itempool.append((self.create_item("rave gift item 5")))
-                self.multiworld.itempool.append((self.create_item("rave gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["rave gift item 6"])))
             if "lola" in self.enabledgirls or "beli" in self.enabledgirls or "momo" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("sports gift item 1")))
-                self.multiworld.itempool.append((self.create_item("sports gift item 2")))
-                self.multiworld.itempool.append((self.create_item("sports gift item 3")))
-                self.multiworld.itempool.append((self.create_item("sports gift item 4")))
-                self.multiworld.itempool.append((self.create_item("sports gift item 5")))
-                self.multiworld.itempool.append((self.create_item("sports gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["sports gift item 6"])))
             if "aiko" in self.enabledgirls or "nikki" in self.enabledgirls or "kyu" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("artist gift item 1")))
-                self.multiworld.itempool.append((self.create_item("artist gift item 2")))
-                self.multiworld.itempool.append((self.create_item("artist gift item 3")))
-                self.multiworld.itempool.append((self.create_item("artist gift item 4")))
-                self.multiworld.itempool.append((self.create_item("artist gift item 5")))
-                self.multiworld.itempool.append((self.create_item("artist gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["artist gift item 6"])))
             if "lola" in self.enabledgirls or "jessie" in self.enabledgirls or "venus" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("baking gift item 1")))
-                self.multiworld.itempool.append((self.create_item("baking gift item 2")))
-                self.multiworld.itempool.append((self.create_item("baking gift item 3")))
-                self.multiworld.itempool.append((self.create_item("baking gift item 4")))
-                self.multiworld.itempool.append((self.create_item("baking gift item 5")))
-                self.multiworld.itempool.append((self.create_item("baking gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["baking gift item 6"])))
             if "kyanna" in self.enabledgirls or "beli" in self.enabledgirls or "venus" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("yoga gift item 1")))
-                self.multiworld.itempool.append((self.create_item("yoga gift item 2")))
-                self.multiworld.itempool.append((self.create_item("yoga gift item 3")))
-                self.multiworld.itempool.append((self.create_item("yoga gift item 4")))
-                self.multiworld.itempool.append((self.create_item("yoga gift item 5")))
-                self.multiworld.itempool.append((self.create_item("yoga gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["yoga gift item 6"])))
             if "kyanna" in self.enabledgirls or "jessie" in self.enabledgirls or "kyu" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("dancer gift item 1")))
-                self.multiworld.itempool.append((self.create_item("dancer gift item 2")))
-                self.multiworld.itempool.append((self.create_item("dancer gift item 3")))
-                self.multiworld.itempool.append((self.create_item("dancer gift item 4")))
-                self.multiworld.itempool.append((self.create_item("dancer gift item 5")))
-                self.multiworld.itempool.append((self.create_item("dancer gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["dancer gift item 6"])))
             if "audrey" in self.enabledgirls or "nikki" in self.enabledgirls or "momo" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 1")))
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 2")))
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 3")))
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 4")))
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 5")))
-                self.multiworld.itempool.append((self.create_item("aquarium gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["aquarium gift item 6"])))
             if "tiffany" in self.enabledgirls or "lola" in self.enabledgirls or "celeste" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("scuba gift item 1")))
-                self.multiworld.itempool.append((self.create_item("scuba gift item 2")))
-                self.multiworld.itempool.append((self.create_item("scuba gift item 3")))
-                self.multiworld.itempool.append((self.create_item("scuba gift item 4")))
-                self.multiworld.itempool.append((self.create_item("scuba gift item 5")))
-                self.multiworld.itempool.append((self.create_item("scuba gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["scuba gift item 6"])))
             if "aiko" in self.enabledgirls or "beli" in self.enabledgirls or "venus" in self.enabledgirls:
-                self.multiworld.itempool.append((self.create_item("garden gift item 1")))
-                self.multiworld.itempool.append((self.create_item("garden gift item 2")))
-                self.multiworld.itempool.append((self.create_item("garden gift item 3")))
-                self.multiworld.itempool.append((self.create_item("garden gift item 4")))
-                self.multiworld.itempool.append((self.create_item("garden gift item 5")))
-                self.multiworld.itempool.append((self.create_item("garden gift item 6")))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 1"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 2"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 3"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 4"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 5"])))
+                self.multiworld.itempool.append((self.create_item(itemgen_to_name["garden gift item 6"])))
 
-        for t in token_item_table:
+        for t in progressive_token_item_table:
+            self.multiworld.itempool.append(self.create_item(t))
+            self.multiworld.itempool.append(self.create_item(t))
+            self.multiworld.itempool.append(self.create_item(t))
+            self.multiworld.itempool.append(self.create_item(t))
+            self.multiworld.itempool.append(self.create_item(t))
             self.multiworld.itempool.append(self.create_item(t))
 
 
         if self.trashitems > 0:
-            for i in range(self.trashitems):
-                self.multiworld.itempool.append(self.create_item("nothing"))
+            if self.options.filler_item.value == 1:
+                for i in range(self.trashitems):
+                    self.multiworld.itempool.append(self.create_item("nothing"))
+            else:
+                for i in range(self.trashitems):
+                    r = random.randint(42069177, 42069308)
+                    self.multiworld.itempool.append(self.create_item(self.item_id_to_name[r]))
 
 
     def set_rules(self):

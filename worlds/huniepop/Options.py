@@ -71,6 +71,14 @@ class extra_gifts(Range):
     range_end = 10
     default = 0
 
+class filler_item(Range):
+    """how the filler item is handled by making them all either:
+    1:nothing items,
+    2:random non progression item"""
+    display_name = "filler item"
+    range_start = 1
+    range_end = 2
+    default = 2
 
 
 @dataclass
@@ -83,3 +91,4 @@ class HPOptions(PerGameCommonOptions):
     puzzle_moves: puzzle_moves
     puzzle_affection_base: puzzle_affection_base
     puzzle_affection_add: puzzle_affection_add
+    filler_item:filler_item
