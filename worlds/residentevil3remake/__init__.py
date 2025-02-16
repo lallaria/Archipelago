@@ -1,12 +1,16 @@
 import re
+import typing
+
 from typing import Dict, Any, TextIO
+from Utils import visualize_regions
 
 from BaseClasses import ItemClassification, Item, Location, Region, CollectionState
 from worlds.AutoWorld import World
+from ..generic.Rules import set_rule
+from Fill import fill_restrictive
 
 from .Data import Data
 from .Options import RE3ROptions
-from ..generic.Rules import set_rule
 
 Data.load_data('jill', 'a')
 
@@ -21,8 +25,12 @@ class RE3RLocation(Location):
         return RE3RLocation.stack_names(*area_names)
 
     def is_item_allowed(item, location_data, current_item_rule):
-        return current_item_rule and ('allow_item' not in location_data or item.name in location_data['allow_item'])
+        # Always allow items in the allow_item list
+        if 'allow_item' in location_data and item.name in location_data['allow_item']:
+            return True
 
+        # Otherwise, apply the current rule
+        return current_item_rule(item)
 
 class ResidentEvil3Remake(World):
     """
@@ -32,7 +40,7 @@ class ResidentEvil3Remake(World):
 
     data_version = 2
     required_client_version = (0, 5, 0)
-    apworld_release_version = "0.2.0" # defined to show in spoiler log
+    apworld_release_version = "0.2.3" # defined to show in spoiler log
 
     item_id_to_name = { item['id']: item['name'] for item in Data.item_table }
     item_name_to_id = { item['name']: item['id'] for item in Data.item_table }
@@ -96,12 +104,12 @@ class ResidentEvil3Remake(World):
                     location.item_rule = lambda item: not item.advancement
 
                 if 'allow_item' in location_data and location_data['allow_item']:
-                    current_item_rule = location.item_rule or None
+                    current_item_rule = not location.item_rule or None
 
                     if not current_item_rule:
                         current_item_rule = lambda x: True
 
-                    location.item_rule = lambda item: RE3RLocation.is_item_allowed(item, location_data, current_item_rule)
+                    location.item_rule = lambda item, loc_data=location_data, cur_rule=current_item_rule: RE3RLocation.is_item_allowed(item, loc_data, cur_rule)
 
                 # now, set rules for the location access
                 if "condition" in location_data and "items" in location_data["condition"]:
@@ -134,12 +142,20 @@ class ResidentEvil3Remake(World):
         self.multiworld.completion_condition[self.player] = lambda state: self._has_items(state, ['Victory'])
 
     def create_items(self, to_item_names=None):
+    # Check for conflicting options at the start of the function
+        grenades_enabled = self._format_option_text(self.options.oops_all_grenades) == 'True'
+        handguns_enabled = self._format_option_text(self.options.oops_all_handguns) == 'True'
+
+        if grenades_enabled and handguns_enabled:
+            raise Exception("Conflicting options: 'Oops! All Grenades' and 'Oops! All Handguns' cannot both be enabled at the same time.")
+
+        # Proceed with the rest of the function
         scenario_locations = self.source_locations[self.player]
 
         pool = [
-            self.create_item(item['name'] if item else None) for item in [
-                self.item_name_to_item[location['original_item']] if location.get('original_item') else None
-                    for _, location in scenario_locations.items()
+        self.create_item(item['name'] if item else None) for item in [
+            self.item_name_to_item[location['original_item']] if location.get('original_item') else None
+                for _, location in scenario_locations.items()
             ]
         ]
 
@@ -165,22 +181,13 @@ class ResidentEvil3Remake(World):
                 self.multiworld.push_precollected(hip_pouches[x]) # starting inv
                 pool.remove(hip_pouches[x])
 
-        # check the bonus start option and add some heal items and ammo packs as precollected / starting items
-        if self._format_option_text(self.options.bonus_start) == 'True':
-            # Add First Aid Sprays regardless of the "Oops! All ____" option
-            for x in range(3):
-                self.multiworld.push_precollected(self.create_item('First Aid Spray'))
-
-            # Determine which ammo type to add based on the "Oops! All ____" option
-            if self._format_option_text(self.options.oops_all) != 'Disabled':
-                selected_item = to_item_names[self.options.oops_all.value]
-
-                if selected_item == 'Hand Grenade':
-                    for x in range(3):
-                        self.multiworld.push_precollected(self.create_item('Hand Grenade'))
-                elif selected_item == 'Handgun Ammo':
-                    for x in range(4):
-                        self.multiworld.push_precollected(self.create_item('Handgun Ammo'))
+        if self._format_option_text(self.options.bonus_start) == 'True' and self._format_option_text(self.options.oops_all_grenades) == 'True':
+            for x in range(3): self.multiworld.push_precollected(self.create_item('First Aid Spray'))
+            for x in range(3): self.multiworld.push_precollected(self.create_item('Hand Grenade'))
+            
+        if self._format_option_text(self.options.bonus_start) == 'True' and self._format_option_text(self.options.oops_all_grenades) == 'False':
+            for x in range(3): self.multiworld.push_precollected(self.create_item('First Aid Spray'))
+            for x in range(4): self.multiworld.push_precollected(self.create_item('Handgun Ammo'))
 
         # do all the "no X" options here so we have more empty spots to use for traps, if needed
         if self._format_option_text(self.options.no_first_aid_spray) == 'True':
@@ -268,33 +275,41 @@ class ResidentEvil3Remake(World):
         # check the "Oops! All Grenades" option. From the option description:
         #     Enabling this swaps all weapons, weapon ammo, and subweapons to Grenades. 
         #     (Except progression weapons, of course.)
-        if self._format_option_text(self.options.oops_all) != 'Disabled':
-            to_item_names = ['Disabled', 'Hand Grenade', 'Handgun Ammo']
+        if self._format_option_text(self.options.oops_all_grenades) == 'True':
+            items_to_replace = [
+                item for item in self.item_name_to_item.values() 
+                if 'type' in item and item['type'] in ['Weapon', 'Ammo', 'Crafting', 'Upgrade']
+            ]
+            to_item_name = 'Hand Grenade'
 
-            selected_item = to_item_names[self.options.oops_all.value]
+            for from_item in items_to_replace:
+                pool = self._replace_pool_item_with(pool, from_item['name'], to_item_name)
+                
+        # check the "Oops! All Handguns" option. From the option description:
+        #     Enabling this swaps all weapons, weapon ammo, and subweapons to Handgun Ammo. 
+        #     (Except handguns, of course.)
+                
+        if self._format_option_text(self.options.oops_all_handguns) == 'True':
+        # Define the list of items to exclude from replacement
+            excluded_items = {
+                'G18',
+                'Extended Mag - G19',
+                'Moderator - G19'
+            }
 
-            item_types_to_replace = ['Weapon', 'Subweapon', 'Ammo', 'Crafting']
-
+            # Filter items to replace based on type and exclusion list
             items_to_replace = [
                 item for item in self.item_name_to_item.values()
-                if 'type' in item and item['type'] in item_types_to_replace
+                if (
+                    'type' in item and
+                    item['type'] in ['Weapon', 'Subweapon', 'Ammo', 'Crafting', 'Upgrade'] and
+                    item['name'] not in excluded_items
+                )
             ]
+            to_item_name = 'Handgun Ammo'
 
-            if selected_item == 'Hand Grenade':
-                items_to_replace = [
-                    item for item in items_to_replace
-                    if item['name'] not in ['Flash Grenade']
-                ]
-
-            if selected_item == 'Handgun Ammo':
-                items_to_replace = [
-                    item for item in items_to_replace
-                    if item['name'] not in ['G18']
-                ]
-
-            # Replace items in the pool with the selected item
             for from_item in items_to_replace:
-                pool = self._replace_pool_item_with(pool, from_item['name'], selected_item)
+                pool = self._replace_pool_item_with(pool, from_item['name'], to_item_name)
 
         # if the number of unfilled locations exceeds the count of the pool, fill the remainder of the pool with extra maybe helpful items
         missing_item_count = len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)
@@ -327,6 +342,7 @@ class ResidentEvil3Remake(World):
 
     def fill_slot_data(self) -> Dict[str, Any]:
         slot_data = {
+            "apworld_version": self.apworld_release_version,
             "character": self._get_character(),
             "scenario": self._get_scenario(),
             "difficulty": self._get_difficulty(),

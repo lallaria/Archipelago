@@ -47,7 +47,7 @@ class Version(typing.NamedTuple):
         return ".".join(str(item) for item in self)
 
 
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 version_tuple = tuplize_version(__version__)
 
 archipelago_name = "TreZapalooza"

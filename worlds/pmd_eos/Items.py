@@ -2,6 +2,7 @@ from typing import NamedTuple, Dict, Set, List
 
 from BaseClasses import ItemClassification, Item
 
+
 # BASE_OFFSET = 100000000 #Need to figure out what to set this to. The offset for Archipelago to make it unique
 
 
@@ -34,65 +35,109 @@ def get_item_table_by_groups() -> Dict[str, set[str]]:
 
     return new_dict
 
+
 EOS_item_table = [
     # "Test Dungeon"0, ItemClassification.progression, ["Unique", "Dungeons"],0x0),
     #ItemData("Beach Cave", 1, ItemClassification.progression, 1, ["Unique", "EarlyDungeons"], 0x1),
-    ItemData("Drenched Bluff", 3, ItemClassification.progression, 3, ["Unique", "EarlyDungeons"], 0x3),
-    ItemData("Mt. Bristle", 4, ItemClassification.progression, 4, ["Unique", "EarlyDungeons"], 0x4),
-    ItemData("Waterfall Cave", 6, ItemClassification.progression, 6, ["Unique", "EarlyDungeons"], 0x6),
-    ItemData("Apple Woods", 7, ItemClassification.progression, 7, ["Unique", "EarlyDungeons"], 0x7),
-    ItemData("Craggy Coast", 8, ItemClassification.progression, 8, ["Unique", "EarlyDungeons"], 0x8),
-    ItemData("Side Path", 9, ItemClassification.progression, 9, ["Unique", "EarlyDungeons"], 0x9),
-    ItemData("Mt. Horn", 10, ItemClassification.progression, 10, ["Unique", "EarlyDungeons"], 0xA),
-    ItemData("Rock Path", 11, ItemClassification.progression, 11, ["Unique", "EarlyDungeons"], 0xB),
-    ItemData("Foggy Forest", 12, ItemClassification.progression, 12, ["Unique", "EarlyDungeons"], 0xC),
-    ItemData("Forest Path", 13, ItemClassification.progression, 13, ["Unique", "EarlyDungeons"], 0xD),
-    ItemData("Steam Cave", 14, ItemClassification.progression, 14, ["Unique", "EarlyDungeons"], 0xE),
-    ItemData("Amp Plains", 17, ItemClassification.progression, 17, ["Unique", "EarlyDungeons"], 0X11),
-    ItemData("Northern Desert", 20, ItemClassification.progression, 20, ["Unique", "EarlyDungeons"], 0x14),
-    ItemData("Quicksand Cave", 21, ItemClassification.progression, 21, ["Unique", "EarlyDungeons"], 0x15),
-    ItemData("Crystal Cave", 24, ItemClassification.progression, 24, ["Unique", "EarlyDungeons"], 0x18),
-    ItemData("Crystal Crossing", 25, ItemClassification.progression, 25, ["Unique", "EarlyDungeons"], 0x19),
-    ItemData("Chasm Cave", 27, ItemClassification.progression, 27, ["Unique", "EarlyDungeons"], 0x1B),
-    ItemData("Dark Hill", 28, ItemClassification.progression, 28, ["Unique", "EarlyDungeons"], 0x1C),
-    ItemData("Sealed Ruin", 29, ItemClassification.progression, 29, ["Unique", "EarlyDungeons"], 0x1D),
-    ItemData("Dusk Forest", 32, ItemClassification.progression, 32, ["Unique", "EarlyDungeons"], 0x20),
-    ItemData("Deep Dusk Forest", 33, ItemClassification.progression, 33, ["Unique", "EarlyDungeons"], 0x21),
-    ItemData("Treeshroud Forest", 34, ItemClassification.progression, 34, ["Unique", "EarlyDungeons"], 0x22),
-    ItemData("Brine Cave", 35, ItemClassification.progression, 35, ["Unique", "EarlyDungeons"], 0x23),
+    ItemData("Drenched Bluff", 3, ItemClassification.progression, 3, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x3),
+    ItemData("Mt. Bristle", 4, ItemClassification.progression, 4, ["Unique", "EarlyDungeons", "MissionDungeons"], 0x4),
+    ItemData("Waterfall Cave", 6, ItemClassification.progression, 6, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x6),
+    ItemData("Apple Woods", 7, ItemClassification.progression, 7, ["Unique", "EarlyDungeons", "MissionDungeons"], 0x7),
+    ItemData("Craggy Coast", 8, ItemClassification.progression, 8, ["Unique", "EarlyDungeons", "MissionDungeons"], 0x8),
+    ItemData("Side Path", 9, ItemClassification.progression, 9, ["Unique", "EarlyDungeons", "MissionDungeons"], 0x9),
+    ItemData("Mt. Horn", 10, ItemClassification.progression, 10, ["Unique", "EarlyDungeons", "MissionDungeons"], 0xA),
+    ItemData("Rock Path", 11, ItemClassification.progression, 11, ["Unique", "EarlyDungeons", "MissionDungeons"], 0xB),
+    ItemData("Foggy Forest", 12, ItemClassification.progression, 12, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0xC),
+    ItemData("Forest Path", 13, ItemClassification.progression, 13, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0xD),
+    ItemData("Steam Cave", 14, ItemClassification.progression, 14, ["Unique", "EarlyDungeons", "MissionDungeons"], 0xE),
+    ItemData("Amp Plains", 17, ItemClassification.progression, 17, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0X11),
+    ItemData("Northern Desert", 20, ItemClassification.progression, 20, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x14),
+    ItemData("Quicksand Cave", 21, ItemClassification.progression, 21, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x15),
+    ItemData("Crystal Cave", 24, ItemClassification.progression, 24, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x18),
+    ItemData("Crystal Crossing", 25, ItemClassification.progression, 25, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x19),
+    ItemData("Chasm Cave", 27, ItemClassification.progression, 27, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x1B),
+    ItemData("Dark Hill", 28, ItemClassification.progression, 28, ["Unique", "EarlyDungeons", "MissionDungeons"], 0x1C),
+    ItemData("Sealed Ruin", 29, ItemClassification.progression, 29, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x1D),
+    ItemData("Dusk Forest", 32, ItemClassification.progression, 32, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x20),
+    ItemData("Deep Dusk Forest", 33, ItemClassification.progression, 33, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x21),
+    ItemData("Treeshroud Forest", 34, ItemClassification.progression, 34,
+             ["Unique", "EarlyDungeons", "MissionDungeons"], 0x22),
+    ItemData("Brine Cave", 35, ItemClassification.progression, 35, ["Unique", "EarlyDungeons", "MissionDungeons"],
+             0x23),
     #ItemData("Hidden Land", 38, ItemClassification.progression, 38, ["Unique", "BossDungeons"], 0x26),
     ItemData("Temporal Tower", 41, ItemClassification.progression, 41, ["Unique", "BossDungeons"], 0x29),
-    ItemData("Mystifying Forest", 44, ItemClassification.progression, 44, ["Unique", "LateDungeons"], 0x2C),
-    ItemData("Blizzard Island", 46, ItemClassification.progression, 46, ["Unique", "LateDungeons"], 0x2E),
-    ItemData("Crevice Cave", 47, ItemClassification.progression, 47, ["Unique", "LateDungeons"], 0x2F),
-    ItemData("Surrounded Sea", 50, ItemClassification.progression, 50, ["Unique", "LateDungeons"], 0x32),
-    ItemData("Miracle Sea", 51, ItemClassification.progression, 51, ["Unique", "LateDungeons"], 0x33),
+    ItemData("Mystifying Forest", 44, ItemClassification.progression, 44, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x2C),
+    ItemData("Blizzard Island", 46, ItemClassification.progression, 46, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x2E),
+    ItemData("Crevice Cave", 47, ItemClassification.progression, 47, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x2F),
+    ItemData("Surrounded Sea", 50, ItemClassification.progression, 50, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x32),
+    ItemData("Miracle Sea", 51, ItemClassification.progression, 51, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x33),
     #ItemData("Ice Aegis Cave", 54, ItemClassification.useful, 54, ["Unique", "Dungeons"], 0x36),
-    ItemData("Mt. Travail", 62, ItemClassification.progression, 62, ["Unique", "LateDungeons"], 0x3E),
-    ItemData("The Nightmare", 63, ItemClassification.progression, 63, ["Unique", "LateDungeons"], 0x3F),
-    ItemData("Spacial Rift", 64, ItemClassification.progression, 64, ["Unique", "LateDungeons"], 0x40),
+    ItemData("Mt. Travail", 62, ItemClassification.progression, 62, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x3E),
+    ItemData("The Nightmare", 63, ItemClassification.progression, 63, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x3F),
+    ItemData("Spacial Rift", 64, ItemClassification.progression, 64, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x40),
     ItemData("Dark Crater", 67, ItemClassification.progression, 67, ["Unique", "BossDungeons"], 0x43),
-    ItemData("Concealed Ruins", 70, ItemClassification.progression, 70, ["Unique", "LateDungeons"], 0x46),
-    ItemData("Marine Resort", 72, ItemClassification.progression, 72, ["Unique", "LateDungeons"], 0x48),
-    ItemData("Bottomless Sea", 73, ItemClassification.progression, 73, ["Unique", "LateDungeons"], 0x49),
-    ItemData("Shimmer Desert", 75, ItemClassification.progression, 75, ["Unique", "LateDungeons"], 0x4B),
-    ItemData("Mt. Avalanche", 77, ItemClassification.progression, 77, ["Unique", "LateDungeons"], 0x4D),
-    ItemData("Giant Volcano", 79, ItemClassification.progression, 79, ["Unique", "LateDungeons"], 0x4F),
-    ItemData("World Abyss", 81, ItemClassification.progression, 81, ["Unique", "LateDungeons"], 0x51),
-    ItemData("Sky Stairway", 83, ItemClassification.progression, 83, ["Unique", "LateDungeons"], 0x53),
-    ItemData("Mystery Jungle", 85, ItemClassification.progression, 85, ["Unique", "LateDungeons"], 0x55),
-    ItemData("Serenity River", 87, ItemClassification.progression, 87, ["Unique", "LateDungeons"], 0x57),
-    ItemData("Landslide Cave", 88, ItemClassification.progression, 88, ["Unique", "LateDungeons"], 0x58),
-    ItemData("Lush Prairie", 89, ItemClassification.progression, 89, ["Unique", "LateDungeons"], 0x59),
-    ItemData("Tiny Meadow", 90, ItemClassification.progression, 90, ["Unique", "LateDungeons"], 0x5A),
-    ItemData("Labyrinth Cave", 91, ItemClassification.progression, 91, ["Unique", "LateDungeons"], 0x5B),
-    ItemData("Oran Forest", 92, ItemClassification.progression, 92, ["Unique", "LateDungeons"], 0x5C),
-    ItemData("Lake Afar", 93, ItemClassification.progression, 93, ["Unique", "LateDungeons"], 0x5D),
-    ItemData("Happy Outlook", 94, ItemClassification.progression, 94, ["Unique", "LateDungeons"], 0x5E),
-    ItemData("Mt. Mistral", 95, ItemClassification.progression, 95, ["Unique", "LateDungeons"], 0x5F),
-    ItemData("Shimmer Hill", 96, ItemClassification.progression, 96, ["Unique", "LateDungeons"], 0x60),
-    ItemData("Lost Wilderness", 97, ItemClassification.progression, 97, ["Unique", "LateDungeons"], 0x61),
-    ItemData("Midnight Forest", 98, ItemClassification.progression, 98, ["Unique", "LateDungeons"], 0x62),
+    ItemData("Concealed Ruins", 70, ItemClassification.progression, 70, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x46),
+    ItemData("Marine Resort", 72, ItemClassification.progression, 72, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x48),
+    ItemData("Bottomless Sea", 73, ItemClassification.progression, 73, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x49),
+    ItemData("Shimmer Desert", 75, ItemClassification.progression, 75, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x4B),
+    ItemData("Mt. Avalanche", 77, ItemClassification.progression, 77, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x4D),
+    ItemData("Giant Volcano", 79, ItemClassification.progression, 79, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x4F),
+    ItemData("World Abyss", 81, ItemClassification.progression, 81, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x51),
+    ItemData("Sky Stairway", 83, ItemClassification.progression, 83, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x53),
+    ItemData("Mystery Jungle", 85, ItemClassification.progression, 85, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x55),
+    ItemData("Serenity River", 87, ItemClassification.progression, 87, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x57),
+    ItemData("Landslide Cave", 88, ItemClassification.progression, 88, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x58),
+    ItemData("Lush Prairie", 89, ItemClassification.progression, 89, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x59),
+    ItemData("Tiny Meadow", 90, ItemClassification.progression, 90, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x5A),
+    ItemData("Labyrinth Cave", 91, ItemClassification.progression, 91, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x5B),
+    ItemData("Oran Forest", 92, ItemClassification.progression, 92, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x5C),
+    ItemData("Lake Afar", 93, ItemClassification.progression, 93, ["Unique", "LateDungeons", "MissionDungeons"], 0x5D),
+    ItemData("Happy Outlook", 94, ItemClassification.progression, 94, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x5E),
+    ItemData("Mt. Mistral", 95, ItemClassification.progression, 95, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x5F),
+    ItemData("Shimmer Hill", 96, ItemClassification.progression, 96, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x60),
+    ItemData("Lost Wilderness", 97, ItemClassification.progression, 97, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x61),
+    ItemData("Midnight Forest", 98, ItemClassification.progression, 98, ["Unique", "LateDungeons", "MissionDungeons"],
+             0x62),
     ItemData("Zero Isle North", 99, ItemClassification.useful, 99, ["Unique", "RuleDungeons"], 0x63),
     ItemData("Zero Isle East", 100, ItemClassification.useful, 100, ["Unique", "RuleDungeons"], 0x64),
     ItemData("Zero Isle West", 101, ItemClassification.useful, 101, ["Unique", "RuleDungeons"], 0x65),
@@ -103,7 +148,8 @@ EOS_item_table = [
     ItemData("Treacherous Waters", 108, ItemClassification.useful, 108, ["Unique", "RuleDungeons"], 0x6C),
     ItemData("Southeastern Islands", 109, ItemClassification.useful, 109, ["Unique", "RuleDungeons"], 0x6D),
     ItemData("Inferno Cave", 110, ItemClassification.useful, 110, ["Unique", "RuleDungeons"], 0x6E),
-    ItemData("1st Station Pass", 111, ItemClassification.progression, 111, ["Unique", "LateDungeons"], 0x6F),
+    ItemData("1st Station Pass", 111, ItemClassification.progression, 111,
+             ["Unique", "LateDungeons", "MissionDungeons"], 0x6F),
     ItemData("Bidoof SE", 123, ItemClassification.progression, 123, ["Unique", "Special Dungeons"], 0x0),
     # ItemData("Star Cave1", 123, ItemClassification.useful, 123, ["Unique", "Special Dungeons"], 0x7B),
     ItemData("IgglyBuff SE", 128, ItemClassification.progression, 128, ["Unique", "Special Dungeons"], 0x1),
@@ -127,7 +173,14 @@ EOS_item_table = [
     # ItemData("Limestone Cavern", 155, ItemClassification.useful, 155, ["Unique", "Special Dungeons"], 0x9B),
     ItemData("Sunflora SE", 158, ItemClassification.progression, 158, ["Unique", "Special Dungeons"], 0x2),
     # ItemData("Spring Cave", 158, ItemClassification.useful, 158, ["Unique", "Special Dungeons"], 0x9E),
-    ItemData("Star Cave2", 174, ItemClassification.progression, 174, ["Unique", "LateDungeons"], 0xAE),
+    ItemData("Star Cave2", 174, ItemClassification.progression, 174, ["Unique", "LateDungeons", "MissionDungeons"],
+             0xAE),
+    ItemData("Shaymin Village", 175, ItemClassification.useful, 175, ["Unique", "ExtraDungeons"], 0xAF),
+    ItemData("Luminous Spring", 177, ItemClassification.useful, 177, ["Unique", "ExtraDungeons"], 0xB1),
+    ItemData("Hot Spring", 178, ItemClassification.useful, 178, ["Unique", "ExtraDungeons"], 0xB2),
+
+    #ItemData("Dojo Normal/Fly Maze", 180, ItemClassification.progression, 180, ["Unique", "Dojo Dungeons"], 0xB4),
+
     ItemData("Dojo Normal/Fly Maze", 180, ItemClassification.progression, 180, ["Unique", "Dojo Dungeons"], 0xB4),
     ItemData("Dojo Dark/Fire Maze", 181, ItemClassification.progression, 181, ["Unique", "Dojo Dungeons"], 0xB5),
     ItemData("Dojo Rock/Water Maze", 182, ItemClassification.progression, 182, ["Unique", "Dojo Dungeons"], 0xB6),
@@ -139,56 +192,183 @@ EOS_item_table = [
     ItemData("Dojo Dragon Maze", 188, ItemClassification.progression, 188, ["Unique", "Dojo Dungeons"], 0xBC),
     ItemData("Dojo Ghost Maze", 189, ItemClassification.progression, 189, ["Unique", "Dojo Dungeons"], 0xBD),
     # ItemData("Dojo Final Maze", 191, ItemClassification.useful, 191, ["Unique", "Dojo Dungeons"], 0xBF),  # 7 subareas
-    ItemData("Relic Fragment Shard", 200, ItemClassification.progression, 200, ["Macguffin"], 0x00),
-    ItemData("Cresselia Feather", 201, ItemClassification.progression, 201, ["Macguffin"], 0x00),
+    ItemData("Relic Fragment Shard", 200, ItemClassification.progression_skip_balancing, 200, ["Macguffin"], 0x00),
+    #ItemData("Cresselia Feather", 201, ItemClassification.progression, 201, ["Macguffin"], 0x00),
 
     ItemData("Victory", 300, ItemClassification.progression, 0, [], 0x00),
-    ItemData("Bag Upgrade", 500, ItemClassification.progression, 0, ["ProgressiveBag", "Generic"], 0x00),
-    #ItemData("FillerItem", 600, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem2", 601, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem3", 602, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem4", 603, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem5", 604, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem6", 605, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem7", 606, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem8", 607, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem9", 608, ItemClassification.filler, 0, ["Filler"], 0x00),
-    #ItemData("FillerItem10", 609, ItemClassification.filler, 0, ["Filler"], 0x00),
-    ItemData("Golden Seed", 393, ItemClassification.filler, 0, ["Item"], 0x5D),
-    ItemData("Gold Ribbon", 394, ItemClassification.filler, 0, ["Item"], 0x20),
-    #Add lootboxes, healing box, held items, etc.
-    #ItemData("Wonder Gummi", 395, ItemClassification.filler, 0, ["Item"], 0x88),
-    #ItemData("Golden Apple", 396, ItemClassification.filler, 0, ["Item"], 0x73),
-    #ItemData("Reviver Seed", 397, ItemClassification.filler, 0, ["Item"], 0x49),
-    #ItemData("???? Item", 398, ItemClassification.filler, 0, ["Item"], 0x1AB),
-    #ItemData("Oran Berry", 399, ItemClassification.filler, 0, ["Item"], 0x)
-    #ItemData("Gorgeous Box", 400, ItemClassification.filler, 0, ["Item"], 0x16E),
-    ItemData("Heavy Box", 401, ItemClassification.filler, 0, ["Item"], 0x171),
-    ItemData("Shiny Box", 402, ItemClassification.filler, 0, ["Item"], 0x174),
-    ItemData("Nifty Box", 403, ItemClassification.filler, 0, ["Item"], 0x177),
-    ItemData("Dainty Box", 404, ItemClassification.filler, 0, ["Item"], 0x17A),
-    ItemData("Glittery Box", 405, ItemClassification.filler, 0, ["Item"], 0x17D),
-    ItemData("Pretty Box", 406, ItemClassification.filler, 0, ["Item"], 0x180),
-    ItemData("Deluxe Box", 407, ItemClassification.filler, 0, ["Item"], 0x183),
-    ItemData("Light Box", 408, ItemClassification.filler, 0, ["Item"], 0x186),
-    ItemData("Cute Box", 409, ItemClassification.filler, 0, ["Item"], 0x189),
-    ItemData("Hard Box", 410, ItemClassification.filler, 0, ["Item"], 0x18C),
-    ItemData("Sinister Box", 411, ItemClassification.filler, 0, ["Item"], 0x18F),
-    ItemData("Link Box", 412, ItemClassification.filler, 0, ["Item"], 0x16A),
-    ItemData("Sky Gift", 413, ItemClassification.filler, 0, ["Item"], 0xB4),
+    ItemData("Bag Upgrade", 370, ItemClassification.progression, 0, ["ProgressiveBag", "Generic"], 0x00),
 
-    ItemData("Team Name Trap", 700, ItemClassification.trap, 0, ["Trap"], 0x0),
-    ItemData("Confusion Trap", 701, ItemClassification.trap, 0, ["Trap"], 0x0),
-    ItemData("Nap Time!", 702, ItemClassification.trap, 0, ["Trap"], 0x0),
+    ItemData("Secret Rank", 409, ItemClassification.progression, 0, ["Rank"], 0x0),
+    ItemData("Mystery Part", 500, ItemClassification.useful, 0, ["Item", "Single"], 0xAD),
+    ItemData("Secret Slab", 501, ItemClassification.useful, 0, ["Item", "Single"], 0xAE),
+    ItemData("Amber Tear", 502, ItemClassification.useful, 0, ["Item", "Single"], 0x3A),
+    ItemData("Friend Bow", 503, ItemClassification.useful, 0, ["Item", "Single"], 0x35),
+
+    ItemData("Regirock", 504, ItemClassification.useful, 0, ["Legendary"], 0x0),
+    ItemData("Regice", 505, ItemClassification.useful, 0, ["Legendary"], 0x1),
+    ItemData("Registeel", 506, ItemClassification.useful, 0, ["Legendary"], 0x2),
+    ItemData("Groudon", 507, ItemClassification.useful, 0, ["Legendary"], 0x3),
+    ItemData("Uxie", 508, ItemClassification.useful, 0, ["Legendary"], 0x4),
+    ItemData("Mespirit", 509, ItemClassification.useful, 0, ["Legendary"], 0x5),
+    ItemData("Azelf", 510, ItemClassification.useful, 0, ["Legendary"], 0x6),
+    ItemData("Dialga", 511, ItemClassification.useful, 0, ["Legendary"], 0x7),
+    ItemData("Palkia", 512, ItemClassification.useful, 0, ["Legendary"], 0x8),
+    ItemData("Regigigas", 513, ItemClassification.useful, 0, ["Legendary"], 0x9),
+    ItemData("Giratina", 514, ItemClassification.useful, 0, ["Legendary"], 0xA),
+    ItemData("Celebi", 515, ItemClassification.useful, 0, ["Legendary"], 0xB),
+    ItemData("Articuno", 516, ItemClassification.useful, 0, ["Legendary"], 0xC),
+    ItemData("Heatran", 517, ItemClassification.useful, 0, ["Legendary"], 0xD),
+    ItemData("Primal Dialga", 518, ItemClassification.useful, 0, ["Legendary"], 0xE),
+    ItemData("Mew", 519, ItemClassification.useful, 0, ["Legendary"], 0xF),
+    ItemData("Manaphy", 520, ItemClassification.useful, 0, ["Legendary"], 0x10),
+    ItemData("Phione", 521, ItemClassification.useful, 0, ["Legendary"], 0x11),
+    ItemData("Cresselia", 522, ItemClassification.useful, 0, ["Legendary"], 0x12),
+    ItemData("Rayquaza", 523, ItemClassification.useful, 0, ["Legendary"], 0x13),
+    ItemData("Kyogre", 524, ItemClassification.useful, 0, ["Legendary"], 0x14),
+    ItemData("Shaymin", 525, ItemClassification.useful, 0, ["Legendary"], 0x15),
+
+    ItemData("Icy Flute", 526, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x3B),
+    ItemData("Fiery Drum", 527, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x3C),
+    ItemData("Terra Cymbal", 528, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x3D),
+    ItemData("Aqua-Monica", 529, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x3E),
+    ItemData("Rock Horn", 530, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x3F),
+    ItemData("Grass Cornet", 531, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x40),
+    ItemData("Sky Melodica", 532, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x41),
+    ItemData("Stellar Symphony", 533, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x56B),
+    ItemData("Null Bagpipes", 534, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x56C),
+    ItemData("Glimmer Harp", 535, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x56D),
+    ItemData("Toxic Sax", 536, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x56E),
+    ItemData("Biting Bass", 537, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x56F),
+    ItemData("Knockout Bell", 538, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x570),
+    ItemData("Spectral Chimes", 539, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x571),
+    ItemData("Liar's Lyre", 540, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x572),
+    ItemData("Charge Synth", 541, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x573),
+    ItemData("Norma-ccordion", 542, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x574),
+    ItemData("Psychic Cello", 543, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x575),
+    ItemData("Dragu-teki", 544, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x576),
+    ItemData("Steel Guitar", 545, ItemClassification.progression_skip_balancing, 0, ["Item", "Instrument"], 0x577),
+
+    ItemData("Hero Evolution", 550, ItemClassification.useful, 0, ["Generic"], 0),
+    ItemData("Recruit Evolution", 551, ItemClassification.useful, 0, ["Generic"], 0),
+    ItemData("Recruitment", 552, ItemClassification.useful, 0, ["Generic"], 0),
+    ItemData("Formation Control", 553, ItemClassification.useful, 0, ["Generic"], 0),
+    ItemData("Miracle Chest", 464, ItemClassification.useful, 0, ["Item", "Single"], 0x42),  # Boosts Exp
+    ItemData("Wonder Chest", 465, ItemClassification.useful, 0, ["Item", "Single"], 0x43),  # Boosts Exp
+
+    # ItemData("Poke x-1000", 570, ItemClassification.trap, 0, ["Money"], 0),
+]
+filler_items = [
+    ItemData("Heavy Box", 301, ItemClassification.filler, 10, ["Item", "Box"], 0x171),
+    ItemData("Shiny Box", 302, ItemClassification.filler, 10, ["Item", "Box"], 0x174),
+    ItemData("Nifty Box", 303, ItemClassification.filler, 10, ["Item", "Box"], 0x177),
+    ItemData("Dainty Box", 304, ItemClassification.filler, 10, ["Item", "Box"], 0x17A),
+    ItemData("Glittery Box", 305, ItemClassification.filler, 10, ["Item", "Box"], 0x17D),
+    ItemData("Pretty Box", 306, ItemClassification.filler, 10, ["Item", "Box"], 0x180),
+    ItemData("Deluxe Box", 307, ItemClassification.filler, 10, ["Item", "Box"], 0x183),
+    ItemData("Light Box", 308, ItemClassification.filler, 10, ["Item", "Box"], 0x186),
+    ItemData("Cute Box", 309, ItemClassification.filler, 10, ["Item", "Box"], 0x189),
+    ItemData("Hard Box", 310, ItemClassification.filler, 10, ["Item", "Box"], 0x18C),
+    ItemData("Sinister Box", 311, ItemClassification.filler, 10, ["Item", "Box"], 0x18F),
+    ItemData("Link Box", 312, ItemClassification.filler, 10, ["Item", "Single"], 0x16A),
+    ItemData("Sky Gift", 313, ItemClassification.filler, 10, ["Item", "Single"], 0xB4),
+    ItemData("Poké x100", 560, ItemClassification.filler, 20, ["Money"], 100),
+    ItemData("Poké x500", 561, ItemClassification.filler, 20, ["Money"], 500),
+    ItemData("Poké x1000", 562, ItemClassification.filler, 20, ["Money"], 1000),
+    ItemData("Poké x5000", 563, ItemClassification.filler, 5, ["Money"], 5000),
+    ItemData("Poké x200", 564, ItemClassification.filler, 20, ["Money"], 200),
+    ItemData("Poké x1", 565, ItemClassification.filler, 50, ["Money"], 1),
+    ItemData("Secret of the Waterfall", 405, ItemClassification.filler, 2, ["Generic"], 0x0),
+    ItemData("Chatot Repellent", 406, ItemClassification.filler, 2, ["Generic"], 0x0),
+    ItemData("Sky Jukebox", 407, ItemClassification.filler, 2, ["Generic"], 0x0),
+    ItemData("Recruitment Sensor", 408, ItemClassification.filler, 2, ["Generic"], 0x0),
+    ItemData("Rare Fossil", 410, ItemClassification.filler, 10, ["Item", "Multi"], 0x10),
+    ItemData("Reviver Seed", 411, ItemClassification.filler, 5, ["Item", "Single"], 0x49),
+    ItemData("Oran Berry", 412, ItemClassification.filler, 20, ["Item", "Single"], 0x46),
+    ItemData("Heal Seed", 413, ItemClassification.filler, 20, ["Item", "Single"], 0x45),
+    ItemData("Apple", 414, ItemClassification.filler, 20, ["Item", "Single"], 0x6D),
+    ItemData("Golden Seed", 393, ItemClassification.filler, 3, ["Item", "Single"], 0x5D),
+    ItemData("Ginseng", 393, ItemClassification.filler, 1, ["Item", "Single"], 0x58),
+    #ItemData("Gold Ribbon", 394, ItemClassification.filler, 0, ["Item"], 0x20),
+    ItemData("Team Name Trap", 400, ItemClassification.trap, 20, ["Trap"], 0x0),
+    ItemData("Get Unowned!", 401, ItemClassification.trap, 20, ["Trap"], 0x0),
+    ItemData("Nap Time!", 402, ItemClassification.trap, 20, ["Trap"], 0x0),
+    ItemData("Sentry Duty!", 403, ItemClassification.trap, 20, ["Trap"], 0x0),
+    ItemData("Touch Grass", 404, ItemClassification.trap, 20, ["Trap"], 0x0),
+    ItemData("Protein", 480, ItemClassification.filler, 10, ["Item", "Single"], 0x64),
+    ItemData("Calcium", 481, ItemClassification.filler, 10, ["Item", "Single"], 0x65),
+    ItemData("Iron", 482, ItemClassification.filler, 10, ["Item", "Single"], 0x66),
+    ItemData("Nectar", 483, ItemClassification.filler, 10, ["Item", "Single"], 0x67),
+    ItemData("Max Elixir", 484, ItemClassification.filler, 10, ["Item", "Single"], 0x63),
+    ItemData("Gabite Scale", 485, ItemClassification.filler, 10, ["Item", "Single"], 0x5c),
+    ItemData("Zinc", 486, ItemClassification.filler, 10, ["Item", "Single"], 0x6c),
+
+    # specific item Types
+    ItemData("Joy Globe", 487, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1FD),  # Normal
+    ItemData("Fiery Globe", 488, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x201),  # Fire
+    ItemData("Aqua Globe", 489, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x205),  # Water
+    ItemData("Soothe Globe", 415, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x209),  # Grass
+    ItemData("Volt Globe", 416, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x20D),  # Electric
+    ItemData("Icy Globe", 417, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x211),  # Ice
+    ItemData("Power Globe", 418, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x215),  # Fighting
+    ItemData("Poison Globe", 419, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x219),  # Poison
+    ItemData("Terra Globe", 420, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x21D),  # Ground
+    ItemData("Sky Globe", 421, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x221),  # Flying
+    ItemData("Psyche Globe", 422, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x225),  # Psychic
+    ItemData("Defend Globe", 423, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x229),  # Bug
+    ItemData("Rock Globe", 424, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x22D),  # Rock
+    ItemData("Nether Globe", 425, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x231),  # Ghost
+    ItemData("Dragon Globe", 426, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x235),  # Dragon
+    ItemData("Dusk Globe", 427, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x239),  # Dark
+    ItemData("Steel Globe", 428, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x23D),  # Steel
+
+    # Legendary specific items
+    ItemData("Freeze Veil", 429, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1D8),  # Articuno
+    ItemData("Thunder Veil", 430, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1D9),  # Zapdos
+    ItemData("Fire Veil", 431, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DA),  # Moltres
+    ItemData("Havoc Robe", 432, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DB),  # Mewtwo
+    ItemData("Life Ring", 433, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DC),  # Mew
+    ItemData("Bolt Fang", 434, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DD),  # Raikou
+    ItemData("Flare Fang", 435, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DE),  # Entei
+    ItemData("Aqua Mantle", 436, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1DF),  # Suicune
+    ItemData("Silver Veil", 437, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E0),  # Lugia
+    ItemData("Rainbow Veil", 438, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E1),  # Ho-oh
+    ItemData("Chrono Veil", 439, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E2),  # Celebi
+    ItemData("Rock Sash", 440, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E3),  # Regirock
+    ItemData("Ice Sash", 441, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E4),  # Regice
+    ItemData("Steel Sash", 442, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E5),  # Registeel
+    ItemData("Heart Brooch", 443, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E6),  # Latias
+    ItemData("Eon Veil", 444, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E7),  # Latios
+    ItemData("Seabed Veil", 445, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E8),  # Kyogre
+    ItemData("Terra Ring", 446, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1E9),  # Groudon
+    ItemData("SkyHigh Veil", 447, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1EA),  # Rayquaza
+    ItemData("Wish Mantle", 448, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1EB),  # Jirachi
+    ItemData("Revive Robe", 449, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1EC),  # Deoxys
+    ItemData("Edify Robe", 450, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1EF),  # Uxie
+    ItemData("Charity Robe", 451, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F0),  # Mesprit
+    ItemData("Hope Robe", 452, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F1),  # Azelf
+    ItemData("Time Shield", 453, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F2),  # Dialga
+    ItemData("Air Blade", 454, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F3),  # Palkia
+    ItemData("Searing Ring", 455, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F4),  # Heatran
+    ItemData("Ancient Ring", 456, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F5),  # Regigigas
+    ItemData("Nether Veil", 457, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F6),  # Giratina
+    ItemData("Lunar Veil", 458, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F7),  # Cresselia
+    ItemData("Ripple Cape", 459, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x3E5),  # Phione
+    ItemData("Marine Cache", 460, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1D7),  # Phione
+    ItemData("Tidal Cape", 461, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F8),  # Manaphy
+    ItemData("Eclipse Robe", 462, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x1F9),  # Darkrai
+    ItemData("Purify Veil", 463, ItemClassification.filler, 3, ["Item", "Exclusive"], 0x547),  # Shaymin
 
 ]
+filler_item_weights = [item.start_number for item in filler_items]
+filler_item_table: Dict[str, ItemData] = {item.name: item for item in filler_items}
 
 item_frequencies: Dict[str, int] = {
     "Bag Upgrade": 5
 }
 
 item_table: Dict[str, ItemData] = {item.name: item for item in EOS_item_table}
-item_table_by_id: Dict[int, ItemData] = {item.id: item for item in EOS_item_table}
+item_table.update(filler_item_table)
+item_table_by_id: Dict[int, ItemData] = {item.id: item for item in item_table.values()}
 
 item_table_by_groups = get_item_table_by_groups()
 lootbox_table: Dict[str, Dict[str, int]] = {
@@ -310,7 +490,7 @@ lootbox_table: Dict[str, Dict[str, int]] = {
         "Rock Climb": 0x124,
     },
     "Nifty Box": {
-        "Mobile Scarft": 0x10,
+        "Mobile Scarf": 0x10,
         "Scope Lens": 0x13,
         "No Stick Cap": 0x15,
         "X-Ray Specs": 0x18,
@@ -354,8 +534,8 @@ lootbox_table: Dict[str, Dict[str, int]] = {
         "Oren Berry": 0x75,
         "Reviver Seed": 0x49,
         "Reviser Seed": 0x69,
-        "Max Elixer": 0x63,
-        "Mix Elixer": 0x74,
+        "Max Elixir": 0x63,
+        "Mix Elixir": 0x74,
         "Heal Seed": 0x45,
         "Sitrus Berry": 0x47,
         "Eyedrop Seed": 0x48,
@@ -439,8 +619,6 @@ lootbox_table: Dict[str, Dict[str, int]] = {
 
     },
     "Hard Box": {
-        "Mystery Part": 0xAD,
-        "Secret Slab": 0xAE,
         "Key": 0xB6,
         "Lost Loot": 0xBA,
         "Unown Rock A": 0x190,
@@ -487,4 +665,3 @@ lootbox_table: Dict[str, Dict[str, int]] = {
     },
 
 }
-

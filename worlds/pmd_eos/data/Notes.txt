@@ -22,3 +22,86 @@ ELSE IF the number collected is 2, set SCENARIO_BALANCE_FLAG to 1.
 ELSE IF the number collected is 3, set SCENARIO_BALANCE_FLAG to 2.
 ELSE IF the number collected is 4, set SCENARIO_BALANCE_FLAG to 3.
 ELSE IF the number collected is 5, set SCENARIO_BALANCE_FLAG to 6.
+
+
+Escorts:
+Bidoof
+Side Path
+Craggy Coast
+Rock Path
+Mt. Horn
+
+Grovyle/Celebi
+Dusk Forest
+Deep Dusk Forest
+Treeshroud Forest
+Hidden Land
+
+Shaymin
+Sky Peak
+
+Creselia
+Dark Crater
+
+
+
+
+
+
+
+
+
+STATE not dealing with items
+performance = 0
+scenario main = 0
+item backup = 0
+
+State dealing with items, no item in queue
+performance = true
+scenario main = true
+item backup = data
+
+State dealing with items, item in queue
+performance = true
+scenario main = false
+item backup = data
+
+state dealing with items, no items left to deal
+performance = true
+scenario main = true
+Item backup = data <-getting set to no data
+
+
+
+
+
+
+
+
+PMDEOS EVENT DIVIDE
+
+LAPPY sends performance Progress List [35] True
+
+MONKEY looks for performance Progress List [35] TRUE
+    IF NO, IGNORE
+    IF YES, SET SCENARIO_MAIN_BIT_FLAG[250] to TRUE and add ITEM DATA
+
+LAPPY looks for SCENARIO_MAIN_BIT_FLAG[250] TRUE
+    IF no, loop?
+    IF yes, SET SCENARIO_MAIN_BIT_FLAG[250] to FALSE and send ITEM DATA to player
+
+MONKEY looks for SCENARIO_MAIN_BIT_FLAG[250] FALSE
+    IF more item data do line 69 again
+    IF no more item data ?????? Probably turn perfromance progress list 35 off and item data off?
+
+LAPPY looks for Progress List [35] FALSE
+    IF no do line 71 again
+    IF yes continue the game
+
+
+
+
+
+
+
+

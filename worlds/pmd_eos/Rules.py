@@ -18,6 +18,8 @@ def set_rules(world: "EOSWorld", excluded):
     shop_items_rules(world, player)
 
     dungeon_locations_behind_items(world, player)
+    instrument_and_legendary_rules(world, player)
+    mission_rules(world, player)
     if world.options.goal.value == 0:
         set_rule(world.multiworld.get_location("Final Boss", player),
                  lambda state: state.has("Temporal Tower", player) and ready_for_dialga(state, player, world))
@@ -25,10 +27,9 @@ def set_rules(world: "EOSWorld", excluded):
                  lambda state: state.has("Dark Crater", player))
     elif world.options.goal.value == 1:
         set_rule(world.multiworld.get_location("Final Boss", player),
-                 lambda state: state.has("Temporal Tower", player) and ready_for_darkrai(state, player, world))
+                 lambda state: ready_for_darkrai(state, player, world))
         set_rule(world.multiworld.get_location("Dark Crater", player),
-                 lambda state: state.has("Temporal Tower", player)
-                               and ready_for_darkrai(state, player, world))
+                 lambda state: ready_for_darkrai(state, player, world))
 
     set_rule(world.multiworld.get_entrance("Late Game Door", player),
              lambda state: ready_for_late_game(state, player, world))
@@ -44,13 +45,27 @@ def set_rules(world: "EOSWorld", excluded):
              lambda state: state.can_reach_location("Mt. Bristle", player) and state.has("The Nightmare", player)
                            and ready_for_late_game(state, player, world))
     set_rule(world.multiworld.get_location("Progressive Bag loc 2", player),
-             lambda state: state.has("Drenched Bluff", player))
-    set_rule(world.multiworld.get_location("Progressive Bag loc 3", player),
              lambda state: state.has("Mt. Bristle", player))
-    set_rule(world.multiworld.get_location("Progressive Bag loc 4", player),
-             lambda state: state.has("Waterfall Cave", player))
-    set_rule(world.multiworld.get_location("Progressive Bag loc 5", player),
+    set_rule(world.multiworld.get_location("Progressive Bag loc 3", player),
              lambda state: state.has("Apple Woods", player))
+    set_rule(world.multiworld.get_location("Progressive Bag loc 4", player),
+             lambda state: state.has("Steam Cave", player))
+    set_rule(world.multiworld.get_location("Progressive Bag loc 5", player),
+             lambda state: state.has("Mystifying Forest", player))
+
+    set_rule(world.multiworld.get_location("Manaphy Egg Hatch", player),
+             lambda state: state.has("Surrounded Sea", player))
+    set_rule(world.multiworld.get_location("Manaphy Fed", player),
+             lambda state: state.has("Surrounded Sea", player))
+    set_rule(world.multiworld.get_location("Manaphy Healed", player),
+             lambda state: state.has("Surrounded Sea", player) and state.has("Miracle Sea", player))
+    set_rule(world.multiworld.get_location("Manaphy Join Team", player),
+             lambda state: state.has("Surrounded Sea", player) and state.has("Miracle Sea", player))
+    set_rule(world.multiworld.get_location("Manaphy Leads To Marine Resort", player),
+             lambda state: state.has("Manaphy", player))
+
+    set_rule(world.multiworld.get_location("SecretRank", player),
+             lambda state: state.has("Crevice Cave", player))
     #set_rule(world.multiworld.get_entrance("Early Game Door", player),
     #         lambda state: state.has("Beach Cave", player))
     #for location_num in location_Dict_by_id:
@@ -76,6 +91,125 @@ def ready_for_late_game(state, player, world):
     return (state.has_group("EarlyDungeons", player, 10)
             and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
             and state.has("Temporal Tower", player))
+
+
+def instrument_and_legendary_rules(world, player):
+    set_rule(world.multiworld.get_location("Get Aqua-Monica", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Bottomless Sea", player))
+    set_rule(world.multiworld.get_location("Get Terra Cymbal", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Shimmer Desert", player))
+    set_rule(world.multiworld.get_location("Get Icy Flute", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Mt. Avalanche", player))
+    set_rule(world.multiworld.get_location("Get Fiery Drum", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Giant Volcano", player))
+    set_rule(world.multiworld.get_location("Get Rock Horn", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("World Abyss", player))
+    set_rule(world.multiworld.get_location("Get Sky Melodica", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Sky Stairway", player))
+    set_rule(world.multiworld.get_location("Get Grass Cornet", player),
+             lambda state: state.has("Secret Rank", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Mystery Jungle", player))
+
+    #Legendary Recruitment
+    set_rule(world.multiworld.get_location("Recruit Uxie", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Steam Cave", player))
+    set_rule(world.multiworld.get_location("Recruit Mespirit", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Quicksand Cave", player))
+    set_rule(world.multiworld.get_location("Recruit Azelf", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Crystal Crossing", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Dialga", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Phione", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Miracle Sea", player)
+                           and state.has("Surrounded Sea", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Palkia", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Spacial Rift", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Kyogre", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Bottomless Sea", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Groudon", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Shimmer Desert", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Articuno", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Mt. Avalanche", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Heatran", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Giant Volcano", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Giratina", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("World Abyss", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Rayquaza", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Sky Stairway", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Mew", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+                           and state.has("Mystery Jungle", player)
+                           and state.has("Secret Rank", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Cresselia", player),
+             lambda state: state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+             )
+    set_rule(world.multiworld.get_location("Recruit Shaymin", player),
+             lambda state: state.has("1st Station Pass", player)
+                           and state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
+                           and state.has("Temporal Tower", player)
+             )
 
 
 def shop_items_rules(world, player):
@@ -155,7 +289,9 @@ def special_episodes_rules(world, player):
 
 def ready_for_darkrai(state, player, world):
     return (state.has("Relic Fragment Shard", player, world.options.shard_fragments.value)
-            and state.has("Cresselia Feather", player))
+            and state.has("Temporal Tower", player)
+            and state.has_group("Instrument", player, world.options.req_instruments.value)
+            and state.has_group("LateDungeons", player, 10))
 
 
 def dungeon_locations_behind_items(world, player):
@@ -246,17 +382,17 @@ def dungeon_locations_behind_items(world, player):
     set_rule(world.multiworld.get_location("Mystery Jungle", player),
              lambda state: state.has("Mystery Jungle", player) and ready_for_late_game(state, player, world))
     set_rule(world.multiworld.get_location("Serenity River", player),
-             lambda state: state.has("Serenity River", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Serenity River", player))
     set_rule(world.multiworld.get_location("Landslide Cave", player),
-             lambda state: state.has("Landslide Cave", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Landslide Cave", player))
     set_rule(world.multiworld.get_location("Lush Prairie", player),
-             lambda state: state.has("Lush Prairie", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Lush Prairie", player))
     set_rule(world.multiworld.get_location("Tiny Meadow", player),
-             lambda state: state.has("Tiny Meadow", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Tiny Meadow", player))
     set_rule(world.multiworld.get_location("Labyrinth Cave", player),
-             lambda state: state.has("Labyrinth Cave", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Labyrinth Cave", player))
     set_rule(world.multiworld.get_location("Oran Forest", player),
-             lambda state: state.has("Oran Forest", player) and ready_for_late_game(state, player, world))
+             lambda state: state.has("Oran Forest", player))
     set_rule(world.multiworld.get_location("Lake Afar", player),
              lambda state: state.has("Lake Afar", player) and ready_for_late_game(state, player, world))
     set_rule(world.multiworld.get_location("Happy Outlook", player),
@@ -291,6 +427,34 @@ def dungeon_locations_behind_items(world, player):
              lambda state: state.has("Inferno Cave", player) and ready_for_late_game(state, player, world))
     set_rule(world.multiworld.get_location("1st Station Pass", player),
              lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("1st Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+
+    set_rule(world.multiworld.get_location("1st Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("2nd Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("3rd Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("4th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("5th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("6th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("7th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("8th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("9th Station Pass", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("Sky Peak Summit", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("5th Station Clearing", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+    set_rule(world.multiworld.get_location("Sky Peak Summit", player),
+             lambda state: state.has("1st Station Pass", player) and ready_for_late_game(state, player, world))
+
     set_rule(world.multiworld.get_location("Dojo Normal/Fly Maze", player),
              lambda state: state.has("Dojo Normal/Fly Maze", player))
     set_rule(world.multiworld.get_location("Dojo Dark/Fire Maze", player),
@@ -311,3 +475,36 @@ def dungeon_locations_behind_items(world, player):
              lambda state: state.has("Dojo Dragon Maze", player))
     set_rule(world.multiworld.get_location("Dojo Ghost Maze", player),
              lambda state: state.has("Dojo Ghost Maze", player))
+
+
+def mission_rules(world, player):
+    for i, location in enumerate(EOS_location_table):
+        if "Mission" not in location.group:
+            continue
+        if location.name == "Beach Cave":
+            continue
+        elif location.classification == "EarlyDungeonComplete":
+            for j in range(world.options.early_mission_checks.value):
+                set_rule(world.get_location(f"{location.name} Mission {j + 1}"),
+                         lambda state, ln=location.name, p=player: state.has(ln, p))
+            for j in range(world.options.early_outlaw_checks.value):
+                set_rule(world.get_location(f"{location.name} Outlaw {j + 1}"),
+                         lambda state, ln=location.name, p=player: state.has(ln, p))
+
+        elif location.classification == "LateDungeonComplete":
+            if world.options.goal.value == 1:
+                if "Station" in location.group:
+                    for j in range(world.options.late_mission_checks.value):
+                        set_rule(world.get_location(f"{location.name} Mission {j + 1}"),
+                                 lambda state, ln="1st Station Pass", p=player: state.has(ln, p))
+                        for j in range(world.options.late_outlaw_checks.value):
+                            set_rule(world.get_location(f"{location.name} Outlaw {j + 1}"),
+                                     lambda state, ln="1st Station Pass", p=player: state.has(ln, p))
+                else:
+                    for j in range(world.options.late_mission_checks.value):
+                        set_rule(world.get_location(f"{location.name} Mission {j + 1}"),
+                                 lambda state, ln=location.name, p=player: state.has(ln, p))
+
+                    for j in range(world.options.late_outlaw_checks.value):
+                        set_rule(world.get_location(f"{location.name} Outlaw {j + 1}"),
+                                 lambda state, ln=location.name, p=player: state.has(ln, p))
