@@ -227,7 +227,8 @@ class GSTLAWorld(World):
         self._generate_rando_data(ap_settings, ap_settings_debug)
 
         patch = GSTLADeltaPatch(player=self.player,
-                                player_name=self.player_name)
+                                player_name=self.player_name,
+                                path=os.path.join(output_directory, self.multiworld.get_out_file_name_base(self.player)+GSTLADeltaPatch.patch_file_ending))
         patch.add_settings(ap_settings.getvalue(), ap_settings_debug.getvalue().encode("utf-8"))
         if self.options.auto_run:
             patch.write_token(APTokenTypes.XOR_8, 0x26361, 0x01)
@@ -235,8 +236,7 @@ class GSTLAWorld(World):
             patch.write_token(APTokenTypes.XOR_8, 0x279DD, 0x01)
             patch.write_token(APTokenTypes.XOR_8, 0x1007900, 0x01)
         patch.write_file("token_data.bin", patch.get_token_binary())
-        patch.write(os.path.join(output_directory,
-                                f"{self.multiworld.get_out_file_name_base(self.player)}{patch.patch_file_ending}"))
+        patch.write()
 
     def _handle_spheres(self):
         mimic_map: defaultdict[int, List[GSTLALocation]]  = defaultdict(lambda: [])
