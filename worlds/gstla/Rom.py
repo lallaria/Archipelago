@@ -17,7 +17,7 @@ class GSTLADeltaPatch(APProcedurePatch, APTokenMixin):
     patch_file_ending = ".apgstla"
     result_file_ending = ".gba"
     procedure = [
-        ("apply_gstla_rando", ["ap_settings.gstlarando"]),
+        ("GSTLAPatchExtension.apply_gstla_rando", ["ap_settings.gstlarando"]),
         ("apply_tokens", ["token_data.bin"]),
     ]
 
@@ -74,7 +74,7 @@ class GSTLADeltaPatch(APProcedurePatch, APTokenMixin):
 
 
 class GSTLAPatchExtension(APPatchExtension):
-    game = "Golden Sun: The Lost Age"
+    game = "Golden Sun The Lost Age"
 
     @staticmethod
     def apply_gstla_rando(caller: GSTLADeltaPatch, rom: bytes, patch_file: str) -> bytes:
