@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 class StartWithShip(Choice):
     """What needs to be done to get the ship?
-    Vanilla: requires getting the black crystal and completing the gabomba statue to get the reward from Madras Mayor.
-    Ship Door Unlocked: involves getting the black crystal and activating the ship as per vanilla.
-    Available From The Start: allows you to use the ship from the beginning of the game.
+    Vanilla: requires getting the Black Crystal and completing the Gabomba Statue to get the reward from Madras Mayor to be able to enter the ship and activate it.
+    Ship Door Unlocked: The ship door is unlocked but you still require to activate the ship by reaching the engine room. Black Crystal is no longer in the pool as it is not required.
+    Available From The Start: allows you to use the ship from the beginning of the game. Black Crystal is no longer in the pool as it is not required.
     """
     internal_name = "lemurian_ship"
     display_name = "Lemurian Ship"
@@ -35,8 +35,8 @@ class SecondStartingCharacter(Choice):
     """
     internal_name = "second_starting_character"
     display_name = "Second Starting Character"
-    option_jenna = 1
-    option_sheba= 0
+    option_jenna = 0
+    option_sheba= 1
     option_piers = 2
     option_isaac = 3
     option_garet = 4
@@ -344,12 +344,6 @@ class StartWithRevivePsynergy(Toggle):
     """When enabled, start the game with Revive Psynergy"""
     internal_name = "start_with_revive"
     display_name = "Start with Revive Psynergy"
-    default = 0
-
-class StartWithRevealPsynergy(Toggle):
-    """When enabled, start the game with Reveal Psynergy"""
-    internal_name = "start_with_reveal"
-    display_name = "Start with Reveal Psynergy"
     default = 0
 
 class ScaleExpGained(Range):
@@ -660,7 +654,6 @@ class GSTLAOptions(PerGameCommonOptions):
 
     start_with_healing_psynergy: StartWithHealPsynergy
     start_with_revive: StartWithRevivePsynergy
-    start_with_reveal: StartWithRevealPsynergy
 
     #Djinn and Summon Settings
     shuffle_djinn: DjinnShuffle
