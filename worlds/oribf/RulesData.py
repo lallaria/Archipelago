@@ -1607,7 +1607,7 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
             "casual": [["TPForlorn"]]
         },
         "HoruTeleporter": {
-            "casual": [["TPHoru", "HoruKey"]]
+            "casual": [["TPHoru"]]
         },
         "BlackrootGrottoConnection": {
             "casual": [["TPBlackroot"]]
@@ -1993,7 +1993,9 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
         },
         "RazielNoArea": {
             "casual": [["Dash", "WallJump"], ["Dash", "ChargeJump"], ["Dash", "Bash", "Grenade"], ["Dash", "Climb", "DoubleJump"]], 
-            "standard": [["Bash", "Grenade"], ["Climb", "AirDash"]]
+            "standard": [["Bash", "Grenade"], ["WallJump", "Rekindle"], ["ChargeJump", "Rekindle"], ["Climb", "DoubleJump", "Rekindle"], ["Climb", "AirDash"]], 
+            "expert": [["Climb", "Rekindle"]], 
+            "master": [["DoubleJump", "Rekindle"]]
         }
     },
     "DashAreaMapstoneAccess": {
@@ -2655,7 +2657,7 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
             "casual": [["Free"]]
         },
         "HorufieldsHoruDoor": {
-            "casual": [["Free"]]
+            "casual": [["HoruKey"]]
         }
     },
     "HoruInnerDoor": { 
@@ -3441,7 +3443,7 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
     },
     "ForlornOrbPossession": { 
         "ForlornPlantAccess": {
-            "casual": [["ForlornKey"]]
+            "casual": [["Free"]]
         },
         "ForlornMapArea": {
             "casual": [["Free"]]
@@ -3475,8 +3477,8 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
             "master": [["DoubleJump"], ["Lure", "Bash"], ["ChargeJump", ("HealthCell", 3), "UltraDefense"]]
         },
         "ForlornPlantAccess": {
-            "casual": [["ForlornKey", "ChargeJump", "WallJump"], ["ForlornKey", "ChargeJump", "Climb"], ["ForlornKey", "Bash", "Grenade", "WallJump"], ["ForlornKey", "Bash", "Grenade", "Climb"]], 
-            "master": [["ForlornKey", "ChargeJump", "DoubleJump"], ["ForlornKey", "Bash", "Grenade", "DoubleJump"]]
+            "casual": [["ChargeJump", "WallJump"], ["ChargeJump", "Climb"], ["Bash", "Grenade", "WallJump"], ["Bash", "Grenade", "Climb"]], 
+            "master": [["ChargeJump", "DoubleJump"], ["Bash", "Grenade", "DoubleJump"]]
         },
         "ForlornKeyDoor": {
             "casual": [["Free"]]
@@ -3490,7 +3492,7 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
             "casual": [["Free"]]
         },
         "ForlornOrbPossession": {
-            "casual": [["ForlornKey", "Open"]]
+            "casual": [["Open"]]
         },
         "ForlornMapArea": {
             "casual": [["WallJump"], ["Climb"], ["ChargeJump"], ["Bash", "Grenade"], ["DoubleJump"], ["Glide"]]
@@ -3503,7 +3505,7 @@ connection_rules: dict[str, dict[str, dict[str, list[list[str | tuple[str, int]]
     },
     "ForlornKeyDoor": { 
         "ForlornLaserRoom": {
-            "casual": [["ForlornKey", ("KeyStone", 40)], ["ForlornKey", ("ForlornKeyStone", 4)]]
+            "casual": [[("KeyStone", 40)], [("ForlornKeyStone", 4)]]
         }
     },
     "ForlornLaserRoom": { 

@@ -2,7 +2,7 @@ from typing import Dict, Any
 from BaseClasses import ItemClassification, Region
 from worlds.AutoWorld import World
 
-from .Items import OriBlindForestItem, base_items, keystone_items, mapstone_items, item_dict, item_alias_list
+from .Items import OriBlindForestItem, base_items, keystone_items, mapstone_items, filler_items, item_dict, item_alias_list
 from .Locations import location_dict, tagged_locations_dict, area_tags, event_location_list
 from .Options import OriBlindForestOptions, LogicDifficulty, KeystoneLogic, MapstoneLogic, Goal, slot_data_options
 from .Rules import apply_location_rules, apply_connection_rules, create_progressive_maps
@@ -22,6 +22,7 @@ class OriBlindForestWorld(World):
     item_name_to_id = {name: id for id, name in enumerate(item_dict, base_id)}
     location_name_to_id = {name: id for id, name in enumerate(location_dict, base_id)}
     item_name_groups = item_alias_list
+    location_name_groups = {location: set(tags) for location, tags in tagged_locations_dict.items()}
 
     def generate_early(self):
         self.logic_sets: set[str] = {"casual"} # always include at least casual
@@ -71,6 +72,16 @@ class OriBlindForestWorld(World):
 
         if self.options.mapstone_logic == MapstoneLogic.option_progressive:
             create_progressive_maps(self)
+        
+        if self.options.restrict_dungeon_keys == True:
+            self.restrict_item("Ginso", "GinsoKey")
+            self.restrict_item("Forlorn", "ForlornKey")
+            self.restrict_item("Horu", "HoruKey")
+
+    def restrict_item(self, tag: str, item_name: str):
+        for location in tagged_locations_dict[tag]:
+            if location not in self.location_exclusion_list:
+                add_item_rule(self.get_location(location), lambda item: item.name != item_name)
 
     def create_item(self, name: str) -> OriBlindForestItem:
         return OriBlindForestItem(name, item_dict[name][0], self.item_name_to_id[name], self.player)
@@ -79,6 +90,7 @@ class OriBlindForestWorld(World):
         placed_first_energy_cell = False
 
         item_list = dict(base_items)
+        item_count = 0
 
         if self.options.keystone_logic == KeystoneLogic.option_area_specific:
             item_list = { **item_list, **keystone_items["AreaSpecific"] }
@@ -123,6 +135,10 @@ class OriBlindForestWorld(World):
                 # otherwise add the item normally
                 else:
                     self.multiworld.itempool.append(item)
+                    item_count += 1
+
+        unfilled_locations = len(self.multiworld.get_unfilled_locations(self.player))
+        self.multiworld.itempool += [self.create_filler() for _ in range(unfilled_locations - item_count)]
 
     def create_event(self, event: str) -> OriBlindForestItem:
         return OriBlindForestItem(event, ItemClassification.progression, None, self.player)
@@ -174,5 +190,6 @@ class OriBlindForestWorld(World):
         return slot_data
 
     def get_filler_item_name(self) -> str:
-        filler_list = [k for k, v in base_items.items() if v[0] == ItemClassification.filler]
-        return self.random.choice(filler_list)
+        total = sum([item[1] for item in filler_items.values()])
+        weights = [item[1] / total for item in filler_items.values()]
+        return self.random.choices(list(filler_items.keys()), weights)[0]

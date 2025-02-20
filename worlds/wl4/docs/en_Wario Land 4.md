@@ -27,7 +27,7 @@ additionally contain shuffled items, and the golden treasures they originally co
 somewhere else in the multiworld. In the former, the Golden Diva's chamber is locked, and you
 instead escape with the treasure by entering the Sound Room on the north side of the pyramid. The
 number of treasures you have and what you need is displayed in the top left corner where the number
-of minigame coins you have used to be.
+of minigame medals you have used to be.
 
 ## What is the goal of Wario Land 4 when randomized?
 
@@ -67,6 +67,10 @@ expect you to use those strategies.
 
 A full list of these strategies is as follows:
 
+- In 40 Below Fridge, you can ground pound the switches in the maze puzzle room by getting a running
+start and stomp jumping on the glass ball right after the glass bird spits it out.
+- In The Toxic Landfill, you can lure the Ringosuki toward the water and grab the apple in midair to
+get the Transformation Puzzle Lower Diamond without using Heavy Grab to throw it across the pool.
 - In Pinball Zone, you can get through the fruit room with only grab by throwing one of the lower
 pinballs at the ones on the ledges.
 - Also in Pinball Zone, you can use Heavy Grab in place of Ground Pound in the jungle room by
@@ -76,10 +80,16 @@ gray blocks. The Normal version of that room doesn't have any enemies you can th
 - In Domino Row, you can open the way down the red tower by either breaking the blocks with Head Smash
 or by throwing a Toy Car from the top of the room. You need to do one of these things to escape
 without Ground Pound.
-- To fight Catbat, you're normally expected to use Enemy Jump as the behavior when jumping off of
-the waves is strange without it. To ground pound his head without Enemy Jump, you need to start
+- In Arabian Night, you can reach the bottom of the room full of mummy enemies by throwing them at
+the wooden boxes if you have Grab.
+- In Hotel Horror, you can access the frog switch on Hard without carrying the Ringosuki by throwing
+the Marumen upward and bouncing on it in midair to start a Super Ground Pound.
+- To fight Catbat, you're normally expected to use Stomp Jump as the behavior when jumping off of
+the waves is strange without it. To ground pound his head without Stomp Jump, you need to start
 walking before you jump; jumps from a standstill won't work. When the waves start oscillating, jump
 at the apex or else you will be bounced off.
+- In Golden Passage, you can skip the current puzzle room by repeatedly jumping out of the river with
+good timing.
 
 Videos of some of these strategies can be found at this YouTube playlist: [Wario Land 4 Archipelago
 Tricks](https://www.youtube.com/playlist?list=PL9fyDZ3k7Qw0WclTCDDImKQDjNi2Sy0Gp)

@@ -32,16 +32,20 @@ from .data import ap_id_offset, ItemFlag, Passage
 #  - 2 = Head Smash
 #  - 3 = Progressive Grab
 #  - 4 = Dash Attack
-#  - 5 = Enemy Jump
+#  - 5 = Stomp Jump
 #
 # Type for junk items:
 #  - 0 = Full health item
 #  - 1 = Wario form trap
 #  - 2 = Single heart recovery
 #  - 3 = Single heart damage
-#  - 4 = Minigame coin
+#  - 4 = Minigame Medal
 #
-# For AP item, classifications are as reported by ItemClassification.as_flag()
+# Classification for AP items:
+#  - 0 = Filler
+#  - 1 = Progression
+#  - 2 = Useful
+#  - 3 = Trap
 
 
 class Box(IntEnum):
@@ -199,7 +203,7 @@ item_table = {
     'Head Smash':                       ItemData(ItemType.ABILITY,  0x42,                              IC.progression),
     'Progressive Grab':                 ItemData(ItemType.ABILITY,  0x43,                              IC.progression),
     'Dash Attack':                      ItemData(ItemType.ABILITY,  0x44,                              IC.progression),
-    'Enemy Jump':                       ItemData(ItemType.ABILITY,  0x45,                              IC.progression),
+    'Stomp Jump':                       ItemData(ItemType.ABILITY,  0x45,                              IC.progression),
     'Golden Tree Pot':                  ItemData(ItemType.TREASURE, 0x70,                              IC.progression_skip_balancing),
     'Golden Apple':                     ItemData(ItemType.TREASURE, 0x71,                              IC.progression_skip_balancing),
     'Golden Fish':                      ItemData(ItemType.TREASURE, 0x72,                              IC.progression_skip_balancing),
@@ -216,7 +220,8 @@ item_table = {
     'Wario Form Trap':                  ItemData(ItemType.ITEM,     0x81,                              IC.trap),
     'Heart':                            ItemData(ItemType.ITEM,     0x82,                              IC.filler),
     'Lightning Trap':                   ItemData(ItemType.ITEM,     0x83,                              IC.trap),
-    'Minigame Coin':                    ItemData(ItemType.ITEM,     0x84,                              IC.filler),
+    'Minigame Medal':                   ItemData(ItemType.ITEM,     0x84,                              IC.filler),
+    'Diamond':                          ItemData(ItemType.ITEM,     0x85,                              IC.filler),
 }
 
 
