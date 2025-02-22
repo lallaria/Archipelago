@@ -332,7 +332,7 @@ class EoSClient(BizHawkClient):
                 item_data = item_table_by_id[ctx.items_received[received_index + i].item]
                 if (("EarlyDungeons" in item_data.group) or ("LateDungeons" in item_data.group)
                         or ("Dojo Dungeons" in item_data.group) or ("BossDungeons" in item_data.group)
-                        or ("ExtraDungeons" in item_data.group)):
+                        or ("ExtraDungeons" in item_data.group) or ("RuleDungeons" in item_data.group)):
                     item_memory_offset = item_data.memory_offset
                     # Since our open list is a byte array and our memory offset is bit based
                     # We have to grab our significant byte digits
@@ -550,7 +550,7 @@ class EoSClient(BizHawkClient):
                         {"name": item_data.name, "id": item_data.id, "memory_offset": item_data.memory_offset}]
                     await self.update_received_items(ctx, received_items_offset, received_index, i)
                 elif "Trap" in item_data.group:
-                    if item_data.name == "Team Name Trap":
+                    if item_data.name == "Inspiration Strikes!":
                         if ((performance_progress_bitfield[4] >> 0) & 1) == 0:
                             write_byte = performance_progress_bitfield[4] | 0x1
                             performance_progress_bitfield[4] = write_byte
@@ -742,7 +742,7 @@ class EoSClient(BizHawkClient):
 
             if "DeathLink" in ctx.tags and ctx.last_death_link + 1 < time.time():
                 if (self.outside_deathlink == 0) and ((deathlink_sender_bit & 1) == 1):
-                    deathlink_message_from_sky = read_state[15].decode("latin1").rstrip("\x00")
+                    deathlink_message_from_sky = read_state[15].decode("latin1").split(chr(0))[0]
                     deathlink_message_from_sky = re.sub(r"\[.*?]", "", deathlink_message_from_sky)
                     lappyint = self.random.randint(1, 100)
                     #deathlink_message_from_sky = deathlink_message_from_sky.replace("byan", "by an")
@@ -756,9 +756,12 @@ class EoSClient(BizHawkClient):
                         (death_link_sender_offset, int.to_bytes(0), self.ram_mem_domain)
                     ]
                 )
+                await asyncio.sleep(0.1)
             if self.outside_deathlink != 0:
-                write_message = self.deathlink_message.translate("[]~\\").encode("latin1")[0:128]
-                write_message2 = f"[CS:N]{self.deathlink_sender.translate("[]~\\")[0:18]}[CR]".encode("latin1")
+                trans = str.maketrans("[]~\\", "    ")
+                trans.update({0: 32})
+                write_message = self.deathlink_message.translate(trans).split(chr(0))[0].encode("latin1")[0:128]
+                write_message2 = f"[CS:N]{self.deathlink_sender.translate(trans).split(chr(0))[0][0:18]}[CR]".encode("latin1")
                 await bizhawk.write(
                     ctx.bizhawk_ctx,
                     [
