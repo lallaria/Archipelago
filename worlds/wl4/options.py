@@ -100,6 +100,15 @@ class RequiredJewels(Range):
     display_name = 'Required Jewels'
 
 
+class RestrictSelfLockingJewelPieces(Toggle):
+    """
+    Restrict extra jewel pieces from being placed on their own bosses or in the
+    Golden Passage in treasure hunt modes. The latter does not apply to the
+    golden jewel pieces.
+    """
+    display_name = 'Restrict Self-Locking Jewel Pieces'
+
+
 class OpenDoors(Choice):
     """
     Start with all doors in the passages unlocked. This skips the requirement
@@ -143,9 +152,9 @@ class SmashThroughHardBlocks(Toggle):
 class MultiworldSend(Choice):
     """
     When to tell the server you've found items.
-    On Escape: Only count your locations after the game saves.
+    On Escape: Only count your locations after the game saves. If you die or give up, the items you found will be hinted.
     Immediately: Count your locations as you take them from the box.
-    Regardless of this setting, sending other players items from a level you can't clear is not in logic.
+    Regardless of this setting, sending other players items from a level you can't clear is never in logic.
     """
     display_name = 'Send Locations to Server'
     option_on_escape = 0
@@ -235,6 +244,7 @@ wl4_option_groups = [
     OptionGroup("Item Pool", [
         PoolJewels,
         GoldenJewels,
+        RestrictSelfLockingJewelPieces,
         DiamondShuffle,
         PrizeWeight,
         JunkWeight,
@@ -264,6 +274,7 @@ class WL4Options(PerGameCommonOptions):
     portal: Portal
     pool_jewels: PoolJewels
     golden_jewels: GoldenJewels
+    restrict_self_locking_jewel_pieces: RestrictSelfLockingJewelPieces
     diamond_shuffle: DiamondShuffle
     prize_weight: PrizeWeight
     junk_weight: JunkWeight

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Any, Iterable, NamedTuple, Optional, Tuple
+from typing import Any, Iterable, NamedTuple, Optional, Tuple, Union
 
 from BaseClasses import Item, ItemClassification as IC
 
@@ -99,7 +99,15 @@ def wl4_data_from_ap_id(ap_id: int) -> Tuple[str, ItemData]:
             candidates = tuple(filter(lambda d: d[1][0] == ItemType.CD and
                                                 d[1][1] == (passage, level),
                                       item_table.items()))
-    elif val >> 4 == 4:
+    elif val >> 3 == 8:
+        candidates = tuple(filter(lambda d: d[1][0] == ItemType.ABILITY and
+                                            d[1][1] == val,
+                                  item_table.items()))
+    elif val >> 4 == 7:
+        candidates = tuple(filter(lambda d: d[1][0] == ItemType.TREASURE and
+                                            d[1][1] == val,
+                                  item_table.items()))
+    elif val >> 4 == 8:
         candidates = tuple(filter(lambda d: d[1][0] == ItemType.ITEM and
                                             d[1][1] == val,
                                   item_table.items()))
@@ -140,7 +148,7 @@ class WL4Item(Item):
 
 class ItemData(NamedTuple):
     type: ItemType
-    id: Any
+    id: Union[Tuple[Passage, Box], Tuple[Passage, int], int]
     prog: IC
 
     def passage(self):
@@ -148,7 +156,7 @@ class ItemData(NamedTuple):
             return None
         return self.id[0]
 
-    def box(self):
+    def box(self) -> Optional[Box]:
         if self.type == ItemType.JEWEL:
             return self.id[1]
         if self.type == ItemType.CD:
