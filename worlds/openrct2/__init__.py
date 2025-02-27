@@ -150,8 +150,23 @@ class OpenRCT2World(World):
         def locations_to_region(location, ending_location, chosen_region):
             locations = []
             while location < ending_location + 1:
-                locations.append(OpenRCT2Location(self.player, f"OpenRCT2_{location}",
-                                                  self.location_name_to_id[f"OpenRCT2_{location}"], chosen_region))
+                if location < 8:
+                    locations.append(OpenRCT2Location(self.player, f"White_{location}",
+                                                    self.location_name_to_id[f"White_{location}"], chosen_region))
+                else:
+                    color_map = {
+                        0: "Black",
+                        1: "Green",
+                        2: "Blue",
+                        3: "Yellow",
+                        4: "Gold",
+                        5: "Silver",
+                        6: "Celadon",
+                        7: "Pink",
+                    }
+                    color = color_map[location % 8]
+                    locations.append(OpenRCT2Location(self.player, f"{color}_{math.floor(location/8 - 1)}",
+                                                    self.location_name_to_id[f"{color}_{math.floor(location/8 - 1)}"], chosen_region))
                 location += 1
             return locations
 
@@ -164,7 +179,7 @@ class OpenRCT2World(World):
         self.multiworld.regions.append(s)
 
         level0 = Region("OpenRCT2_Level_0", self.player, self.multiworld)  # Levels of the unlock tree
-        level0.locations = [OpenRCT2Location(self.player, "OpenRCT2_0", self.location_name_to_id["OpenRCT2_0"], level0)]
+        level0.locations = [OpenRCT2Location(self.player, "White_0", self.location_name_to_id["White_0"], level0)]
         self.multiworld.regions.append(level0)
 
         level1 = Region("OpenRCT2_Level_1", self.player, self.multiworld)  # Levels of the unlock tree
@@ -207,17 +222,17 @@ class OpenRCT2World(World):
                 pass
             elif count == 1:  # 3 total items, we want 2 to be rides
                 num_rides = 2
-            elif count == 2:  # 7 total items, we want 4 rides and a food stall
+            elif count == 2:  # 7 total items, we want 4 rides
                 num_rides = 4
-                add_rule(region_entrance, lambda state: state.has("Food Stall", self.player))
-            elif count == 3:  # 15 total items, we want 10 rides and now a drink stall
+            elif count == 3:  # 15 total items, we want 10 rides
                 num_rides = 10
-                add_rule(region_entrance, lambda state: state.has("Drink Stall", self.player, 1))
             elif count == 4:  # 23 total items, we want 15 rides and now toilets
                 num_rides = 15
-                add_rule(region_entrance, lambda state: state.has("Toilets", self.player, 1))
-            elif count == 5:  # 31 total items, we want 18 rides and some rules if applicable
+            elif count == 5:  # 31 total items, we want 18 rides, food, drinks, toilets, and some rules if applicable
                 num_rides = 18
+                add_rule(region_entrance, lambda state: state.has("Toilets", self.player, 1))
+                add_rule(region_entrance, lambda state: state.has("Drink Stall", self.player, 1))
+                add_rule(region_entrance, lambda state: state.has("Food Stall", self.player))
                 if self.rules[2] == 1:  # If high construction can be disabled
                     add_rule(region_entrance, lambda state: state.has("Allow High Construction", self.player, 1))
                 if self.rules[3] == 1:  # landscape
@@ -292,6 +307,10 @@ class OpenRCT2World(World):
                 #                                  self.player).entrances)
                 # print("Added rule: \nHave: " + str(
                 #     category) + "\nLocation: " + get_previous_region_from_OpenRCT2_location(location_number))
+            # print("Here's the rule!")
+            # print("Rule Type: " + str(rule_type))
+            # print("Selected Item: " + str(selected_item))
+            # print("Location Number: " + str(location_number))
 
         length_modifier = 0
         difficulty_modifier = 0
@@ -473,6 +492,9 @@ class OpenRCT2World(World):
                       "RideIncome": [0, False], "ShopIncome": [0, False], "ParkRating": [park_rating, False],
                       "LoanPaidOff": [pay_off_loan, False], "Monopoly": [monopoly, False],
                       "UniqueRides": [unique_rides, False]}
+        seed = self.multiworld.player_name[self.player] + str(self.options.scenario) + str(self.multiworld.seed_name)
+        # print("SEEED!")
+        # print(seed)
         # print(objectives)
         # print(self.item_id_to_name)
 
@@ -501,10 +523,15 @@ class OpenRCT2World(World):
         # visualize_regions(self.multiworld.get_region("Menu", self.player), "my_world.puml")
         # print("Here's the final unlock shop:")
         slot_data = self.options.as_dict("difficulty", "scenario_length", "scenario", "death_link", "randomization_range",
-        "stat_rerolls", "randomize_park_values", "ignore_ride_stat_changes", "visibility", "preferred_intensity")
+        "stat_rerolls", "randomize_park_values", "ignore_ride_stat_changes", "visibility", "preferred_intensity", 
+        "all_rides_and_scenery_base", "all_rides_and_scenery_expansion")
         slot_data["objectives"] = objectives
         slot_data["rules"] = self.rules
+        slot_data["seed"] = seed
+        # print("Here's the seed!" + str(seed))
         slot_data["location_prices"] = self.location_prices
+        # print("Here's all the rules!")
+        # print(self.multiworld.rules)
         return slot_data
 
     def create_item(self, item: str) -> OpenRCT2Item:

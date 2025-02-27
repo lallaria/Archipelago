@@ -25,7 +25,7 @@ from .data.ItemList import item_table, item_groups
 from .data.node import Node
 from .Locations import PMLocation
 from .modules.random_shop_prices import get_shop_price
-
+from .modules.random_stat_distribution import generate_random_stats
 from worlds.Files import APDeltaPatch
 from settings import get_settings
 
@@ -190,6 +190,11 @@ def write_patch(
 
 def generate_output(world, output_dir: str) -> None:
 
+    # mario stats
+    if world.options.random_start_stats.value:
+        world.options.starting_hp.value, world.options.starting_fp.value, world.options.starting_bp.value = (
+            generate_random_stats(world.options.random_start_stats_level.value, world.random))
+
     # enemy stats
     enemy_stats, chapter_changes = get_shuffled_chapter_difficulty(
         world.options.enemy_difficulty.value, world.options.starting_map.value, world.random)
@@ -309,6 +314,7 @@ def get_filled_node_list(world):
                                                               cur_node.current_item,
                                                               world.options.include_shops.value,
                                                               world.options.merlow_rewards_pricing.value,
+                                                              world.options.total_power_stars.value,
                                                               world.random)
 
         placed_items.append(cur_node)
