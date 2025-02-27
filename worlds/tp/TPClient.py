@@ -3,6 +3,7 @@ import time
 import traceback
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
+from MultiServer import mark_raw
 import dolphin_memory_engine
 
 from .ClientUtils import VERSION
@@ -36,6 +37,8 @@ CONNECTION_INITIAL_STATUS = "Dolphin connection has not been initiated."
 # EXPECTED_INDEX_ADDR = 0x80406734
 # NODES_START_ADDR = 0x804063B0
 # ACTIVE_NODE_ADDR = 0x80406B18
+
+DEBUGING = False
 
 
 def set_address(
@@ -110,6 +113,7 @@ class TPCommandProcessor(ClientCommandProcessor):
         if isinstance(self.ctx, TPContext):
             logger.info(f"Dolphin Status: {self.ctx.dolphin_status}")
 
+    @mark_raw
     def _cmd_name(self, name: str = "") -> None:
         """Change the name of the current save file"""
 
@@ -206,7 +210,7 @@ class TPContext(CommonContext):
                     not args["slot_data"]["World Version"]
                     or args["slot_data"]["World Version"] != VERSION
                 ):
-                    logger.warn(
+                    logger.warning(
                         f"""Client version does not match version of generated seed. 
                             Things may not work as intended,
                             Seed version:{args["slot_data"]["World Version"]} client version:{VERSION}"""
@@ -378,6 +382,8 @@ async def give_items(ctx: TPContext) -> None:
         for item, idx in ctx.items_received_2:
             # If the item's index is greater than the player's expected index, give the player the item.
             if expected_idx <= idx:
+                if DEBUGING:
+                    logger.info(f"getting item: {LOOKUP_ID_TO_NAME[item.item]}")
                 # Attempt to give the item and increment the expected index.
                 while not await _give_item(ctx, LOOKUP_ID_TO_NAME[item.item]):
                     await asyncio.sleep(0.1)
@@ -598,7 +604,7 @@ async def dolphin_sync_task(ctx: TPContext) -> None:
 
             dolphin_memory_engine.un_hook()
             logger.info(
-                "Connection to Dolphin failed, attempting again in 5 seconds..."
+                "Connection to Dolphin failed due to  error, attempting again in 5 seconds..."
             )
             logger.error(traceback.format_exc())
             ctx.dolphin_status = CONNECTION_LOST_STATUS

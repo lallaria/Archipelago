@@ -22,7 +22,7 @@ class TwilightPrincessWorldTestBase(WorldTestBase):
         logging.FileHandler("worlds\\twilight_princess_apworld\\tests\\logs.log")
     )
 
-    run_long_tests = False
+    run_long_tests = True
 
     # Make sure that options are rest for every test
     @pytest.fixture(autouse=True)
@@ -53,9 +53,9 @@ class TwilightPrincessWorldTestBase(WorldTestBase):
             "overworld_shuffled": True,
             "heart_piece_shuffled": True,
             "dungeons_shuffled": True,
-            "small_key_settings": SmallKeySettings.option_keysy,
-            "big_key_settings": BigKeySettings.option_keysy,
-            "map_and_compass_settings": MapAndCompassSettings.option_keysy,
+            "small_key_settings": SmallKeySettings.option_anywhere,
+            "big_key_settings": BigKeySettings.option_anywhere,
+            "map_and_compass_settings": MapAndCompassSettings.option_anywhere,
             # "dungeon_rewards_progression": True,
             # "small_keys_on_bosses": 0,
             "skip_prologue": True,

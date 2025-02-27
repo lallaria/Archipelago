@@ -32,7 +32,7 @@ dungeon_values = [
     DungeonItem.option_vanilla,
     DungeonItem.option_own_dungeon,
     DungeonItem.option_any_dungeon,
-    DungeonItem.option_keysy,
+    DungeonItem.option_anywhere,
 ]
 
 
@@ -108,9 +108,9 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
         "overworld_shuffled": True,
         "heart_piece_shuffled": True,
         "dungeons_shuffled": True,
-        "small_key_settings": DungeonItem.option_keysy,
-        "big_key_settings": DungeonItem.option_keysy,
-        "map_and_compass_settings": DungeonItem.option_keysy,
+        "small_key_settings": DungeonItem.option_anywhere,
+        "big_key_settings": DungeonItem.option_anywhere,
+        "map_and_compass_settings": DungeonItem.option_anywhere,
         "skip_prologue": True,
         "faron_twilight_cleared": True,
         "eldin_twilight_cleared": True,
@@ -131,8 +131,9 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
             return
         combinations = generate_all_shuffle_options_dungeon(True)
         combinations.extend(generate_all_shuffle_options_dungeon(False))
+        valid = True
+        pass_count = 0
         for combination in combinations:
-            valid = True
             with self.subTest(
                 "Twilight Princess Options", game=self.game, seed=self.multiworld.seed
             ):
@@ -141,20 +142,25 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
                 if any([self.options[key] for key in bool_options]):
                     try:
                         self.world_setup(get_seed())
+                        # self.assertBeatable(True)
+                        pass_count += 1
                     except Exception as e:
                         self.logger.info(
                             f"Dungeon: {e=},{print_exception(e)}\n{self.options=}\n"
                         )
                         valid = False
-            self.assertTrue(valid, "Dungeon options cause error check logs")
+        self.assertTrue(valid, f"Dungeon options cause error check logs. {pass_count=}")
 
     def test_all_bool_options(self):
         if not self.run_long_tests:
             return
         combinations = generate_all_shuffle_options_bool(DungeonItem.option_vanilla)
-        combinations.extend(generate_all_shuffle_options_bool(DungeonItem.option_keysy))
+        combinations.extend(
+            generate_all_shuffle_options_bool(DungeonItem.option_anywhere)
+        )
+        valid = True
+        pass_count = 0
         for combination in combinations:
-            valid = True
             with self.subTest(
                 "Twilight Princess Options", game=self.game, seed=self.multiworld.seed
             ):
@@ -163,6 +169,8 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
                 if any([self.options[key] for key in bool_options]):
                     try:
                         self.world_setup(get_seed())
+                        # self.assertBeatable(True)
+                        pass_count += 1
                     except Exception as e:
                         # self.logger.info("a")
                         # Only one of Dungeons and Overworld can be false
@@ -182,7 +190,7 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
                                     f"Bool: {e=},{print_exception(e)}\n{self.options=}\n"
                                 )
                                 valid = False
-            self.assertTrue(valid, "Bool options cause error check logs")
+        self.assertTrue(valid, f"Bool options cause error check logs. {pass_count=}")
 
     def test_no_shuffle_options(self):
         self.options["golden_bugs_shuffled"] = False
@@ -212,9 +220,9 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
             "overworld_shuffled": OverWoldShuffled.default,
             "heart_piece_shuffled": HeartPieceShuffled.default,
             "dungeons_shuffled": DungeonsShuffled.default,
-            "small_key_settings": SmallKeySettings.option_keysy,
-            "big_key_settings": BigKeySettings.option_keysy,
-            "map_and_compass_settings": MapAndCompassSettings.option_keysy,
+            "small_key_settings": SmallKeySettings.option_anywhere,
+            "big_key_settings": BigKeySettings.option_anywhere,
+            "map_and_compass_settings": MapAndCompassSettings.option_anywhere,
             "dungeon_rewards_progression": DungeonRewardsProgression.default,
             "small_keys_on_bosses": SmallKeysOnBosses.default,
             "skip_prologue": SkipPrologue.default,
@@ -235,3 +243,4 @@ class TestShuffleOptions(TwilightPrincessWorldTestBase):
             "tot_entrance": TotEntrance.default,
         }
         self.world_setup(get_seed())
+        # self.assertBeatable(True)
