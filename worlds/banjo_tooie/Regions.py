@@ -1,7 +1,7 @@
 import copy
 import typing
 from BaseClasses import Region
-from worlds.banjo_tooie.Options import VictoryCondition
+from .Options import VictoryCondition
 
 from .Names import regionName, locationName, itemName
 from .Locations import BanjoTooieLocation
@@ -1262,7 +1262,7 @@ def create_regions(self):
         for region, locations in nest_map.items():
             for location in locations:
                 region_map[region].append(location)
-    
+
     if self.options.randomize_signposts:
         signpost_map = copy.deepcopy(SIGNPOST_REGIONS)
         for region, locations in signpost_map.items():
@@ -1435,6 +1435,10 @@ def connect_regions(self):
                          regionName.GI5: lambda state: rules.F1_to_F5(state),
                          regionName.CHUFFY: lambda state: rules.can_beat_king_coal(state) and rules.gi_to_chuffy(state)})
 
+    # We explicitly add this indirect connection as F1_to_F5 check has a region check on GI4
+    entrance_GI1_to_GI5 = next(e for e in region_GI1.exits if e.connected_region.name == regionName.GI5)
+    self.multiworld.register_indirect_condition(self.get_region(regionName.GI4), entrance_GI1_to_GI5)
+
     region_GI2 = self.get_region(regionName.GI2)
     region_GI2.add_exits({regionName.GIOB, regionName.GI1, regionName.GI2EM, regionName.GI3},
                         {regionName.GI1: lambda state: rules.F2_to_F1(state),
@@ -1557,4 +1561,3 @@ def connect_regions(self):
         region_JV.add_exits({regionName.IOHPL, regionName.IOHCT, regionName.IOHPG, regionName.IOHWL, regionName.IOHQM})
     else: # The value is a region name of the overworld.
         region_JV.add_exits({silo})
-
