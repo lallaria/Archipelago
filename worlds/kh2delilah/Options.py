@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Accessibility, Choice, Range, Toggle, OptionDict, ItemDict, PerGameCommonOptions, StartInventoryPool, ItemsAccessibility
+from Options import Choice, Range, Toggle, ItemDict, OptionDict, PerGameCommonOptions, StartInventoryPool, ItemsAccessibility
 
 from . import default_itempool_option, default_keyblade_pool
 
@@ -334,7 +334,7 @@ class CorSkipToggle(Toggle):
     display_name = "CoR Skip Toggle"
     default = False
 
-class CustomKeybladePool(ItemDict):
+class CustomKeybladePool(OptionDict):
     """Abilities that are allowed to go onto Keyblades. 
     
     Note: Values will not change ability pool values.
@@ -344,6 +344,7 @@ class CustomKeybladePool(ItemDict):
     prevent both from showing up on keyblades but
     
     not remove from the overall pool."""
+    verify_item_name = True
     display_name = "Keyblade Ability Pool"
     valid_keys = default_keyblade_pool.keys()
     default = default_keyblade_pool
