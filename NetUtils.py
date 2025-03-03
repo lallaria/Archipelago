@@ -288,8 +288,9 @@ class RawJSONtoTextParser(JSONtoTextParser):
 
 # setting ansi colors - Added many 8 bit to go with the 4 bit.
 color_codes = {'reset': 0, 'bold': 1, 'underline': 4, 'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34,
-                'magenta': 35, 'cyan': 36, 'white': 37, 
-                'plum': 33, 'slateblue': 32, 'salmon': 31,
+                'magenta': 35, 'cyan': 36, 'white': 37, 'black_bg': 40, 'red_bg': 41, 'green_bg': 42, 'yellow_bg': 43,
+                'blue_bg': 44, 'magenta_bg': 45, 'cyan_bg': 46, 'white_bg': 47,
+                'plum': 33, 'slateblue': 32, 'salmon': 31, 'limegreen': 32, 'lightgray': 37, 'gold': 33,
                 'notfoundcolor': '38;5;196', #red
                 'foundcolor': '38;5;34', #green
                 'friendcolor': '38;5;75', #ltblue
@@ -322,7 +323,7 @@ def add_json_item(parts: list, item_id: int, player: int = 0, item_flags: int = 
 def add_json_location(parts: list, location_id: int, player: int = 0, **kwargs) -> None:
     parts.append({"text": str(location_id), "player": player, "type": JSONTypes.location_id, **kwargs})
 
-
+## HintStatus map is the location identifier/colors
 status_names: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "(found)",
     HintStatus.HINT_UNSPECIFIED: "(unspecified)",
@@ -332,10 +333,10 @@ status_names: typing.Dict[HintStatus, str] = {
 }
 status_colors: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "green",
-    HintStatus.HINT_UNSPECIFIED: "usefulcolor",
-    HintStatus.HINT_NO_PRIORITY: "junkcolor",
-    HintStatus.HINT_AVOID: "trapcolor",
-    HintStatus.HINT_PRIORITY: "wothcolor",
+    HintStatus.HINT_UNSPECIFIED: "white",
+    HintStatus.HINT_NO_PRIORITY: "lightgray",
+    HintStatus.HINT_AVOID: "salmon",
+    HintStatus.HINT_PRIORITY: "gold",
 }
 
 

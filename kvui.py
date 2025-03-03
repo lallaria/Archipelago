@@ -825,7 +825,7 @@ class HintLayout(BoxLayout):
         boxlayout.add_widget(AutocompleteHintInput())
         self.add_widget(boxlayout)
 
-
+## HintStatus is location info/colors
 status_names: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "Found",
     HintStatus.HINT_UNSPECIFIED: "Unspecified",
@@ -835,10 +835,10 @@ status_names: typing.Dict[HintStatus, str] = {
 }
 status_colors: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "green",
-    HintStatus.HINT_UNSPECIFIED: "usefulcolor",
-    HintStatus.HINT_NO_PRIORITY: "junkcolor",
-    HintStatus.HINT_AVOID: "trapcolor",
-    HintStatus.HINT_PRIORITY: "wothcolor",
+    HintStatus.HINT_UNSPECIFIED: "white",
+    HintStatus.HINT_NO_PRIORITY: "lightgray",
+    HintStatus.HINT_AVOID: "salmon",
+    HintStatus.HINT_PRIORITY: "gold",
 }
 status_sort_weights: dict[HintStatus, int] = {
     HintStatus.HINT_FOUND: 0,
