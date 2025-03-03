@@ -835,10 +835,10 @@ status_names: typing.Dict[HintStatus, str] = {
 }
 status_colors: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "green",
-    HintStatus.HINT_UNSPECIFIED: "white",
-    HintStatus.HINT_NO_PRIORITY: "cyan",
-    HintStatus.HINT_AVOID: "salmon",
-    HintStatus.HINT_PRIORITY: "plum",
+    HintStatus.HINT_UNSPECIFIED: "usefulcolor",
+    HintStatus.HINT_NO_PRIORITY: "junkcolor",
+    HintStatus.HINT_AVOID: "trapcolor",
+    HintStatus.HINT_PRIORITY: "wothcolor",
 }
 status_sort_weights: dict[HintStatus, int] = {
     HintStatus.HINT_FOUND: 0,
