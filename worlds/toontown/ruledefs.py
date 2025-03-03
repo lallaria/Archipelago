@@ -34,9 +34,9 @@ def has_collected_items_for_gag_level(state: CollectionState, player: int, optio
         max_xp = options.get("max_gag_xp", 30)
         start_xp = options.get("start_gag_xp", 5)
     # Determines if a given player has collected a sufficient amount of the XP items in the run.
-    # always returns True if the player has a difference of less than 5 mult between start and max (aka, assumes they don't care)
+    # always returns True if the player has a difference of less than 10 mult between start and max (aka, assumes they don't care)
     xp = state.count(ToontownItemName.GAG_MULTIPLIER_1.value, player) + (2 * state.count(ToontownItemName.GAG_MULTIPLIER_2.value, player))
-    sufficient_xp = XP_RATIO_FOR_GAG_LEVEL.get(level) <= (xp / max_xp) if (max_xp - start_xp) >= 5 else True
+    sufficient_xp = XP_RATIO_FOR_GAG_LEVEL.get(level) <= (xp / max_xp) if (max_xp - start_xp) >= 10 else True
 
     # Check collected gag capacity items too.
     cap = state.count(ToontownItemName.GAG_CAPACITY_5.value, player) + (
@@ -67,8 +67,6 @@ def has_collected_items_for_gag_level(state: CollectionState, player: int, optio
 @rule(Rule.PolarPlace)
 @rule(Rule.LullabyLane)
 @rule(Rule.PajamaPlace)
-@rule(Rule.TierOneCogs)
-@rule(Rule.TierTwoCogs)
 def AlwaysTrueRule(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
     return True
 
@@ -85,18 +83,18 @@ def HasItemRule(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, 
     return state.has(argument[0].value, player)
 
 
-@rule(Rule.FrontFactoryKey, ToontownItemName.FRONT_FACTORY_ACCESS, Rule.Has40PercentMax)
-@rule(Rule.SideFactoryKey,  ToontownItemName.SIDE_FACTORY_ACCESS, Rule.Has40PercentMax)
-@rule(Rule.CoinMintKey,     ToontownItemName.COIN_MINT_ACCESS, Rule.Has40PercentMax)
-@rule(Rule.DollarMintKey,   ToontownItemName.DOLLAR_MINT_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.BullionMintKey,  ToontownItemName.BULLION_MINT_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.OfficeAKey,      ToontownItemName.A_OFFICE_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.OfficeBKey,      ToontownItemName.B_OFFICE_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.OfficeCKey,      ToontownItemName.C_OFFICE_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.OfficeDKey,      ToontownItemName.D_OFFICE_ACCESS, Rule.Has80PercentMax)
-@rule(Rule.FrontOneKey,     ToontownItemName.FRONT_ONE_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.MiddleTwoKey,    ToontownItemName.MIDDLE_TWO_ACCESS, Rule.Has60PercentMax)
-@rule(Rule.BackThreeKey,    ToontownItemName.BACK_THREE_ACCESS, Rule.Has80PercentMax)
+@rule(Rule.FrontFactoryKey, ToontownItemName.FRONT_FACTORY_ACCESS)
+@rule(Rule.SideFactoryKey,  ToontownItemName.SIDE_FACTORY_ACCESS)
+@rule(Rule.CoinMintKey,     ToontownItemName.COIN_MINT_ACCESS)
+@rule(Rule.DollarMintKey,   ToontownItemName.DOLLAR_MINT_ACCESS)
+@rule(Rule.BullionMintKey,  ToontownItemName.BULLION_MINT_ACCESS)
+@rule(Rule.OfficeAKey,      ToontownItemName.A_OFFICE_ACCESS)
+@rule(Rule.OfficeBKey,      ToontownItemName.B_OFFICE_ACCESS)
+@rule(Rule.OfficeCKey,      ToontownItemName.C_OFFICE_ACCESS)
+@rule(Rule.OfficeDKey,      ToontownItemName.D_OFFICE_ACCESS)
+@rule(Rule.FrontOneKey,     ToontownItemName.FRONT_ONE_ACCESS)
+@rule(Rule.MiddleTwoKey,    ToontownItemName.MIDDLE_TWO_ACCESS)
+@rule(Rule.BackThreeKey,    ToontownItemName.BACK_THREE_ACCESS)
 def CanEnterFacility(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
     args = (state, locentr, world, player, options)
     itemToHQAccessRule = {
@@ -120,8 +118,7 @@ def CanEnterFacility(state: CollectionState, locentr: LocEntrDef, world: MultiWo
     # Facilities have their own keys
     if locking_method == FacilityLocking.option_keys:
         return state.has(argument[0].value, player) \
-               and passes_rule(itemToHQAccessRule[argument[0]], *args) \
-               and passes_rule(argument[1], *args)
+               and passes_rule(itemToHQAccessRule[argument[0]], *args)
     # Facilities are locked by a second access key
     elif locking_method == FacilityLocking.option_access:
         key_to_access = {
@@ -139,13 +136,11 @@ def CanEnterFacility(state: CollectionState, locentr: LocEntrDef, world: MultiWo
             ToontownItemName.BACK_THREE_ACCESS: ToontownItemName.BBHQ_ACCESS,
         }
         return state.count(key_to_access[argument[0]].value, player) >= 2 \
-               and passes_rule(itemToHQAccessRule[argument[0]], *args) \
-               and passes_rule(argument[1], *args)
+               and passes_rule(itemToHQAccessRule[argument[0]], *args)
     # Facilities must be set to unlocked, access is true as long as we can reach the HQ
     else:
         return passes_rule(itemToHQAccessRule[argument[0]], *args) \
-               and passes_rule(itemToHQAccessRule[argument[0]], *args) \
-               and passes_rule(argument[1], *args)
+               and passes_rule(itemToHQAccessRule[argument[0]], *args)
 
 
 @rule(Rule.Has20PercentMax, 0.2)
@@ -157,7 +152,7 @@ def HasEnoughLaff(state: CollectionState, locentr: LocEntrDef, world: MultiWorld
         base_hp = options.starting_laff.value
         max_hp = options.max_laff.value
         goal_laff = options.laff_points_required.value
-        laff_o = options.win_condition_laff_o_lympics
+        laff_o = "laff-o-lympics" in options.win_condition
         if laff_o:
             max_hp = max(max_hp, goal_laff)
     else:
@@ -399,7 +394,7 @@ def GagTraining(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, 
     if argument[0] == ToontownItemName.LURE_FRAME:
         return state.has(argument[0].value, player, argument[1]) \
                and has_collected_items_for_gag_level(state, player, options, argument[1]) \
-               and (state.has(ToontownItemName.TRAP_FRAME.value, player) or state.has(ToontownItemName.SQUIRT_FRAME.value, player) or state.has(ToontownItemName.THROW_FRAME.value, player))
+               and (state.has(ToontownItemName.TRAP_FRAME.value, player) or state.has(ToontownItemName.SQUIRT_FRAME.value, player) or state.has(ToontownItemName.THROW_FRAME.value, player) or state.has(ToontownItemName.SOUND_FRAME.value, player))
     return state.has(argument[0].value, player, argument[1]) \
            and has_collected_items_for_gag_level(state, player, options, argument[1])
 
@@ -443,54 +438,88 @@ def PlaygroundCountRule(state: CollectionState, locentr: LocEntrDef, world: Mult
     ]
     return sum(int(state.can_reach(pg.value, None, player)) for pg in pgs) >= argument[0]
 
+@rule(Rule.TierOneCogs)
+@rule(Rule.TierTwoCogs)
+def TierOneCogs(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
+    return passes_rule(Rule.HasLevelOneOffenseGag, state, locentr, world, player, options)
 
-@rule(Rule.TierThreeCogs)
-def TierThreeCogs(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
-    return passes_rule(Rule.HasLevelTwoOffenseGag, state, locentr, world, player, options)
-
-
-@rule(Rule.TierFourCogs)
-@rule(Rule.TierFiveCogs)
-def TierFiveCogs(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
-    pgs = [
-        ToontownRegionName.DD,
-        ToontownRegionName.DG,
-        ToontownRegionName.MML,
-        ToontownRegionName.TB,
-        ToontownRegionName.DDL,
-    ]
+@rule(Rule.TierThreeCogs, 3, None)
+@rule(Rule.TierFourCogs, 4, None)
+@rule(Rule.TierFourSellbot, 4, ToontownRegionName.SBHQ)
+@rule(Rule.TierFourCashbot, 4, ToontownRegionName.CBHQ)
+@rule(Rule.TierFourLawbot,  4, None)
+@rule(Rule.TierFourBossbot, 4, None)
+@rule(Rule.TierFiveCogs, 5, None)
+@rule(Rule.TierFiveSellbot, 5, ToontownRegionName.SBHQ)
+@rule(Rule.TierFiveCashbot, 5, ToontownRegionName.CBHQ)
+@rule(Rule.TierFiveLawbot,  5, ToontownRegionName.LBHQ)
+@rule(Rule.TierFiveBossbot, 5, ToontownRegionName.BBHQ)
+@rule(Rule.TierSixCogs, 6, None)
+@rule(Rule.TierSixSellbot, 6, ToontownRegionName.SBHQ)
+@rule(Rule.TierSixCashbot, 6, ToontownRegionName.CBHQ)
+@rule(Rule.TierSixLawbot,  6, ToontownRegionName.LBHQ)
+@rule(Rule.TierSixBossbot, 6, ToontownRegionName.BBHQ)
+@rule(Rule.TierEightSellbot, 8, ToontownRegionName.SBHQ)
+@rule(Rule.TierEightCashbot, 8, ToontownRegionName.CBHQ)
+@rule(Rule.TierEightLawbot,  8, ToontownRegionName.LBHQ)
+@rule(Rule.TierEightBossbot, 8, ToontownRegionName.BBHQ)
+def CanReachCogTier(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
+    tier_to_info = {
+        3: {
+            "pgs": [
+                ToontownRegionName.DD,
+                ToontownRegionName.DG,
+                ToontownRegionName.MML,
+                ToontownRegionName.TB
+            ],
+            "gag_rule": Rule.HasLevelTwoOffenseGag
+        },
+        4: {
+            "pgs": [
+                ToontownRegionName.DD,
+                ToontownRegionName.DG,
+                ToontownRegionName.MML,
+                ToontownRegionName.TB,
+                ToontownRegionName.DDL,
+            ],
+            "gag_rule": Rule.HasLevelThreeOffenseGag
+        },
+        5: {
+            "pgs": [
+                ToontownRegionName.DG,
+                ToontownRegionName.MML,
+                ToontownRegionName.TB,
+                ToontownRegionName.DDL,
+            ],
+            "gag_rule": Rule.HasLevelThreeOffenseGag
+        },
+        6: {
+            "pgs": [
+                ToontownRegionName.MML,
+                ToontownRegionName.TB,
+                ToontownRegionName.DDL,
+            ],
+            "gag_rule": Rule.HasLevelFourOffenseGag
+        },
+        8: {
+            "pgs": [  # We rely on tier 7s and 8s to be found in HQs only, added separately
+            ],
+            "gag_rule": Rule.HasLevelFourOffenseGag
+        },
+    }
+    tier = argument[0]
+    tier_info = tier_to_info[tier]
+    pgs = tier_info["pgs"]
+    gag_rule = tier_info["gag_rule"]
+    # Add the respective cog HQ to logical areas to locate tier
+    if argument[1] is not None:
+        pgs.append(argument[1])
+    if tier == 8:  # Tier is 7/8, need to check laff too
+        return any(state.can_reach(pg.value, None, player) for pg in pgs) \
+               and passes_rule(gag_rule, state, locentr, world, player, options) \
+               and passes_rule(Rule.Has20PercentMax, state, locentr, world, player, options)
     return any(state.can_reach(pg.value, None, player) for pg in pgs) \
-           and passes_rule(Rule.HasLevelThreeOffenseGag, state, locentr, world, player, options)
-
-
-@rule(Rule.TierSixCogs)
-def ReachPastDD(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
-    pgs = [
-        ToontownRegionName.DG,
-        ToontownRegionName.MML,
-        ToontownRegionName.TB,
-        ToontownRegionName.DDL,
-    ]
-    return any(state.can_reach(pg.value, None, player) for pg in pgs) \
-           and passes_rule(Rule.HasLevelFourOffenseGag, state, locentr, world, player, options)
-
-
-@rule(Rule.TierEightSellbot, ToontownRegionName.SBHQ)
-@rule(Rule.TierEightCashbot, ToontownRegionName.CBHQ)
-@rule(Rule.TierEightLawbot,  ToontownRegionName.LBHQ)
-@rule(Rule.TierEightBossbot, ToontownRegionName.BBHQ)
-def TierEightCogs(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
-    pgs = [
-        # ToontownRegionName.MML,
-        # ToontownRegionName.TB,
-        # ToontownRegionName.DDL,
-    ]
-    if argument:
-        pgs.append(argument[0])
-    return any(state.can_reach(pg.value, None, player) for pg in pgs) \
-           and passes_rule(Rule.HasLevelFourOffenseGag, state, locentr, world, player, options) \
-           and passes_rule(Rule.Has20PercentMax, state, locentr, world, player, options)
-
+           and passes_rule(gag_rule, state, locentr, world, player, options)
 
 @rule(Rule.OneStory, 1)
 @rule(Rule.TwoStory, 2)
@@ -541,6 +570,18 @@ def CanReachBldg(state: CollectionState, locentr: LocEntrDef, world: MultiWorld,
 
 
 @rule(Rule.HasLevelOneOffenseGag,   1)
+def hasDamageGag(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
+    OFFENSIVE: List[ToontownItemName] = [
+            ToontownItemName.SOUND_FRAME,
+            ToontownItemName.THROW_FRAME,
+            ToontownItemName.SQUIRT_FRAME,
+            ToontownItemName.DROP_FRAME
+            ]
+    if state.has(ToontownItemName.TRAP_FRAME.value, player) and state.has(ToontownItemName.LURE_FRAME.value, player):
+        return True
+    return any(state.has(gag.value, player) for gag in OFFENSIVE)
+
+
 @rule(Rule.HasLevelTwoOffenseGag,   2)
 @rule(Rule.HasLevelThreeOffenseGag, 3)
 @rule(Rule.HasLevelFourOffenseGag,  4)
@@ -600,16 +641,14 @@ def CanFightCFO(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, 
 def CanFightCJ(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
     args = (state, locentr, world, player, options)
     return passes_rule(Rule.CanReachLBHQ, *args) and passes_rule(Rule.LawbotDisguise, *args) \
-            and passes_rule(Rule.HasLevelSevenOffenseGag, *args) and passes_rule(Rule.CanFightVP, *args) \
-            and passes_rule(Rule.CanFightCFO, *args) and passes_rule(Rule.Has60PercentMax, *args)
+            and passes_rule(Rule.HasLevelSevenOffenseGag, *args) and passes_rule(Rule.Has60PercentMax, *args)
 
 
 @rule(Rule.CanFightCEO)
 def CanFightCEO(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
     args = (state, locentr, world, player, options)
     return passes_rule(Rule.CanReachBBHQ, *args) and passes_rule(Rule.BossbotDisguise, *args) \
-            and passes_rule(Rule.HasLevelEightOffenseGag, *args) and passes_rule(Rule.CanFightVP, *args) \
-            and passes_rule(Rule.CanFightCFO, *args) and passes_rule(Rule.Has80PercentMax, *args)
+            and passes_rule(Rule.HasLevelEightOffenseGag, *args) and passes_rule(Rule.Has80PercentMax, *args)
 
 
 @rule(Rule.AllBossesDefeated)
@@ -641,8 +680,8 @@ def AllFishCaught(state: CollectionState, locentr: LocEntrDef, world: MultiWorld
 @rule(Rule.TaskedAllHoods)
 def TaskedAllHoods(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
     if isinstance(options, ToontownOptions):
-        total_tasks = options.win_condition_total_tasks
-        hood_tasks = options.win_condition_hood_tasks
+        total_tasks = "total-tasks" in options.win_condition
+        hood_tasks = "hood-tasks" in options.win_condition
         tasks_required = options.total_tasks_required.value
     else:
         total_tasks = options.get("win_condition", 0) & ToontownWinCondition.total_tasks
@@ -716,6 +755,16 @@ def MaxedAllGags(state: CollectionState, locentr: LocEntrDef, world: MultiWorld,
     maxed_gags = sum(HasLevelSeven(gag) for gag in gag_items)
     return maxed_gags >= required_gags and passes_rule(Rule.CanReachTTC, *args)  # TECHNICALLY TRUE!
 
+@rule(Rule.CanReachBounties)
+def CanReachBounties(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
+    if isinstance(options, ToontownOptions):
+        bounties_required = options.bounties_required.value
+    else:
+        bounties_required = options.get('bounties_required', 10)
+    args = (state, locentr, world, player, options)
+
+    return state.count(ToontownItemName.BOUNTY.value, player) >= bounties_required and passes_rule(Rule.CanReachTTC, *args)  # TECHNICALLY TRUE!
+
 
 @rule(Rule.CanWinGame)
 def CanWinGame(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, player: int, options, argument: Tuple = None):
@@ -731,6 +780,7 @@ def CanWinGame(state: CollectionState, locentr: LocEntrDef, world: MultiWorld, p
         ToontownWinCondition.gag_tracks: Rule.MaxedAllGags,  # Max Gags Goal
         ToontownWinCondition.fish_species: Rule.AllFishCaught,  # Fish Species Goal
         ToontownWinCondition.laff_o_lympics: Rule.GainedEnoughLaff,  # Laff-O-Lympics Goal
+        ToontownWinCondition.bounty: Rule.CanReachBounties,  # Bounty Goal
     }
     # Return our goal rule, default to None if invalid
     return all(passes_rule(win_conditions.get(f), *args) for f in win_condition)

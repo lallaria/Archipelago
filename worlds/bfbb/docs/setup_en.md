@@ -25,7 +25,7 @@ see [here](https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/apworld%2
 ### What is a config file and why do I need one?
 
 See the guide on setting up a basic YAML at the Archipelago setup
-guide: [Basic Multiworld Setup Guide](https://archipelago.gg/tutorial/Archipelago/setup/en)
+guide: [Basic Multiworld Setup Guide](https://trezapalooza.com/tutorial/Archipelago/setup/en)
 
 ### Where do I get a config file?
 
@@ -34,7 +34,7 @@ A default yaml is included in the download. Alternative you can use the Web Host
 ### Verifying your config file
 
 If you would like to validate your config file to make sure it works, you may do so on the YAML Validator page. YAML
-validator page: [YAML Validation page](https://archipelago.gg/mysterycheck)
+validator page: [YAML Validation page](https://trezapalooza.com/mysterycheck)
 
 ## Joining a MultiWorld Game
 
@@ -67,7 +67,7 @@ The recommended way to host a game is to use the Archipelago hosting service. Th
 2. Place the config files in the ``Players`` folder in your Archipelago install
 3. Run ``ArchipelagoGenerate.exe`` and location the resulting zip in the ``output`` folder
 4. Upload that zip file to the Host Game page.
-    - Generate page: [WebHost Host Game Page](https://archipelago.gg/uploads)
+    - Generate page: [WebHost Host Game Page](https://trezapalooza.com/uploads)
 5. Click "Create New Room". This will take you to the server page. Provide the link to this page to your players, so
    they may download their patch files from there.
 6. Note that a link to a MultiWorld Tracker is at the top of the room page. The tracker shows the progress of all

@@ -9,9 +9,9 @@
 *.apmc
 *.apz5
 *.aptloz
+*.aptww
 *.apemerald
 *.pyc
-*.pyd
 *.sfc
 *.z64
 *.n64
@@ -197,3 +197,8 @@ minecraft_versions.json
 .LSOverride
 Thumbs.db
 [Dd]esktop.ini
+
+VC_redist.x64.exe
+
+certs/*.pem
+certs/README

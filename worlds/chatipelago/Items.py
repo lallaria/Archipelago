@@ -74,12 +74,11 @@ item_table = [
     # ItemName.ItemNum60,
     # ItemName.ItemNum61,
 ]
-
 trap_item_table = [
     ItemName.ItemNum197,
     ItemName.ItemNum198,
     ItemName.ItemNum199, 
-] 
+]
 # stuff that can be duplicated to fill in extras
 filler_table = [
     ItemName.ItemNum200,

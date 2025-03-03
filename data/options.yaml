@@ -18,7 +18,7 @@
 #    To test if your yaml is valid or not, you can use this website:
 #        http://www.yamllint.com/
 #    You can also verify that your Archipelago options are valid at this site:
-#        https://archipelago.gg/check
+#        https://trezapalooza.com/check
 
 # Your name in-game, limited to 16 characters.
 #     {player} will be replaced with the player's slot number.

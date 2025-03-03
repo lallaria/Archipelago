@@ -1,5 +1,5 @@
 from typing import Dict
-from logging import warning
+from collections import Counter
 import struct
 import math
 
@@ -56,17 +56,17 @@ def initialize_enemies(world):
         "Thunder Mite": EarthBoundEnemy("Thunder Mite", 0x15a0eb, 293, 200, 10798, 430, 20, 85, 83, 43, False),
         "Cranky Lady": EarthBoundEnemy("Cranky Lady", 0x15a149, 95, 0, 200, 17, 6, 16, 18, 8, False),
         "Extra Cranky Lady": EarthBoundEnemy("Extra Cranky Lady", 0x15a1a7, 277, 0, 3651, 134, 17, 48, 70, 27, False),
-        #F"Giygas (Unused)": EarthBoundEnemy("Giygas (Unused)", 0x15a205, 3600, 0, 0, 0, 52, 203, 300, 73, False),
+        # F"Giygas (Unused)": EarthBoundEnemy("Giygas (Unused)", 0x15a205, 3600, 0, 0, 0, 52, 203, 300, 73, False),
         "Wetnosaur": EarthBoundEnemy("Wetnosaur", 0x15a263, 1030, 0, 33098, 745, 17, 126, 172, 59, False),
-        "Chomposaur": EarthBoundEnemy("Chomposaur", 0x15a2c1, 1288, 320, 44378, 896, 17, 139, 183, 62, False, "phys_2"),
+        "Chomposaur": EarthBoundEnemy("Chomposaur", 0x15a2c1, 1288, 320, 44378, 896, 17, 139, 183, 62, False, "phys_2", 2),
         "Titanic Ant": EarthBoundEnemy("Titanic Ant", 0x15a31f, 235, 102, 685, 150, 6, 19, 23, 13, False, None, 2),
-        "Gigantic Ant": EarthBoundEnemy("Gigantic Ant", 0x15a37d, 308, 81, 3980, 304, 17, 54, 112, 30, False),
+        "Gigantic Ant": EarthBoundEnemy("Gigantic Ant", 0x15a37d, 308, 81, 3980, 304, 17, 54, 112, 30, False, None, 2),
         "Shrooom!": EarthBoundEnemy("Shrooom!", 0x15a3db, 1700, 112, 96323, 4086, 18, 95, 154, 48, False, None, 2),
         "Plague Rat of Doom": EarthBoundEnemy("Plague Rat of Doom", 0x15a439, 1827, 60, 115272, 4464, 19, 71, 180, 47, False, None, 2),
         "Mondo Mole": EarthBoundEnemy("Mondo Mole", 0x15a497, 498, 161, 5791, 400, 9, 37, 50, 23, False, None, 2),
         "Guardian Digger": EarthBoundEnemy("Guardian Digger", 0x15a4f5, 386, 110, 17301, 1467, 17, 59, 129, 32, False, "phys_2", 2),
         "Scalding Coffee Cup": EarthBoundEnemy("Scalding Coffee Cup", 0x15a553, 190, 0, 2462, 280, 23, 55, 20, 30, False),
-        "Loaded Dice": EarthBoundEnemy("Loaded Dice", 0x15a5b1, 307, 0, 10672, 703, 77, 146, 113, 59, False),
+        "Loaded Dice": EarthBoundEnemy("Loaded Dice", 0x15a5b1, 307, 0, 10672, 703, 77, 146, 113, 59, False, None, 2),
         "Slimy Little Pile": EarthBoundEnemy("Slimy Little Pile", 0x15a60f, 224, 0, 1978, 124, 15, 42, 61, 24, False),
         "Even Slimier Little Pile": EarthBoundEnemy("Even Slimier Little Pile", 0x15a66d, 326, 0, 15075, 579, 22, 103, 101, 49, False),
         "Arachnid!": EarthBoundEnemy("Arachnid!", 0x15a6cb, 216, 0, 4933, 296, 23, 61, 30, 32, False),
@@ -91,13 +91,13 @@ def initialize_enemies(world):
         "Dread Skelpion": EarthBoundEnemy("Dread Skelpion", 0x15adc5, 214, 125, 9908, 609, 40, 82, 57, 41, False),
         "Starman": EarthBoundEnemy("Starman", 0x15ae23, 545, 155, 23396, 720, 24, 103, 126, 55, False),
         "Starman Super": EarthBoundEnemy("Starman Super", 0x15ae81, 568, 310, 30145, 735, 24, 112, 129, 56, False, "psi_2"),
-        "Ghost of Starman": EarthBoundEnemy("Ghost of Starman", 0x15aedf, 750, 462, 48695, 807, 46, 152, 170, 68, False),
+        "Ghost of Starman": EarthBoundEnemy("Ghost of Starman", 0x15aedf, 750, 462, 48695, 807, 46, 152, 170, 68, False, None, 2),
         "Smilin' Sphere": EarthBoundEnemy("Smilin' Sphere", 0x15af3d, 233, 60, 2218, 191, 17, 50, 65, 27, False),
         "Uncontrollable Sphere": EarthBoundEnemy("Uncontrollable Sphere", 0x15af9b, 577, 180, 20389, 796, 27, 116, 134, 56, False, "psi_1"),
         "Petrified Royal Guard": EarthBoundEnemy("Petrified Royal Guard", 0x15aff9, 573, 0, 19163, 628, 12, 106, 173, 53, False),
         "Guardian General": EarthBoundEnemy("Guardian General", 0x15b057, 831, 6, 95390, 3235, 21, 109, 214, 55, False, None, 2),
         "Starman Deluxe": EarthBoundEnemy("Starman Deluxe", 0x15b0b5, 1400, 418, 160524, 3827, 27, 143, 186, 65, False, "psi_2", 2),
-        "Final Starman": EarthBoundEnemy("Final Starman", 0x15b113, 840, 860, 61929, 915, 47, 178, 187, 71, False, "psi_2"),
+        "Final Starman": EarthBoundEnemy("Final Starman", 0x15b113, 840, 860, 61929, 915, 47, 178, 187, 71, False, "psi_2", 2),
         "Urban Zombie": EarthBoundEnemy("Urban Zombie", 0x15b171, 171, 0, 700, 58, 10, 31, 24, 19, False),
         "Zombie Possessor": EarthBoundEnemy("Zombie Possessor", 0x15b1cf, 176, 0, 950, 81, 30, 28, 19, 17, False),
         "Zombie Dog": EarthBoundEnemy("Zombie Dog", 0x15b22d, 210, 0, 1354, 54, 30, 39, 51, 22, False),
@@ -222,9 +222,9 @@ def initialize_enemies(world):
         "Robo-pump (2)": EarthBoundEnemy("Robo-pump (2)", 0x15e12d, 431, 0, 4797, 349, 19, 70, 113, 36, False),
         # "Foppy": EarthBoundEnemy("Foppy", 0x15e18b, 120, 10, 1311, 93, 1, 29, 9, 16, False),
         "Guardian General (2)": EarthBoundEnemy("Guardian General (2)", 0x15e1e9, 831, 6, 95390, 3235, 21, 109, 214, 55, False),
-        "Black Antoid (2)": EarthBoundEnemy("Black Antoid (2)", 0x15e247, 34, 25, 37, 7, 4, 14, 13, 7, False), # Separate enemy used in the titanic ant fight
+        "Black Antoid (2)": EarthBoundEnemy("Black Antoid (2)", 0x15e247, 34, 25, 37, 7, 4, 14, 13, 7, False),  # Separate enemy used in the titanic ant fight
         "Struttin' Evil Mushroom (2)": EarthBoundEnemy("Struttin' Evil Mushroom (2)", 0x15e2a5, 60, 0, 95, 15, 5, 15, 10, 7, False),
-        # "Runaway Dog (2)": EarthBoundEnemy("Runaway Dog", 0x15e303, 21, 0, 4, 3, 26, 4, 5, 73, False),
+        "Runaway Dog (2)": EarthBoundEnemy("Runaway Dog", 0x15e303, 21, 0, 4, 3, 26, 4, 5, 73, False),
         "Cave Boy (2)": EarthBoundEnemy("Cave Boy (2)", 0x15e361, 314, 0, 618, 17, 5, 21, 33, 11, False),
         "Tiny Li'l Ghost": EarthBoundEnemy("Tiny Li'l Ghost", 0x15e3bf, 90, 0, 1, 162, 100, 19, 7, 18, False),
         "Starman Junior": EarthBoundEnemy("Starman Junior", 0x15e41d, 200, 999, 16, 20, 1, 11, 10, 6, False),
@@ -246,66 +246,70 @@ def initialize_enemies(world):
         "Clumsy Robot (3)": EarthBoundEnemy("Clumsy Robot (3)", 0x15e9fd, 962, 0, 32378, 2081, 83, 88, 137, 46, False),
     }
 
+    shuffled_enemies = {}
+    for enemy in world.acting_enemy_list:
+        shuffled_enemies[enemy] = world.enemies[world.acting_enemy_list[enemy]]
+
     flunkies = {
-        "Titanic Ant": world.enemies["Black Antoid (2)"],
-        "Master Belch": world.enemies["Slimy Little Pile"],
-        "Trillionage Sprout": world.enemies["Tough Mobile Sprout"],
-        "Master Barf": world.enemies["Even Slimier Little Pile"],
-        "Starman Deluxe": [world.enemies["Starman"], world.enemies["Starman Super"]],
-        "Carbon Dog": world.enemies["Diamond Dog"]
+        "Titanic Ant": shuffled_enemies["Black Antoid (2)"],
+        "Master Belch": shuffled_enemies["Slimy Little Pile"],
+        "Trillionage Sprout": shuffled_enemies["Tough Mobile Sprout"],
+        "Master Barf": shuffled_enemies["Even Slimier Little Pile"],
+        "Starman Deluxe": [shuffled_enemies["Starman"], world.enemies["Starman Super"]],
+        "Carbon Dog": world.enemies["Diamond Dog"]  # This should be the enemy that gets shuffled WITH carbon dog, right? Fix???
     }
 
-    world.regional_enemies = {"Northern Onett": {world.enemies["Spiteful Crow"], world.enemies["Runaway Dog"], world.enemies["Coil Snake"]},
-                              "Onett": {world.enemies["Pogo Punk"], world.enemies["Skate Punk"], world.enemies["Yes Man Junior"], world.enemies[world.boss_list[0]], world.enemies[world.boss_list[1]]},
-                              "Giant Step": {world.enemies["Attack Slug"], world.enemies["Black Antoid"], world.enemies["Rowdy Mouse"], world.enemies[world.boss_list[2]]},
-                              "Twoson": {world.enemies["Black Antoid"], world.enemies["Cop"], world.enemies[world.boss_list[3]], world.enemies["Ramblin' Evil Mushroom"],
-                                         world.enemies["Annoying Old Party Man"], world.enemies["Cranky Lady"], world.enemies["Mobile Sprout"], world.enemies["New Age Retro Hippie"], world.enemies["Unassuming Local Guy"],
-                                         world.enemies["Runaway Dog"]},
+    world.regional_enemies = {"Northern Onett": {shuffled_enemies["Spiteful Crow"], shuffled_enemies["Runaway Dog"], shuffled_enemies["Coil Snake"]},
+                              "Onett": {shuffled_enemies["Pogo Punk"], shuffled_enemies["Skate Punk"], shuffled_enemies["Yes Man Junior"], world.enemies[world.boss_list[0]], world.enemies[world.boss_list[1]]},
+                              "Giant Step": {shuffled_enemies["Attack Slug"], shuffled_enemies["Black Antoid"], shuffled_enemies["Rowdy Mouse"], world.enemies[world.boss_list[2]]},
+                              "Twoson": {shuffled_enemies["Black Antoid"], shuffled_enemies["Cop"], world.enemies[world.boss_list[3]], shuffled_enemies["Ramblin' Evil Mushroom"],
+                                         shuffled_enemies["Annoying Old Party Man"], shuffled_enemies["Cranky Lady"], shuffled_enemies["Mobile Sprout"], shuffled_enemies["New Age Retro Hippie"], shuffled_enemies["Unassuming Local Guy"],
+                                         shuffled_enemies["Runaway Dog"]},
                               "Everdred's House": {world.enemies[world.boss_list[4]]},
-                              "Peaceful Rest Valley": {world.enemies["Li'l UFO"], world.enemies["Mobile Sprout"], world.enemies["Spinning Robo"], world.enemies["Territorial Oak"]},
-                              "Happy-Happy Village": {world.enemies["Coil Snake"], world.enemies["Insane Cultist"], world.enemies["Spiteful Crow"], world.enemies["Unassuming Local Guy"], world.enemies[world.boss_list[5]]},
-                              "Lilliput Steps": {world.enemies["Mighty Bear"], world.enemies["Mole Playing Rough"], world.enemies["Mr. Batty"], world.enemies[world.boss_list[6]]},
-                              "Threed": {world.enemies["Coil Snake"], world.enemies["Handsome Tom"], world.enemies["Smilin' Sam"], world.enemies["Trick or Trick Kid"],
-                                         world.enemies["Zombie Dog"], world.enemies["Putrid Moldyman"], world.enemies["Smelly Ghost"]},
-                              "Threed Underground": {world.enemies["No Good Fly"], world.enemies["Urban Zombie"], world.enemies["Zombie Possessor"], world.enemies[world.boss_list[8]], world.enemies["Zombie Dog"]},
-                              "Grapefruit Falls": {world.enemies["Armored Frog"], world.enemies["Black Antoid"], world.enemies["Coil Snake"], world.enemies["Farm Zombie"],
-                                                   world.enemies["Plain Crocodile"], world.enemies["Red Antoid"], world.enemies["Violent Roach"], world.enemies["Mad Duck"], world.enemies["Black Antoid (2)"]},
-                              "Belch's Factory": {world.enemies["Farm Zombie"], world.enemies["Foppy"], world.enemies["Mostly Bad Fly"], world.enemies["Slimy Little Pile"], world.enemies[world.boss_list[9]]},
-                              "Milky Well": {world.enemies["Mad Duck"], world.enemies["Ranboob"], world.enemies["Struttin' Evil Mushroom"], world.enemies["Tough Mobile Sprout"], world.enemies[world.boss_list[10]]},
-                              "Dusty Dunes Desert": {world.enemies["Bad Buffalo"], world.enemies["Crested Booka"], world.enemies["Criminal Caterpillar"], world.enemies["Cute Li'l UFO"], world.enemies["Desert Wolf"], world.enemies["Mole Playing Rough"],
-                                                     world.enemies["Skelpion"], world.enemies["Smilin' Sphere"]},
-                              "Fourside": {world.enemies["Annoying Reveler"], world.enemies["Crazed Sign"], world.enemies["Extra Cranky Lady"], world.enemies["Mad Taxi"],
-                                           world.enemies["Abstract Art"], world.enemies["Dali's Clock"], world.enemies["Enraged Fire Plug"], world.enemies["Robo-pump"], world.enemies[world.boss_list[13]]},
-                              "Gold Mine": {world.enemies["Gigantic Ant"], world.enemies["Mad Duck"], world.enemies["Noose Man"], world.enemies["Thirsty Coil Snake"], world.enemies[world.boss_list[11]], world.enemies["Gigantic Ant (2)"]},
-                              "Fourside Dept. Store": {world.enemies["Musica"], world.enemies["Mystical Record"], world.enemies["Scalding Coffee Cup"], world.enemies[world.boss_list[12]]},
-                              "Monkey Caves": {world.enemies["Struttin' Evil Mushroom (2)"], world.enemies["Tough Mobile Sprout"], world.enemies["Struttin' Evil Mushroom"]},
-                              "Monotoli Building": {world.enemies["Sentry Robot"], world.enemies[world.boss_list[14]]},
-                              "Rainy Circle": {world.enemies["Arachnid!"], world.enemies["Cave Boy"], world.enemies["Elder Batty"], world.enemies["Mighty Bear Seven"], world.enemies["Strong Crocodile"], world.enemies[world.boss_list[15]]},
-                              "Summers": {world.enemies["Crazed Sign"], world.enemies["Mad Taxi"], world.enemies["Mole Playing Rough"], world.enemies["Over Zealous Cop"], world.enemies["Tough Guy"], world.enemies[world.boss_list[18]]},
-                              "Summers Museum": {world.enemies["Shattered Man"]},
-                              "Magnet Hill": {world.enemies["Deadly Mouse"], world.enemies["Filthy Attack Roach"], world.enemies["Stinky Ghost"], world.enemies[world.boss_list[16]]},
-                              "Pink Cloud": {world.enemies["Conducting Menace"], world.enemies["Kiss of Death"], world.enemies["Tangoo"], world.enemies["Thunder Mite"], world.enemies[world.boss_list[17]]},
-                              "Scaraba": {world.enemies["Beautiful UFO"], world.enemies["Dread Skelpion"], world.enemies["Great Crested Booka"], world.enemies["High-class UFO"], world.enemies["Master Criminal Worm"]},
-                              "Pyramid": {world.enemies["Arachnid!!!"], world.enemies["Fierce Shattered Man"], world.enemies["Guardian Hieroglyph"], world.enemies["Lethal Asp Hieroglyph"], world.enemies["Petrified Royal Guard"],
+                              "Peaceful Rest Valley": {shuffled_enemies["Li'l UFO"], shuffled_enemies["Mobile Sprout"], shuffled_enemies["Spinning Robo"], shuffled_enemies["Territorial Oak"]},
+                              "Happy-Happy Village": {shuffled_enemies["Coil Snake"], shuffled_enemies["Insane Cultist"], shuffled_enemies["Spiteful Crow"], shuffled_enemies["Unassuming Local Guy"], world.enemies[world.boss_list[5]]},
+                              "Lilliput Steps": {shuffled_enemies["Mighty Bear"], shuffled_enemies["Mole Playing Rough"], shuffled_enemies["Mr. Batty"], world.enemies[world.boss_list[6]]},
+                              "Threed": {shuffled_enemies["Coil Snake"], shuffled_enemies["Handsome Tom"], shuffled_enemies["Smilin' Sam"], shuffled_enemies["Trick or Trick Kid"],
+                                         shuffled_enemies["Zombie Dog"], shuffled_enemies["Putrid Moldyman"], shuffled_enemies["Smelly Ghost"]},
+                              "Threed Underground": {shuffled_enemies["No Good Fly"], shuffled_enemies["Urban Zombie"], shuffled_enemies["Zombie Possessor"], world.enemies[world.boss_list[8]], shuffled_enemies["Zombie Dog"]},
+                              "Grapefruit Falls": {shuffled_enemies["Armored Frog"], shuffled_enemies["Black Antoid"], shuffled_enemies["Coil Snake"], shuffled_enemies["Farm Zombie"],
+                                                   shuffled_enemies["Plain Crocodile"], shuffled_enemies["Red Antoid"], shuffled_enemies["Violent Roach"], shuffled_enemies["Mad Duck"], shuffled_enemies["Black Antoid (2)"]},
+                              "Belch's Factory": {shuffled_enemies["Farm Zombie"], shuffled_enemies["Foppy"], shuffled_enemies["Mostly Bad Fly"], shuffled_enemies["Slimy Little Pile"], world.enemies[world.boss_list[9]]},
+                              "Milky Well": {shuffled_enemies["Mad Duck"], shuffled_enemies["Ranboob"], shuffled_enemies["Struttin' Evil Mushroom"], shuffled_enemies["Tough Mobile Sprout"], world.enemies[world.boss_list[10]]},
+                              "Dusty Dunes Desert": {shuffled_enemies["Bad Buffalo"], shuffled_enemies["Crested Booka"], shuffled_enemies["Criminal Caterpillar"], shuffled_enemies["Cute Li'l UFO"], shuffled_enemies["Desert Wolf"], shuffled_enemies["Mole Playing Rough"],
+                                                     shuffled_enemies["Skelpion"], shuffled_enemies["Smilin' Sphere"]},
+                              "Fourside": {shuffled_enemies["Annoying Reveler"], shuffled_enemies["Crazed Sign"], shuffled_enemies["Extra Cranky Lady"], shuffled_enemies["Mad Taxi"],
+                                           shuffled_enemies["Abstract Art"], shuffled_enemies["Dali's Clock"], shuffled_enemies["Enraged Fire Plug"], shuffled_enemies["Robo-pump"], world.enemies[world.boss_list[13]]},
+                              "Gold Mine": {shuffled_enemies["Gigantic Ant"], shuffled_enemies["Mad Duck"], shuffled_enemies["Noose Man"], shuffled_enemies["Thirsty Coil Snake"], world.enemies[world.boss_list[11]]},
+                              "Fourside Dept. Store": {shuffled_enemies["Musica"], shuffled_enemies["Mystical Record"], shuffled_enemies["Scalding Coffee Cup"], world.enemies[world.boss_list[12]]},
+                              "Monkey Caves": {shuffled_enemies["Struttin' Evil Mushroom"], shuffled_enemies["Tough Mobile Sprout"]},
+                              "Monotoli Building": {shuffled_enemies["Sentry Robot"], world.enemies[world.boss_list[14]]},
+                              "Rainy Circle": {shuffled_enemies["Arachnid!"], shuffled_enemies["Cave Boy (2)"], shuffled_enemies["Elder Batty"], shuffled_enemies["Mighty Bear Seven"], shuffled_enemies["Strong Crocodile"], world.enemies[world.boss_list[15]]},
+                              "Summers": {shuffled_enemies["Crazed Sign"], shuffled_enemies["Mad Taxi"], shuffled_enemies["Mole Playing Rough"], shuffled_enemies["Over Zealous Cop"], shuffled_enemies["Tough Guy"], world.enemies[world.boss_list[18]]},
+                              "Summers Museum": {shuffled_enemies["Shattered Man"]},
+                              "Magnet Hill": {shuffled_enemies["Deadly Mouse"], shuffled_enemies["Filthy Attack Roach"], shuffled_enemies["Stinky Ghost"], world.enemies[world.boss_list[16]]},
+                              "Pink Cloud": {shuffled_enemies["Conducting Menace"], shuffled_enemies["Kiss of Death"], shuffled_enemies["Tangoo"], shuffled_enemies["Thunder Mite"], world.enemies[world.boss_list[17]]},
+                              "Scaraba": {shuffled_enemies["Beautiful UFO"], shuffled_enemies["Dread Skelpion"], shuffled_enemies["Great Crested Booka"], shuffled_enemies["High-class UFO"], shuffled_enemies["Master Criminal Worm"]},
+                              "Pyramid": {shuffled_enemies["Arachnid!!!"], shuffled_enemies["Fierce Shattered Man"], shuffled_enemies["Guardian Hieroglyph"], shuffled_enemies["Lethal Asp Hieroglyph"], shuffled_enemies["Petrified Royal Guard"],
                                           world.enemies[world.boss_list[19]]},
-                              "Southern Scaraba": {world.enemies["Beautiful UFO"], world.enemies["High-class UFO"], world.enemies["Marauder Octobot"]},
-                              "Dungeon Man": {world.enemies["Dali's Clock"], world.enemies["Mystical Record"], world.enemies["Lesser Mook"], world.enemies["Mystical Record"], world.enemies["Scalding Coffee Cup"], world.enemies["Worthless Protoplasm"], world.enemies["Cute Li'l UFO"]},
-                              "Deep Darkness": {world.enemies["Mole Playing Rough"]},
-                              "Winters": {world.enemies["Lesser Mook"], world.enemies["Whirling Robo"], world.enemies["Wooly Shambler"]},
-                              "Deep Darkness Darkness": {world.enemies["Big Pile of Puke"], world.enemies["Demonic Petunia"], world.enemies["Even Slimier Little Pile"], world.enemies["Hard Crocodile"], world.enemies["Hostile Elder Oak"],
-                                                         world.enemies["Manly Fish"], world.enemies["Manly Fish's Brother"], world.enemies["Pit Bull Slug"], world.enemies["Zap Eel"], world.enemies[world.boss_list[20]]},
+                              "Southern Scaraba": {shuffled_enemies["Beautiful UFO"], shuffled_enemies["High-class UFO"], shuffled_enemies["Marauder Octobot"]},
+                              "Dungeon Man": {shuffled_enemies["Dali's Clock"], shuffled_enemies["Mystical Record"], shuffled_enemies["Lesser Mook"], shuffled_enemies["Mystical Record"], shuffled_enemies["Scalding Coffee Cup"], shuffled_enemies["Worthless Protoplasm"], shuffled_enemies["Cute Li'l UFO"]},
+                              "Deep Darkness": {shuffled_enemies["Mole Playing Rough"]},
+                              "Winters": {shuffled_enemies["Lesser Mook"], shuffled_enemies["Whirling Robo"], shuffled_enemies["Wooly Shambler"]},
+                              "Deep Darkness Darkness": {shuffled_enemies["Big Pile of Puke"], shuffled_enemies["Demonic Petunia"], shuffled_enemies["Even Slimier Little Pile"], shuffled_enemies["Hard Crocodile"], shuffled_enemies["Hostile Elder Oak"],
+                                                         shuffled_enemies["Manly Fish"], shuffled_enemies["Manly Fish's Brother"], shuffled_enemies["Pit Bull Slug"], shuffled_enemies["Zap Eel"], world.enemies[world.boss_list[20]]},
                               "Boogey Tent": {world.enemies[world.boss_list[7]]},
-                              "Southern Winters": {world.enemies["Rowdy Mouse"], world.enemies["Worthless Protoplasm"], world.enemies["Mad Duck"],
-                                                   world.enemies["Lesser Mook"], world.enemies["Whirling Robo"], world.enemies["Wooly Shambler"]},
-                              "Stonehenge Base": {world.enemies["Atomic Power Robot"], world.enemies["Military Octobot"], world.enemies["Mook Senior"], world.enemies["Starman"], world.enemies["Starman Super"], world.enemies[world.boss_list[21]]},
-                              "Lumine Hall": {world.enemies["Conducting Spirit"], world.enemies["Fobby"], world.enemies["Hyper Spinning Robo"], world.enemies["Uncontrollable Sphere"], world.enemies[world.boss_list[22]]},
-                              "Lost Underworld": {world.enemies["Chomposaur"], world.enemies["Chomposaur (2)"], world.enemies["Ego Orb"], world.enemies["Wetnosaur"]},
-                              "Fire Spring": {world.enemies["Evil Elemental"], world.enemies["Major Psychic Psycho"], world.enemies["Psychic Psycho"], world.enemies["Soul Consuming Flame"], world.enemies[world.boss_list[23]]},
-                              "Magicant": {world.enemies["Care Free Bomb"], world.enemies["Electro Swoosh"], world.enemies["French Kiss of Death"], world.enemies["Loaded Dice"], world.enemies["Mr. Molecule"], world.enemies["Uncontrollable Sphere"],
-                                           world.enemies["Fobby"], world.enemies["Beautiful UFO"], world.enemies["High-class UFO"], world.enemies[world.boss_list[18]], world.enemies[world.boss_list[24]],
-                                           world.enemies["Loaded Dice (2)"]},
-                              "Cave of the Past": {world.enemies["Bionic Kraken"], world.enemies["Final Starman"], world.enemies["Ghost of Starman"], world.enemies["Nuclear Reactor Robot"], world.enemies["Squatter Demon"],
-                                                   world.enemies["Ultimate Octobot"], world.enemies["Wild 'n Wooly Shambler"], world.enemies["Final Starman (2)"], world.enemies["Ghost of Starman (2)"]},
+                              "Southern Winters": {shuffled_enemies["Rowdy Mouse"], shuffled_enemies["Worthless Protoplasm"], shuffled_enemies["Mad Duck"],
+                                                   shuffled_enemies["Lesser Mook"], shuffled_enemies["Whirling Robo"], shuffled_enemies["Wooly Shambler"]},
+                              "Stonehenge Base": {shuffled_enemies["Atomic Power Robot"], shuffled_enemies["Military Octobot"], shuffled_enemies["Mook Senior"], shuffled_enemies["Starman"], shuffled_enemies["Starman Super"], world.enemies[world.boss_list[21]]},
+                              "Lumine Hall": {shuffled_enemies["Conducting Spirit"], shuffled_enemies["Fobby"], shuffled_enemies["Hyper Spinning Robo"], shuffled_enemies["Uncontrollable Sphere"], world.enemies[world.boss_list[22]]},
+                              "Lost Underworld": {shuffled_enemies["Chomposaur"], shuffled_enemies["Ego Orb"], shuffled_enemies["Wetnosaur"]},
+                              "Fire Spring": {shuffled_enemies["Evil Elemental"], shuffled_enemies["Major Psychic Psycho"], shuffled_enemies["Psychic Psycho"], shuffled_enemies["Soul Consuming Flame"], world.enemies[world.boss_list[23]]},
+                              "Magicant": {shuffled_enemies["Care Free Bomb"], shuffled_enemies["Electro Swoosh"], shuffled_enemies["French Kiss of Death"], shuffled_enemies["Loaded Dice"], shuffled_enemies["Mr. Molecule"], shuffled_enemies["Uncontrollable Sphere"],
+                                           shuffled_enemies["Fobby"], shuffled_enemies["Beautiful UFO"], shuffled_enemies["High-class UFO"]},
+                              "Sea of Eden": {world.enemies[world.boss_list[18]], world.enemies[world.boss_list[24]]},
+                              "Cave of the Past": {shuffled_enemies["Bionic Kraken"], shuffled_enemies["Final Starman"], shuffled_enemies["Ghost of Starman"], shuffled_enemies["Nuclear Reactor Robot"], shuffled_enemies["Squatter Demon"],
+                                                   shuffled_enemies["Ultimate Octobot"], shuffled_enemies["Wild 'n Wooly Shambler"]},
                               "Endgame": {world.enemies[world.boss_list[25]], world.enemies["Giygas (2)"], world.enemies[world.boss_list[28]], world.enemies["Giygas (3)"], world.enemies["Giygas (5)"], world.enemies["Giygas (6)"]},
                         
                               }
@@ -317,7 +321,7 @@ def initialize_enemies(world):
                 updated_list.add(world.enemies[world.boss_list[27]])
                 for i in range(1, world.enemies[world.boss_list[27]].attack_extensions):
                     updated_list.add(world.enemies[f"{world.enemies[world.boss_list[27]].name} ({i + 1})"])
-                #todo; option to not have in Giygas/Mine
+                # todo; option to not have in Giygas/Mine
 
             if enemy.name in flunkies:
                 if enemy.name == "Starman Deluxe":
@@ -400,6 +404,7 @@ levels = [
     31,  # rainy circle
     32,  # summers
     33,  # museum
+    35,  # Moonside
     36,  # magnet hill
     38,  # pink cloud
     39,  # scaraba
@@ -408,21 +413,24 @@ levels = [
     45,  # dungeon man
     47,  # deep darkness
     49,  # deep darkness swamp
+    51,  # Happy-Happy HQ
     52,  # stonehenge
+    54,  # Arcade
     56,  # lumine hall
     59,  # lost underworld
     61,  # fire spring
     63,  # magicant
     65,  # cave of the past
+    68,  # Sea of Eden
     70,
-    73] # gigyas
+    73]  # gigyas
 
 spell_breaks: Dict[str, Dict[int, str]] = {
     "freeze": {8: "zeta", 12: "epsilon", 20: "delta", 25: "lambda", 40: "alpha", 65: "beta", 70: "gamma", 100: "omega"},
     "fire": {5: "zeta", 10: "epsilon", 20: "alpha", 50: "beta", 70: "gamma", 100: "omega"},  # zeta needs to do less damage
     "lifeup": {20: "alpha", 50: "beta", 70: "gamma", 100: "omega"},
     "thunder": {5: "zeta", 10: "epsilon", 15: "delta", 20: "lambda", 35: "alpha", 45: "beta", 60: "gamma", 100: "omega"},
-    "flash": {25: "alpha", 45: "beta", 60: "gamma", 100: "omega"},
+    "flash": {25: "alpha", 60: "beta", 70: "gamma", 100: "omega"},
     "special": {5: "zeta", 10: "epsilon", 30: "alpha", 65: "beta", 80: "gamma", 100: "omega"},
     "healing": {20: "alpha", 40: "beta", 60: "gamma", 100: "omega"},
     "starstorm": {5: "zeta", 12: "epsilon", 20: "delta", 45: "lambda", 70: "alpha", 100: "beta"},
@@ -452,16 +460,17 @@ spell_breaks: Dict[str, Dict[int, str]] = {
     "giygas_phase2_freeze": {8: "zeta", 12: "epsilon", 20: "delta", 25: "lambda", 100: "alpha"},
     "giygas_phase3_freeze": {8: "zeta", 12: "epsilon", 20: "delta", 25: "lambda", 100: "alpha"},
     "giygas_phase4_freeze": {8: "zeta", 12: "epsilon", 20: "delta", 25: "lambda", 100: "alpha"},
-    "giygas_phase2_flash": {25: "alpha", 45: "beta", 100: "gamma"},
-    "giygas_phase3_flash": {25: "alpha", 45: "beta", 100: "gamma"},
-    "giygas_phase4_flash": {25: "alpha", 45: "beta", 100: "gamma"},
+    "giygas_phase2_flash": {25: "alpha", 60: "beta", 100: "gamma"},
+    "giygas_phase3_flash": {25: "alpha", 60: "beta", 100: "gamma"},
+    "giygas_phase4_flash": {25: "alpha", 60: "beta", 100: "gamma"},
     "thunder_minus": {10: "zeta", 15: "epsilon", 20: "delta", 35: "lambda", 45: "alpha", 60: "beta", 100: "gamma", 200: "omega"},
     "starstorm_minus": {12: "zeta", 20: "epsilon", 45: "delta", 70: "lambda", 100: "alpha", 200: "beta"},
-    "flash_minus": {45: "alpha", 60: "beta", 100: "gamma", 200: "omega"},
-    "blast": {30: "alpha", 40: "beta", 50: "gamma", 100: "omega"},
-    "missile": {20: "alpha", 50: "beta", 73: "gamma", 100: "omega"},
-    # Todo; blast/missile delta and lambda
-    # "blast": {00: "delta", 20: "lambda", 20: "alpha", 35: "beta", 45: "gamma", 100: "omega"},
+    "flash_minus": {60: "alpha", 70: "beta", 100: "gamma", 200: "omega"},
+    "blast": {10: "zeta", 20: "epsilon", 30: "alpha", 40: "beta", 50: "gamma", 100: "omega"},
+    "missile": {5: "zeta", 12: "epsilon", 20: "alpha", 50: "beta", 73: "gamma", 100: "omega"},
+    "throw_bomb": {10: "zeta", 20: "epsilon", 30: "alpha", 40: "beta", 50: "gamma", 100: "omega"},
+    "throw_bomb_minus": {20: "zeta", 30: "epsilon", 40: "alpha", 50: "beta", 100: "gamma", 200: "omega"},
+    "shoot_rocket": {5: "zeta", 12: "epsilon", 20: "alpha", 50: "beta", 73: "gamma", 100: "omega"},
 
 
     # bombs and bottle rockets too? Also missile maybe? hmmm
@@ -533,6 +542,7 @@ enemy_psi = {
     "Mook Senior": ["freeze", "fire", "lifeup", "diamond_eyes"],
     "Smelly Ghost": ["null", "null", "lifeup", "null"],
     "Deadly Mouse": ["poisonous_fangs", "null", "null", "null"],
+    "Care Free Bomb": ["throw_bomb_minus", "throw_bomb_minus", "throw_bomb_minus", "throw_bomb"],
     "Electro Specter": ["electrical_shock", "null", "electrical_shock", "null"],
     "Smilin' Sam": ["null", "null", "null", "lifeup"],
     "Manly Fish's Brother": ["null", "null", "freeze", "healing"],
@@ -541,6 +551,7 @@ enemy_psi = {
     "Beautiful UFO": ["null", "null", "null", "lifeup"],
     "Evil Mani-Mani": ["null", "paralysis", "null", "null"],
     "Mr. Molecule": ["thunder", "flash", "fire", "freeze"],
+    "Sentry Robot": ["null", "null", "null", "shoot_rocket"],
     "Psychic Psycho": ["fire", "fire", "fire", "fire"],
     "Major Psychic Psycho": ["fire", "null", "paralysis", "fire"],
     "Soul Consuming Flame": ["null", "breathe_fire", "flaming_fireball", "spray_fire"],
@@ -672,7 +683,7 @@ spell_data = {
         "alpha": [0x48, 0x01, 0x00],
         "beta": [0x49, 0x01, 0x00],
         "gamma": [0x5E, 0x00, 0x00],
-        "omega": [0x4A, 0x00, 0x00],
+        "omega": [0x4A, 0x01, 0x00],
     },
     "spray_fire": {
         "zeta": [0x75, 0x01, 0x00],
@@ -845,16 +856,16 @@ spell_data = {
         "beta": [0x1F, 0x00, 0x16]
     },
     "blast": {
-        "zeta": [0x00, 0x00, 0x00],
-        "epsilon": [0x00, 0x00, 0x00],
+        "zeta": [0xF7, 0x01, 0x58],
+        "epsilon": [0xF8, 0x01, 0x59],
         "alpha": [0xA4, 0x01, 0x46],
         "beta": [0xA5, 0x01, 0x47],
         "gamma": [0xA6, 0x01, 0x48],
         "omega": [0xA7, 0x01, 0x48]
     },
     "missile": {
-        "zeta": [0x00, 0x00, 0x00],
-        "epsilon": [0x00, 0x00, 0x00],
+        "zeta": [0xF9, 0x01, 0x5A],
+        "epsilon": [0xFA, 0x01, 0x5B],
         "alpha": [0xA8, 0x01, 0x4A],
         "beta": [0xA9, 0x01, 0x4B],
         "gamma": [0xAA, 0x01, 0x4C],
@@ -865,7 +876,33 @@ spell_data = {
         "beta": [0xF5, 0x01, 0x00],
         "gamma": [0x58, 0x00, 0x00],
         "omega": [0xF6, 0x01, 0x00]
-    }
+    },
+    "throw_bomb": {
+        "zeta": [0xFC, 0x01, 0x00],
+        "epsilon": [0xFB, 0x01, 0x00],
+        "alpha": [0xFD, 0x01, 0x00],
+        "beta": [0xFE, 0x01, 0x00],
+        "gamma": [0xFF, 0x01, 0x00],
+        "omega": [0x00, 0x02, 0x00]
+    },
+
+    "throw_bomb_minus": {
+        "zeta": [0xFC, 0x01, 0x00],
+        "epsilon": [0xFB, 0x01, 0x00],
+        "alpha": [0xFD, 0x01, 0x00],
+        "beta": [0xFE, 0x01, 0x00],
+        "gamma": [0xFF, 0x01, 0x00],
+        "omega": [0x00, 0x02, 0x00]
+    },
+    "shoot_rocket": {
+        "zeta": [0x01, 0x02, 0x00],
+        "epsilon": [0x02, 0x02, 0x00],
+        "alpha": [0x03, 0x02, 0x00],
+        "beta": [0x04, 0x02, 0x00],
+        "gamma": [0x05, 0x02, 0x00],
+        "omega": [0x06, 0x02, 0x00]
+    },
+
 
 }
 
@@ -885,12 +922,14 @@ def assumed_player_speed_for_level(level):
 def scale_enemy_speed(enemy, new_level):
     normal_dodge_chance = (2 * enemy.speed - assumed_player_speed_for_level(enemy.level)) / 500
 
-    enemy_scaled_speed  = (normal_dodge_chance * 500 + assumed_player_speed_for_level(new_level)) / 2
+    enemy_scaled_speed = (normal_dodge_chance * 500 + assumed_player_speed_for_level(new_level)) / 2
     return enemy_scaled_speed
+
 
 def scale_exp(base_exp, base_level, new_level, k):
     new_exp = base_exp * (new_level / base_level) ** k
     return new_exp
+
 
 def scale_exp_2(base_exp, base_level, new_level, world):
     base_scaled_exp = calculate_exp(base_level)
@@ -900,17 +939,17 @@ def scale_exp_2(base_exp, base_level, new_level, world):
     new_exp = math.ceil(new_exp * world.options.experience_modifier / 100)
     return new_exp
 
+
 def calculate_exp(level):
     if level > 30:
         return 1000 * math.exp(0.05 * level)
     else:
         return 50 * math.exp(0.15 * level)
-        #return 10 * math.exp(0.2 * level) if not boosted
+        # return 10 * math.exp(0.2 * level) if not boosted
 
-    
 
 def scale_shield(level, shield):
-    if shield != None:
+    if shield is not None:
         if level < 10:
             enemy_shield = "disabled"
         elif shield in ["phys_1", "phys_2"]:
@@ -926,29 +965,67 @@ def scale_shield(level, shield):
         return enemy_shield
 
 
-def scale_enemies(world, rom):
-    if world.options.auto_scale_party_members:
-        rom.write_bytes(0x15F60F, bytearray([max(levels[world.scaled_area_order.index(world.Paula_region)] + world.random.randint(-3, 3), 1)]))  # Paula starting level
-        rom.write_bytes(0x15F623, bytearray([max(levels[world.scaled_area_order.index(world.Jeff_region)] + world.random.randint(-3, 3), 1)]))  # Jeff starting level
-        rom.write_bytes(0x15F637, bytearray([max(levels[world.scaled_area_order.index(world.Poo_region)] + world.random.randint(-3, 3), 1)]))  # Poo starting level
+guardian_text = [
+    0xEEFAA0,
+    0xEEFAA6,
+    0xEEFAAD,
+    0xEEFAB3,
+    0xEEFABA,
+    0xEEFAC0,
+    0xEEFAC6,
+    0xEEFACE
+]
 
+guardian_intro = {
+    "Giant Step": 0x066699,
+    "Lilliput Steps": 0x2F97CB,
+    "Milky Well": 0x2F67C3,
+    "Rainy Circle": 0x2EFAD6,
+    "Magnet Hill": 0x083D4D,
+    "Pink Cloud": 0x09D2E3,
+    "Lumine Hall": 0x09E2A4,
+    "Fire Spring": 0x2EFADF
+}
+
+
+def scale_enemies(world, rom):
+    additional_party_members = 0
+    if world.options.auto_scale_party_members:
+        if world.starting_character != "Ness":
+            rom.write_bytes(0x15F5FB, bytearray([max(levels[world.scaled_area_order.index(world.Ness_region)] + world.random.randint(-3, 3), 1)]))
+
+        if world.starting_character != "Paula":
+            rom.write_bytes(0x15F60F, bytearray([max(levels[world.scaled_area_order.index(world.Paula_region)] + world.random.randint(-3, 3), 1)]))  # Paula starting level
+
+        if world.starting_character != "Jeff":  
+            rom.write_bytes(0x15F623, bytearray([max(levels[world.scaled_area_order.index(world.Jeff_region)] + world.random.randint(-3, 3), 1)]))  # Jeff starting level
+
+        if world.starting_character != "Poo":
+            rom.write_bytes(0x15F637, bytearray([max(levels[world.scaled_area_order.index(world.Poo_region)] + world.random.randint(-3, 3), 1)]))  # Poo starting level
+
+    melody_number = 1
+    c = Counter([world.Ness_region, world.Paula_region, world.Jeff_region, world.Poo_region])
     for region, level in zip(world.scaled_area_order, levels):
+        if region in ["Giant Step", "Lilliput Steps", "Milky Well",
+                      "Rainy Circle", "Magnet Hill", "Pink Cloud",
+                      "Lumine Hall", "Fire Spring"]:
+            rom.write_bytes(guardian_intro[region], struct.pack("I", guardian_text[melody_number - 1]))
+            melody_number += 1
+
+        additional_party_members += c[region]
         for enemy in world.regional_enemies[region]:
             if enemy.is_scaled is False:
-                # gprint(f"{enemy.name} {level}")
+                # print(f"{enemy.name} {level}")
                 enemy_hp = int(enemy.hp * level / enemy.level)
+                enemy_hp = int(enemy_hp + (enemy_hp * (0.25 * (additional_party_members - 1))))
                 enemy_pp = int(enemy.pp * level / enemy.level)
-                k = 2.258
                 enemy_exp = int(scale_exp_2(enemy.exp, enemy.level, level, world))
-                enemy_money = int(enemy.money * level / enemy.level)
+                enemy_money = min(65535, int((enemy.money * level / enemy.level) * world.options.money_drop_multiplier))
                 enemy_speed = max(2, int(scale_enemy_speed(enemy, level)))
                 enemy_offense = int(enemy.offense * level / enemy.level)
                 enemy_defense = int(enemy.defense * level / enemy.level)
                 enemy_level = int(enemy.level * level / enemy.level)
                 enemy_shield = scale_shield(level, enemy.shield)
-
-                # if world.multiworld.get_player_name(world.player) == "Pink":
-                # print(f"\nEnemy: {enemy.name}\nLevel: {enemy_level}\nHP: {enemy_hp}\nPP: {enemy_pp}\nEXP: {enemy_exp}\n${enemy_money}\nSpeed: {enemy_speed}\nOffense: {enemy_offense}\nDefense: {enemy_defense}\nSpeed: {enemy_speed} {enemy.shield}")
                 enemy_hp = struct.pack('<H', enemy_hp)
                 enemy_pp = struct.pack('<H', enemy_pp)
                 enemy_exp = struct.pack('<I', enemy_exp)

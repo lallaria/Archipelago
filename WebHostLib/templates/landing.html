@@ -1,15 +1,16 @@
 {% extends 'pageWrapper.html' %}
 
 {% block head %}
-    <title>Archipelago</title>
+    <title>TreZapalooza</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename="styles/landing.css") }}" />
+    <script src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.umd.js"></script>
 {% endblock %}
 
 {% block body %}
     {% include 'header/oceanIslandHeader.html' %}
     <div id="landing-wrapper">
         <div id="landing-header">
-            <img id="landing-logo" src="static/static/branding/landing-logo.png" alt="Archipelago Logo" />
+            <img id="landing-logo" src="static/static/branding/landing-logo.png" alt="TreZapalooza Logo" />
             <h4>multiworld multi-game randomizer</h4>
         </div>
         <div id="landing-links">
@@ -17,24 +18,17 @@
             <a href="/tutorial" id="mid-left-button">Setup Guides</a>
             <a href="/start-playing" id="mid-button">Start<br />Playing</a>
             <a href="/faq/en/" id="mid-right-button">F.A.Q.</a>
-            <a href="https://discord.gg/8Z65BR2" id="far-right-button" target="_blank">Discord</a>
+            <a href="https://discord.gg/zsr" id="far-right-button" target="_blank">Discord</a>
         </div>
         <div id="landing-clouds">
             <img id="cloud1" src="/static/static/backgrounds/clouds/cloud-0001.png"/>
             <img id="cloud2" src="/static/static/backgrounds/clouds/cloud-0002.png"/>
             <img id="cloud3" src="/static/static/backgrounds/clouds/cloud-0003.png"/>
-        </div>
-        <div id="landing-decorations">
-            <img id="landing-deco-1" class="landing-deco deco-island" src="/static/static/decorations/island-b.png" />
-            <img id="landing-deco-2" class="landing-deco deco-island" src="/static/static/decorations/island-c.png" />
-            <img id="landing-deco-3" class="landing-deco deco-rock" src="/static/static/decorations/rock-in-water.png" />
-            <img id="landing-deco-4" class="landing-deco deco-rock" src="/static/static/decorations/rock-in-water.png" />
-            <img id="landing-deco-5" class="landing-deco deco-rock" src="/static/static/decorations/rock-in-water.png" />
-            <img id="landing-deco-6" class="landing-deco deco-rock" src="/static/static/decorations/rock-in-water.png" />
+            <img id="cloud4" src="/static/static/backgrounds/clouds/cloud-0004.png"/>
         </div>
         <div id="landing" class="grass-island">
             <div id="landing-body">
-                <p id="first-line">Welcome to Archipelago!</p>
+                <p id="first-line">Welcome to the TreZapalooza!</p>
                 <p>
                     This is a cross-game modification system which randomizes different games, then uses the result to
                     build a single unified multi-player game. Items from one game may be present in another, and
@@ -42,11 +36,11 @@
                     your own.
                 </p>
                 <p>
-                    This project is the cumulative effort of many
+                    This project is a fork of Archipelago, a cumulative effort of many
                     <a href="https://github.com/ArchipelagoMW/Archipelago/graphs/contributors">talented people.</a>
                     Together, they have spent countless hours creating a huge repository of
                     <a href="https://github.com/ArchipelagoMW/Archipelago">source code</a> which has turned
-                    our crazy idea into a reality.
+                    a crazy idea into a reality.
                 </p>
                 <p>
                     <a href="{{ url_for("stats") }}">{{ seeds }}</a>

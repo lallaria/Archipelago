@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING, cast, List
+from typing import Dict, TYPE_CHECKING, cast, List, Optional
 from BaseClasses import Item, ItemClassification
 from .gen.LocationNames import loc_names_by_id
 from .gen.LocationData import LocationRestriction
@@ -18,11 +18,12 @@ class GSTLAItem(Item):
     """
     game: str = "Golden Sun The Lost Age"
     item_data: ItemData
-    def __init__(self, item: ItemData, player: int = None, event: bool = False):
+    def __init__(self, item: ItemData, player: int = None, event: bool = False, classification: Optional[ItemClassification] = None):
+        classification = item.progression if classification is None else classification
         if event:
-            super(GSTLAItem, self).__init__(item.name, item.progression, None, player)   
+            super(GSTLAItem, self).__init__(item.name, classification, None, player)
         else:
-            super(GSTLAItem, self).__init__(item.name, item.progression, item.id, player) 
+            super(GSTLAItem, self).__init__(item.name, classification, item.id, player)
         self.item_data = item
 
 AP_USEFUL_PLACEHOLDER_ITEM = ItemData(0xA00, "AP Useful Placeholder", ItemClassification.useful, -1, ItemType.Consumable)
@@ -32,8 +33,6 @@ AP_PLACEHOLDER_ITEM = ItemData(0xA0B, "AP Placeholder", ItemClassification.fille
 all_items = all_gen_items
 item_table: Dict[str, ItemData] = {item.name: item for item in all_items}
 items_by_id: Dict[int, ItemData] = {item.id: item for item in all_items}
-filler_pool_weights: Dict[FillerType, int] = {}
-trap_pool_weights: Dict[TrapType, int] = {}
 
 coin_items: {int: ItemData} = {}
 def _get_coin_item(id: int):
@@ -50,7 +49,7 @@ def _get_coin_item(id: int):
     return coin_items[id]
 
 
-def create_item(name: str, player :int, event: bool = False) -> "Item":
+def create_item(name: str, player :int, event: bool = False, classification: Optional[ItemClassification] = None) -> "Item":
     """Creates a GSTLAItem from data populated in this file
 
     Parameters:
@@ -60,10 +59,20 @@ def create_item(name: str, player :int, event: bool = False) -> "Item":
         The newly created item
     """
     item = item_table[name]
-    return GSTLAItem(item, player, event)
+    return GSTLAItem(item, player, event, classification)
 
-def create_item_direct(item: ItemData, player: int, event: bool = False):
-    return GSTLAItem(item, player, event)
+def create_item_direct(item: ItemData, player: int, event: bool = False, classification: Optional[ItemClassification] = None):
+    return GSTLAItem(item, player, event, classification)
+
+filler_gear_types = {ItemType.Shield, ItemType.Armor, ItemType.Weapon, ItemType.Helm}
+filler_forge_mats = {item.id for item in forge_materials}
+def create_filler(world: 'GSTLAWorld', item: ItemData):
+    if world.options.artifacts_are_filler and item.is_rare and item.type in filler_gear_types:
+        return create_item_direct(item, world.player, False, ItemClassification.filler)
+    elif world.options.forge_materials_are_filler and item.id in filler_forge_mats:
+        return create_item_direct(item, world.player, False, ItemClassification.filler)
+    else:
+        return create_item_direct(item, world.player)
 
 def create_events(world: 'GSTLAWorld'):
     """Creates all the event items and populates their vanilla locations with them.
@@ -179,8 +188,16 @@ def create_items(world: 'GSTLAWorld', player: int):
         sum_locations -= 1
         
     for item in other_progression:
+        if world.options.lemurian_ship != 0 and item.name == ItemName.Black_Crystal:
+            # The black crystal is unnecessary when the ship door is not closed
+            continue
         ap_item = create_item_direct(item, player)
         world.multiworld.itempool.append(ap_item)
+        sum_locations -= 1
+
+    if world.options.item_shuffle == 3:
+        # Adding one progressive lucky medal
+        world.multiworld.itempool.append(create_item_direct(items_by_id[229], player, False, ItemClassification.progression))
         sum_locations -= 1
 
     for item in class_change_items:
@@ -189,7 +206,7 @@ def create_items(world: 'GSTLAWorld', player: int):
         sum_locations -= 1
 
     for item in useful_remainder:
-        ap_item = create_item_direct(item, player)
+        ap_item = create_filler(world, item)
         world.multiworld.itempool.append(ap_item)
         sum_locations -= 1
         
@@ -267,18 +284,20 @@ def create_items(world: 'GSTLAWorld', player: int):
 
     for i in range(sum_locations):
         item = get_filler_item(world)
-        ap_item = create_item_direct(item, player)
+        ap_item = create_filler(world, item)
         world.multiworld.itempool.append(ap_item)
 
 
 def get_filler_item(world: 'GSTLAWorld', includetraps: bool = True) -> ItemData:
     if includetraps and world.options.trap_chance > 0 and world.random.randint(1, 100) <= world.options.trap_chance:
+        trap_pool_weights = create_trap_pool_weights(world)
         trap_type = world.random.choices(list(trap_pool_weights.keys()), list(trap_pool_weights.values()))[0]
 
         if trap_type == TrapType.Mimic:
             item = world.random.choice(mimics)
 
     else:
+        filler_pool_weights = create_filler_pool_weights(world)
         filler_type = world.random.choices(list(filler_pool_weights.keys()), list(filler_pool_weights.values()))[0]
 
         if filler_type == FillerType.ForgeMaterials:
@@ -317,6 +336,7 @@ def get_filler_item(world: 'GSTLAWorld', includetraps: bool = True) -> ItemData:
 
 def create_filler_pool_weights(world: 'GSTLAWorld') -> Dict[FillerType, int]:
     """Creates a dictionary mapping FillerTypes to weight to be used for rolling filler items in the itempool""" 
+    filler_pool_weights: Dict[FillerType, int] = {}
 
     if world.options.forge_material_filler_weight > 0:
         filler_pool_weights[FillerType.ForgeMaterials] = world.options.forge_material_filler_weight
@@ -349,6 +369,7 @@ def create_filler_pool_weights(world: 'GSTLAWorld') -> Dict[FillerType, int]:
 
 def create_trap_pool_weights(world: 'GSTLAWorld') -> Dict[TrapType, int]:
     """Creates a dictionary mapping TrapTypes to weight to be used for rolling trap items in the itempool""" 
+    trap_pool_weights: Dict[TrapType, int] = {}
 
     if world.options.mimic_trap_weight > 0:
         trap_pool_weights[TrapType.Mimic] = world.options.mimic_trap_weight

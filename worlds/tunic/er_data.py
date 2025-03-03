@@ -1033,10 +1033,6 @@ traversal_requirements: Dict[str, Dict[str, List[List[str]]]] = {
         "Forest Belltower Main behind bushes":
             [],
     },
-    "Forest Belltower Main behind bushes": {
-        "Forest Belltower Main":
-            [],
-    },
 
     "East Forest": {
         "East Forest Dance Fox Spot":
@@ -1067,11 +1063,8 @@ traversal_requirements: Dict[str, Dict[str, List[List[str]]]] = {
         "Guard House 1 East":
             [["Hyperdash"], ["LS1"]],
     },
-    "Guard House 2 Upper before bushes": {
-        "Guard House 2 Upper after bushes":
-            [],
-    },
-    "Guard House 2 Upper after bushes": {
+
+    "Guard House 2 Upper": {
         "Guard House 2 Lower":
             [],
         "Guard House 2 Upper before bushes":

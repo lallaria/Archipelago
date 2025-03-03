@@ -51,15 +51,69 @@ class Upgrade(Enum):
     Lure4 = auto()
 
 
+class Enemy(Enum):
+    BoaBoa = 1
+    Buyon = auto()
+    CopSpeeder = auto()
+    ElectroSpinner = auto()
+    EggKeeper = auto()
+    Gola = auto()
+    IceBall = auto()
+    KartKiki = auto()
+    Kiki = auto()
+    Leon = auto()
+    Rhinotank = auto()
+    Spinner = auto()
+    Sweep = auto()
+    SpikySpinner = auto()
+
+
+class Capsule(Enum):
+    ExtraLife = 1
+    Shield = auto()
+    MagneticShield = auto()
+    SpeedUp = auto()
+    Invincibility = auto()
+    Bomb = auto()
+    FiveRings = auto()
+    TenRings = auto()
+    RandomRings = auto()
+
+
+class Fish(Enum):
+    AnglerFish = 0
+    Hammerhead = auto()
+    StripedBeakfish = auto()
+    BlueMarlin = auto()
+    MechaFish = auto()
+    LargemouthBass = auto()
+    Piranha = auto()
+    Oarfish = auto()
+    Salmon = auto()
+    Shark = auto()
+    SeaBass = auto()
+    Coelacanth = auto()
+    RedSeaBream = auto()
+    JapaneseEel = auto()
+    MorayEel = auto()
+
+
 class SubLevelMission(Enum):
     B = 0
     A = auto()
+    Sonic = auto()
+    Tails = auto()
+    Knuckles = auto()
+    Amy = auto()
+    Big = auto()
+    Gamma = auto()
 
 
 class LevelMission(Enum):
     C = 0
     B = auto()
     A = auto()
+    S = auto()
 
 
 class SubLevel(Enum):
@@ -85,7 +139,9 @@ class Area(Enum):
     MysticRuinsMain = auto()
     AngelIsland = auto()
     Jungle = auto()
-    EggCarrierMain = auto()
+    EggCarrierOutside = auto()
+    EggCarrierInside = auto()
+    EggCarrierFrontDeck = auto()
     EmeraldCoast = auto()
     WindyValley = auto()
     Casinopolis = auto()

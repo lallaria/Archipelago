@@ -36,9 +36,9 @@ CCLE = "Cloud Cuckooland - Main Entrance"
 CKE = "Cauldron Keep - Main Entrance"
 
 SMBH = "Spiral Mountain - Banjo's House"
-SMGL = "Spiral Mountain - Grunty's Lair"
+SMGL = "Spiral Mountain - Gruntilda's Lair"
 SMBW = "Spiral Mountain - Behind Waterfall"
-SM   = "Spiral Mountain" 
+SM   = "Spiral Mountain"
 SMDT = "Sprial Mountain - Digger Tunnel"
 
 MT = "Mayahem Temple"
@@ -50,9 +50,11 @@ MTJSG = "Mayahem Temple - Jade Snake Grove"
 GM = "Glitter Gulch Mine"
 GMS = "Glitter Gulch Mine Station"
 GMWSJT = "Glitter Gulch Mine - Water Storage Jinjo Tank"
+GMFD = "Glitter Gulch Mine - Fuel Depot, Behind the Rocks"
 
 WW = "Witchyworld"
 WWS = "Witchyworld Station"
+WWA51NESTS = "Witchyworld - Area 51 Egg Nests"
 
 JR = "Jolly Roger's Lagoon - Town Center"
 JRU = "Jolly Roger's Lagoon - Underwater"

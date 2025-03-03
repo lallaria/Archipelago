@@ -120,10 +120,11 @@ def set_entrance_rules(world: 'GSTLAWorld'):
     
     if world.options.lemurian_ship == 0:
         add_rule(world.get_entrance(EntranceName.MadraToLemurianShip),
-             lambda state: state.has(ItemName.Black_Crystal, player))
-    if world.options.lemurian_ship < 2:
-        add_rule(world.get_entrance(EntranceName.MadraToLemurianShip),
-             lambda state: state.has(ItemName.Gabomba_Statue_Completed, player) and state.has(ItemName.Piers, player))
+             lambda state: state.has(ItemName.Black_Crystal, player) and state.has(ItemName.Gabomba_Statue_Completed, player)
+                    and state.has(ItemName.Piers, player))
+    # if world.options.lemurian_ship < 2:
+    #     add_rule(world.get_entrance(EntranceName.MadraToLemurianShip),
+    #          lambda state: state.has(ItemName.Gabomba_Statue_Completed, player) and state.has(ItemName.Piers, player))
 
 def set_access_rules(world: 'GSTLAWorld'):
     player = world.player
@@ -383,7 +384,7 @@ def set_access_rules(world: 'GSTLAWorld'):
     #Lemurian Ship
     if world.options.lemurian_ship < 2:
         add_rule(world.get_location(LocationName.Lemurian_Ship_Engine_Room),
-                        lambda state: state.has(ItemName.Aqua_Hydra_defeated, player) and state.has(ItemName.Douse_Drop, player) and state.has(ItemName.Black_Crystal, player))
+                        lambda state: state.has(ItemName.Aqua_Hydra_defeated, player) and state.has(ItemName.Douse_Drop, player))
 
     add_rule(world.get_location(LocationName.Lemurian_Ship_Potion),
              lambda state: state.has(ItemName.Frost_Jewel, player))
@@ -542,9 +543,16 @@ def set_access_rules(world: 'GSTLAWorld'):
     #Lemuria
     add_rule(world.get_location(LocationName.Rime),
              lambda state: state.has(ItemName.Grindstone, player) and state.has(ItemName.Cyclone_Chip, player) and state.has(ItemName.Tremor_Bit, player))
-    
-    add_rule(world.get_location(LocationName.Lemuria_Eclipse),
-             lambda state: state.has(ItemName.Lucky_Medal, player))
+
+    #If item shuffle everything is on a lucky medal is guaranteed in the pool, otherwise there are guarenteed lucky medals in Lemuria
+    if world.options.item_shuffle == 3:
+        add_rule(world.get_location(LocationName.Lemuria_Eclipse),
+                 lambda state: state.has(ItemName.Lucky_Medal, player))
+    else:
+        #If hidden items are enabled make sure we sure Reveal is in logic as the guarenteed medals are hidden, one in the castle barrel, one dug up with scoop. We can assume for now just Reveal is enough
+        if world.options.reveal_hidden_item == 1:
+          add_rule(world.get_location(LocationName.Lemuria_Eclipse),
+                    lambda state: state.has(ItemName.Reveal, player))
 
     #Western Sea
 

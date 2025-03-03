@@ -1,10 +1,12 @@
-"Converts between Lark and Nearley grammars. Work in progress!"
+"Converts Nearley grammars to Lark"
 
 import os.path
 import sys
+import codecs
+import argparse
 
 
-from lark import Lark, InlineTransformer, Transformer
+from lark import Lark, Transformer, v_args
 
 nearley_grammar = r"""
     start: (ruledef|directive)+
@@ -17,35 +19,39 @@ nearley_grammar = r"""
 
     expansion: expr+ js
 
-    ?expr: item [":" /[+*?]/]
+    ?expr: item (":" /[+*?]/)?
 
-    ?item: rule|string|regexp
+    ?item: rule|string|regexp|null
          | "(" expansions ")"
 
     rule: NAME
     string: STRING
     regexp: REGEXP
-    JS: /(?s){%.*?%}/
+    null: "null"
+    JS: /{%.*?%}/s
     js: JS?
 
     NAME: /[a-zA-Z_$]\w*/
-    COMMENT: /\#[^\n]*/
+    COMMENT: /#[^\n]*/
     REGEXP: /\[.*?\]/
-    STRING: /".*?"/
 
+    STRING: _STRING "i"?
+
+    %import common.ESCAPED_STRING -> _STRING
     %import common.WS
     %ignore WS
     %ignore COMMENT
 
     """
 
-nearley_grammar_parser = Lark(nearley_grammar, parser='earley', lexer='standard')
+nearley_grammar_parser = Lark(nearley_grammar, parser='earley', lexer='basic')
 
 def _get_rulename(name):
-    name = {'_': '_ws_maybe', '__':'_ws'}.get(name, name)
+    name = {'_': '_ws_maybe', '__': '_ws'}.get(name, name)
     return 'n_' + name.replace('$', '__DOLLAR__').lower()
 
-class NearleyToLark(InlineTransformer):
+@v_args(inline=True)
+class NearleyToLark(Transformer):
     def __init__(self):
         self._count = 0
         self.extra_rules = {}
@@ -65,7 +71,7 @@ class NearleyToLark(InlineTransformer):
 
         name = 'xrule_%d' % len(self.extra_rules)
         assert name not in self.extra_rules
-        self.extra_rules[name] = rule                
+        self.extra_rules[name] = rule
         self.extra_rules_rev[rule] = name
         return name
 
@@ -81,6 +87,9 @@ class NearleyToLark(InlineTransformer):
 
     def regexp(self, r):
         return '/%s/' % r
+
+    def null(self):
+        return ''
 
     def string(self, s):
         return self._extra_rule(s)
@@ -101,17 +110,21 @@ class NearleyToLark(InlineTransformer):
     def start(self, *rules):
         return '\n'.join(filter(None, rules))
 
-def _nearley_to_lark(g, builtin_path, n2l, js_code):
+def _nearley_to_lark(g, builtin_path, n2l, js_code, folder_path, includes):
     rule_defs = []
 
     tree = nearley_grammar_parser.parse(g)
     for statement in tree.children:
         if statement.data == 'directive':
             directive, arg = statement.children
-            if directive == 'builtin':
-                with open(os.path.join(builtin_path, arg[1:-1])) as f:
-                    text = f.read()
-                rule_defs += _nearley_to_lark(text, builtin_path, n2l, js_code)
+            if directive in ('builtin', 'include'):
+                folder = builtin_path if directive == 'builtin' else folder_path
+                path = os.path.join(folder, arg[1:-1])
+                if path not in includes:
+                    includes.add(path)
+                    with codecs.open(path, encoding='utf8') as f:
+                        text = f.read()
+                    rule_defs += _nearley_to_lark(text, builtin_path, n2l, js_code, os.path.abspath(os.path.dirname(path)), includes)
             else:
                 assert False, directive
         elif statement.data == 'js_code':
@@ -121,14 +134,14 @@ def _nearley_to_lark(g, builtin_path, n2l, js_code):
         elif statement.data == 'macro':
             pass    # TODO Add support for macros!
         elif statement.data == 'ruledef':
-            rule_defs.append( n2l.transform(statement) )
+            rule_defs.append(n2l.transform(statement))
         else:
             raise Exception("Unknown statement: %s" % statement)
 
     return rule_defs
 
 
-def create_code_for_nearley_grammar(g, start, builtin_path):
+def create_code_for_nearley_grammar(g, start, builtin_path, folder_path, es6=False):
     import js2py
 
     emit_code = []
@@ -136,90 +149,54 @@ def create_code_for_nearley_grammar(g, start, builtin_path):
         if x:
             emit_code.append(x)
         emit_code.append('\n')
-    
+
     js_code = ['function id(x) {return x[0];}']
     n2l = NearleyToLark()
-    lark_g = '\n'.join(_nearley_to_lark(g, builtin_path, n2l, js_code))
+    rule_defs = _nearley_to_lark(g, builtin_path, n2l, js_code, folder_path, set())
+    lark_g = '\n'.join(rule_defs)
     lark_g += '\n'+'\n'.join('!%s: %s' % item for item in n2l.extra_rules.items())
 
     emit('from lark import Lark, Transformer')
     emit()
     emit('grammar = ' + repr(lark_g))
     emit()
-    
+
     for alias, code in n2l.alias_js_code.items():
         js_code.append('%s = (%s);' % (alias, code))
 
-    emit(js2py.translate_js('\n'.join(js_code)))
-    emit('class TranformNearley(Transformer):')
+    if es6:
+        emit(js2py.translate_js6('\n'.join(js_code)))
+    else:
+        emit(js2py.translate_js('\n'.join(js_code)))
+    emit('class TransformNearley(Transformer):')
     for alias in n2l.alias_js_code:
         emit("    %s = var.get('%s').to_python()" % (alias, alias))
-    emit("    __default__ = lambda self, n, c: c if c else None")
+    emit("    __default__ = lambda self, n, c, m: c if c else None")
 
     emit()
-    emit('parser = Lark(grammar, start="n_%s")' % start)
+    emit('parser = Lark(grammar, start="n_%s", maybe_placeholders=False)' % start)
     emit('def parse(text):')
-    emit('    return TranformNearley().transform(parser.parse(text))')
+    emit('    return TransformNearley().transform(parser.parse(text))')
 
     return ''.join(emit_code)
 
-def test():
-    css_example_grammar = """
-# http://www.w3.org/TR/css3-color/#colorunits
-
-    @builtin "whitespace.ne"
-    @builtin "number.ne"
-    @builtin "postprocessors.ne"
-
-    csscolor -> "#" hexdigit hexdigit hexdigit hexdigit hexdigit hexdigit {%
-        function(d) {
-            return {
-                "r": parseInt(d[1]+d[2], 16),
-                "g": parseInt(d[3]+d[4], 16),
-                "b": parseInt(d[5]+d[6], 16),
-            }
-        }
-    %}
-              | "#" hexdigit hexdigit hexdigit {%
-        function(d) {
-            return {
-                "r": parseInt(d[1]+d[1], 16),
-                "g": parseInt(d[2]+d[2], 16),
-                "b": parseInt(d[3]+d[3], 16),
-            }
-        }
-    %}
-              | "rgb"  _ "(" _ colnum _ "," _ colnum _ "," _ colnum _ ")" {% $({"r": 4, "g": 8, "b": 12}) %}
-              | "hsl"  _ "(" _ colnum _ "," _ colnum _ "," _ colnum _ ")" {% $({"h": 4, "s": 8, "l": 12}) %}
-              | "rgba" _ "(" _ colnum _ "," _ colnum _ "," _ colnum _ "," _ decimal _ ")" {% $({"r": 4, "g": 8, "b": 12, "a": 16}) %}
-              | "hsla" _ "(" _ colnum _ "," _ colnum _ "," _ colnum _ "," _ decimal _ ")" {% $({"h": 4, "s": 8, "l": 12, "a": 16}) %}
-
-    hexdigit -> [a-fA-F0-9]
-    colnum -> unsigned_int {% id %} | percentage {%
-        function(d) {return Math.floor(d[0]*255); }
-    %}
-    """
-    code = create_code_for_nearley_grammar(css_example_grammar, 'csscolor', '/home/erez/nearley/builtin')
-    d = {}
-    exec (code, d)
-    parse = d['parse']
-
-    print(parse('#a199ff'))
-    print(parse('rgb(255, 70%, 3)'))
-
-
-def main():
-    if len(sys.argv) < 3:
-        print("Reads Nearley grammar (with js functions) outputs an equivalent lark parser.")
-        print("Usage: %s <nearley_grammar_path> <start_rule> <nearley_lib_path>" % sys.argv[0])
-        return
-
-    fn, start, nearley_lib = sys.argv[1:]
-    with open(fn) as f:
+def main(fn, start, nearley_lib, es6=False):
+    with codecs.open(fn, encoding='utf8') as f:
         grammar = f.read()
-    print(create_code_for_nearley_grammar(grammar, start, os.path.join(nearley_lib, 'builtin')))
+    return create_code_for_nearley_grammar(grammar, start, os.path.join(nearley_lib, 'builtin'), os.path.abspath(os.path.dirname(fn)), es6=es6)
 
+def get_arg_parser():
+    parser = argparse.ArgumentParser(description='Reads a Nearley grammar (with js functions), and outputs an equivalent lark parser.')
+    parser.add_argument('nearley_grammar', help='Path to the file containing the nearley grammar')
+    parser.add_argument('start_rule', help='Rule within the nearley grammar to make the base rule')
+    parser.add_argument('nearley_lib', help='Path to root directory of nearley codebase (used for including builtins)')
+    parser.add_argument('--es6', help='Enable experimental ES6 support', action='store_true')
+    return parser
 
 if __name__ == '__main__':
-    main()
-    # test()
+    parser = get_arg_parser()
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    args = parser.parse_args()
+    print(main(fn=args.nearley_grammar, start=args.start_rule, nearley_lib=args.nearley_lib, es6=args.es6))

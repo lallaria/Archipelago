@@ -70,7 +70,7 @@ def shuffle_psi(world):
 
         if not world.options.allow_flash_as_favorite_thing:
             if world.offensive_psi_slots[0] == "Flash":
-                adjust_psi_list(world.offensive_psi_slots, "Flash", world.random.randint(1,5))
+                adjust_psi_list(world.offensive_psi_slots, "Flash", world.random.randint(1, 5))
 
         world.random.shuffle(world.assist_psi_slots)
 
@@ -80,7 +80,6 @@ def shuffle_psi(world):
             adjust_psi_list(world.assist_psi_slots, "Disable", 10)
             adjust_psi_list(world.assist_psi_slots, "Stop", 10)
             adjust_psi_list(world.assist_psi_slots, "Neutralize", 10)
-
 
         world.jeff_offense_items.extend(world.offensive_psi_slots[-2:])
         world.jeff_assist_items.extend(world.assist_psi_slots[-5:])
@@ -144,7 +143,7 @@ def shuffle_psi(world):
         [[0x00, 0x1D, 0x00], [0x00, 0x36, 0x00]],  # Defense Down
         [[0x00, 0x00, 0x18], [0x00, 0x00, 0x2C]],  # Brainshock
 
-        #Level-up data needs to be zeroed out for these slots
+        # Level-up data needs to be zeroed out for these slots
         [[0x00, 0x00, 0x00], [0x00, 0x00, 0x00], [0x00, 0x00, 0x00], [0x00, 0x00, 0x00]],  # Blast
         [[0x00, 0x00, 0x00], [0x00, 0x00, 0x00], [0x00, 0x00, 0x00], [0x00, 0x00, 0x00]],  # Missile
 
@@ -160,7 +159,7 @@ def shuffle_psi(world):
         "Special": ["Psycho bomb", "Mad psycho bomb", "Psywave emitter", "Psywave blaster", "Broken radio"],
         "Flash": ["Smoke bomb", "Flashbang", "Flash pan", "Digital camera", "Broken camera"],
         "Freeze": ["Ice bomb", "Dry ice bomb", "Frost ray", "Freeze ray", "Broken minifridge"],
-        "Fire": ["Fire bomb", "Napalm bomb", "Blowtorch", "Flamethrower", "Broken toaster"],
+        "Fire": ["Fire bomb", "Napalm bomb", "Blowtorch", "Flamethrower", "Broken grill"],
         "Thunder": ["Electric bomb", "EMP bomb", "Shock coil", "Tesla coil", "Broken spring"],
         "Starstorm": ["Comet bomb", "Nova bomb", "Meteor radar", "Star radar", "Broken radar"],
         "Blast": ["Bomb", "Super bomb", "Bazooka", "Heavy bazooka", "Broken bazooka"],
@@ -195,7 +194,7 @@ def shuffle_psi(world):
         "Paralysis": ["Broken razor", "Broken fan"],
         "Offense Up": ["Broken faucet", "Broken tuba"],
         "Defense Down": ["Broken sprinkler", "Broken trombone"],
-        "Brainshock": ["Broken microwave", "Broken fryer"],
+        "Brainshock": ["Broken toaster", "Broken fryer"],
         "Defense up": ["Broken nozzle", "Broken trumpet"],
         "Drain": ["Broken hose", "Broken tube"],
         "Disable": ["Broken machine", "Broken device"],
@@ -408,7 +407,7 @@ def shuffle_psi(world):
 
 
 def write_psi(world, rom):
-    from ..game_data.text_data import text_encoder, eb_text_table
+    from ..game_data.text_data import text_encoder
     psi_num = 0
     for spell, (address, levels) in world.psi_address.items():
         for i in range(levels):
@@ -417,9 +416,9 @@ def write_psi(world, rom):
             if psi_num == 0:
                 rom.write_bytes(address, bytearray([0x01]))
             elif psi_num == 5 and i > 1:
-                rom.write_bytes(0x01C4AB + (0x9E * (i - 2)), struct.pack("H", world.starstorm_address[spell][i - 2]))
-                rom.write_bytes(0x01C536 + (0x78 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]]))
-                rom.write_bytes(0x2E957F + (0x11 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]]))
+                rom.write_bytes(0x01C4AB + (0x9E * (i - 2)), struct.pack("H", world.starstorm_address[spell][i - 2])) # Menu spells
+                rom.write_bytes(0x01C536 + (0x78 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]])) # What spell is controlled by the PSI flags
+                rom.write_bytes(0x2E957E + (0x11 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]])) # The global Poo PSI text
                 rom.write_bytes(address + 9, bytearray(world.psi_slot_data[psi_num][i - 2]))
 
             if spell == "Special" and psi_num != 0:
@@ -434,10 +433,10 @@ def write_psi(world, rom):
     # todo; cleanup stuff
         psi_num += 1
 
-    #rom.write_bytes(0x2E957F + (0x11 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]]))
-    rom.write_bytes(0x2EAE2E,  bytearray([world.starstorm_spell_id[world.offensive_psi_slots[5]][0]])) #Starstorm spell for the item locally
+    # rom.write_bytes(0x2E957F + (0x11 * (i - 2)), bytearray([world.starstorm_spell_id[spell][i - 2]]))
+    # Starstorm spell for the item locally
+    rom.write_bytes(0x2EAE2E,  bytearray([world.starstorm_spell_id[world.offensive_psi_slots[5]][0]]))
     rom.write_bytes(0x2EAE38,  bytearray([world.starstorm_spell_id[world.offensive_psi_slots[5]][1]]))
-
 
     jeff_item_num = 0
     jeff_item_index = 0
@@ -447,7 +446,7 @@ def write_psi(world, rom):
             jeff_item_index += 1
             name = world.jeff_item_names[jeff_item_num][item][i]
             description = world.jeff_help_text[jeff_item_num][item][i]
-            name_encoded = text_encoder(name, eb_text_table, 22)
+            name_encoded = text_encoder(name, 22)
             name_encoded.extend(([0x00]))
             rom.write_bytes(address, name_encoded)
             rom.write_bytes(address + 35, struct.pack("I", description))
@@ -457,7 +456,7 @@ def write_psi(world, rom):
         jeff_item_num += 1
     jeff_item_num = 0
     name = world.spray_names[world.jeff_assist_items[0]]
-    name_encoded = text_encoder(name, eb_text_table, 22)
+    name_encoded = text_encoder(name, 22)
     name_encoded.extend(([0x00]))
     description = world.spray_desc[world.jeff_assist_items[0]]
     address = 0x156887
@@ -471,7 +470,7 @@ def write_psi(world, rom):
             if jeff_item_num == 0:
                 i = 1
             name = world.gadget_names[item][i]
-            name_encoded = text_encoder(name, eb_text_table, 22)
+            name_encoded = text_encoder(name, 22)
             name_encoded.extend(([0x00]))
             description = world.gadget_desc[item][i]
             action = world.gadget_actions[world.jeff_assist_items[jeff_item_num]][i]
@@ -491,7 +490,7 @@ def write_psi(world, rom):
         address = world.broken_gadget_addresses[i]
         name = world.broken_gadgets[item][level]
         description = world.broken_desc[item][level]
-        name_encoded = text_encoder(name, eb_text_table, 22)
+        name_encoded = text_encoder(name, 22)
         name_encoded.extend(([0x00]))
         rom.write_bytes(address, name_encoded)
         rom.write_bytes(address + 35, struct.pack("I", description))
@@ -505,12 +504,6 @@ def write_psi(world, rom):
     rom.write_bytes(0x15BA2B, bytearray(struct.pack("H", world.gadget_actions[world.jeff_assist_items[1]][0])))
     rom.write_bytes(0x15C06D, bytearray(struct.pack("H", world.gadget_actions[world.jeff_assist_items[1]][1])))
 
-    rom.write_bytes(0x15C009, bytearray(struct.pack("H", world.bomb_actions[world.jeff_offense_items[0]][0])))
-    rom.write_bytes(0x15C00B, bytearray(struct.pack("H", world.bomb_actions[world.jeff_offense_items[0]][0])))
-    rom.write_bytes(0x15C00D, bytearray(struct.pack("H", world.bomb_actions[world.jeff_offense_items[0]][0])))
-    rom.write_bytes(0x15C00F, bytearray(struct.pack("H", world.bomb_actions[world.jeff_offense_items[0]][1])))
-
-    rom.write_bytes(0x15C93D, bytearray(struct.pack("H", world.missile_actions[world.jeff_offense_items[1]][0]))) #todo, fix
 
 def adjust_psi_list(psi_input, spell, index):
     psi_input.insert(index, (psi_input.pop(psi_input.index(spell))))

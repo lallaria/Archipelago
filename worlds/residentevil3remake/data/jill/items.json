@@ -16,7 +16,7 @@
   {
     "type": "Key",
     "name": "Lock Pick",
-    "decimal": "185",
+    "decimal": "151",
     "count": 1,
     "progression": 1
   },
@@ -156,22 +156,22 @@
 
   {
     "type": "Gating",
-    "name": "Fancy Box - Green Jewel",
-    "decimal": "192",
+    "name": "Green Jewel",
+    "decimal": "187",
     "count": 1,
     "progression": 1
   },
   {
     "type": "Gating",
-    "name": "Fancy Box - Blue Jewel",
-    "decimal": "193",
+    "name": "Blue Jewel",
+    "decimal": "188",
     "count": 1,
     "progression": 1
   },
   {
     "type": "Gating",
-    "name": "Fancy Box - Red Jewel",
-    "decimal": "194",
+    "name": "Red Jewel",
+    "decimal": "189",
     "count": 1,
     "progression": 1
   },
@@ -234,34 +234,6 @@
     "count": 1,
     "progression": 0
   },
-  {
-    "type": "Consumable",
-    "name": "Supply Case - G19 Extended Mag",
-    "decimal": "311",
-    "count": 1,
-    "progression": 0
-  },
-  {
-    "type": "Consumable",
-    "name": "Supply Case - G19 Moderator",
-    "decimal": "312",
-    "count": 1,
-    "progression": 0
-  },
-  {
-    "type": "Consumable",
-    "name": "Supply Case - Shotgun Shells",
-    "decimal": "313",
-    "count": 1,
-    "progression": 0
-  },
-  {
-    "type": "Consumable",
-    "name": "Supply Case - Flame Rounds",
-    "decimal": "314",
-    "count": 1,
-    "progression": 0
-  },
 
   {
     "type": "Weapon",
@@ -281,23 +253,7 @@
   },
   {
     "type": "Weapon",
-    "name": "Samurai Edge",
-    "decimal": "4",
-    "count": 10,
-    "progression": 0,
-    "ammo": "Handgun Ammo"
-  },
-  {
-    "type": "Weapon",
-    "name": "Infinite MUP",
-    "decimal": "7",
-    "count": 10,
-    "progression": 0,
-    "ammo": "Handgun Ammo"
-  },
-  {
-    "type": "Weapon",
-    "name": "M3",
+    "name": "M3 Shotgun",
     "decimal": "11",
     "count": 4,
     "progression": 0,
@@ -313,13 +269,6 @@
   },
   {
     "type": "Weapon",
-    "name": "Infinite Assault Rifle",
-    "decimal": "22",
-    "count": 32,
-    "progression": 0
-  },
-  {
-    "type": "Weapon",
     "name": "MAG",
     "decimal": "31",
     "count": 8,
@@ -328,32 +277,11 @@
   },
   {
     "type": "Weapon",
-    "name": "RAI-DEN",
-    "decimal": "32",
-    "count": 7,
-    "progression": 0
-  },
-  {
-    "type": "Weapon",
     "name": "MGL Grenade Launcher",
     "decimal": "42",
     "count": 6,
     "progression": 0,
     "ammo": "Explosive Rounds"
-  },
-  {
-    "type": "Weapon",
-    "name": "HOT DOGGER",
-    "decimal": "48",
-    "count": 1,
-    "progression": 0
-  },
-  {
-    "type": "Weapon",
-    "name": "Infinite Rocket Launcher",
-    "decimal": "49",
-    "count": 1,
-    "progression": 0
   },
 
   {
@@ -446,21 +374,21 @@
     "type": "Ammo",
     "name": "Handgun Ammo",
     "decimal": "31",
-    "count": 15,
+    "count": 10,
     "progression": 0
   },
   {
     "type": "Ammo",
     "name": "Shotgun Shells",
     "decimal": "32",
-    "count": 6,
+    "count": 5,
     "progression": 0
   },
   {
     "type": "Ammo",
     "name": "Assault Rifle Ammo",
     "decimal": "33",
-    "count": 100,
+    "count": 40,
     "progression": 0
   },
   {
@@ -500,8 +428,15 @@
   },
   {
     "type": "Ammo",
-    "name": "Infinity Gauntlet",
-    "decimal": "",
+    "name": "Supply Case - Shotgun Shells",
+    "decimal": "313",
+    "count": 1,
+    "progression": 0
+  },
+  {
+    "type": "Ammo",
+    "name": "Supply Case - Flame Rounds",
+    "decimal": "314",
     "count": 1,
     "progression": 0
   },

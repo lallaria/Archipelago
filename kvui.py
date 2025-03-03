@@ -27,7 +27,7 @@ if Utils.is_frozen():
     os.environ["KIVY_DATA_DIR"] = Utils.local_path("data")
 
 import platformdirs
-os.environ["KIVY_HOME"] = os.path.join(platformdirs.user_config_dir("Archipelago", False), "kivy")
+os.environ["KIVY_HOME"] = os.path.join(platformdirs.user_config_dir(Utils.archipelago_name, False), "kivy")
 os.makedirs(os.environ["KIVY_HOME"], exist_ok=True)
 
 from kivy.config import Config
@@ -319,7 +319,6 @@ class SelectableLabel(RecycleDataViewBehavior, TooltipLabel):
         """ Respond to the selection of items in the view. """
         self.selected = is_selected
 
-        
 class AutocompleteHintInput(TextInput):
     min_chars = NumericProperty(3)
 
@@ -361,7 +360,6 @@ class AutocompleteHintInput(TextInput):
                 self.dropdown.open(self)
         else:
             self.dropdown.dismiss()
-
 
 class HintLabel(RecycleDataViewBehavior, BoxLayout):
     selected = BooleanProperty(False)
@@ -429,7 +427,7 @@ class HintLabel(RecycleDataViewBehavior, BoxLayout):
                     if self.hint["status"] == HintStatus.HINT_FOUND:
                         return
                     ctx = App.get_running_app().ctx
-                    if ctx.slot_concerns_self(self.hint["receiving_player"]):  # If this player owns this hint
+                    if ctx.slot_concerns_self(self.hint["receiving_player"]): # If this player owns this hint
                         # open a dropdown
                         self.dropdown.open(self.ids["status"])
                 elif self.selected:
@@ -453,8 +451,11 @@ class HintLabel(RecycleDataViewBehavior, BoxLayout):
                 if child.collide_point(*touch.pos):
                     key = child.sort_key
                     if key == "status":
-                        parent.hint_sorter = lambda element: element["status"]["hint"]["status"]
-                    else: parent.hint_sorter = lambda element: remove_between_brackets.sub("", element[key]["text"]).lower()
+                        parent.hint_sorter = lambda element: status_sort_weights[element["status"]["hint"]["status"]]
+                    else:
+                        parent.hint_sorter = lambda element: (
+                            remove_between_brackets.sub("", element[key]["text"]).lower()
+                        )
                     if key == parent.sort_key:
                         # second click reverses order
                         parent.reversed = not parent.reversed
@@ -486,7 +487,7 @@ class CommandPromptTextInput(TextInput):
         super().__init__(**kwargs)
         self._command_history_index = -1
         self._command_history: typing.Deque[str] = deque(maxlen=CommandPromptTextInput.MAXIMUM_HISTORY_MESSAGES)
-    
+
     def update_history(self, new_entry: str) -> None:
         self._command_history_index = -1
         if is_command_input(new_entry):
@@ -513,7 +514,7 @@ class CommandPromptTextInput(TextInput):
             self._change_to_history_text_if_available(self._command_history_index - 1)
             return True
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
-    
+
     def _change_to_history_text_if_available(self, new_index: int) -> None:
         if new_index < -1:
             return
@@ -630,6 +631,7 @@ class GameManager(App):
 
         hint_panel = self.add_client_tab("Hints", HintLayout())
         self.hint_log = HintLog(self.json_to_kivy_parser)
+
         self.log_panels["Hints"] = hint_panel.content
         hint_panel.content.add_widget(self.hint_log)
 
@@ -823,7 +825,7 @@ class HintLayout(BoxLayout):
         boxlayout.add_widget(AutocompleteHintInput())
         self.add_widget(boxlayout)
 
-        
+
 status_names: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_FOUND: "Found",
     HintStatus.HINT_UNSPECIFIED: "Unspecified",
@@ -838,8 +840,13 @@ status_colors: typing.Dict[HintStatus, str] = {
     HintStatus.HINT_AVOID: "salmon",
     HintStatus.HINT_PRIORITY: "plum",
 }
-
-
+status_sort_weights: dict[HintStatus, int] = {
+    HintStatus.HINT_FOUND: 0,
+    HintStatus.HINT_UNSPECIFIED: 1,
+    HintStatus.HINT_NO_PRIORITY: 2,
+    HintStatus.HINT_AVOID: 3,
+    HintStatus.HINT_PRIORITY: 4,
+}
 
 class HintLog(RecycleView):
     header = {

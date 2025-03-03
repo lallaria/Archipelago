@@ -15,8 +15,6 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
 
-from test import netutils
-
 from .Client import SC2Context, calc_unfinished_missions, parse_unlock
 from .MissionTables import (lookup_id_to_mission, lookup_name_to_mission, campaign_race_exceptions, SC2Mission, SC2Race,
                             SC2Campaign)

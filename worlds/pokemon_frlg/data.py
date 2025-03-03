@@ -12,8 +12,6 @@ from enum import IntEnum
 from typing import Dict, List, NamedTuple, Optional, Set, FrozenSet, Any, Union, Tuple
 from BaseClasses import ItemClassification
 
-BASE_OFFSET = 6420000
-FAMESANITY_OFFSET = 10000
 NUM_REAL_SPECIES = 386
 
 
@@ -172,12 +170,8 @@ class EvolutionMethodEnum(IntEnum):
     LEVEL_NINJASK = 6
     LEVEL_SHEDINJA = 7
     ITEM = 8
-    FRIENDSHIP = 9
-    FRIENDSHIP_DAY = 10
-    FRIENDSHIP_NIGHT = 11
-    TRADE = 12
-    TRADE_ITEM = 13
-    BEAUTY = 14
+    ITEM_HELD = 9
+    FRIENDSHIP = 10
 
 
 EVOLUTION_METHOD_TYPE: Dict[str, EvolutionMethodEnum] = {
@@ -190,17 +184,14 @@ EVOLUTION_METHOD_TYPE: Dict[str, EvolutionMethodEnum] = {
     "LEVEL_NINJASK": EvolutionMethodEnum.LEVEL_NINJASK,
     "LEVEL_SHEDINJA": EvolutionMethodEnum.LEVEL_SHEDINJA,
     "ITEM": EvolutionMethodEnum.ITEM,
-    "FRIENDSHIP": EvolutionMethodEnum.FRIENDSHIP,
-    "FRIENDSHIP_DAY": EvolutionMethodEnum.FRIENDSHIP_DAY,
-    "FRIENDSHIP_NIGHT": EvolutionMethodEnum.FRIENDSHIP_NIGHT,
-    "TRADE": EvolutionMethodEnum.TRADE,
-    "TRADE_ITEM": EvolutionMethodEnum.TRADE_ITEM,
-    "BEAUTY": EvolutionMethodEnum.BEAUTY
+    "ITEM_HELD": EvolutionMethodEnum.ITEM_HELD,
+    "FRIENDSHIP": EvolutionMethodEnum.FRIENDSHIP
 }
 
 
 class EvolutionData(NamedTuple):
     param: int
+    param2: int
     species_id: int
     method: EvolutionMethodEnum
 
@@ -227,8 +218,7 @@ class SpeciesData:
 @dataclass
 class StarterData:
     species_id: int
-    player_address: Dict[str, int]
-    rival_address: Dict[str, int]
+    address: Dict[str, int]
 
 
 @dataclass
@@ -276,6 +266,8 @@ class TrainerData:
 
 
 class PokemonFRLGData:
+    rom_names: Dict[str, str]
+    rom_checksum: int
     constants: Dict[str, int]
     ram_addresses: Dict[str, Dict[str, int]]
     rom_addresses: Dict[str, Dict[str, int]]
@@ -287,6 +279,7 @@ class PokemonFRLGData:
     warps: Dict[str, Warp]
     warp_map: Dict[str, Optional[str]]
     species: Dict[int, SpeciesData]
+    evolutions: Dict[str, EvolutionData]
     starters: Dict[str, StarterData]
     legendary_pokemon: Dict[str, MiscPokemonData]
     misc_pokemon: Dict[str, MiscPokemonData]
@@ -307,6 +300,7 @@ class PokemonFRLGData:
         self.warps = {}
         self.warp_map = {}
         self.species = {}
+        self.evolutions = {}
         self.starters = {}
         self.legendary_pokemon = {}
         self.misc_pokemon = {}
@@ -713,6 +707,8 @@ def load_json_data(data_name: str) -> Union[List[Any], Dict[str, Any]]:
 
 def _init() -> None:
     extracted_data: Dict[str, Any] = load_json_data("extracted_data.json")
+    data.rom_names = extracted_data["rom_names"]
+    data.rom_checksum = extracted_data["rom_checksum"]
     data.constants = extracted_data["constants"]
     data.ram_addresses = extracted_data["misc_ram_addresses"]
     data.rom_addresses = extracted_data["misc_rom_addresses"]
@@ -924,6 +920,8 @@ def _init() -> None:
         species_id = data.constants[species_id_name]
         max_species_id = max(species_id, max_species_id)
         species_data = extracted_data["species"][species_id]
+        num_evolutions = len(species_data["evolutions"])
+        evolution_index = 1
 
         learnset = [LearnsetMove(item["level"], item["move_id"]) for item in species_data["learnset"]["moves"]]
 
@@ -944,6 +942,7 @@ def _init() -> None:
             (species_data["abilities"][0], species_data["abilities"][1]),
             [EvolutionData(
                 evolution_data["param"],
+                evolution_data["param2"],
                 evolution_data["species"],
                 EVOLUTION_METHOD_TYPE[evolution_data["method"]]
             ) for evolution_data in species_data["evolutions"]],
@@ -956,6 +955,23 @@ def _init() -> None:
             species_data["address"]
         )
 
+        for evolution_data in data.species[species_id].evolutions:
+            if num_evolutions > 1:
+                data.evolutions[f"{species_name} {evolution_index}"] = EvolutionData(
+                    evolution_data.param,
+                    evolution_data.param2,
+                    evolution_data.species_id,
+                    evolution_data.method
+                )
+                evolution_index += 1
+            else:
+                data.evolutions[species_name] = EvolutionData(
+                    evolution_data.param,
+                    evolution_data.param2,
+                    evolution_data.species_id,
+                    evolution_data.method
+                )
+
     for species in data.species.values():
         for evolution in species.evolutions:
             data.species[evolution.species_id].pre_evolution = species.species_id
@@ -964,8 +980,7 @@ def _init() -> None:
     for name, starter_data in extracted_data["starter_pokemon"].items():
         data.starters[name] = StarterData(
             starter_data["species"],
-            starter_data["player_address"],
-            starter_data["rival_address"]
+            starter_data["address"]
         )
 
     # Create legendary pokemon data
@@ -1474,3 +1489,6 @@ LEGENDARY_POKEMON = frozenset([data.constants[species] for species in [
     "SPECIES_JIRACHI",
     "SPECIES_DEOXYS",
 ]])
+
+NATIONAL_ID_TO_SPECIES_ID = {species.national_dex_number: i for i, species in data.species.items()}
+NAME_TO_SPECIES_ID = {species.name: i for i, species in data.species.items()}

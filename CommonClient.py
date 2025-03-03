@@ -907,6 +907,7 @@ async def process_server_cmd(ctx: CommonContext, args: dict):
             ctx.disconnected_intentionally = True
             ctx.event_invalid_game()
         elif 'IncompatibleVersion' in errors:
+            ctx.disconnected_intentionally = True
             raise Exception('Server reported your client version as incompatible. '
                             'This probably means you have to update.')
         elif 'InvalidItemsHandling' in errors:
@@ -1070,7 +1071,7 @@ def handle_url_arg(args: "argparse.Namespace",
     if url.scheme != "archipelago":
         if not parser:
             parser = get_base_parser()
-        parser.error(f"bad url, found {args.url}, expected url in form of archipelago://archipelago.gg:38281")
+        parser.error(f"bad url, found {args.url}, expected url in form of archipelago://trezapalooza.com:38281")
         return args
 
     args.url = url
@@ -1095,7 +1096,7 @@ def run_as_textclient(*args):
             if password_requested and not self.password:
                 await super(TextContext, self).server_auth(password_requested)
             await self.get_username()
-            await self.send_connect()
+            await self.send_connect(game="")
 
         def on_package(self, cmd: str, args: dict):
             if cmd == "Connected":

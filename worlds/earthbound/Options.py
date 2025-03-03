@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from Options import Toggle, DefaultOnToggle, DeathLink, Choice, Range, PerGameCommonOptions, StartInventoryPool, OptionGroup, FreeText, Visibility
+from Options import (Toggle, DefaultOnToggle, DeathLink, Choice, Range, PerGameCommonOptions, StartInventoryPool,
+                     OptionGroup, FreeText, Visibility)
 
 
 class GiygasRequired(DefaultOnToggle):
@@ -93,14 +94,17 @@ class PSIShuffle(Choice):
     option_basic = 1
     option_extended = 2
 
+
 class BossShuffle(Toggle):
     """Shuffles boss encounters amongst each other."""
     display_name = "Boss Shuffle"
+
 
 class DecoupleDiamondDog(Toggle):
     """Shuffles Diamond Dog as a boss separate from Carbon Dog. Carbon Dog will transform into a random boss.
        Does nothing if Boss Shuffle is disabled."""
     display_name = "Decouple Diamond Dog"
+
 
 class ShuffleGiygas(Toggle):
     """Adds the standalone Giygas fight to the shuffled boss pool.
@@ -125,6 +129,7 @@ class AutoscaleParty(Toggle):
     """If enabled, joining party members will be scaled to roughly the level of the sphere they were obtained in."""
     display_name = "Autoscale Party Members"
 
+
 class ProgressiveWeapons(Toggle):
     """If enabled, Bats, Fry Pans, and Guns will be progressive. Does not apply to items dropped by enemies or found in shops."""
     display_name = "Progressive Weapons"
@@ -132,7 +137,7 @@ class ProgressiveWeapons(Toggle):
 
 class ProgressiveArmor(Toggle):
     """If enabled, Bracelets and items for the Other slot besides Ribbons will be progressive. Does not apply to items dropped by enemies or found in shops."""
-    display_name = "Progressive Weapons"
+    display_name = "Progressive Armor"
 
 
 class PresentSprites(DefaultOnToggle):
@@ -214,13 +219,16 @@ class DeathLinkMode(Choice):
     option_mortal_mercy = 2
     default = 1
 
+
 class RandomBattleBG(Toggle):
     """Generates random battle backgrounds."""
     display_name = "Randomize Battle Backgrounds"
 
+
 class RandomSwirlColors(Toggle):
     """Generates random colors for pre-battle swirls."""
     display_name = "Randomize Swirl Colors"
+
 
 class RemoteItems(Toggle):
     """If enabled, you will receive your own items from the server upon collecting them, rather than locally.
@@ -228,23 +236,12 @@ class RemoteItems(Toggle):
        However, you will not be able to play offline if this is enabled."""
     display_name = "Remote Items"
 
+
 class PlandoLumineHallText(FreeText):
     """Set text to be displayed at Lumine Hall. If nothing is entered, random community-submitted text will be selected instead."""
     display_name = "Lumine Hall Text Plando"
     visibility = Visibility.none
 
-class StartingCharacter(Choice):
-    """Changes the character you start as. If random start location is disabled, each character has their own starting location.
-       Ness: Ness's House
-       Paula: the Happy-Happy Villagr cabin
-       Jeff: The Threed zombie prison
-       Poo: Dalaam"""
-    display_name = "Starting Character"
-    option_ness = 0
-    option_paula = 1
-    option_jeff = 2
-    option_poo = 3
-    default = 0
 
 class Armorizer(Choice):
     """All equippable armor will have randomly generated attributes. This includes who can equip it, elemental resistance (and how strong that resistance is),
@@ -258,6 +255,7 @@ class Armorizer(Choice):
     option_chaos = 2
     default = 0
 
+
 class Weaponizer(Choice):
     """All weapons will have randomly generated attributes. This includes offense, guts boost, and miss rate.
        Keep Type: Equipment will keep the character that was originally able to use it. If Progressive Weapons is enabled, you will get weapons with progressively higher offense.
@@ -269,17 +267,118 @@ class Weaponizer(Choice):
     option_chaos = 2
     default = 0
 
-class RetainResistance(Choice):
-    """If the Equipamizer is enabled, this forces the original Pendant items to retain their original elemental resistances.
-       They will also be forced to be non-Arm equipment. Pendants will still be able to roll additional resistances,
-       and this does not affect resistance rolls on other equipment pieces.
-       Random Level: The resistance type will be retained with a random strength.
-       Same Level: The amount of resistance is the same as in the original"""
-    display_name = "Retain Equipment Resistances"
+
+class ElementChance(Range):
+    """Percent chance for any given Body/Other equipment to have elemental protection.
+       Affects Armorizer only."""
+    display_name = "Elemental Resistance Chance"
+    range_start = 1
+    range_end = 50
+    default = 15
+
+
+class NoFreeSancs(Toggle):
+    """If enabled, the entrance to Lilliput Steps and Fire Spring will be locked and require extra key items to access.
+       These items are the Tiny Key and Tenda Lavapants, respectively."""
+    display_name = "No Free Sanctuaries"
+
+
+class RandomizeFanfares(Toggle):
+    """Randomizes fanfares."""
+    display_name = "Randomize Fanfares"
+
+
+class RandomizeBattleMusic(Toggle):
+    """Randomizes in-battle songs."""
+    display_name = "Randomize Battle Music"
+
+
+class RandomizeOverworldMusic(Choice):
+    """Randomizes music on the overworld. Some sound effects might sound weird.
+       Normal: Does not randomize music.
+       Match Type: Music will be randomized with similar song categories (Town, dungeon, etc.)
+       Full: Overworld music will be randomized disregarding categories."""
+    display_name = "Overworld Music Randomizer"
+    option_normal = 0
+    option_match_type = 1
+    option_full = 2
+    default = 0
+
+
+class RandomizePSIPalettes(Choice):
+    """Randomizes the colors of PSI spells.
+       Normal: Doesn't randomize PSI colors.
+       Shuffled: PSI spell palettes are swapped around with each other.
+       Randomized: PSI spells use completely random colors."""
+    display_name = "Random PSI Palettes"
+    option_normal = 0
+    option_shuffled = 1
+    option_randomized = 2
+    default = 0
+
+
+class ShopRandomizer(Choice):
+    """Randomizes items in shops.
+       Local Filler: Shops contain only random items for yourself and are not checks.
+       Shopsanity. Every shop slot in the game contains a Multiworld location. ONLY ENABLE SHOPSANITY IF YOU KNOW WHAT YOU ARE DOING."""
+    display_name = "Shop Randomizer"
     option_off = 0
-    option_random_level = 1
-    option_same_level = 2
+    option_local_filler = 1
+    option_shopsanity = 2
+    default = 0
+
+
+class ScoutShopChecks(Choice):
+    """Scouts Shop checks when you open a shop. Only affects shops in Shopsanity mode."""
+    display_name = "Scout Shop Checks"
+    option_off = 0
+    option_progression_only = 1
+    option_all = 2
     default = 1
+
+
+class StartingCharacter(Choice):
+    """Sets which character you start as. Each character will always start with the ability to teleport,
+       and the ATM card. Ness will not be required to fight Sanctuary bosses."""
+    display_name = "Starting Character"
+    option_Ness = 0
+    option_Paula = 1
+    option_Jeff = 2
+    option_Poo = 3
+    default = 0
+
+
+class EquipamizerStatCap(DefaultOnToggle):
+    """If enabled, the highest value that Equipamizer can roll for a piece of equipment's
+       main stat will be capped. 80 for armor, 125 for weapons.
+       If disabled, the main stat can potentially roll up to 128."""
+    display_name = "Equipamizer Stat Cap"
+
+
+class MoneyDropMultiplier(Range):
+    """Multiplies money dropped by enemies by the chosen value."""
+    display_name = "Money Drop Multiplier"
+    range_start = 1
+    range_end = 100
+    default = 1
+
+
+class EnemyShuffle(Toggle):
+    """Shuffles Non-boss enemies amongst each other."""
+    display_name = "Enemy Shuffle"
+
+
+class SkipEpilogue(Toggle):
+    """If enabled, the choice to play the epilogue after beating Giygas will be removed, and you will
+       go directly to the credits. This option is mainly for no-release seeds where checks could be
+       potentially spoiled in the open-access epilogue."""
+    display_name = "Skip Epilogue"
+    visibility = Visibility.template
+
+class EnergyLink(Toggle):
+    """If enabled, the money in the ATM will be linked across the Archipelago Server.
+       This requires a server connection to be used, but won't break offline play."""
+    display_name = "Energy Link"
 
 
 @dataclass
@@ -291,21 +390,25 @@ class EBOptions(PerGameCommonOptions):
     alternate_sanctuary_goal: SanctuaryAltGoal
     magicant_mode: MagicantMode
     monkey_caves_mode: MonkeyCavesMode
-    shuffle_teleports: TeleportShuffle# Better name?
+    shuffle_teleports: TeleportShuffle  # Better name?
     character_shuffle: CharacterShuffle
+    starting_character: StartingCharacter
     psi_shuffle: PSIShuffle
     allow_flash_as_favorite_thing: BanFlashFavorite
+    enemy_shuffle: EnemyShuffle
     boss_shuffle: BossShuffle
     decouple_diamond_dog: DecoupleDiamondDog
     boss_shuffle_add_giygas: ShuffleGiygas
-    #shuffle_sound_stone: SoundStoneShuffle
     experience_modifier: ExperienceModifier
+    money_drop_multiplier: MoneyDropMultiplier
     starting_money: StartingMoney
     easy_deaths: EasyDeaths
     progressive_weapons: ProgressiveWeapons
     progressive_armor: ProgressiveArmor
     armorizer: Armorizer
     weaponizer: Weaponizer
+    armorizer_resistance_chance: ElementChance
+    equipamizer_cap_stats: EquipamizerStatCap
     auto_scale_party_members: AutoscaleParty
     remote_items: RemoteItems
     random_flavors: RandomFlavors
@@ -313,18 +416,25 @@ class EBOptions(PerGameCommonOptions):
     random_swirl_colors: RandomSwirlColors
     presents_match_contents: PresentSprites
     prefixed_items: PreFixItems
-    #excluded_teleports: ExcludedTeleports
+    # excluded_teleports: ExcludedTeleports
     randomize_franklinbadge_protection: RandomFranklinBadge
     shuffle_enemy_drops: ShuffleDrops
     common_filler_weight: CommonWeight
     uncommon_filler_weight: UncommonWeight
     rare_filler_weight: RareWeight
+    plando_lumine_hall_text: PlandoLumineHallText
+    no_free_sanctuaries: NoFreeSancs
+    randomize_overworld_music: RandomizeOverworldMusic
+    randomize_battle_music: RandomizeBattleMusic
+    randomize_fanfares: RandomizeFanfares
+    randomize_psi_palettes: RandomizePSIPalettes
+    shop_randomizer: ShopRandomizer
+    scout_shop_checks: ScoutShopChecks
+    skip_epilogue: SkipEpilogue
     start_inventory_from_pool: StartInventoryPool
     death_link: DeathLink
     death_link_mode: DeathLinkMode
-    plando_lumine_hall_text: PlandoLumineHallText
-    #starting_character: StartingCharacter
-    #retain_resistances: RetainResistance
+    energy_link: EnergyLink
 
 
 eb_option_groups = [
@@ -349,13 +459,16 @@ eb_option_groups = [
     OptionGroup("Equipamizer", [
         Armorizer,
         Weaponizer,
-        #RetainResistance
+        ElementChance,
+        EquipamizerStatCap
     ]),
 
     OptionGroup("World Modes", [
         RandomStartLocation,
         MagicantMode,
-        MonkeyCavesMode
+        MonkeyCavesMode,
+        NoFreeSancs,
+        StartingCharacter
     ]),
 
     OptionGroup("PSI Randomization", [
@@ -364,11 +477,18 @@ eb_option_groups = [
     ]),
 
     OptionGroup("Enemy Randomization", [
+        EnemyShuffle,
         BossShuffle,
         DecoupleDiamondDog,
         ShuffleGiygas,
         ExperienceModifier,
-        ShuffleDrops
+        ShuffleDrops,
+        MoneyDropMultiplier
+    ]),
+
+    OptionGroup("Shop Randomization", [
+        ShopRandomizer,
+        ScoutShopChecks
     ]),
 
     OptionGroup("Convenience Settings", [
@@ -376,7 +496,8 @@ eb_option_groups = [
         EasyDeaths,
         StartingMoney,
         RemoteItems,
-        AutoscaleParty
+        AutoscaleParty,
+        SkipEpilogue
     ]),
 
     OptionGroup("Aesthetic Settings", [
@@ -384,11 +505,19 @@ eb_option_groups = [
         RandomSwirlColors,
         RandomBattleBG,
         PresentSprites,
+        RandomizePSIPalettes,
         PlandoLumineHallText
     ]),
 
-    OptionGroup("Deathlink", [
+    OptionGroup("Music Randomizer", [
+        RandomizeOverworldMusic,
+        RandomizeBattleMusic,
+        RandomizeFanfares
+    ]),
+
+    OptionGroup("Multiplayer Features", [
         DeathLink,
-        DeathLinkMode
+        DeathLinkMode,
+        EnergyLink
     ])
 ]

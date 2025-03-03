@@ -6,12 +6,12 @@ from typing import TextIO, Dict, Set
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from GameData import GameData, ElementType, ItemType
+from GameData import GameData, ElementType, ItemType, ItemFlags
 
 SCRIPT_DIR = os.path.join(os.path.dirname(__file__))
 
 
-SPECIAL_PROGRESSIONS: defaultdict[int, str] = defaultdict(lambda: 'filler', {
+CLASSIFICATION_OVERRIDES: defaultdict[int, str] = defaultdict(lambda: 'filler', {
     # NOTE: using strings here, because importing ItemClassification from BaseClasses will cause a circular import
 65:'progression',#    ItemName.Shamans_Rod
 458:'progression',#    ItemName.Sea_Gods_Tear
@@ -32,71 +32,71 @@ SPECIAL_PROGRESSIONS: defaultdict[int, str] = defaultdict(lambda: 'filler', {
 243:'progression',#    ItemName.Red_Key
 222:'progression',#    ItemName.Mythril_Bag_Mars
 459:'progression',#    ItemName.Ruin_Key
-229:'progression_skip_balancing', # ItemName.Lucky_Medal
+# 229:'progression_skip_balancing', # ItemName.Lucky_Medal
 443:     'useful',#     ItemName.Mysterious_Card
 444:     'useful',#    ItemName.Trainers_Whip
 445:     'useful',#    ItemName.Tomegathericon
 # 449:     'filler',#    ItemName.Laughing_Fungus
-333:     'useful',#    ItemName.Ixion_Mail
-290:     'useful',#    ItemName.Hypnos_Sword
-394:     'useful',#    ItemName.Clarity_Circlet
-358:     'useful',#    ItemName.Fujin_Shield
-279:     'useful',#    ItemName.Storm_Brand
+# 333:     'useful',#    ItemName.Ixion_Mail
+# 290:     'useful',#    ItemName.Hypnos_Sword
+# 394:     'useful',#    ItemName.Clarity_Circlet
+# 358:     'useful',#    ItemName.Fujin_Shield
+# 279:     'useful',#    ItemName.Storm_Brand
 # 231:     'filler',#    ItemName.Bone
 
-425:'useful', # Rusty_Staff_Dracomace
-426:'useful', # Rusty_Staff_GlowerStaff
-427:'useful', # Rusty_Staff_GoblinsRod
-417:'useful', # Rusty_Sword_CorsairsEdge
-418:'useful', # Rusty_Sword_RobbersBlade
-419:'useful', # Rusty_Sword_PiratesSabre
-420:'useful', # Rusty_Sword_SoulBrand
-424:'useful', # Rusty_Mace_HagboneMace
-423:'useful', # Rusty_Mace_DemonMace
-422:'useful', # Rusty_Axe_VikingAxe
-421:'useful', # Rusty_Axe_CaptainsAxe
+# 425:'useful', # Rusty_Staff_Dracomace
+# 426:'useful', # Rusty_Staff_GlowerStaff
+# 427:'useful', # Rusty_Staff_GoblinsRod
+# 417:'useful', # Rusty_Sword_CorsairsEdge
+# 418:'useful', # Rusty_Sword_RobbersBlade
+# 419:'useful', # Rusty_Sword_PiratesSabre
+# 420:'useful', # Rusty_Sword_SoulBrand
+# 424:'useful', # Rusty_Mace_HagboneMace
+# 423:'useful', # Rusty_Mace_DemonMace
+# 422:'useful', # Rusty_Axe_VikingAxe
+# 421:'useful', # Rusty_Axe_CaptainsAxe
 
-301:'useful', # Themis_Axe
-340:'useful', # Full_Metal_Vest
-383:'useful', # Nurses_Cap
-287:'useful', # Pirates_Sword
-414:'useful', # Guardian_Ring
-309:'useful', # Blow_Mace
-384:'useful', # Thorn_Crown
-266:'useful', # Unicorn_Ring
-300:'useful', # Disk_Axe
-370:'useful', # Bone_Armlet
-259:'useful', # Turtle_Boots
-291:'useful', # Mist_Sabre
-343:'useful', # Festival_Coat
-334:'useful', # Phantasmal_Mail
-283:'useful', # Cloud_Brand
-351:'useful', # Iris_Robe
-7:'useful', # Fire_Brand
-371:'useful', # Jesters_Armlet
-281:'useful', # Lightning_Sword
-349:'useful', # Muni_Robe
-311:'useful', # Thanatos_Mace
-378:'useful', # Viking_Helm
-26:'useful', # Masamune
-366:'useful', # Spirit_Gloves
-344:'useful', # Erinyes_Tunic
-319:'useful', # Meditation_Rod
-292:'useful', # Phaetons_Blade
-388:'useful', # Alastors_Hood
-10:'useful', # Sol_Blade
-336:'useful', # Valkyrie_Mail
+# 301:'useful', # Themis_Axe
+# 340:'useful', # Full_Metal_Vest
+# 383:'useful', # Nurses_Cap
+# 287:'useful', # Pirates_Sword
+# 414:'useful', # Guardian_Ring
+# 309:'useful', # Blow_Mace
+# 384:'useful', # Thorn_Crown
+# 266:'useful', # Unicorn_Ring
+# 300:'useful', # Disk_Axe
+# 370:'useful', # Bone_Armlet
+# 259:'useful', # Turtle_Boots
+# 291:'useful', # Mist_Sabre
+# 343:'useful', # Festival_Coat
+# 334:'useful', # Phantasmal_Mail
+# 283:'useful', # Cloud_Brand
+# 351:'useful', # Iris_Robe
+# 7:'useful', # Fire_Brand
+# 371:'useful', # Jesters_Armlet
+# 281:'useful', # Lightning_Sword
+# 349:'useful', # Muni_Robe
+# 311:'useful', # Thanatos_Mace
+# 378:'useful', # Viking_Helm
+# 26:'useful', # Masamune
+# 366:'useful', # Spirit_Gloves
+# 344:'useful', # Erinyes_Tunic
+# 319:'useful', # Meditation_Rod
+# 292:'useful', # Phaetons_Blade
+# 388:'useful', # Alastors_Hood
+# 10:'useful', # Sol_Blade
+# 336:'useful', # Valkyrie_Mail
 
-186:'useful', #Psy_Crystal
-195:'useful', #Mint
-193:'useful', #Apple
-190:'useful', #Mist_Potion
-194:'useful', #Hard_Nut
-191:'useful', #Power_Bread
 183:'useful', #Potion
-192:'useful', #Cookie
+186:'useful', #Psy_Crystal
+190:'useful', #Mist_Potion
+# 191:'useful', #Power_Bread
+# 192:'useful', #Cookie
+# 193:'useful', #Apple
+# 194:'useful', #Hard_Nut
+# 195:'useful', #Mint
+# 196:'useful', #Lucky_Pepper
 429:'useful', #Tear_Stone
-196:'useful', #Lucky_Pepper
 189:'useful', #Water_of_Life
 437:'useful', #Orihalcon
 435:'useful', #Mythril_Silver
@@ -116,12 +116,6 @@ USEFUL_ITEM_GROUPS: Dict[str, Set[int]] = {
         189, # Water of Life
         190, # Mist Potion
     },
-    "stat_boosters": {
-        x for x in range(191, 197) # Power Bread through Lucky Pepper
-    },
-    "rusty_items": {
-        x for x in range(417, 428) # Rusty Sword - Robber's Blade through Goblin's Rod
-    },
     "forge_materials": {
         x for x in range(429, 438) # Tear Stone through Orihalcon
     },
@@ -129,6 +123,16 @@ USEFUL_ITEM_GROUPS: Dict[str, Set[int]] = {
         x for x in range(443, 446) # Mysterious Card, Trainer's Whip, Tomagathericon
     }
 }
+
+OTHER_ITEM_GROUPS: Dict[str, Set[int]] = {
+    "rusty_items": {
+        x for x in range(417, 428) # Rusty Sword - Robber's Blade through Goblin's Rod
+    },
+    "stat_boosters": {
+        x for x in range(191, 197)  # Power Bread through Lucky Pepper
+    },
+}
+
 
 # Items that should not be part of the item data at all
 EXCLUDED_ITEMS = {
@@ -157,6 +161,7 @@ def main():
         loader=PackageLoader("gen"),
         autoescape=select_autoescape()
     )
+    env.filters['bitwise_and'] = lambda x, y: x & y > 0
     data = GameData()
     generate_location_names(env, data)
     generate_item_names(env, data)
@@ -259,6 +264,7 @@ def generate_item_data(env: Environment, data: GameData):
         mimics = []
         other_prog = []
         other_useful = dict()
+        other_items = dict()
         shop_only = []
         forge_only = []
         lucky_only = []
@@ -287,17 +293,27 @@ def generate_item_data(env: Environment, data: GameData):
             if id not in vanilla_item_ids:
                 lucky_only_ids.add(id)
             vanilla_item_ids.add(id)
+        classifications = dict(CLASSIFICATION_OVERRIDES)
         for item in data.raw_item_data:
             datum = {'item': item, 'name': names[item.id]}
+            if item.id not in classifications:
+                if item.item_type in {ItemType.Shirt, ItemType.Boots, ItemType.Ring}:
+                    classifications[item.id] = 'useful'
+                elif item.item_type in {ItemType.Armor, ItemType.Weapon, ItemType.Helm, ItemType.Shield} and item.flags & ItemFlags.Rare > 0:
+                    classifications[item.id] = 'useful'
+                else:
+                    classifications[item.id] = 'filler'
             if item.id in EXCLUDED_ITEMS:
                 continue
             elif item.is_mimic:
                 mimics.append(datum)
             elif item.item_type == ItemType.PsyenergyItem:
                 psyitems.append(datum)
-            elif SPECIAL_PROGRESSIONS[item.id] == 'progression':
+            elif CLASSIFICATION_OVERRIDES[item.id] == 'progression':
                 other_prog.append(datum)
-            elif SPECIAL_PROGRESSIONS[item.id] == 'useful':
+            elif any(item.id in keys for keys in OTHER_ITEM_GROUPS.values()):
+                other_items[item.id] = datum
+            elif CLASSIFICATION_OVERRIDES[item.id] == 'useful':
                 other_useful[item.id] = datum
             elif item.id in shop_only_ids:
                 shop_only.append(datum)
@@ -311,6 +327,8 @@ def generate_item_data(env: Environment, data: GameData):
                 non_vanilla.append(datum)
             elif item.id in misc_ids:
                 misc.append(datum)
+            elif classifications[item.id] == 'useful':
+                other_useful[item.id] = datum
             else:
                 remainder.append(datum)
         useful_remainder_ids = set()
@@ -329,6 +347,8 @@ def generate_item_data(env: Environment, data: GameData):
             other_useful=other_useful,
             useful_groups=USEFUL_ITEM_GROUPS,
             useful_remainder=useful_remainder_ids,
+            other_items=other_items,
+            other_groups=OTHER_ITEM_GROUPS,
             non_vanilla=non_vanilla,
             shop_only=shop_only,
             forge_only=forge_only,
@@ -338,7 +358,7 @@ def generate_item_data(env: Environment, data: GameData):
             # unique_items=unique_items,
             # gear=gear,
             remainder=remainder,
-            progression=SPECIAL_PROGRESSIONS,
+            progression=classifications,
             events=data.events.values()
         ))
 

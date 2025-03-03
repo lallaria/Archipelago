@@ -76,6 +76,16 @@ class CrossCodeWorld(World):
         location.name: location.code for location in world_data.locations_dict.values() if location.code is not None
     }
 
+    item_name_groups = {
+        name: { entry.item.name for entry in entries }
+        for name, entries in world_data.item_pools_template.items()
+    }
+
+    location_name_groups = {
+        name: { entry.name for entry in entries }
+        for name, entries in world_data.location_groups.items()
+    }
+
     include_options: IncludeOptions
     required_items: Counter[ItemData]
 
@@ -323,6 +333,13 @@ class CrossCodeWorld(World):
                 self.options.gold_chest_lock_weight.value,
             ]))
 
+        if self.options.exclude_always_quests.value and not self.options.quest_rando.value:
+            self.options.exclude_locations.value.update(self.location_name_groups["Always Quests"])
+
+        if self.options.force_filler_local.value:
+            for name in self._filler_pool_names:
+                self.options.local_items.value.update(self.item_name_groups[name])
+
         self.pre_fill_any_dungeon_names = set()
         self.pre_fill_specific_dungeons_names = defaultdict(set)
 
@@ -365,7 +382,7 @@ class CrossCodeWorld(World):
 
     def add_location(self, data: LocationData, region: Region):
         location = CrossCodeLocation(self.player, data, self.logic_mode, self.region_dict)
-        if location.data.area is not None:
+        if location.data.area in self.dungeon_areas:
             self.dungeon_location_list[location.data.area].add(location)
         region.locations.append(location)
         self.create_event_conditions(data.access.cond)

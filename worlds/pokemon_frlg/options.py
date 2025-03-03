@@ -2,7 +2,8 @@
 Option definitions for Pokémon FireRed/LeafGreen
 """
 from dataclasses import dataclass
-from Options import Choice, DefaultOnToggle, NamedRange, OptionSet, PerGameCommonOptions, Range, Toggle
+from schema import Schema, And, Use
+from Options import Choice, DefaultOnToggle, NamedRange, OptionDict, OptionSet, PerGameCommonOptions, Range, Toggle
 from .data import data
 
 
@@ -38,6 +39,14 @@ class KantoOnly(Toggle):
     display_name = "Kanto Only"
 
 
+class RandomStartingTown(Toggle):
+    """
+    Randomizes the town that you start in. This includes any area that has a Pokemon Center except for Route 10 and
+    Indigo Plateau.
+    """
+    display_name = "Random Starting Town"
+
+
 class ShuffleBadges(DefaultOnToggle):
     """
     Shuffle Gym Badges into the general item pool. If turned off, Badges will be shuffled among themselves.
@@ -62,24 +71,58 @@ class ShuffleHiddenItems(Choice):
 
 class ExtraKeyItems(Toggle):
     """
-    Adds key items that are required to access the Rocket Hideout, Safari Zone, Pokémon Mansion, and Power Plant.
+    Adds key items that are required to access the Rocket Hideout, Safari Zone, Pokemon Mansion, and Power Plant.
 
     Adds four new locations:
     - Item in the Celadon Rocket House
     - Item given by a Worker in the Fuchsia Safari Office
-    - Item given by the Scientist in the Cinnabar Pokémon Lab Research Room
+    - Item given by the Scientist in the Cinnabar Pokemon Lab Research Room
     - Hidden Item in the Cerulean Gym (requires Surf & Itemfinder)
     """
     display_name = "Extra Key Items"
 
 
-class Trainersanity(Toggle):
+class Trainersanity(NamedRange):
     """
     Defeating a trainer gives you an item.
+
+    You can specify how many Trainers should be a check between 0 and 456. If you have Kanto Only on, the amount of
+    Trainer checks might be lower than the amount you specify. Trainers that have checks will periodically have an
+    exclamation mark appear above their head in game.
 
     Trainers are no longer missable. Each trainer will add a random filler item into the pool.
     """
     display_name = "Trainersanity"
+    default = 0
+    range_start = 0
+    range_end = 456
+    special_range_names = {
+        "none": 0,
+        "all": 456,
+    }
+
+
+class Dexsanity(NamedRange):
+    """
+    Adding a "caught" Pokedex entry gives you an item (catching, evolving, trading, etc.).
+
+    You can specify how many Pokedex entries should be a check between 0 and 386. Depending on your settings for
+    randomizing wild Pokemon, there might not actually be as many locations as you specify. Pokemon that have checks
+    will have a black silhouette of a pokeball in the Pokedex and in the battle HUD if you have seen them already.
+
+    Defeating Gym Leaders provides seen Pokedex info, allowing you to see on the map where a Pokemon can be found in
+    the wild.
+
+    Each entry will add a random filler item into the pool.
+    """
+    display_name = "Dexsanity"
+    default = 0
+    range_start = 0
+    range_end = 386
+    special_range_names = {
+        "none": 0,
+        "all": 386,
+    }
 
 
 class Famesanity(Toggle):
@@ -91,26 +134,46 @@ class Famesanity(Toggle):
     display_name = "Famesanity"
 
 
-class ShuffleFlyDestinationUnlocks(Toggle):
+class ShuffleFlyDestinationUnlocks(Choice):
     """
-    Shuffles the ability to fly to Pokémon Centers into the pool. Entering the map that normally would unlock the
+    Shuffles the ability to fly to Pokemon Centers into the pool. Entering the map that normally would unlock the
     fly destination gives a random item.
+
+    - Off: Fly Destination Unlocks are not shuffled.
+    - Exclude Indigo: Fly Destination Unlocks are shuffled. Indigo Plateau Fly Unlock is vanilla.
+    - All: Fly Destination Unlocks are shuffled.
     """
     display_name = "Shuffle Fly Destination Unlocks"
+    default = 0
+    option_off = 0
+    option_exclude_indigo = 1
+    option_all = 2
 
 
 class PokemonRequestLocations(Toggle):
     """
-    Shuffle the locations that require you to show a specific Pokémon to an NPC. If turned on, the Pokémon that are
-    required will be found somewhere in the wild. Talking to the NPC that wants to see the Pokémon will provide you with
-    the Pokédex info for where to find it as well as tell you the item they'll give.
+    Shuffle the locations that require you to show a specific Pokemon to an NPC. If turned on, the Pokemon that are
+    required will be found somewhere in the wild. Talking to the NPC that wants to see the Pokemon will provide you with
+    the Pokedex info for where to find it as well as tell you the item they'll give.
     """
-    display_name = "Pokémon Request Locations"
+    display_name = "Pokemon Request Locations"
+
+
+class ShuffleRunningShoes(Choice):
+    """
+    Shuffle the running shoes into the item pool, or start with it.
+    """
+    display_name = "Shuffle Running Shoes"
+    default = 2
+    option_vanilla = 0
+    option_shuffle = 1
+    option_start_with = 2
 
 
 class SilphCoCardKey(Choice):
     """
-    Sets how the card key that unlocks the doors in Silph Co. is handled.
+    Sets how the card key that unlocks the doors in Silph Co. is handled. If Split or Progressive, nine new locations
+    will be added to Silph Co. in the form of item balls on floors 2 through 11 (except for floor five).
 
     - Vanilla: There is one Card Key in the pool that unlocks every door in Silph Co.
     - Split: The Card Key is split into ten items, one for each floor of Silph Co. that has doors.
@@ -125,7 +188,8 @@ class SilphCoCardKey(Choice):
 
 class SeviiIslandPasses(Choice):
     """
-    Sets how the passes that allow you to travel to the Sevii Islands are handled.
+    Sets how the passes that allow you to travel to the Sevii Islands are handled. If Split or Progressive, five new
+    locations will be added to events related to the Sevii Islands.
 
     - Vanilla: The Tri Pass and Rainbow Pass are two separate items in the pool and can be found in any order.
     - Progressive: There are two Progressive Passes in the pool. You will always obtain the Tri Pass before the Rainbow
@@ -140,6 +204,20 @@ class SeviiIslandPasses(Choice):
     option_progressive = 1
     option_split = 2
     option_progressive_split = 3
+
+
+class SplitTeas(Toggle):
+    """
+    Splits the Tea item into four different items. Each guard to Saffron City will require a different Tea to pass.
+    Brock, Misty, and Erika will appear in the Celadon Condominiums after beating them and give you a randomized item.
+
+    The Tea required to get past each guard are as follows:
+    - Route 5: Blue Tea
+    - Route 6: Red Tea
+    - Route 7: Green Tea
+    - Route 8: Purple Tea
+    """
+    display_name = "Split Teas"
 
 
 class ItemfinderRequired(Choice):
@@ -227,20 +305,25 @@ class ModifyWorldState(OptionSet):
     - Block Tunnels: Blocks the entrances to the underground tunnels with smashable rocks.
     - Modify Route 9: Replaces the cuttable tree with a smashable rock.
     - Modify Route 10: Adds a waterfall to Route 10 that connects the north and south sides.
-    - Block Tower: Blocks the 1F stairs of Pokémon Tower with a ghost battle.
+    - Block Tower: Blocks the 1F stairs of Pokemon Tower with a ghost battle.
     - Route 12 Boulders: Adds boulders to Route 12 that block the exits to Route 11 & 13.
     - Modify Route 12: Adds impassable rocks to Route 12 that prevent surfing around Snorlax.
     - Modify Route 16: Adds a smashable rock to Route 16 that allows you to bypass the Snorlax.
+    - Open Silph: Moves the Team Rocket Grunt that blocks the entrance to Silph Co.
+    - Remove Saffron Rockets: Removed the Team Rocket Grunts from Saffron City.
     - Route 23 Trees: Adds cuttable trees to Route 23 under the sixth checkpoint.
     - Modify Route 23: Adds a waterfall to Route 23 at the end of the water section.
     - Victory Road Rocks: Adds smashable rocks to Victory Road that block the floor switches.
     - Early Gossipers: Removes the requirement to have entered the Hall of Fame from various Famesanity locations.
     - Total Darkness: Changes dark caves to be completely black and provide no vision without Flash.
+    - Block Vermilion Sailing: Prevents you from sailing to Vermilion City on the Seagallop until you have gotten
+                               the S.S. Ticket.
     """
     display_name = "Modify World State"
     valid_keys = ["Modify Route 2", "Remove Cerulean Roadblocks", "Block Tunnels", "Modify Route 9",
                   "Modify Route 10", "Block Tower", "Route 12 Boulders", "Modify Route 12", "Modify Route 16",
-                  "Route 23 Trees", "Modify Route 23", "Victory Road Rocks", "Early Gossipers", "Total Darkness"]
+                  "Open Silph", "Remove Saffron Rockets", "Route 23 Trees", "Modify Route 23", "Victory Road Rocks",
+                  "Early Gossipers", "Total Darkness", "Block Vermilion Sailing"]
 
 
 class AdditionalDarkCaves(OptionSet):
@@ -268,7 +351,7 @@ class RemoveBadgeRequirement(OptionSet):
 
 class OaksAideRoute2(Range):
     """
-    Sets the number of Pokémon that need to be registered in the Pokédex to receive the item from Professor Oak's Aide
+    Sets the number of Pokemon that need to be registered in the Pokedex to receive the item from Professor Oak's Aide
     on Route 2. Vanilla is 10.
     """
     display_name = "Oak's Aide Route 2"
@@ -279,7 +362,7 @@ class OaksAideRoute2(Range):
 
 class OaksAideRoute10(Range):
     """
-    Sets the number of Pokémon that need to be registered in the Pokédex to receive the item from Professor Oak's Aide
+    Sets the number of Pokemon that need to be registered in the Pokedex to receive the item from Professor Oak's Aide
     on Route 10. Vanilla is 20.
     """
     display_name = "Oak's Aide Route 10"
@@ -290,7 +373,7 @@ class OaksAideRoute10(Range):
 
 class OaksAideRoute11(Range):
     """
-    Sets the number of Pokémon that need to be registered in the Pokédex to receive the item from Professor Oak's Aide
+    Sets the number of Pokemon that need to be registered in the Pokedex to receive the item from Professor Oak's Aide
     on Route 11. Vanilla is 30.
     """
     display_name = "Oak's Aide Route 11"
@@ -301,7 +384,7 @@ class OaksAideRoute11(Range):
 
 class OaksAideRoute16(Range):
     """
-    Sets the number of Pokémon that need to be registered in the Pokédex to receive the item from Professor Oak's Aide
+    Sets the number of Pokemon that need to be registered in the Pokedex to receive the item from Professor Oak's Aide
     on Route 16. Vanilla is 40.
     """
     display_name = "Oak's Aide Route 16"
@@ -312,7 +395,7 @@ class OaksAideRoute16(Range):
 
 class OaksAideRoute15(Range):
     """
-    Sets the number of Pokémon that need to be registered in the Pokédex to receive the item from Professor Oak's Aide
+    Sets the number of Pokemon that need to be registered in the Pokedex to receive the item from Professor Oak's Aide
     on Route 15. Vanilla is 50.
     """
     display_name = "Oak's Aide Route 15"
@@ -413,6 +496,16 @@ class EliteFourCount(Range):
     range_end = 8
 
 
+class EliteFourRematchCount(Range):
+    """
+    Sets the number of Badges/Gyms required to challenge the Elite Four Rematch.
+    """
+    display_name = "Elite Four Rematch Count"
+    default = 8
+    range_start = 0
+    range_end = 8
+
+
 class CeruleanCaveRequirement(Choice):
     """
     Sets the requirement for being able to enter Cerulean Cave.
@@ -460,7 +553,7 @@ class LevelScaling(Choice):
 
 class ModifyTrainerLevels(Range):
     """
-    Modifies the level of all Trainer's Pokémon by the specified percentage.
+    Modifies the level of all Trainer's Pokemon by the specified percentage.
     """
     display_name = "Modify Trainer Levels"
     default = 0
@@ -468,13 +561,32 @@ class ModifyTrainerLevels(Range):
     range_end = 100
 
 
+class ForceFullyEvolved(NamedRange):
+    """
+    Forces opponent's Pokemon to be fully evolved if they are greater than or equal to the specified level.
+
+    If set to "species" will force opponent's Pokemon to be evolved based on the level the species would normally
+    evolve. For species that don't evolve based on levels, the level they will be evolved at is determined by their BST.
+
+    Only applies when trainer parties are randomized.
+    """
+    display_name = "Force Fully Evolved"
+    default = 0
+    range_start = 1
+    range_end = 100
+    special_range_names = {
+        "never": 0,
+        "species": -1
+    }
+
+
 class RandomizeWildPokemon(Choice):
     """
-    Randomizes wild Pokémon encounters (grass, caves, water, fishing)
+    Randomizes wild Pokemon encounters (grass, caves, water, fishing)
 
-    - Vanilla: Wild Pokémon are unchanged
-    - Match Base Stats: Wild Pokémon are replaced with species with approximately the same BST
-    - Match Type: Wild Pokémon are replaced with species that share a type with the original
+    - Vanilla: Wild Pokemon are unchanged
+    - Match Base Stats: Wild Pokemon are replaced with species with approximately the same BST
+    - Match Type: Wild Pokemon are replaced with species that share a type with the original
     - Match Base Stats and Type: Apply both Match Base Stats and Match Type
     - Completely Random: There are no restrictions
     """
@@ -489,11 +601,11 @@ class RandomizeWildPokemon(Choice):
 
 class WildPokemonGroups(Choice):
     """
-    If wild Pokémon are not vanilla, they will be randomized according to the grouping specified.
+    If wild Pokemon are not vanilla, they will be randomized according to the grouping specified.
 
-    - None: Pokémon are not randomized together based on any groupings
-    - Dungeons: All Pokémon of the same species in a dungeon are randomized together
-    - Species: All Pokémon of the same species are randomized together
+    - None: Pokemon are not randomized together based on any groupings
+    - Dungeons: All Pokemon of the same species in a dungeon are randomized together
+    - Species: All Pokemon of the same species are randomized together
     """
     display_name = "Wild Pokemon Groups"
     default = 0
@@ -504,11 +616,11 @@ class WildPokemonGroups(Choice):
 
 class WildPokemonBlacklist(OptionSet):
     """
-    Prevents listed species from appearing in the wild when wild Pokémon are randomized.
+    Prevents listed species from appearing in the wild when wild Pokemon are randomized.
 
     May be overridden if enforcing other restrictions in combination with this blacklist is impossible.
 
-    Use "Legendaries" as a shortcut for all legendary Pokémon.
+    Use "Legendaries" as a shortcut for all legendary Pokemon.
     """
     display_name = "Wild Pokemon Blacklist"
     valid_keys = ["Legendaries"] + sorted([species.name for species in data.species.values()])
@@ -516,7 +628,7 @@ class WildPokemonBlacklist(OptionSet):
 
 class RandomizeStarters(Choice):
     """
-    Randomizes the starter Pokémon in Professor Oak's Lab.
+    Randomizes the starter Pokemon in Professor Oak's Lab.
 
     - Vanilla: Starters are unchanged
     - Match Base Stats: Starters are replaced with species with approximately the same BST
@@ -539,7 +651,7 @@ class StarterBlacklist(OptionSet):
 
     May be overridden if enforcing other restrictions in combination with this blacklist is impossible.
 
-    Use "Legendaries" as a shortcut for all legendary Pokémon.
+    Use "Legendaries" as a shortcut for all legendary Pokemon.
     """
     display_name = "Starter Blacklist"
     valid_keys = ["Legendaries"] + sorted([species.name for species in data.species.values()])
@@ -547,11 +659,11 @@ class StarterBlacklist(OptionSet):
 
 class RandomizeTrainerParties(Choice):
     """
-    Randomizes the Pokémon in all trainer's parties.
+    Randomizes the Pokemon in all trainer's parties.
 
     - Vanilla: Parties are unchanged
-    - Match Base Stats: Trainer Pokémon are replaced with species with approximately the same BST
-    - Match Type: Trainer Pokémon are replaced with species that share a type with the original
+    - Match Base Stats: Trainer Pokemon are replaced with species with approximately the same BST
+    - Match Type: Trainer Pokemon are replaced with species that share a type with the original
     - Match Base Stats and Type: Apply both Match Base Stats and Match Type
     - Completely Random: There are no restrictions
     """
@@ -570,7 +682,7 @@ class TrainerPartyBlacklist(OptionSet):
 
     May be overridden if enforcing other restrictions in combination with this blacklist is impossible.
 
-    Use "Legendaries" as a shortcut for all legendary Pokémon.
+    Use "Legendaries" as a shortcut for all legendary Pokemon.
     """
     display_name = "Trainer Party Blacklist"
     valid_keys = ["Legendaries"] + sorted([species.name for species in data.species.values()])
@@ -578,10 +690,10 @@ class TrainerPartyBlacklist(OptionSet):
 
 class RandomizeLegendaryPokemon(Choice):
     """
-    Randomizes legendary Pokémon (Mewtwo, Zapdos, Deoxys, etc.). Does not randomize the roamer.
+    Randomizes legendary Pokemon (Mewtwo, Zapdos, Deoxys, etc.). Does not randomize the roamer.
 
     - Vanilla: Legendary encounters are unchanged
-    - Legendaries: Legendary encounters are replaced with another legendary Pokémon
+    - Legendaries: Legendary encounters are replaced with another legendary Pokemon
     - Match Base Stats: Legendary encounters are replaced with species with approximately the same BST
     - Match Type: Legendary encounters are replaced with species that share a type with the original
     - Match Base Stats and Type: Apply both Match Base Stats and Match Type
@@ -599,7 +711,7 @@ class RandomizeLegendaryPokemon(Choice):
 
 class RandomizeMiscPokemon(Choice):
     """
-    Randomizes misc Pokémon. This includes non-legendary static encounters, gift Pokémon, and trade Pokémon
+    Randomizes misc Pokemon. This includes non-legendary static encounters, gift Pokemon, and trade Pokemon
 
     - Vanilla: Species are unchanged
     - Match Base Stats: Species are replaced with species with approximately the same bst
@@ -618,10 +730,10 @@ class RandomizeMiscPokemon(Choice):
 
 class RandomizeTypes(Choice):
     """
-    Randomizes the type(s) of every Pokémon. Each species will have the same number of types.
+    Randomizes the type(s) of every Pokemon. Each species will have the same number of types.
 
     - Vanilla: Types are unchanged
-    - Shuffle: Types are shuffled globally for all species (e.g. every Water-type Pokémon becomes Fire-type)
+    - Shuffle: Types are shuffled globally for all species (e.g. every Water-type Pokemon becomes Fire-type)
     - Completely Random: Each species has its type(s) randomized
     - Follow Evolutions: Types are randomized per evolution line instead of per species
     """
@@ -660,12 +772,12 @@ class AbilityBlacklist(OptionSet):
 
 class RandomizeMoves(Choice):
     """
-    Randomizes the moves a Pokémon learns through leveling.
+    Randomizes the moves a Pokemon learns through leveling.
     Your starter is guaranteed to have a usable damaging move.
 
     - Vanilla: Learnset is unchanged
     - Randomized: Moves are randomized
-    - Start with Four Moves: Moves are randomized and all Pokémon know 4 moves at level 1
+    - Start with Four Moves: Moves are randomized and all Pokemon know 4 moves at level 1
     """
     display_name = "Randomize Moves"
     default = 0
@@ -685,13 +797,16 @@ class MoveBlacklist(OptionSet):
 class HmCompatibility(NamedRange):
     """
     Sets the percent chance that a given HM is compatible with a species.
+
+    If you have seen a Pokemon already, the HMs it can use are listed in the Pokedex.
     """
     display_name = "HM Compatibility"
     default = -1
-    range_start = 50
+    range_start = 0
     range_end = 100
     special_range_names = {
         "vanilla": -1,
+        "none": 0,
         "full": 100,
     }
 
@@ -706,6 +821,7 @@ class TmTutorCompatibility(NamedRange):
     range_end = 100
     special_range_names = {
         "vanilla": -1,
+        "none": 0,
         "full": 100,
     }
 
@@ -728,7 +844,7 @@ class ReusableTmsTutors(Toggle):
 
 class MinCatchRate(Range):
     """
-    Sets the minimum catch rate a Pokémon can have. It will raise any Pokémon's catch rate to this value if its normal
+    Sets the minimum catch rate a Pokemon can have. It will raise any Pokemon's catch rate to this value if its normal
     catch rate is lower than the chosen value.
     """
     display_name = "Minimum Catch Rate"
@@ -737,16 +853,17 @@ class MinCatchRate(Range):
     default = 3
 
 
-class GuaranteedCatch(Toggle):
+class AllPokemonSeen(Toggle):
     """
-    Pokeballs are guaranteed to catch wild Pokémon regardless of catch rate.
+    Start will all Pokemon seen in your Pokedex.
+    This allows you to see where the Pokemon can be encountered in the wild.
     """
-    display_name = "Guarenteed Catch"
+    display_name = "All Pokemon Seen"
 
 
 class ExpModifier(Range):
     """
-    Multiplies gained EXP by a percentage.
+    Sets the EXP multiplier that is used when the in game option for experience is set to Custom.
 
     100 is default
     50 is half
@@ -767,13 +884,6 @@ class StartingMoney(Range):
     range_start = 0
     range_end = 999999
     default = 3000
-
-
-class BlindTrainers(Toggle):
-    """
-    Trainers will not start a battle with you unless you talk to them.
-    """
-    display_name = "Blind Trainers"
 
 
 class BetterShops(Toggle):
@@ -811,27 +921,79 @@ class TownMapFlyLocation(Choice):
     option_any = 2
 
 
-class TurboA(Toggle):
+class RandomizeMusic(Toggle):
     """
-    Holding A will advance most text automatically.
+    Shuffles music played in any situation where it loops.
     """
-    display_name = "Turbo A"
+    display_name = "Randomize Music"
 
 
-class ReceiveItemMessages(Choice):
+class RandomizeFanfares(Toggle):
     """
-    Sets whether you receive an in-game notification when receiving an item. Items can still onlybe received in the
-    overworld.
+    Shuffles fanfares for item pickups, healing at the pokecenter, etc.
+    """
+    display_name = "Randomize Fanfares"
 
-    - All: Every item shows a message.
-    - Progression: Only progression items show a message
-    - None: All items are added to your bag silently (badges will still show).
+
+class GameOptions(OptionDict):
     """
-    display_name = "Receive Item Messages"
-    default = 1
-    option_all = 0
-    option_progression = 1
-    option_none = 2
+    Allows you to preset the in game options.
+    The available options and their allowed values are the following:
+
+    - Text Speed: Slow, Mid, Fast, Instant
+    - Turbo A: Off, On
+    - Auto Run: Off, On
+    - Button Mode: Help, LR, L=A
+    - Frame: 1-10
+    - Battle Scene: Off, On
+    - Battle Style: Shift, Set
+    - Show Effectiveness: Off, On
+    - Experience: None, Half, Normal, Double, Triple, Quadruple, Custom
+    - Sound: Mono, Stereo
+    - Low HP Beep: Off, On
+    - Skip Fanfares: Off, On
+    - Bike Music: Off, On
+    - Surf Music: Off, On
+    - Guaranteed Catch: Off, On
+    - Encounter Rates: Vanilla, Normalized
+    - Blind Trainers: Off, On
+    - Item Messages: All, Progression, None
+    """
+    display_name = "Game Options"
+    default = {"Text Speed": "Instant", "Turbo A": "Off", "Auto Run": "Off", "Button Mode": "Help", "Frame": 1,
+               "Battle Scene": "On", "Battle Style": "Shift", "Show Effectiveness": "On", "Experience": "Custom",
+               "Sound": "Mono", "Low HP Beep": "On", "Skip Fanfares": "Off", "Bike Music": "On", "Surf Music": "On",
+               "Guaranteed Catch": "Off", "Encounter Rates": "Vanilla", "Blind Trainers": "Off",
+               "Item Messages": "Progression"}
+    schema = Schema({
+        "Text Speed": And(str, lambda s: s in ("Slow", "Mid", "Fast", "Instant")),
+        "Turbo A": And(str, lambda s: s in ("Off", "On")),
+        "Auto Run": And(str, lambda s: s in ("Off", "On")),
+        "Button Mode": And(str, lambda s: s in ("Help", "LR", "L=A")),
+        "Frame": And(Use(int), lambda n: 1 <= n <= 10),
+        "Battle Scene": And(str, lambda s: s in ("Off", "On")),
+        "Battle Style": And(str, lambda s: s in ("Shift", "Set")),
+        "Show Effectiveness": And(str, lambda s: s in ("Off", "On")),
+        "Experience": And(str, lambda s: s in ("None", "Half", "Normal", "Double", "Triple", "Quadruple", "Custom")),
+        "Sound": And(str, lambda s: s in ("Mono", "Stereo")),
+        "Low HP Beep": And(str, lambda s: s in ("Off", "On")),
+        "Skip Fanfares": And(str, lambda s: s in ("Off", "On")),
+        "Bike Music": And(str, lambda s: s in ("Off", "On")),
+        "Surf Music": And(str, lambda s: s in ("Off", "On")),
+        "Guaranteed Catch": And(str, lambda s: s in ("Off", "On")),
+        "Encounter Rates": And(str, lambda s: s in ("Vanilla", "Normalized")),
+        "Blind Trainers": And(str, lambda s: s in ("Off", "On")),
+        "Item Messages": And(str, lambda s: s in ("All", "Progression", "None"))
+    })
+
+
+class ProvideHints(Toggle):
+    """
+    Provides an Archipelago Hint for locations that tell you what item they give once you've gotten the in game hint.
+
+    This includes the Oak's Aides, Bicycle Shop, and Pokemon Request Locations
+    """
+    display_name = "Provide Hints"
 
 
 @dataclass
@@ -840,16 +1002,20 @@ class PokemonFRLGOptions(PerGameCommonOptions):
 
     goal: Goal
     kanto_only: KantoOnly
+    random_starting_town: RandomStartingTown
 
     shuffle_badges: ShuffleBadges
     shuffle_hidden: ShuffleHiddenItems
     extra_key_items: ExtraKeyItems
     trainersanity: Trainersanity
+    dexsanity: Dexsanity
     famesanity: Famesanity
     shuffle_fly_destination_unlocks: ShuffleFlyDestinationUnlocks
     pokemon_request_locations: PokemonRequestLocations
+    shuffle_running_shoes: ShuffleRunningShoes
     card_key: SilphCoCardKey
     island_passes: SeviiIslandPasses
+    split_teas: SplitTeas
 
     itemfinder_required: ItemfinderRequired
     flash_required: FlashRequired
@@ -874,11 +1040,13 @@ class PokemonFRLGOptions(PerGameCommonOptions):
     route23_guard_count: Route23GuardCount
     elite_four_requirement: EliteFourRequirement
     elite_four_count: EliteFourCount
+    elite_four_rematch_count: EliteFourRematchCount
     cerulean_cave_requirement: CeruleanCaveRequirement
     cerulean_cave_count: CeruleanCaveCount
 
     level_scaling: LevelScaling
     modify_trainer_levels: ModifyTrainerLevels
+    force_fully_evolved: ForceFullyEvolved
 
     wild_pokemon: RandomizeWildPokemon
     wild_pokemon_groups: WildPokemonGroups
@@ -900,13 +1068,14 @@ class PokemonFRLGOptions(PerGameCommonOptions):
 
     reusable_tm_tutors: ReusableTmsTutors
     min_catch_rate: MinCatchRate
-    guaranteed_catch: GuaranteedCatch
+    all_pokemon_seen: AllPokemonSeen
     exp_modifier: ExpModifier
     starting_money: StartingMoney
-    blind_trainers: BlindTrainers
     better_shops: BetterShops
     free_fly_location: FreeFlyLocation
     town_map_fly_location: TownMapFlyLocation
 
-    turbo_a: TurboA
-    receive_item_messages: ReceiveItemMessages
+    randomize_music: RandomizeMusic
+    randomize_fanfares: RandomizeFanfares
+    game_options: GameOptions
+    provide_hints: ProvideHints

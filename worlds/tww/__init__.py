@@ -1,51 +1,40 @@
-import copy
 import os
-from dataclasses import fields
-from typing import ClassVar, Dict, List, Set, Tuple, Type
+import zipfile
+from base64 import b64encode
+from collections.abc import Mapping
+from typing import Any, ClassVar
 
 import yaml
 
+from BaseClasses import Item
 from BaseClasses import ItemClassification as IC
-from BaseClasses import LocationProgressType, Region, Tutorial
-from Options import OptionError
+from BaseClasses import MultiWorld, Region, Tutorial
+from Options import Toggle
 from worlds.AutoWorld import WebWorld, World
+from worlds.Files import APContainer, AutoPatchRegister
 from worlds.generic.Rules import add_item_rule
-from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, launch_subprocess
+from worlds.LauncherComponents import Component, SuffixIdentifier, Type, components, icon_paths, launch_subprocess
 
-from . import Macros
-from .Dungeons import Dungeon, create_dungeons
-from .Entrances import (
-    ALL_ENTRANCES,
-    ALL_EXITS,
-    BOSS_ENTRANCES,
-    BOSS_EXIT_TO_DUNGEON,
-    DUNGEON_ENTRANCES,
-    FAIRY_FOUNTAIN_ENTRANCES,
-    MINIBOSS_ENTRANCES,
-    MINIBOSS_EXIT_TO_DUNGEON,
-    SECRET_CAVE_ENTRANCES,
-    SECRET_CAVE_INNER_ENTRANCES,
-    EntranceRandomizer,
-)
-from .ItemPool import generate_itempool
 from .Items import ISLAND_NUMBER_TO_CHART_NAME, ITEM_TABLE, TWWItem, item_name_groups
-from .Locations import (
-    DUNGEON_NAMES,
-    ISLAND_NUMBER_TO_NAME,
-    LOCATION_TABLE,
-    TWWFlag,
-    TWWLocation,
-    split_location_name_by_zone,
-)
+from .Locations import LOCATION_TABLE, TWWFlag, TWWLocation
 from .Options import TWWOptions, tww_option_groups
+from .Presets import tww_options_presets
+from .randomizers.Charts import ISLAND_NUMBER_TO_NAME, ChartRandomizer
+from .randomizers.Dungeons import Dungeon, create_dungeons
+from .randomizers.Entrances import ALL_EXITS, BOSS_EXIT_TO_DUNGEON, MINIBOSS_EXIT_TO_DUNGEON, EntranceRandomizer
+from .randomizers.ItemPool import generate_itempool
+from .randomizers.RequiredBosses import RequiredBossesRandomizer
 from .Rules import set_rules
 
-VERSION: Tuple[int, int, int] = (2, 5, 0)
+VERSION: tuple[int, int, int] = (3, 0, 0)
 
 
-def run_client():
+def run_client() -> None:
+    """
+    Launch the The Wind Waker client.
+    """
     print("Running The Wind Waker Client")
-    from .TWWClient import main  # lazy import
+    from .TWWClient import main
 
     launch_subprocess(main, name="TheWindWakerClient")
 
@@ -56,11 +45,44 @@ components.append(
         func=run_client,
         component_type=Type.CLIENT,
         file_identifier=SuffixIdentifier(".aptww"),
+        icon="The Wind Waker",
     )
 )
+icon_paths["The Wind Waker"] = "ap:worlds.tww/assets/icon.png"
+
+
+class TWWContainer(APContainer, metaclass=AutoPatchRegister):
+    """
+    This class defines the container file for The Wind Waker.
+    """
+
+    game: str = "The Wind Waker"
+    patch_file_ending: str = ".aptww"
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if "data" in kwargs:
+            self.data = kwargs["data"]
+            del kwargs["data"]
+
+        super().__init__(*args, **kwargs)
+
+    def write_contents(self, opened_zipfile: zipfile.ZipFile) -> None:
+        """
+        Write the contents of the container file.
+        """
+        super().write_contents(opened_zipfile)
+
+        # Record the data for the game under the key `plando`.
+        opened_zipfile.writestr("plando", b64encode(bytes(yaml.safe_dump(self.data, sort_keys=False), "utf-8")))
 
 
 class TWWWeb(WebWorld):
+    """
+    This class handles the web interface for The Wind Waker.
+
+    The web interface includes the setup guide and the options page for generating YAMLs.
+    """
+
     tutorials = [
         Tutorial(
             "Multiworld Setup Guide",
@@ -72,6 +94,7 @@ class TWWWeb(WebWorld):
         )
     ]
     theme = "ocean"
+    options_presets = tww_options_presets
     option_groups = tww_option_groups
     rich_text_options_doc = True
 
@@ -81,7 +104,8 @@ class TWWWorld(World):
     Legend has it that whenever evil has appeared, a hero named Link has arisen to defeat it. The legend continues on
     the surface of a vast and mysterious sea as Link sets sail in his most epic, awe-inspiring adventure yet. Aided by a
     magical conductor's baton called the Wind Waker, he will face unimaginable monsters, explore puzzling dungeons, and
-    meet a cast of unforgettable characters as he searches for his kidnapped sister."""
+    meet a cast of unforgettable characters as he searches for his kidnapped sister.
+    """
 
     options_dataclass = TWWOptions
     options: TWWOptions
@@ -89,195 +113,129 @@ class TWWWorld(World):
     game: ClassVar[str] = "The Wind Waker"
     topology_present: bool = True
 
-    item_name_to_id: ClassVar[Dict[str, int]] = {
+    item_name_to_id: ClassVar[dict[str, int]] = {
         name: TWWItem.get_apid(data.code) for name, data in ITEM_TABLE.items() if data.code is not None
     }
-    location_name_to_id: ClassVar[Dict[str, int]] = {
+    location_name_to_id: ClassVar[dict[str, int]] = {
         name: TWWLocation.get_apid(data.code) for name, data in LOCATION_TABLE.items() if data.code is not None
     }
 
-    item_name_groups: ClassVar[Dict[str, Set[str]]] = item_name_groups
+    item_name_groups: ClassVar[dict[str, set[str]]] = item_name_groups
 
-    required_client_version: Tuple[int, int, int] = (0, 5, 0)
+    required_client_version: tuple[int, int, int] = (0, 5, 1)
 
     web: ClassVar[TWWWeb] = TWWWeb()
 
+    origin_region_name: str = "The Great Sea"
+
     create_items = generate_itempool
 
-    set_rules = set_rules
+    logic_rematch_bosses_skipped: bool
+    logic_in_swordless_mode: bool
+    logic_in_required_bosses_mode: bool
+    logic_obscure_1: bool
+    logic_obscure_2: bool
+    logic_obscure_3: bool
+    logic_precise_1: bool
+    logic_precise_2: bool
+    logic_precise_3: bool
+    logic_tuner_logic_enabled: bool
 
     def __init__(self, *args, **kwargs):
-        self.dungeon_local_item_names: Set[str] = set()
-        self.dungeon_specific_item_names: Set[str] = set()
-        self.dungeons: Dict[str, Dungeon] = {}
+        super().__init__(*args, **kwargs)
 
-        self.required_boss_item_locations: List[str] = []
-        self.required_dungeons: List[str] = []
-        self.required_bosses: List[str] = []
-        self.banned_locations: List[str] = []
-        self.banned_dungeons: List[str] = []
-        self.banned_bosses: List[str] = []
+        self.progress_locations: set[str] = set()
+        self.nonprogress_locations: set[str] = set()
 
-        self.island_number_to_chart_name = copy.deepcopy(ISLAND_NUMBER_TO_CHART_NAME)
+        self.dungeon_local_item_names: set[str] = set()
+        self.dungeon_specific_item_names: set[str] = set()
+        self.dungeons: dict[str, Dungeon] = {}
 
-        super(TWWWorld, self).__init__(*args, **kwargs)
+        self.useful_pool: list[str] = []
+        self.filler_pool: list[str] = []
 
+        self.charts = ChartRandomizer(self)
         self.entrances = EntranceRandomizer(self)
+        self.boss_reqs = RequiredBossesRandomizer(self)
 
-    def _randomize_charts(self):
-        # This code comes straight from the base randomizer's chart randomizer.
+    def _determine_progress_and_nonprogress_locations(self) -> tuple[set[str], set[str]]:
+        """
+        Determine which locations are progress and nonprogress in the world based on the player's options.
 
-        original_item_names = list(self.island_number_to_chart_name.values())
+        :return: A tuple of two sets, the first containing the names of the progress locations and the second containing
+        the names of the nonprogress locations.
+        """
 
-        # Shuffles the list of island numbers.
-        # The shuffled island numbers determine which sector each chart points to.
-        shuffled_island_numbers = list(self.island_number_to_chart_name.keys())
-        self.multiworld.random.shuffle(shuffled_island_numbers)
+        def add_flag(option: Toggle, flag: TWWFlag) -> TWWFlag:
+            return flag if option else TWWFlag.ALWAYS
 
-        for original_item_name in original_item_names:
-            shuffled_island_number = shuffled_island_numbers.pop()
-            self.island_number_to_chart_name[shuffled_island_number] = original_item_name
-
-            # Properly adjust the flags for sunken treasure locations.
-            island_name = ISLAND_NUMBER_TO_NAME[shuffled_island_number]
-            island_location = self.get_location(f"{island_name} - Sunken Treasure")
-            if original_item_name.startswith("Triforce Chart "):
-                island_location.flags = TWWFlag.TRI_CHT
-            else:
-                island_location.flags = TWWFlag.TRE_CHT
-
-    def _randomize_required_bosses(self):
-        if not self.options.progression_dungeons:
-            raise OptionError("Cannot make bosses required when progression dungeons are disabled.")
-
-        dungeon_names = set(DUNGEON_NAMES)
-
-        # Assert that the user is not including and excluding a dungeon at the same time.
-        if len(self.options.included_dungeons.value & self.options.excluded_dungeons.value) != 0:
-            raise OptionError("Conflict found in the lists of required and banned dungeons for required bosses mode.")
-
-        # If the user enforces a dungeon location to be priority, consider that when selecting required bosses.
-        required_dungeons = self.options.included_dungeons.value
-        for location_name in self.options.priority_locations.value:
-            dungeon_name, _ = split_location_name_by_zone(location_name)
-            if dungeon_name in dungeon_names:
-                required_dungeons.add(dungeon_name)
-
-        # Ensure that we aren't prioritizing more dungeon locations than requested number of required bosses.
-        num_required_bosses = self.options.num_required_bosses
-        if len(required_dungeons) > num_required_bosses:
-            raise OptionError("Could not select required bosses to satisfy options set by user.")
-
-        # Ensure that after removing excluded dungeons that we still have enough dungeons to satisfy user options.
-        num_remaining = num_required_bosses - len(required_dungeons)
-        remaining_dungeon_options = dungeon_names - required_dungeons - self.options.excluded_dungeons.value
-        if len(remaining_dungeon_options) < num_remaining:
-            raise OptionError("Could not select required bosses to satisfy options set by user.")
-
-        # Finish selecting required bosses.
-        required_dungeons.update(self.multiworld.random.sample(list(remaining_dungeon_options), num_remaining))
-
-        # Exclude locations which are not in the dungeon of a required boss.
-        banned_dungeons = dungeon_names - required_dungeons
-        for location_name, location_data in LOCATION_TABLE.items():
-            dungeon_name, _ = split_location_name_by_zone(location_name)
-            if dungeon_name in banned_dungeons and TWWFlag.DUNGEON in location_data.flags:
-                self.banned_locations.append(location_name)
-            elif location_name == "Mailbox - Letter from Orca" and "Forbidden Woods" in banned_dungeons:
-                self.banned_locations.append(location_name)
-            elif location_name == "Mailbox - Letter from Baito" and "Earth Temple" in banned_dungeons:
-                self.banned_locations.append(location_name)
-            elif location_name == "Mailbox - Letter from Aryll" and "Forsaken Fortress" in banned_dungeons:
-                self.banned_locations.append(location_name)
-            elif location_name == "Mailbox - Letter from Tingle" and "Forsaken Fortress" in banned_dungeons:
-                self.banned_locations.append(location_name)
-        for location_name in self.banned_locations:
-            self.get_location(location_name).progress_type = LocationProgressType.EXCLUDED
-
-        # Record the item location names for required bosses.
-        self.required_boss_item_locations: List[str] = []
-        self.required_bosses: List[str] = []
-        self.banned_bosses: List[str] = []
-        possible_boss_item_locations = [loc for loc, data in LOCATION_TABLE.items() if TWWFlag.BOSS in data.flags]
-        for location_name in possible_boss_item_locations:
-            dungeon_name, specific_location_name = split_location_name_by_zone(location_name)
-            assert specific_location_name.endswith(" Heart Container")
-            boss_name = specific_location_name[: -len(" Heart Container")]
-
-            if dungeon_name in required_dungeons:
-                self.required_boss_item_locations.append(location_name)
-                self.required_bosses.append(boss_name)
-            else:
-                self.banned_bosses.append(boss_name)
-        self.required_dungeons = list(required_dungeons)
-        self.banned_dungeons = list(banned_dungeons)
-
-    def _set_nonprogress_locations(self):
-        enabled_flags = TWWFlag.ALWAYS
-
-        # Set the flags for progression location by checking player's settings.
-        if self.options.progression_dungeons:
-            enabled_flags |= TWWFlag.DUNGEON
-            enabled_flags |= TWWFlag.BOSS
-        if self.options.progression_tingle_chests:
-            enabled_flags |= TWWFlag.TNGL_CT
-        if self.options.progression_dungeon_secrets:
-            enabled_flags |= TWWFlag.DG_SCRT
-        if self.options.progression_puzzle_secret_caves:
-            enabled_flags |= TWWFlag.PZL_CVE
-        if self.options.progression_combat_secret_caves:
-            enabled_flags |= TWWFlag.CBT_CVE
-        if self.options.progression_savage_labyrinth:
-            enabled_flags |= TWWFlag.SAVAGE
-        if self.options.progression_great_fairies:
-            enabled_flags |= TWWFlag.GRT_FRY
-        if self.options.progression_short_sidequests:
-            enabled_flags |= TWWFlag.SHRT_SQ
-        if self.options.progression_long_sidequests:
-            enabled_flags |= TWWFlag.LONG_SQ
-        if self.options.progression_spoils_trading:
-            enabled_flags |= TWWFlag.SPOILS
-        if self.options.progression_minigames:
-            enabled_flags |= TWWFlag.MINIGME
-        if self.options.progression_battlesquid:
-            enabled_flags |= TWWFlag.SPLOOSH
-        if self.options.progression_free_gifts:
-            enabled_flags |= TWWFlag.FREE_GF
-        if self.options.progression_platforms_rafts:
-            enabled_flags |= TWWFlag.PLTFRMS
-        if self.options.progression_submarines:
-            enabled_flags |= TWWFlag.SUBMRIN
-        if self.options.progression_eye_reef_chests:
-            enabled_flags |= TWWFlag.EYE_RFS
-        if self.options.progression_big_octos_gunboats:
-            enabled_flags |= TWWFlag.BG_OCTO
-        if self.options.progression_triforce_charts:
-            enabled_flags |= TWWFlag.TRI_CHT
-        if self.options.progression_treasure_charts:
-            enabled_flags |= TWWFlag.TRE_CHT
-        if self.options.progression_expensive_purchases:
-            enabled_flags |= TWWFlag.XPENSVE
-        if self.options.progression_island_puzzles:
-            enabled_flags |= TWWFlag.ISLND_P
-        if self.options.progression_misc:
-            enabled_flags |= TWWFlag.MISCELL
-
-        for location in self.multiworld.get_locations(self.player):
-            # If not all the flags for a location are set, then force that location to have a non-progress item.
-            if location.flags & enabled_flags != location.flags:
-                location.progress_type = LocationProgressType.EXCLUDED
-
-    def generate_early(self):
         options = self.options
 
-        # Force vanilla dungeon items when dungeons are not progression.
-        if not options.progression_dungeons:
-            if options.randomize_smallkeys.value > 0:
-                options.randomize_smallkeys.value = 1
-            if options.randomize_bigkeys.value > 0:
-                options.randomize_bigkeys.value = 1
-            if options.randomize_mapcompass.value > 0:
-                options.randomize_mapcompass.value = 1
+        enabled_flags = TWWFlag.ALWAYS
+        enabled_flags |= add_flag(options.progression_dungeons, TWWFlag.DUNGEON | TWWFlag.BOSS)
+        enabled_flags |= add_flag(options.progression_tingle_chests, TWWFlag.TNGL_CT)
+        enabled_flags |= add_flag(options.progression_dungeon_secrets, TWWFlag.DG_SCRT)
+        enabled_flags |= add_flag(options.progression_puzzle_secret_caves, TWWFlag.PZL_CVE)
+        enabled_flags |= add_flag(options.progression_combat_secret_caves, TWWFlag.CBT_CVE)
+        enabled_flags |= add_flag(options.progression_savage_labyrinth, TWWFlag.SAVAGE)
+        enabled_flags |= add_flag(options.progression_great_fairies, TWWFlag.GRT_FRY)
+        enabled_flags |= add_flag(options.progression_short_sidequests, TWWFlag.SHRT_SQ)
+        enabled_flags |= add_flag(options.progression_long_sidequests, TWWFlag.LONG_SQ)
+        enabled_flags |= add_flag(options.progression_spoils_trading, TWWFlag.SPOILS)
+        enabled_flags |= add_flag(options.progression_minigames, TWWFlag.MINIGME)
+        enabled_flags |= add_flag(options.progression_battlesquid, TWWFlag.SPLOOSH)
+        enabled_flags |= add_flag(options.progression_free_gifts, TWWFlag.FREE_GF)
+        enabled_flags |= add_flag(options.progression_mail, TWWFlag.MAILBOX)
+        enabled_flags |= add_flag(options.progression_platforms_rafts, TWWFlag.PLTFRMS)
+        enabled_flags |= add_flag(options.progression_submarines, TWWFlag.SUBMRIN)
+        enabled_flags |= add_flag(options.progression_eye_reef_chests, TWWFlag.EYE_RFS)
+        enabled_flags |= add_flag(options.progression_big_octos_gunboats, TWWFlag.BG_OCTO)
+        enabled_flags |= add_flag(options.progression_expensive_purchases, TWWFlag.XPENSVE)
+        enabled_flags |= add_flag(options.progression_island_puzzles, TWWFlag.ISLND_P)
+        enabled_flags |= add_flag(options.progression_misc, TWWFlag.MISCELL)
+
+        progress_locations: set[str] = set()
+        nonprogress_locations: set[str] = set()
+        for location, data in LOCATION_TABLE.items():
+            if data.flags & enabled_flags == data.flags:
+                progress_locations.add(location)
+            else:
+                nonprogress_locations.add(location)
+        assert progress_locations.isdisjoint(nonprogress_locations)
+
+        return progress_locations, nonprogress_locations
+
+    @staticmethod
+    def _get_classification_name(classification: IC) -> str:
+        """
+        Return a string representation of the item's highest-order classification.
+
+        :param classification: The item's classification.
+        :return: A string representation of the item's highest classification. The order of classification is
+        progression > trap > useful > filler.
+        """
+
+        if IC.progression in classification:
+            return "progression"
+        elif IC.trap in classification:
+            return "trap"
+        elif IC.useful in classification:
+            return "useful"
+        else:
+            return "filler"
+
+    def generate_early(self) -> None:
+        """
+        Run before any general steps of the MultiWorld other than options.
+        """
+        options = self.options
+
+        # Only randomize secret cave inner entrances if both puzzle secret caves and combat secret caves are enabled.
+        if not (options.progression_puzzle_secret_caves and options.progression_combat_secret_caves):
+            options.randomize_secret_cave_inner_entrances.value = False
+
+        # Determine which locations are progression and which are not from options.
+        self.progress_locations, self.nonprogress_locations = self._determine_progress_and_nonprogress_locations()
 
         for dungeon_item in ["randomize_smallkeys", "randomize_bigkeys", "randomize_mapcompass"]:
             option = getattr(options, dungeon_item)
@@ -287,47 +245,70 @@ class TWWWorld(World):
                 self.dungeon_local_item_names |= self.item_name_groups[option.item_name_group]
                 if option == "dungeon":
                     self.dungeon_specific_item_names |= self.item_name_groups[option.item_name_group]
+                else:
+                    self.options.local_items.value |= self.dungeon_local_item_names
 
-    create_dungeons = create_dungeons
+        # Resolve logic options and set them onto the world instance for faster lookup in logic rules.
+        self.logic_rematch_bosses_skipped = bool(self.options.skip_rematch_bosses.value)
+        self.logic_in_swordless_mode = self.options.sword_mode in ("swords_optional", "swordless")
+        self.logic_in_required_bosses_mode = bool(self.options.required_bosses.value)
+        self.logic_obscure_3 = self.options.logic_obscurity == "very_hard"
+        self.logic_obscure_2 = self.logic_obscure_3 or self.options.logic_obscurity == "hard"
+        self.logic_obscure_1 = self.logic_obscure_2 or self.options.logic_obscurity == "normal"
+        self.logic_precise_3 = self.options.logic_precision == "very_hard"
+        self.logic_precise_2 = self.logic_precise_3 or self.options.logic_precision == "hard"
+        self.logic_precise_1 = self.logic_precise_2 or self.options.logic_precision == "normal"
+        self.logic_tuner_logic_enabled = bool(self.options.enable_tuner_logic.value)
 
-    def create_regions(world):
-        def get_access_rule(region: str) -> str:
-            snake_case_region = region.lower().replace("'", "").replace(" ", "_")
-            return f"can_access_{snake_case_region}"
+    def create_regions(self) -> None:
+        """
+        Create and connect regions for the The Wind Waker world.
 
-        multiworld = world.multiworld
-        player = world.player
-        options = world.options
+        This method first randomizes the charts and picks the required bosses if these options are enabled.
+        It then loops through all the world's progress locations and creates the locations, assigning dungeon locations
+        to their respective dungeons.
+        Finally, the flags for sunken treasure locations are updated as appropriate, and the entrances are randomized
+        if that option is enabled.
+        """
+        multiworld = self.multiworld
+        player = self.player
+        options = self.options
 
-        # "Menu" is the required starting point.
-        menu_region = Region("Menu", player, multiworld)
-        multiworld.regions.append(menu_region)
-
-        # "The Great Sea" region contains all locations not in a randomizable region.
+        # "The Great Sea" region contains all locations that are not in a randomizable region.
         great_sea_region = Region("The Great Sea", player, multiworld)
         multiworld.regions.append(great_sea_region)
 
         # Add all randomizable regions.
-        for region in ALL_ENTRANCES:
-            multiworld.regions.append(Region(region.entrance_name, player, multiworld))
-        for region in ALL_EXITS:
-            multiworld.regions.append(Region(region.unique_name, player, multiworld))
+        for _exit in ALL_EXITS:
+            multiworld.regions.append(Region(_exit.unique_name, player, multiworld))
+
+        # Set up sunken treasure locations, randomizing the charts if necessary.
+        self.charts.setup_progress_sunken_treasure_locations()
+
+        # Select required bosses.
+        if options.required_bosses:
+            self.boss_reqs.randomize_required_bosses()
+            self.progress_locations -= self.boss_reqs.banned_locations
+            self.nonprogress_locations |= self.boss_reqs.banned_locations
 
         # Create the dungeon classes.
-        world.create_dungeons()
+        create_dungeons(self)
 
         # Assign each location to their region.
-        for location, data in LOCATION_TABLE.items():
-            region = world.get_region(data.region)
-            location = TWWLocation(player, location, region, data)
+        # Progress locations are sorted for deterministic results.
+        for location_name in sorted(self.progress_locations):
+            data = LOCATION_TABLE[location_name]
+
+            region = self.get_region(data.region)
+            location = TWWLocation(player, location_name, region, data)
 
             # Additionally, assign dungeon locations to the appropriate dungeon.
-            if region.name in world.dungeons:
-                location.dungeon = world.dungeons[region.name]
+            if region.name in self.dungeons:
+                location.dungeon = self.dungeons[region.name]
             elif region.name in MINIBOSS_EXIT_TO_DUNGEON and not options.randomize_miniboss_entrances:
-                location.dungeon = world.dungeons[MINIBOSS_EXIT_TO_DUNGEON[region.name]]
+                location.dungeon = self.dungeons[MINIBOSS_EXIT_TO_DUNGEON[region.name]]
             elif region.name in BOSS_EXIT_TO_DUNGEON and not options.randomize_boss_entrances:
-                location.dungeon = world.dungeons[BOSS_EXIT_TO_DUNGEON[region.name]]
+                location.dungeon = self.dungeons[BOSS_EXIT_TO_DUNGEON[region.name]]
             elif location.name in [
                 "Forsaken Fortress - Phantom Ganon",
                 "Forsaken Fortress - Chest Outside Upper Jail Cell",
@@ -335,105 +316,81 @@ class TWWWorld(World):
                 "Forsaken Fortress - Chest Guarded By Bokoblin",
                 "Forsaken Fortress - Chest on Bed",
             ]:
-                location.dungeon = world.dungeons["Forsaken Fortress"]
+                location.dungeon = self.dungeons["Forsaken Fortress"]
             region.locations.append(location)
 
-        # Connect the "Menu" region to the "The Great Sea" region.
-        menu_region.connect(great_sea_region)
+        # Correct the flags of the sunken treasure locations if the charts are randomized.
+        self.charts.update_chart_location_flags()
 
-        # Connect the dungeon, secret caves, and fairy fountain regions to the "The Great Sea" region.
-        for entrance in DUNGEON_ENTRANCES + SECRET_CAVE_ENTRANCES + FAIRY_FOUNTAIN_ENTRANCES:
-            rule = lambda state, entrance=entrance.entrance_name: getattr(Macros, get_access_rule(entrance))(
-                state, player
-            )
-            great_sea_region.connect(world.get_region(entrance.entrance_name), rule=rule)
+        # Connect the regions in the multiworld. Randomize entrances to exits if the option is set.
+        self.entrances.randomize_entrances()
 
-        # Connect nested regions with their parent region.
-        for entrance in MINIBOSS_ENTRANCES + BOSS_ENTRANCES + SECRET_CAVE_INNER_ENTRANCES:
-            parent_region_name = entrance.entrance_name.split(" in ")[-1]
-            # Consider Hyrule Castle and Forsaken Fortress as part of The Great Sea (regions are not randomizable).
-            if parent_region_name in ["Hyrule Castle", "Forsaken Fortress"]:
-                parent_region_name = "The Great Sea"
-            rule = lambda state, entrance=entrance.entrance_name: getattr(Macros, get_access_rule(entrance))(
-                state, player
-            )
-            parent_region = world.get_region(parent_region_name)
-            parent_region.connect(world.get_region(entrance.entrance_name), rule=rule)
+    def set_rules(self) -> None:
+        """
+        Set access and item rules on locations.
+        """
+        # Set the access rules for all progression locations.
+        set_rules(self)
 
-        # Randomize which chart points to each sector, if the option is enabled.
-        if world.options.randomize_charts:
-            world._randomize_charts()
-
-        # Set nonprogress location from options.
-        world._set_nonprogress_locations()
-
-        # Select required bosses.
-        if world.options.required_bosses:
-            world._randomize_required_bosses()
-
-        # Connect the regions together in the multiworld. Randomize entrances to exits, if the option is set.
-        world.entrances.randomize_entrances()
-
-    def pre_fill(self):
         # Ban the Bait Bag slot from having bait.
-        beedle_20 = self.get_location("The Great Sea - Beedle's Shop Ship - 20 Rupee Item")
-        add_item_rule(beedle_20, lambda item: item.name not in ["All-Purpose Bait", "Hyoi Pear"])
+        # Beedle's shop does not work correctly if the same item is in multiple slots in the same shop.
+        if "The Great Sea - Beedle's Shop Ship - 20 Rupee Item" in self.progress_locations:
+            beedle_20 = self.get_location("The Great Sea - Beedle's Shop Ship - 20 Rupee Item")
+            add_item_rule(beedle_20, lambda item: item.name not in ["All-Purpose Bait", "Hyoi Pear"])
 
-        # Also ban the same item from appearing more than once in the Rock Spire Isle shop ship.
-        beedle_500 = self.get_location("Rock Spire Isle - Beedle's Special Shop Ship - 500 Rupee Item")
-        beedle_950 = self.get_location("Rock Spire Isle - Beedle's Special Shop Ship - 950 Rupee Item")
-        beedle_900 = self.get_location(
-            "Rock Spire Isle - Beedle's Special Shop Ship - 900 Rupee Item",
-        )
-        add_item_rule(
-            beedle_500,
-            lambda item, locs=[beedle_950, beedle_900]: (
-                (item.game == "The Wind Waker" and all(l.item is None or item.name != l.item.name for l in locs))
-                or (
-                    item.game != "The Wind Waker"
-                    and all(l.item is None or l.item.game == "The Wind Waker" for l in locs)
+        # For the same reason, the same item should not appear more than once on the Rock Spire Isle shop ship.
+        # All non-TWW items use the same item (Father's Letter), so at most one non-TWW item can appear in the shop.
+        # The rest must be (unique, but not necessarily local) TWW items.
+        locations = [f"Rock Spire Isle - Beedle's Special Shop Ship - {v} Rupee Item" for v in [500, 950, 900]]
+        if all(loc in self.progress_locations for loc in locations):
+            rock_spire_shop_ship_locations = [self.get_location(location_name) for location_name in locations]
+
+            for i in range(len(rock_spire_shop_ship_locations)):
+                curr_loc = rock_spire_shop_ship_locations[i]
+                other_locs = rock_spire_shop_ship_locations[:i] + rock_spire_shop_ship_locations[i + 1:]
+
+                add_item_rule(
+                    curr_loc,
+                    lambda item, locations=other_locs: (
+                        item.game == "The Wind Waker"
+                        and all(location.item is None or item.name != location.item.name for location in locations)
+                    )
+                    or (
+                        item.game != "The Wind Waker"
+                        and all(
+                            location.item is None or location.item.game == "The Wind Waker" for location in locations
+                        )
+                    ),
                 )
-            ),
-        )
-        add_item_rule(
-            beedle_950,
-            lambda item, locs=[beedle_500, beedle_900]: (
-                (item.game == "The Wind Waker" and all(l.item is None or item.name != l.item.name for l in locs))
-                or (
-                    item.game != "The Wind Waker"
-                    and all(l.item is None or l.item.game == "The Wind Waker" for l in locs)
-                )
-            ),
-        )
-        add_item_rule(
-            beedle_900,
-            lambda item, locs=[beedle_500, beedle_950]: (
-                (item.game == "The Wind Waker" and all(l.item is None or item.name != l.item.name for l in locs))
-                or (
-                    item.game != "The Wind Waker"
-                    and all(l.item is None or l.item.game == "The Wind Waker" for l in locs)
-                )
-            ),
-        )
 
     @classmethod
-    def stage_pre_fill(cls, world):
-        from .Dungeons import fill_dungeons_restrictive
+    def stage_pre_fill(cls, multiworld: MultiWorld) -> None:
+        """
+        Class method used to correctly place dungeon items for The Wind Waker worlds.
 
-        fill_dungeons_restrictive(world)
+        :param multiworld: The MultiWorld.
+        """
+        from .randomizers.Dungeons import fill_dungeons_restrictive
 
-    def generate_output(self, output_directory: str):
+        fill_dungeons_restrictive(multiworld)
+
+    def generate_output(self, output_directory: str) -> None:
+        """
+        Create the output APTWW file that is used to randomize the ISO.
+
+        :param output_directory: The output directory for the APTWW file.
+        """
         multiworld = self.multiworld
         player = self.player
 
         # Determine the current arrangement for charts.
-        # Create a list where the original island number is the index and the value is the new island number.
-        # Without randomized charts, this array would be just a ordered list of the numbers 1 to 49.
+        # Create a list where the original island number is the index, and the value is the new island number.
+        # Without randomized charts, this array would be just an ordered list of the numbers 1 to 49.
         # With randomized charts, the new island number is where the chart for the original island now leads.
         chart_name_to_island_number = {
-            chart_name: island_number for island_number, chart_name in self.island_number_to_chart_name.items()
+            chart_name: island_number for island_number, chart_name in self.charts.island_number_to_chart_name.items()
         }
-        charts_mapping: List[int] = []
+        charts_mapping: list[int] = []
         for i in range(1, 49 + 1):
             original_chart_name = ISLAND_NUMBER_TO_CHART_NAME[i]
             new_island_number = chart_name_to_island_number[original_chart_name]
@@ -445,21 +402,15 @@ class TWWWorld(World):
             "Seed": multiworld.seed_name,
             "Slot": player,
             "Name": self.player_name,
-            "Options": {},
-            "Required Bosses": self.required_boss_item_locations,
+            "Options": self.options.as_dict(*self.options_dataclass.type_hints),
+            "Required Bosses": self.boss_reqs.required_boss_item_locations,
             "Locations": {},
             "Entrances": {},
             "Charts": charts_mapping,
         }
 
-        # Output relevant options to file.
-        for field in fields(self.options):
-            output_data["Options"][field.name] = getattr(self.options, field.name).value
-
-        # Temporarily force boss rematches to be skipped until Jalhalla bug is fixed.
-        output_data["Options"]["skip_rematch_bosses"] = True
-
         # Output which item has been placed at each location.
+        output_locations = output_data["Locations"]
         locations = multiworld.get_locations(player)
         for location in locations:
             if location.name != "Defeat Ganondorf":
@@ -468,57 +419,135 @@ class TWWWorld(World):
                         "player": location.item.player,
                         "name": location.item.name,
                         "game": location.item.game,
-                        "classification": location.item.classification.name,
+                        "classification": self._get_classification_name(location.item.classification),
                     }
                 else:
-                    item_info = {
-                        "name": "Nothing",
-                        "game": "The Wind Waker",
-                        "classification": "filler",
-                    }
-                output_data["Locations"][location.name] = item_info
+                    item_info = {"name": "Nothing", "game": "The Wind Waker", "classification": "filler"}
+                output_locations[location.name] = item_info
 
         # Output the mapping of entrances to exits.
-        all_entrance_names = [en.entrance_name for en in ALL_ENTRANCES]
-        entrances = multiworld.get_entrances(player)
-        for entrance in entrances:
-            if entrance.parent_region.name in all_entrance_names:
-                output_data["Entrances"][entrance.parent_region.name] = entrance.connected_region.name
+        output_entrances = output_data["Entrances"]
+        for zone_entrance, zone_exit in self.entrances.done_entrances_to_exits.items():
+            output_entrances[zone_entrance.entrance_name] = zone_exit.unique_name
 
         # Output the plando details to file.
-        file_path = os.path.join(output_directory, f"{multiworld.get_out_file_name_base(player)}.aptww")
-        with open(file_path, "w") as f:
-            f.write(yaml.dump(output_data, sort_keys=False))
+        aptww = TWWContainer(
+            path=os.path.join(
+                output_directory, f"{multiworld.get_out_file_name_base(player)}{TWWContainer.patch_file_ending}"
+            ),
+            player=player,
+            player_name=self.player_name,
+            data=output_data,
+        )
+        aptww.write()
 
-    def create_item(self, item: str) -> TWWItem:
-        # TODO: calculate nonprogress items dynamically
+    def extend_hint_information(self, hint_data: dict[int, dict[int, str]]) -> None:
+        """
+        Fill in additional information text into locations, displayed when hinted.
+
+        :param hint_data: A dictionary of mapping a player ID to a dictionary mapping location IDs to the extra hint
+        information text. This dictionary should be modified as a side-effect of this method.
+        """
+        # Create a mapping of island names to numbers for sunken treasure hints.
+        island_name_to_number = {v: k for k, v in ISLAND_NUMBER_TO_NAME.items()}
+
+        hint_data[self.player] = {}
+        for location in self.multiworld.get_locations(self.player):
+            if location.address is not None and location.item is not None:
+                # Regardless of ER settings, always hint at the outermost entrance for every "interior" location.
+                zone_exit = self.entrances.get_zone_exit_for_item_location(location.name)
+                if zone_exit is not None:
+                    outermost_entrance = self.entrances.get_outermost_entrance_for_exit(zone_exit)
+                    assert outermost_entrance is not None and outermost_entrance.island_name is not None
+                    hint_data[self.player][location.address] = outermost_entrance.island_name
+
+                # Hint at which chart leads to the sunken treasure for these locations.
+                if location.name.endswith(" - Sunken Treasure"):
+                    island_name = location.name.removesuffix(" - Sunken Treasure")
+                    island_number = island_name_to_number[island_name]
+                    chart_name = self.charts.island_number_to_chart_name[island_number]
+                    hint_data[self.player][location.address] = chart_name
+
+    def determine_item_classification(self, name: str) -> IC | None:
+        """
+        Determine the adjusted classification of an item. The classification of an item may be affected by which options
+        are enabled or disabled.
+
+        :param name: The name of the item.
+        :return: The adjusted classification of the item. If there is no adjustment from the default, returns `None`.
+        """
+        # TODO: Calculate nonprogress items dynamically
         adjusted_classification = None
-        if self.options.sword_mode == "swords_optional" and item == "Progressive Sword":
+        if not self.options.progression_big_octos_gunboats and name == "Quiver Capacity Upgrade":
             adjusted_classification = IC.useful
-        if not self.options.progression_dungeons and item.endswith(" Key"):
+        if self.options.sword_mode in ("swords_optional", "swordless") and name == "Progressive Sword":
+            adjusted_classification = IC.useful
+        if not self.options.enable_tuner_logic and name == "Tingle Tuner":
+            adjusted_classification = IC.useful
+
+        if not self.options.progression_dungeons and name.endswith(" Key"):
             adjusted_classification = IC.filler
-        if not self.options.progression_triforce_charts and item.startswith("Triforce Chart"):
+        if not self.options.progression_dungeons and name in ("Command Melody", "Earth God's Lyric", "Wind God's Aria"):
             adjusted_classification = IC.filler
-        if not self.options.progression_treasure_charts and item.startswith("Treasure Chart"):
+        if not self.options.progression_short_sidequests and name in ("Maggie's Letter", "Moblin's Letter"):
+            adjusted_classification = IC.filler
+        if (
+            not (self.options.progression_short_sidequests or self.options.progression_long_sidequests)
+            and name == "Progressive Picto Box"
+        ):
+            adjusted_classification = IC.filler
+        if not self.options.progression_spoils_trading and name == "Spoils Bag":
+            adjusted_classification = IC.filler
+        if not self.options.progression_triforce_charts and name.startswith("Triforce Chart"):
+            adjusted_classification = IC.filler
+        if not self.options.progression_treasure_charts and name.startswith("Treasure Chart"):
+            adjusted_classification = IC.filler
+        if not self.options.progression_misc and name.endswith("Tingle Statue"):
             adjusted_classification = IC.filler
 
-        if item in ITEM_TABLE:
-            return TWWItem(item, self.player, ITEM_TABLE[item], adjusted_classification)
-        raise KeyError(f"Invalid item name: {item}")
+        return adjusted_classification
 
-    def get_filler_item_name(self) -> str:
-        # Use the same weights for filler items that are used in the base randomizer.
-        filler_consumables = [
-            "Yellow Rupee",
-            "Red Rupee",
-            "Purple Rupee",
-            "Orange Rupee",
-            "Joy Pendant",
-        ]
-        filler_weights = [3, 7, 10, 15, 3]
+    def create_item(self, name: str) -> TWWItem:
+        """
+        Create an item for this world type and player.
+
+        :param name: The name of the item to create.
+        :raises KeyError: If an invalid item name is provided.
+        """
+        if name in ITEM_TABLE:
+            return TWWItem(name, self.player, ITEM_TABLE[name], self.determine_item_classification(name))
+        raise KeyError(f"Invalid item name: {name}")
+
+    def get_filler_item_name(self, strict: bool = True) -> str:
+        """
+        This method is called when the item pool needs to be filled with additional items to match the location count.
+
+        :param strict: Whether the item should be one strictly classified as filler. Defaults to `True`.
+        :return: The name of a filler item from this world.
+        """
+        # If there are still useful items to place, place those first.
+        if not strict and len(self.useful_pool) > 0:
+            return self.useful_pool.pop()
+
+        # If there are still vanilla filler items to place, place those first.
+        if len(self.filler_pool) > 0:
+            return self.filler_pool.pop()
+
+        # Use the same weights for filler items used in the base randomizer.
+        filler_consumables = ["Yellow Rupee", "Red Rupee", "Purple Rupee", "Joy Pendant"]
+        filler_weights = [3, 7, 10, 3]
+        if not strict:
+            filler_consumables.append("Orange Rupee")
+            filler_weights.append(15)
         return self.multiworld.random.choices(filler_consumables, weights=filler_weights, k=1)[0]
 
-    def get_pre_fill_items(self):
+    def get_pre_fill_items(self) -> list[Item]:
+        """
+        Return items that need to be collected when creating a fresh `all_state` but don't exist in the multiworld's
+        item pool.
+
+        :return: A list of pre-fill items.
+        """
         res = []
         if self.dungeon_local_item_names:
             for dungeon in self.dungeons.values():
@@ -527,79 +556,21 @@ class TWWWorld(World):
                         res.append(item)
         return res
 
-    def fill_slot_data(self):
-        slot_data = {
-            "progression_dungeons": self.options.progression_dungeons.value,
-            "progression_tingle_chests": self.options.progression_tingle_chests.value,
-            "progression_dungeon_secrets": self.options.progression_dungeon_secrets.value,
-            "progression_puzzle_secret_caves": self.options.progression_puzzle_secret_caves.value,
-            "progression_combat_secret_caves": self.options.progression_combat_secret_caves.value,
-            "progression_savage_labyrinth": self.options.progression_savage_labyrinth.value,
-            "progression_great_fairies": self.options.progression_great_fairies.value,
-            "progression_short_sidequests": self.options.progression_short_sidequests.value,
-            "progression_long_sidequests": self.options.progression_long_sidequests.value,
-            "progression_spoils_trading": self.options.progression_spoils_trading.value,
-            "progression_minigames": self.options.progression_minigames.value,
-            "progression_battlesquid": self.options.progression_battlesquid.value,
-            "progression_free_gifts": self.options.progression_free_gifts.value,
-            "progression_mail": self.options.progression_mail.value,
-            "progression_platforms_rafts": self.options.progression_platforms_rafts.value,
-            "progression_submarines": self.options.progression_submarines.value,
-            "progression_eye_reef_chests": self.options.progression_eye_reef_chests.value,
-            "progression_big_octos_gunboats": self.options.progression_big_octos_gunboats.value,
-            "progression_triforce_charts": self.options.progression_triforce_charts.value,
-            "progression_treasure_charts": self.options.progression_treasure_charts.value,
-            "progression_expensive_purchases": self.options.progression_expensive_purchases.value,
-            "progression_island_puzzles": self.options.progression_island_puzzles.value,
-            "progression_misc": self.options.progression_misc.value,
-            "randomize_mapcompass": self.options.randomize_mapcompass.value,
-            "randomize_smallkeys": self.options.randomize_smallkeys.value,
-            "randomize_bigkeys": self.options.randomize_bigkeys.value,
-            "sword_mode": self.options.sword_mode.value,
-            "required_bosses": self.options.required_bosses.value,
-            "num_required_bosses": self.options.num_required_bosses.value,
-            "chest_type_matches_contents": self.options.chest_type_matches_contents.value,
-            "included_dungeons": self.options.included_dungeons.value,
-            "excluded_dungeons": self.options.excluded_dungeons.value,
-            # "trap_chests": self.options.trap_chests.value,
-            "hero_mode": self.options.hero_mode.value,
-            "logic_obscurity": self.options.logic_obscurity.value,
-            "logic_precision": self.options.logic_precision.value,
-            "enable_tuner_logic": self.options.enable_tuner_logic.value,
-            "randomize_dungeon_entrances": self.options.randomize_dungeon_entrances.value,
-            "randomize_secret_cave_entrances": self.options.randomize_secret_cave_entrances.value,
-            "randomize_miniboss_entrances": self.options.randomize_miniboss_entrances.value,
-            "randomize_boss_entrances": self.options.randomize_boss_entrances.value,
-            "randomize_secret_cave_inner_entrances": self.options.randomize_secret_cave_inner_entrances.value,
-            "randomize_fairy_fountain_entrances": self.options.randomize_fairy_fountain_entrances.value,
-            "mix_entrances": self.options.mix_entrances.value,
-            "randomize_enemies": self.options.randomize_enemies.value,
-            # "randomize_music": self.options.randomize_music.value,
-            "randomize_starting_island": self.options.randomize_starting_island.value,
-            "randomize_charts": self.options.randomize_charts.value,
-            # "hoho_hints": self.options.hoho_hints.value,
-            # "fishmen_hints": self.options.fishmen_hints.value,
-            # "korl_hints": self.options.korl_hints.value,
-            # "num_item_hints": self.options.num_item_hints.value,
-            # "num_location_hints": self.options.num_location_hints.value,
-            # "num_barren_hints": self.options.num_barren_hints.value,
-            # "num_path_hints": self.options.num_path_hints.value,
-            # "prioritize_remote_hints": self.options.prioritize_remote_hints.value,
-            "swift_sail": self.options.swift_sail.value,
-            "instant_text_boxes": self.options.instant_text_boxes.value,
-            "reveal_full_sea_chart": self.options.reveal_full_sea_chart.value,
-            "add_shortcut_warps_between_dungeons": self.options.add_shortcut_warps_between_dungeons.value,
-            # "skip_rematch_bosses": self.options.skip_rematch_bosses.value,
-            "remove_music": self.options.remove_music.value,
-            "death_link": self.options.death_link.value,
-        }
+    def fill_slot_data(self) -> Mapping[str, Any]:
+        """
+        Return the `slot_data` field that will be in the `Connected` network package.
 
-        # Add entrances to slot_data. This is the same data that is written to the .aptww file.
-        all_entrance_names = [en.entrance_name for en in ALL_ENTRANCES]
+        This is a way the generator can give custom data to the client.
+        The client will receive this as JSON in the `Connected` response.
+
+        :return: A dictionary to be sent to the client when it connects to the server.
+        """
+        slot_data = self.options.as_dict(*self.options_dataclass.type_hints)
+
+        # Add entrances to `slot_data`. This is the same data that is written to the .aptww file.
         entrances = {
-            entrance.parent_region.name: entrance.connected_region.name
-            for entrance in self.multiworld.get_entrances(self.player)
-            if entrance.parent_region.name in all_entrance_names
+            zone_entrance.entrance_name: zone_exit.unique_name
+            for zone_entrance, zone_exit in self.entrances.done_entrances_to_exits.items()
         }
         slot_data["entrances"] = entrances
 

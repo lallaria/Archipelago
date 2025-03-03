@@ -47,11 +47,13 @@ class Version(typing.NamedTuple):
         return ".".join(str(item) for item in self)
 
 
-__version__ = "0.5.1"
+__version__ = "0.7.8"
 version_tuple = tuplize_version(__version__)
 
-archipelago_name = "Archipelago"
-archipelago_guid = "{{918BA46A-FAB8-460C-9DFF-AE691E1C865B}}"
+archipelago_name = "TreZapalooza"
+archipelago_guid = "{{918BA46A-FAB8-460C-9DFF-AE691E1C865C}}"
+# archipelago_name = "Archipelago"
+# archipelago_guid = "{{918BA46A-FAB8-460C-9DFF-AE691E1C865B}}"
 
 is_linux = sys.platform.startswith("linux")
 is_macos = sys.platform == "darwin"

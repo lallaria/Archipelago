@@ -2,12 +2,12 @@ import copy
 import math
 from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
-from .data import (data, LEGENDARY_POKEMON, NUM_REAL_SPECIES, EncounterSpeciesData, EventData, LearnsetMove,
-                   SpeciesData, TrainerPokemonData)
-from .options import (GameVersion, HmCompatibility, RandomizeAbilities, RandomizeLegendaryPokemon, RandomizeMiscPokemon,
-                      RandomizeMoves, RandomizeStarters, RandomizeTrainerParties, RandomizeTypes, RandomizeWildPokemon,
-                      TmTutorCompatibility, WildPokemonGroups)
-from .util import bool_array_to_int, int_to_bool_array
+from .data import (data, LEGENDARY_POKEMON, NUM_REAL_SPECIES, NAME_TO_SPECIES_ID, EncounterSpeciesData, EventData,
+                   LearnsetMove, SpeciesData, TrainerPokemonData)
+from .options import (Dexsanity, GameVersion, HmCompatibility, RandomizeAbilities, RandomizeLegendaryPokemon,
+                      RandomizeMiscPokemon, RandomizeMoves, RandomizeStarters, RandomizeTrainerParties, RandomizeTypes,
+                      RandomizeWildPokemon, TmTutorCompatibility, WildPokemonGroups)
+from .util import bool_array_to_int, int_to_bool_array, HM_TO_COMPATIBILITY_ID
 
 if TYPE_CHECKING:
     from random import Random
@@ -37,11 +37,19 @@ _DAMAGING_MOVES = frozenset({
 })
 
 _HM_MOVES = frozenset({
-    15, 19, 57, 70, 127, 148, 249, 291
+    data.constants["MOVE_CUT"],
+    data.constants["MOVE_FLY"],
+    data.constants["MOVE_SURF"],
+    data.constants["MOVE_STRENGTH"],
+    data.constants["MOVE_FLASH"],
+    data.constants["MOVE_ROCK_SMASH"],
+    data.constants["MOVE_WATERFALL"],
+    data.constants["MOVE_DIVE"]
 })
 
 _MOVE_BLACKLIST = frozenset({
-    0, 165
+    data.constants["MOVE_NONE"],
+    data.constants["MOVE_STRUGGLE"]
 })
 
 _DUNGEON_GROUPS: Dict[str, str] = {
@@ -104,12 +112,6 @@ _DUNGEON_GROUPS: Dict[str, str] = {
     "MAP_CERULEAN_CAVE_B1F": "MAP_CERULEAN_CAVE"
 }
 
-STARTER_INDEX: Dict[str, int] = {
-    "STARTER_POKEMON_BULBASAUR": 0,
-    "STARTER_POKEMON_SQUIRTLE": 1,
-    "STARTER_POKEMON_CHARMANDER": 2,
-}
-
 # The tuple represnts (trainer name, starter index in party, starter evolution stage)
 _RIVAL_STARTER_POKEMON: List[Tuple[str, int, int]] = [
     [
@@ -157,14 +159,15 @@ def _get_random_type(random: "Random") -> int:
 
 
 def _get_random_move(random: "Random", blacklist: Set[int]) -> int:
-    extended_blacklist = _HM_MOVES | _MOVE_BLACKLIST | blacklist
-    allowed_moves = [i for i in range(data.constants["MOVES_COUNT"]) if i not in extended_blacklist]
+    merged_blacklist = _HM_MOVES | _MOVE_BLACKLIST | blacklist
+    allowed_moves = [i for i in range(data.constants["MOVES_COUNT"]) if i not in merged_blacklist]
     return random.choice(allowed_moves)
 
 
 def _get_random_damaging_move(random: "Random", blacklist: Set[int]) -> int:
-    allowed_moves = [i for i in list(_DAMAGING_MOVES) if i not in blacklist]
-    return random.choice(allowed_moves)
+    non_damage_blacklist = {i for i in range(data.constants["MOVES_COUNT"]) if i not in _DAMAGING_MOVES}
+    merged_blacklist = blacklist | non_damage_blacklist
+    return _get_random_move(random, merged_blacklist)
 
 
 def _filter_species_by_nearby_bst(species: List[SpeciesData], target_bst: int) -> List[SpeciesData]:
@@ -189,7 +192,7 @@ def _get_trainer_pokemon_moves(world: "PokemonFRLGWorld",
         world.per_species_tmhm_moves[species.species_id] = sorted({
             world.modified_tmhm_moves[i]
             for i, is_compatible in enumerate(int_to_bool_array(species.tm_hm_compatibility))
-            if is_compatible
+            if is_compatible and world.modified_tmhm_moves[i] not in world.blacklisted_moves
         })
 
     # TMs and HMs compatible with the species
@@ -209,17 +212,17 @@ def _get_trainer_pokemon_moves(world: "PokemonFRLGWorld",
         level_up_moves = world.random.sample(level_up_movepool, 4)
 
     if len(tm_hm_movepool) < 4:
-        tm_hm_moves = list(reversed(list(tm_hm_movepool[i]
-                                         if i < len(tm_hm_movepool) else 0 for i in range(4))))
+        tm_hm_moves = list(tm_hm_movepool[i]
+                           if i < len(tm_hm_movepool) else 0 for i in range(4))
     else:
         tm_hm_moves = world.random.sample(tm_hm_movepool, 4)
 
     # 25% chance to pick a move from TMs or HMs
     new_moves = (
         tm_hm_moves[0] if world.random.random() < 0.25 and tm_hm_moves[0] != 0 else level_up_moves[0],
-        tm_hm_moves[1] if world.random.random() < 0.25 and tm_hm_moves[0] != 0 else level_up_moves[1],
-        tm_hm_moves[2] if world.random.random() < 0.25 and tm_hm_moves[0] != 0 else level_up_moves[2],
-        tm_hm_moves[3] if world.random.random() < 0.25 and tm_hm_moves[0] != 0 else level_up_moves[3]
+        tm_hm_moves[1] if world.random.random() < 0.25 and tm_hm_moves[1] != 0 else level_up_moves[1],
+        tm_hm_moves[2] if world.random.random() < 0.25 and tm_hm_moves[2] != 0 else level_up_moves[2],
+        tm_hm_moves[3] if world.random.random() < 0.25 and tm_hm_moves[3] != 0 else level_up_moves[3]
     )
 
     return new_moves
@@ -275,10 +278,10 @@ def randomize_abilities(world: "PokemonFRLGWorld") -> None:
         return
 
     allowed_abilities = list(range(data.constants["ABILITIES_COUNT"]))
-    allowed_abilities.remove(data.constants["ABILITY_NONE"])
-    allowed_abilities.remove(data.constants["ABILITY_CACOPHONY"])
-    for ability_id in world.blacklisted_abilities:
-        allowed_abilities.remove(ability_id)
+    world.blacklisted_abilities.add(data.constants["ABILITY_NONE"])
+    world.blacklisted_abilities.add(data.constants["ABILITY_CACOPHONY"])
+    allowed_abilities = [ability for ability in allowed_abilities
+                         if ability not in world.blacklisted_abilities]
 
     if world.options.abilities == RandomizeAbilities.option_follow_evolutions:
         already_randomized = set()
@@ -360,11 +363,12 @@ def randomize_wild_encounters(world: "PokemonFRLGWorld") -> None:
 
     from collections import defaultdict
 
-    min_pokemon_needed = math.ceil(max(world.options.oaks_aide_route_2.value,
-                                       world.options.oaks_aide_route_10.value,
-                                       world.options.oaks_aide_route_11.value,
-                                       world.options.oaks_aide_route_16.value,
-                                       world.options.oaks_aide_route_15.value) * 1.2)
+    aide_pokemon_needed = math.ceil(max(world.options.oaks_aide_route_2.value,
+                                        world.options.oaks_aide_route_10.value,
+                                        world.options.oaks_aide_route_11.value,
+                                        world.options.oaks_aide_route_16.value,
+                                        world.options.oaks_aide_route_15.value))
+    dexsanity_pokemon_needed = world.options.dexsanity.value
     should_match_bst = world.options.wild_pokemon in {
         RandomizeWildPokemon.option_match_base_stats,
         RandomizeWildPokemon.option_match_base_stats_and_type
@@ -385,13 +389,18 @@ def randomize_wild_encounters(world: "PokemonFRLGWorld") -> None:
     route_21_randomized = False
 
     placed_species = set()
-    priority_species = list()
+    priority_species = set()
     if world.options.pokemon_request_locations:
-        priority_species.append(data.constants["SPECIES_MAGIKARP"])
+        priority_species.add(data.constants["SPECIES_MAGIKARP"])
         if not world.options.kanto_only:
-            priority_species.append(data.constants["SPECIES_HERACROSS"])
+            priority_species.add(data.constants["SPECIES_HERACROSS"])
             if world.options.famesanity:
-                priority_species.extend([data.constants["SPECIES_TOGEPI"], data.constants["SPECIES_TOGETIC"]])
+                priority_species.update([data.constants["SPECIES_TOGEPI"], data.constants["SPECIES_TOGETIC"]])
+    if world.options.dexsanity != Dexsanity.special_range_names["none"]:
+        dexsanity_priority_locations = [loc for loc in world.options.priority_locations.value
+                                        if loc.startswith("Pokedex -")]
+        for location in dexsanity_priority_locations:
+            priority_species.add(NAME_TO_SPECIES_ID[location.split("-")[1].strip()])
 
     map_names = list(world.modified_maps.keys())
     world.random.shuffle(map_names)
@@ -403,9 +412,7 @@ def randomize_wild_encounters(world: "PokemonFRLGWorld") -> None:
             continue
 
         new_encounter_slots: List[List[int]] = [None, None, None]
-        old_encounters = [map_data.land_encounters,
-                          map_data.water_encounters,
-                          map_data.fishing_encounters]
+        old_encounters = [map_data.land_encounters, map_data.water_encounters, map_data.fishing_encounters]
 
         # Check if the current map is a Route 21 map and the other one has already been randomized.
         # If so, set the encounters of the current map based on the other Route 21 map.
@@ -447,69 +454,80 @@ def randomize_wild_encounters(world: "PokemonFRLGWorld") -> None:
                               species_id in dungeon_species_map[_DUNGEON_GROUPS[map_name]]):
                             new_species_id = dungeon_species_map[_DUNGEON_GROUPS[map_name]][species_id]
                         else:
-                            if not placed_priority_species and len(priority_species) > 0:
-                                new_species_id = priority_species.pop()
-                                placed_priority_species = True
-                            else:
-                                # Construct progressive tiers of blacklists that can be peeled back if they
-                                # collectively cover too much of the Pokédex. A lower index in `blacklists`
-                                # indicates a more important set of species to avoid. Entries at `0` will
-                                # always be blacklisted.
-                                blacklists: Dict[int, List[Set[int]]] = defaultdict(list)
+                            # Construct progressive tiers of blacklists that can be peeled back if they
+                            # collectively cover too much of the Pokédex. A lower index in `blacklists`
+                            # indicates a more important set of species to avoid. Entries at `0` will
+                            # always be blacklisted.
+                            blacklists: Dict[int, List[Set[int]]] = defaultdict(list)
 
-                                # Blacklist Pokémon already on this table
-                                blacklists[0].append(set(species_old_to_new_map.values()))
+                            # Blacklist Pokémon already on this table
+                            blacklists[0].append(set(species_old_to_new_map.values()))
 
-                                # If we are randomizing by groups, blacklist any species that is
-                                # already a part of this group
-                                if world.options.wild_pokemon_groups == WildPokemonGroups.option_species:
-                                    blacklists[0].append(set(species_map.values()))
-                                elif (world.options.wild_pokemon_groups == WildPokemonGroups.option_dungeons and
-                                      map_name in _DUNGEON_GROUPS):
-                                    blacklists[0].append(set(dungeon_species_map[_DUNGEON_GROUPS[map_name]].values()))
+                            # If we are randomizing by groups, blacklist any species that is
+                            # already a part of this group
+                            if world.options.wild_pokemon_groups == WildPokemonGroups.option_species:
+                                blacklists[0].append(set(species_map.values()))
+                            elif (world.options.wild_pokemon_groups == WildPokemonGroups.option_dungeons and
+                                  map_name in _DUNGEON_GROUPS):
+                                blacklists[0].append(set(dungeon_species_map[_DUNGEON_GROUPS[map_name]].values()))
 
-                                # If we haven't placed enough species for Oak's Aides yet, blacklist
-                                # species that have already been placed until we reach that number
-                                if len(placed_species) < min_pokemon_needed:
-                                    blacklists[1].append(placed_species)
+                            # If we haven't placed enough species for Oak's Aides yet, blacklist
+                            # species that have already been placed until we reach that number
+                            if len(placed_species) < aide_pokemon_needed:
+                                blacklists[1].append(placed_species)
 
-                                # Blacklist from player's options
-                                blacklists[2].append(world.blacklisted_wild_pokemon)
+                            # Blacklist from player's options
+                            blacklists[2].append(world.blacklisted_wild_pokemon)
 
-                                # Type matching blacklist
-                                if should_match_type:
-                                    blacklists[3].append({
-                                        species.species_id
-                                        for species in world.modified_species.values()
-                                        if not bool(set(species.types) & set(original_species.types))
-                                    })
+                            # Type matching blacklist
+                            if should_match_type:
+                                blacklists[3].append({
+                                    species.species_id
+                                    for species in world.modified_species.values()
+                                    if not bool(set(species.types) & set(original_species.types))
+                                })
 
-                                merged_blacklist: Set[int] = set()
-                                for max_priority in reversed(sorted(blacklists.keys())):
-                                    merged_blacklist = set()
-                                    for priority in blacklists.keys():
-                                        if priority <= max_priority:
-                                            for blacklist in blacklists[priority]:
-                                                merged_blacklist |= blacklist
+                            # If we haven't placed enough species for dexsanity yet, blacklist species
+                            # that have already been places until we reach that number
+                            if len(placed_species) < dexsanity_pokemon_needed:
+                                blacklists[4].append(placed_species)
 
-                                    if len(merged_blacklist) < NUM_REAL_SPECIES:
+                            merged_blacklist: Set[int] = set()
+                            for max_priority in reversed(sorted(blacklists.keys())):
+                                merged_blacklist = set()
+                                for priority in blacklists.keys():
+                                    if priority <= max_priority:
+                                        for blacklist in blacklists[priority]:
+                                            merged_blacklist |= blacklist
+
+                                if len(merged_blacklist) < NUM_REAL_SPECIES:
+                                    break
+
+                            candidates = [
+                                species for species in world.modified_species.values() if
+                                species.species_id not in merged_blacklist
+                            ]
+
+                            if should_match_bst:
+                                candidates = _filter_species_by_nearby_bst(candidates,
+                                                                           sum(original_species.base_stats))
+
+                            new_species_id = world.random.choice(candidates).species_id
+
+                            if not placed_priority_species:
+                                for priority_species_id in priority_species:
+                                    if priority_species_id in [species.species_id for species in candidates]:
+                                        new_species_id = priority_species_id
+                                        priority_species.remove(priority_species_id)
+                                        placed_priority_species = True
                                         break
-
-                                candidates = [
-                                    species for species in world.modified_species.values() if
-                                    species.species_id not in merged_blacklist
-                                ]
-
-                                if should_match_bst:
-                                    candidates = _filter_species_by_nearby_bst(candidates, sum(original_species.base_stats))
-
-                                new_species_id = world.random.choice(candidates).species_id
 
                             if world.options.wild_pokemon_groups == WildPokemonGroups.option_species:
                                 species_map[original_species.species_id] = new_species_id
                             elif (world.options.wild_pokemon_groups == WildPokemonGroups.option_dungeons and
                                   map_name in _DUNGEON_GROUPS):
-                                dungeon_species_map[_DUNGEON_GROUPS[map_name]][original_species.species_id] = new_species_id
+                                dungeon_species_map[_DUNGEON_GROUPS[map_name]][original_species.species_id] = \
+                                    new_species_id
 
                         species_old_to_new_map[species_id] = new_species_id
                         placed_species.add(new_species_id)
@@ -531,6 +549,25 @@ def randomize_wild_encounters(world: "PokemonFRLGWorld") -> None:
             map_data.water_encounters.slots[game_version] = new_encounter_slots[1]
         if map_data.fishing_encounters is not None:
             map_data.fishing_encounters.slots[game_version] = new_encounter_slots[2]
+
+    # If we failed to place Magikarp, Heracross, and/or Togepi put them in their vanilla spots
+    if data.constants["SPECIES_MAGIKARP"] in priority_species:
+        map_data = world.modified_maps["MAP_PALLET_TOWN"]
+        slots = map_data.fishing_encounters.slots[game_version]
+        for i in [0, 1, 3]:
+            slots[i].species_id = data.constants["SPECIES_MAGIKARP"]
+
+    if data.constants["SPECIES_HERACROSS"] in priority_species:
+        map_data = world.modified_maps["MAP_SIX_ISLAND_PATTERN_BUSH"]
+        slots = map_data.land_encounters.slots[game_version]
+        for i in [5, 7, 9, 11]:
+            slots[i].species_id = data.constants["SPECIES_HERACROSS"]
+
+    if data.constants["SPECIES_TOGEPI"] in priority_species:
+        map_data = world.modified_maps["MAP_FIVE_ISLAND_MEMORIAL_PILLAR"]
+        slots = map_data.land_encounters.slots[game_version]
+        for slot in slots:
+            slot.species_id = data.constants["SPECIES_TOGEPI"]
 
 
 def randomize_starters(world: "PokemonFRLGWorld") -> None:
@@ -716,7 +753,7 @@ def randomize_misc_pokemon(world: "PokemonFRLGWorld") -> None:
         elif item_name[0] == "Missable":
             item = f"Missable {species.name}"
         else:
-            item = item_name[0]
+            item = species.name
 
         new_event = EventData(
             world.modified_events[name].id,
@@ -790,6 +827,14 @@ def randomize_tm_hm_compatibility(world: "PokemonFRLGWorld") -> None:
                 compatibility_array[i] = world.random.random() < world.options.hm_compatibility / 100
 
         species.tm_hm_compatibility = bool_array_to_int(compatibility_array)
+
+
+def add_hm_compatability(world: "PokemonFRLGWorld", pokemon: str, hm: str):
+    species_id = NAME_TO_SPECIES_ID[pokemon]
+    species = world.modified_species[species_id]
+    compatibility_array = int_to_bool_array(species.tm_hm_compatibility)
+    compatibility_array[HM_TO_COMPATIBILITY_ID[hm]] = True
+    species.tm_hm_compatibility = bool_array_to_int(compatibility_array)
 
 
 def randomize_tm_moves(world: "PokemonFRLGWorld") -> None:

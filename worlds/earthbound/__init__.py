@@ -8,12 +8,11 @@ from typing import List, Set, Dict, TextIO
 from BaseClasses import Item, MultiWorld, Location, Tutorial, ItemClassification
 from Fill import fill_restrictive
 from worlds.AutoWorld import World, WebWorld
-from Options import OptionGroup
 import settings
 from .Items import get_item_names_per_category, item_table
 from .Locations import get_locations
 from .Regions import init_areas
-from .Options import EBOptions, eb_option_groups
+from .Options import EBOptions, eb_option_groups, StartingCharacter
 from .setup_game import setup_gamevars, place_static_items
 from .modules.enemy_data import initialize_enemies
 from .modules.flavor_data import create_flavors
@@ -22,7 +21,7 @@ from .modules.hint_data import setup_hints
 from .game_data.text_data import spoiler_psi, spoiler_starts, spoiler_badges
 from .Client import EarthBoundClient
 from .Rules import set_location_rules
-from .Rom import LocalRom, patch_rom, get_base_rom_path, EBProcPatch, valid_hashes
+from .Rom import patch_rom, get_base_rom_path, EBProcPatch, valid_hashes
 from .game_data.static_location_data import location_ids, location_groups
 from .modules.equipamizer import EBArmor, EBWeapon
 from worlds.generic.Rules import add_item_rule, forbid_items_for_player
@@ -88,20 +87,40 @@ class EarthBoundWorld(World):
         self.locked_locations = []
         self.location_cache = []
         self.event_count = 8
+        self.progressive_filler_bats = 0
+        self.progressive_filler_pans = 0
+        self.progressive_filler_guns = 0
+        self.progressive_filler_bracelets = 0
+        self.progressive_filler_other = 0
         self.world_version = world_version
         self.removed_teleports = []
         self.armor_list: Dict[str, EBArmor]
         self.weapon_list: Dict[str, EBWeapon]
 
     def generate_early(self):  # Todo: place locked items in generate_early
+        self.starting_character = self.options.starting_character.current_key.capitalize()
         self.locals = []
         local_space_count = 0
+        max_counts = {
+            "Ness": 12,
+            "Paula": 11,
+            "Jeff": 9,
+            "Poo": 99
+        }
+        max_count = max_counts[self.starting_character]
         for item_name, amount in self.options.start_inventory.items():
             if item_name in item_id_table:
                 local_space_count += amount
-                if local_space_count > 12 and not self.options.remote_items:
+                if local_space_count > max_count and not self.options.remote_items:
                     player = self.multiworld.get_player_name(self.player)
-                    raise OptionError(f"{player}: start_inventory cannot place more than 12 items into 'Goods'. Attempted to place {local_space_count} Goods items.")
+                    raise OptionError(f"{player}: starting inventory cannot place more than {max_count} items into 'Goods' for {self.starting_character}. Attempted to place {local_space_count} Goods items.")
+
+        for item_name, amount in self.options.start_inventory_from_pool.items():
+            if item_name in item_id_table:
+                local_space_count += amount
+                if local_space_count > max_count and not self.options.remote_items:
+                    player = self.multiworld.get_player_name(self.player)
+                    raise OptionError(f"{player}: starting inventory cannot place more than {max_count} items into 'Goods' for {self.starting_character}. Attempted to place {local_space_count} Goods items.")
         setup_gamevars(self)
         create_flavors(self)
         initialize_enemies(self)
@@ -200,10 +219,12 @@ class EarthBoundWorld(World):
                 add_item_rule(self.multiworld.get_location("Magicant - Ness's Nightmare", self.player), lambda item: (item.name in self.item_name_groups["PSI"] and item.name != "Magicant Teleport"))
 
         if self.options.character_shuffle == 0:
+            main_characters = ["Ness", "Paula", "Jeff", "Poo"]
+            for character in main_characters:
+                if character != self.starting_character:
+                    prefill_items.append(self.create_item(character))
+
             prefill_items.extend([
-                self.create_item("Paula"),
-                self.create_item("Jeff"),
-                self.create_item("Poo"),
                 self.create_item("Flying Man"),
                 self.create_item("Teddy Bear"),
                 self.create_item("Super Plush Bear")
@@ -226,8 +247,9 @@ class EarthBoundWorld(World):
             add_item_rule(self.multiworld.get_location("Deep Darkness - Barf Character", self.player), lambda item: item.name in self.item_name_groups["Characters"])
 
             if (self.start_location == 9 and self.starting_teleport == "Winters Teleport") or (self.start_location == 7 and self.starting_teleport == "Dalaam Teleport"):
-                forced_poo = self.random.choice(["Dalaam - Throne Character", "Snow Wood - Bedroom"])
-                add_item_rule(self.multiworld.get_location(forced_poo, self.player), lambda item: item.name == "Poo")
+                if self.starting_character != "Poo":
+                    forced_poo = self.random.choice(["Dalaam - Throne Character", "Snow Wood - Bedroom"])
+                    add_item_rule(self.multiworld.get_location(forced_poo, self.player), lambda item: item.name == "Poo")
                 forbid_items_for_player(self.multiworld.get_location("Dalaam - Trial of Mu", self.player), {"Winters Teleport"}, self.player)
                 forbid_items_for_player(self.multiworld.get_location("Dalaam - Trial of Mu", self.player), {"Progressive Poo PSI"}, self.player)
 
@@ -236,9 +258,9 @@ class EarthBoundWorld(World):
 
     def generate_output(self, output_directory: str):
         try:
-            patch = EBProcPatch()
+            patch = EBProcPatch(player=self.player, player_name=self.multiworld.player_name[self.player])
             patch.write_file("earthbound_basepatch.bsdiff4", pkgutil.get_data(__name__, "earthbound_basepatch.bsdiff4"))
-            patch_rom(self, patch, self.player, self.multiworld)
+            patch_rom(self, patch, self.player)
 
             self.rom_name = patch.name
 
@@ -252,7 +274,11 @@ class EarthBoundWorld(World):
     def fill_slot_data(self) -> Dict[str, List[int]]:
         return {
             "starting_area": self.start_location,
-            "pizza_logic": self.options.monkey_caves_mode.value
+            "pizza_logic": self.options.monkey_caves_mode.value,
+            "free_sancs": self.options.no_free_sanctuaries.value,
+            "shopsanity": self.options.shop_randomizer.value,
+           # "starting_character": self.starting_character,
+          #  "items_remote": self.options.remote_items.value
         }
 
     def modify_multidata(self, multidata: dict):
@@ -268,6 +294,7 @@ class EarthBoundWorld(World):
         spoiler_handle.write(f"\nStarting Location:    {spoiler_starts[self.start_location]}\n")
         spoiler_handle.write(f"Franklin Badge Protection:    {spoiler_badges[self.franklin_protection]}\n")
         if self.options.psi_shuffle:
+            spoiler_handle.write("\nPSI Shuffle:\n")
             spoiler_handle.write(f"Favorite Thing PSI Slot:    {spoiler_psi[self.offensive_psi_slots[0]]}\n")
             spoiler_handle.write(f"Ness Offensive PSI Middle Slot:    {spoiler_psi[self.offensive_psi_slots[1]]}\n")
             spoiler_handle.write(f"Paula Offensive PSI Top Slot:    {spoiler_psi[self.offensive_psi_slots[2]]}\n")
@@ -347,6 +374,8 @@ class EarthBoundWorld(World):
 
     def get_excluded_items(self) -> Set[str]:
         excluded_items: Set[str] = set()
+        excluded_items.add(self.starting_character)
+
         if self.options.shuffle_teleports == 0:
             excluded_items.add("Onett Teleport")
             excluded_items.add("Twoson Teleport")
@@ -368,6 +397,7 @@ class EarthBoundWorld(World):
             excluded_items.add("Magicant Teleport")
 
         if self.options.character_shuffle == 0:
+            excluded_items.add("Ness")
             excluded_items.add("Paula")
             excluded_items.add("Jeff")
             excluded_items.add("Poo")
@@ -391,6 +421,10 @@ class EarthBoundWorld(World):
             excluded_items.add("Souvenir Coin")
             excluded_items.add("Mr. Saturn Coin")
 
+        if not self.options.no_free_sanctuaries:
+            excluded_items.add("Tiny Key")
+            excluded_items.add("Tenda Lavapants")
+
         return excluded_items
 
     def set_classifications(self, name: str) -> Item:
@@ -402,8 +436,32 @@ class EarthBoundWorld(World):
         return item
 
     def generate_filler(self, pool: List[Item]) -> None:
+        item_to_counts = {
+            "Progressive Bat": self.progressive_filler_bats,
+            "Progressive Fry Pan": self.progressive_filler_pans,
+            "Progressive Gun": self.progressive_filler_guns,
+            "Progressive Bracelet": self.progressive_filler_bracelets,
+            "Progressive Other": self.progressive_filler_other
+        }
+
+        max_filler_counts = {
+            "Progressive Bat": 8,
+            "Progressive Fry Pan": 9,
+            "Progressive Gun": 6,
+            "Progressive Bracelet": 6,
+            "Progressive Other": 10
+        }
+
         for _ in range(len(self.multiworld.get_unfilled_locations(self.player)) - len(pool) - self.event_count):  # Change to fix event count
             item = self.set_classifications(self.get_filler_item_name())
+            if item.name in ["Progressive Bat", "Progressive Fry Pan", "Progressive Other",
+                             "Progressive Gun", "Progressive Bracelet"]:
+                item_to_counts[item.name] += 1
+
+                if item_to_counts[item.name] >= max_filler_counts[item.name]:
+                    self.common_gear = [x for x in self.common_gear if x != item.name]
+                    self.uncommon_gear = [x for x in self.common_gear if x != item.name]
+                    self.rare_gear = [x for x in self.common_gear if x != item.name]
             pool.append(item)
 
     def get_item_pool(self, excluded_items: Set[str]) -> List[Item]:

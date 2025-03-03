@@ -334,7 +334,7 @@ class CorSkipToggle(Toggle):
     display_name = "CoR Skip Toggle"
     default = False
 
-class CustomKeybladePool(OptionDict):
+class CustomKeybladePool(ItemDict):
     """Abilities that are allowed to go onto Keyblades. 
     
     Note: Values will not change ability pool values.

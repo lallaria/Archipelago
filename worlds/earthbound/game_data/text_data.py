@@ -43,7 +43,9 @@ barf_text = {
     "Paula": [0xE0, 0xC2, 0xEE, 0xBD, 0xC3, 0xEE],
     "Jeff": [0xFA, 0xC2, 0xEE, 0x10, 0xC4, 0xEE],
     "Poo": [0x1A, 0x74, 0xEF, 0x3E, 0xC4, 0xEE],
-    "Flying Man": [0x17, 0xC3, 0xEE, 0x95, 0xC4, 0xEE]
+    "Flying Man": [0x17, 0xC3, 0xEE, 0x95, 0xC4, 0xEE],
+    "Ness": [0x16, 0x07, 0xF3, 0x2B, 0x07, 0xF3],
+    "Photograph": [0x2F, 0x99, 0xC9, 0x2F, 0x99, 0xC9]
 }
 
 eb_text_table = {" ": ([0x50]), "!": ([0x51]), '"': ([0x52]), "■": ([0x53]), "$": ([0x54]), "%": ([0x55]),
@@ -62,26 +64,27 @@ eb_text_table = {" ": ([0x50]), "!": ([0x51]), '"': ([0x52]), "■": ([0x53]), "
                  "o": ([0x9F]), "p": ([0xA0]), "q": ([0xA1]), "r": ([0xA2]), "s": ([0xA3]), "t": ([0xA4]),
                  "u": ([0xA5]), "v": ([0xA6]), "w": ([0xA7]), "x": ([0xA8]), "y": ([0xA9]), "z": ([0xAA]),
                  "[": ([0xAB]), "♪": ([0xAC]), "]": ([0xAD]), "~": ([0xAE]), "◯": ([0xAF]), "_": ([0xB0]),
-                 "<": ([0xB1]), " ": ([0x90]), "&": ([0xB6]), "#": ([0xB7]), "\n": ([0x03, 0x00])}
+                 "<": ([0xB1]), " ": ([0x90]), "&": ([0xB6]), "#": ([0xB7]), "\n": ([0x03, 0x00]), "ñ": ([0xB9]),
+                 "ä": ([0xBA])}
 # 0x90 is a half-width space
 
 pixel_width_table = {" ": 2, "!": 2, '"': 3, "■": 2, "$": 5, "%": 9,
-                 "°": 7, "'": 2, "(": 3, ")": 3, "*": 3, "+": 5,
-                 ",": 2, "-": 2, ".": 2, "/": 4, "0": 5, "1": 5,
-                 "2": 5, "3": 5, "4": 5, "5": 5, "6": 5, "7": 5,
-                 "8": 5, "9": 5, ":": 2, ";": 3, "“": 3, "=": 5,
-                 "”": 3, "?": 4, "@": 5, "A": 6, "B": 5, "C": 5,
-                 "D": 5, "E": 4, "F": 4, "G": 5, "H": 5, "I": 1,
-                 "J": 4, "K": 5, "L": 4, "M": 7, "N": 5, "O": 5,
-                 "P": 5, "Q": 5, "R": 5, "S": 5, "T": 5, "U": 5,
-                 "V": 6, "W": 7, "X": 5, "Y": 5, "Z": 4, "α": 5,
-                 "β": 4, "γ": 6, "Σ": 4, "Ω": 5, "a": 4, "b": 4,
-                 "c": 4, "d": 4, "e": 4, "f": 3, "g": 4, "h": 4,
-                 "i": 1, "j": 2, "k": 4, "l": 1, "m": 7, "n": 4,
-                 "o": 4, "p": 4, "q": 4, "r": 3, "s": 4, "t": 3,
-                 "u": 4, "v": 5, "w": 7, "x": 4, "y": 4, "z": 4,
-                 "[": 2, "♪": 5, "]": 2, "~": 6, "◯": 7, "_": 5,
-                 "<": 4, " ": 1, "&": 6, "#": 6}
+                     "°": 7, "'": 2, "(": 3, ")": 3, "*": 3, "+": 5,
+                     ",": 2, "-": 2, ".": 2, "/": 4, "0": 5, "1": 5,
+                     "2": 5, "3": 5, "4": 5, "5": 5, "6": 5, "7": 5,
+                     "8": 5, "9": 5, ":": 2, ";": 3, "“": 3, "=": 5,
+                     "”": 3, "?": 4, "@": 5, "A": 6, "B": 5, "C": 5,
+                     "D": 5, "E": 4, "F": 4, "G": 5, "H": 5, "I": 1,
+                     "J": 4, "K": 5, "L": 4, "M": 7, "N": 5, "O": 5,
+                     "P": 5, "Q": 5, "R": 5, "S": 5, "T": 5, "U": 5,
+                     "V": 6, "W": 7, "X": 5, "Y": 5, "Z": 4, "α": 5,
+                     "β": 4, "γ": 6, "Σ": 4, "Ω": 5, "a": 4, "b": 4,
+                     "c": 4, "d": 4, "e": 4, "f": 3, "g": 4, "h": 4,
+                     "i": 1, "j": 2, "k": 4, "l": 1, "m": 7, "n": 4,
+                     "o": 4, "p": 4, "q": 4, "r": 3, "s": 4, "t": 3,
+                     "u": 4, "v": 5, "w": 7, "x": 4, "y": 4, "z": 4,
+                     "[": 2, "♪": 5, "]": 2, "~": 6, "◯": 7, "_": 5,
+                     "<": 4, " ": 1, "&": 6, "#": 6, "ñ": 6, "ä": 5}
 
 
 lumine_hall_text = [
@@ -151,8 +154,8 @@ lumine_hall_text = [
     "Sorry Ness, Pokey died of ligma",
     "A horrible chill goes down your spine...",
     "You feel an evil presence watching you...",
-    "Going to Burger King, BRB.",
-    "My favorite Rapidash... It... cute... lovely... smart... plus... amazing... you think so? Hug it... when... sleeping... warm and cuddly... spectacular... ravishing... Oops! Look at the time! I kept you too long!",
+    "Going to BK, BRB.",
+    "My favorite Mr. Saturn... It... cute... lovely... smart... plus... amazing... you think so? Hug it... when... sleeping... warm and cuddly... spectacular... ravishing... Oops! Look at the time! I kept you too long!",
     "THE CLUMSY ROBOT IN NAME ONLY, FOR IT IS NEITHER.",
     "The Arcana is the means by which all is revealed.",
     "Say the password!                                                                                                                                                                                  ",
@@ -196,8 +199,16 @@ lumine_hall_text = [
     "gottem",
     "Dear Ness,      please come to the house. I've baked a steak for you.       Yours truly,       mom.",
     "Phar why",
-    "Tell Figment to check POD!"
-
+    "Tell Figment to check POD!",
+    "Congratulations, you're the Lumine Hall's 100th visitor! Click here for $2 off your next order at the Onett Burger Shop!",
+    "Well, that's never happened before...",
+    "99 bottles of DXWater on the wall, 99 bottles of DXWater. Take one down, pass it around, 98 bottles of DXWater on the wall!",
+    "After all these years. Finally, I have them all.",
+    "If there were two guys on the moon and one killed the other with a rock would that be screwed up or what",
+    "Help, I'm trapped in a Lumine Hall factory!",
+    "They say that Ice Palace can be found at Ice Palace...",
+    "Hey Mom, I'm in AP!",
+    "As you are reading this, Pink Switch has maybe updated the APWorld once again.  ...Don't update until your run is done, okay?"
 ]
 
 spoiler_psi = {
@@ -252,7 +263,7 @@ spoiler_badges = {
 }
 
 
-def text_encoder(text, eb_text_table, textcap):
+def text_encoder(text, textcap):
     encoded_text = bytearray()
     for char in text[:textcap]:
         if char in eb_text_table:
@@ -265,7 +276,10 @@ def text_encoder(text, eb_text_table, textcap):
 def calc_pixel_width(text):
     width = 0
     for char in text:
-        width += pixel_width_table[char]
+        if char in pixel_width_table:
+            width += pixel_width_table[char]
+        else:
+            width += 4
         width += 1
     width -= 1
     return width

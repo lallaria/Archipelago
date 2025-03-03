@@ -2,34 +2,44 @@ from __future__ import annotations
 
 import base64
 import hashlib
+from bisect import bisect
+from collections import defaultdict
 from io import BytesIO, StringIO
+from math import floor
 
 import settings
 from Options import PerGameCommonOptions
 from worlds.AutoWorld import WebWorld, World
 import os
 
-from typing import List, TextIO, BinaryIO, ClassVar, Type, cast, Optional, Sequence, Tuple, Any, Mapping, TYPE_CHECKING
+from typing import List, TextIO, BinaryIO, ClassVar, Type, cast, Optional, Sequence, Tuple, Any, Mapping, TYPE_CHECKING, \
+    Dict
 from .Option_groups import gstla_option_groups
 from .Option_presets import gstla_options_presets
 from .Options import GSTLAOptions
 from BaseClasses import Item, ItemClassification, Tutorial
 from .Items import GSTLAItem, item_table, all_items, ItemType, create_events, create_items, create_item, \
     AP_PLACEHOLDER_ITEM, items_by_id, get_filler_item, AP_PROG_PLACEHOLDER_ITEM, create_filler_pool_weights, \
-    create_trap_pool_weights, AP_USEFUL_PLACEHOLDER_ITEM
+    create_trap_pool_weights, AP_USEFUL_PLACEHOLDER_ITEM, create_item_direct
 from .Locations import GSTLALocation, all_locations, location_name_to_id, location_type_to_data
 from .Rules import set_access_rules, set_item_rules, set_entrance_rules
 from .Regions import create_regions
 from .Connections import create_connections
+from .gen.ItemData import mimics, characters
 from .gen.LocationData import LocationType, location_name_to_data
-from .gen.ItemNames import ItemName, item_id_by_name
+from .gen.ItemNames import ItemName, item_id_by_name, name_by_item_id
 from .gen.LocationNames import LocationName, ids_by_loc_name, loc_names_by_id
 from .Names.RegionName import RegionName
+from .LocationGroups import goldensuntla_location_groups
 from .Rom import GSTLAPatchExtension, GSTLADeltaPatch, CHECKSUM_GSTLA
 from .BizClient import GSTLAClient
 
 
 import logging
+
+from ..Files import APTokenTypes
+
+logger = logging.getLogger()
 
 class GSTLAWeb(WebWorld):
     theme = "jungle"
@@ -113,10 +123,16 @@ class GSTLAWorld(World):
         "Burst": {ItemName.Burst_Brooch.value},
         "Grind": {ItemName.Grindstone.value},
         "Teleport": {ItemName.Teleport_Lapis.value},
+        "Hover": {ItemName.Hover_Jade.value},
         "Shamans Rod": {ItemName.Shamans_Rod.value},
         "Sea Gods Tear": {ItemName.Sea_Gods_Tear.value},
         "Lil Turtle": {ItemName.Lil_Turtle.value}
     }
+    location_name_groups = goldensuntla_location_groups
+
+    def __init__(self, multiworld: "MultiWorld", player: int):
+        super().__init__(multiworld, player)
+        self._character_levels: List[Tuple[int, int]] = []
 
     def generate_early(self) -> None:
         if self.options.shuffle_characters < 2:
@@ -126,13 +142,13 @@ class GSTLAWorld(World):
             self.multiworld.push_precollected(create_item(ItemName.Ship, self.player))
         if self.options.start_with_wings_of_anemos == 1:
             self.multiworld.push_precollected(create_item(ItemName.Wings_of_Anemos, self.player))
-        if self.options.start_with_reveal == 1:
-            self.multiworld.push_precollected(create_item(ItemName.Reveal, self.player))
 
         #When we add more traps and none are enabled we should force trap_chance to off
         if self.options.mimic_trap_weight == 0:
             self.options.trap_chance.value = 0
 
+        if self.options.max_scaled_level < self.options.starting_levels:
+            self.options.max_scaled_level = self.options.starting_levels
 
         #ensure that if all are set to 0 we force them all to 1, otherwise we can not create filler and clearly they wanted all to be the same weight.
         combined_weight = self.options.forge_material_filler_weight + self.options.rusty_material_filler_weight + self.options.stat_boost_filler_weight
@@ -204,6 +220,8 @@ class GSTLAWorld(World):
         return ret
 
     def generate_output(self, output_directory: str):
+        if self.options.scale_mimics or self.options.scale_characters:
+            self._handle_spheres()
         ap_settings = BytesIO()
         ap_settings_debug = StringIO()
         self._generate_rando_data(ap_settings, ap_settings_debug)
@@ -212,7 +230,76 @@ class GSTLAWorld(World):
                                 player_name=self.player_name,
                                 path=os.path.join(output_directory, self.multiworld.get_out_file_name_base(self.player)+GSTLADeltaPatch.patch_file_ending))
         patch.add_settings(ap_settings.getvalue(), ap_settings_debug.getvalue().encode("utf-8"))
+        if self.options.auto_run:
+            patch.write_token(APTokenTypes.XOR_8, 0x26361, 0x01)
+            patch.write_token(APTokenTypes.XOR_8, 0x270A5, 0x01)
+            patch.write_token(APTokenTypes.XOR_8, 0x279DD, 0x01)
+            patch.write_token(APTokenTypes.XOR_8, 0x1007900, 0x01)
+        patch.write_file("token_data.bin", patch.get_token_binary())
         patch.write()
+
+    def _handle_spheres(self):
+        mimic_map: defaultdict[int, List[GSTLALocation]]  = defaultdict(lambda: [])
+        character_map: defaultdict[int, List[GSTLAItem]] = defaultdict(lambda: [])
+        toons = {c.id for c in characters}
+        spheres = self.multiworld.get_spheres()
+        max_sphere = -1
+        for i, sphere in enumerate(spheres):
+            for loc in sphere:
+                if loc.item.player != self.player:
+                    continue
+                if loc.item.name == ItemName.Victory:
+                    max_sphere = i
+                    continue
+                if loc.item.code is None:
+                    continue
+                if cast(GSTLAItem, loc.item).item_data.is_mimic:
+                    mimic_map[i].append(cast(GSTLALocation, loc))
+                if loc.item.code in toons:
+                    character_map[i].append(cast(GSTLAItem, loc.item))
+
+        if max_sphere == -1:
+            logger.warning("Could not find max sphere for GSTLA; cannot scale mimics or characters")
+            return
+        # logger.info("Max sphere is %d", max_sphere)
+
+        if self.options.scale_mimics:
+            self._scale_mimics(max_sphere, mimic_map)
+
+        if self.options.scale_characters:
+            self._scale_characters(max_sphere, character_map)
+
+
+    def _scale_mimics(self, max_sphere: int, mimic_map: defaultdict[int, List[GSTLALocation]]):
+        mimic_lists = []
+        for i in range(1, len(mimics) - 1):
+            mimic_lists.append(mimics[i - 1:i + 2])
+
+        breakpoints = [(max_sphere + 1) / 7 * i for i in range(1, 8)]
+
+        for sphere, mimic_locs in mimic_map.items():
+            breakpoint_index = bisect(breakpoints, sphere)
+            if breakpoint_index >= len(mimic_lists):
+                breakpoint_index = len(mimic_lists) - 1
+            mimic_list = mimic_lists[breakpoint_index]
+            for mimic_loc in mimic_locs:
+                if mimic_loc.locked:
+                    # Guess someone really wanted this mimic here
+                    continue
+                current_item = mimic_loc.item
+                current_item.location = None
+                new_mimic = create_item_direct(self.random.choice(mimic_list), self.player)
+                # logger.info("Replacing mimic %s with mimic %s in sphere %d", current_item.name, new_mimic.name, sphere)
+                mimic_loc.item = new_mimic
+
+    def _scale_characters(self, max_sphere: int, char_map: defaultdict[int, List[GSTLAItem]]):
+        max_level = self.options.max_scaled_level.value
+        starting_level = self.options.starting_levels.value
+        for sphere, chars in char_map.items():
+            for char in chars:
+                level = min(max(floor((max_level - starting_level) * sphere / max_sphere + starting_level), starting_level), max_level)
+                self._character_levels.append((char.code - 0xD00, level))
+
 
     def _generate_rando_data(self, rando_file: BinaryIO, debug_file: TextIO):
         rando_file.write(0x1.to_bytes(length=1, byteorder='little'))
@@ -261,7 +348,7 @@ class GSTLAWorld(World):
                     rando_file.write(location_data.rando_flag.to_bytes(length=2, byteorder='little'))
                     rando_file.write(item_id.to_bytes(length=2, byteorder='little'))
                     debug_file.write(
-                        f"{index} \n\tLocation: {location.name.value} \n\tLocation Flag: {hex(location_data.rando_flag)} \n\tItem: {location.item.name} \n\tItem ID: {item_id}\n\n")
+                        f"{index} \n\tLocation: {location.name} \n\tLocation Flag: {hex(location_data.rando_flag)} \n\tItem: {location.item.name} \n\tItem ID: {item_id}\n\n")
                 index += 1
                 # debug_file.write()
                 # TODO: Questions
@@ -281,6 +368,18 @@ class GSTLAWorld(World):
             loc_name = loc_names_by_id[location_data.ap_id]
             debug_file.write(
                 f"Djinn(Location): {loc_name}\nDjinn(Location) Flag: {hex(location_data.rando_flag)}\nDjinn(Item): {item_data.name}\nDjinn(Item) Flag: {hex(item_data.get_rando_flag())}\n\n")
+
+        rando_file.write(0xFFFF.to_bytes(length=2, byteorder='little'))
+        debug_file.write("0xFFFF\n")
+
+        if not self._character_levels:
+            rando_file.write(0x0.to_bytes(length=7*2, byteorder='little'))
+            debug_file.write("Did not scale character levels")
+        else:
+            for char, level in self._character_levels:
+                rando_file.write(char.to_bytes(length=1, byteorder='little'))
+                rando_file.write(level.to_bytes(length=1, byteorder='little'))
+                debug_file.write(f"{name_by_item_id[char + 0xD00]} has starting level {level}\n")
 
     def _write_options_for_rando(self, rando_file: BinaryIO, debug_file: TextIO):
         write_me = 0
@@ -397,8 +496,10 @@ class GSTLAWorld(World):
         debug_file.write('Start Heal: ' + self.options.start_with_healing_psynergy.name_lookup[self.options.start_with_healing_psynergy] + '\n')
         write_me += self.options.start_with_revive << 1 #start-revive
         debug_file.write('Start Revive: ' + self.options.start_with_revive.name_lookup[self.options.start_with_revive] + '\n')
-        write_me += self.options.start_with_reveal #start-reveal
-        debug_file.write('Start Reveal: ' + self.options.start_with_reveal.name_lookup[self.options.start_with_reveal] + '\n')
+
+        if ItemName.Reveal.name in self.options.start_inventory or ItemName.Reveal.name in self.options.start_inventory_from_pool:
+            write_me += 1 #start-reveal
+            debug_file.write('Start Reveal: true\n')
         rando_file.write(write_me.to_bytes(length=1, byteorder='big'))
 
 

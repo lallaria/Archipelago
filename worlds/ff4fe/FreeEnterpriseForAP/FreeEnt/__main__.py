@@ -3,7 +3,6 @@ import sys
 import dotenv
 
 from .cmd_make import MakeCommand
-from .cmd_server import ServerCommand
 from .rescript import RescriptCommand
 
 dotenv.load_dotenv()
@@ -15,7 +14,6 @@ subparsers = parser.add_subparsers()
 
 subcommands = {
     'make'       : MakeCommand,
-    'server'     : ServerCommand,
     'rescript'   : RescriptCommand,
 }
 
