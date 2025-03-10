@@ -2,38 +2,26 @@ import os
 import zipfile
 import shutil
 import compileall
-from worlds.chatipelago import ItemName, Regions
+from worlds.chatipelago.names import ItemName, Regions, Chati
 
 chatifolder = os.path.join(os.curdir, 'worlds', 'chatipelago')
 custom_name = ""
-shutil.copy(chatifolder)
+shutil.copy(chatifolder, os.path.join(chatifolder, custom_name))
 
-def copy_item_names(item_names: dict):
-    with open(os.path.join(chatifolder, 'ItemName.py'), 'w', encoding='UTF-8') as inpy:
+def copy_item_names(item_names: dict, loc_names: dict, chati_name: str):
+    with open(os.path.join(chatifolder, custom_name, 'names', 'ItemName.py'), 'w', encoding='UTF-8') as inpy:
         for var, name in item_names.items():
             inpy.write(f"{var} = '{name}'\n")
-
-def copy_loc_names(loc_names: dict):
-    ## recreate the whole stupid file
-    region_header = f"""from typing import NamedTuple, Optional
-
-from BaseClasses import Location, Region
-
-class ChatipelagoLoc(Location):
-    game: str = "Chatipelago{custom_name}"
-
-class ChatipelagoLocationData(NamedTuple):
-    region: str
-    address: Optional[int] = None
-
-class ChatipelagoRegionData(NamedTuple):
-    connecting_regions: list[str] = []
-
-    """
-    region_footer = """
-
-    """
-
+    with open(os.path.join(chatifolder, custom_name, 'names', 'RegionName.py'), 'w', encoding='UTF-8') as rnpy:
+        rnpy.write("chatroom = [\n")
+        for name in loc_names["Chatroom"]:
+            rnpy.write(f"    '{name}'\n")
+        rnpy.write("]\nprog = [\n")
+        for name in loc_names["Prog"]:
+            rnpy.write(f"    '{name}'\n")
+        rnpy.write("]\n")
+    with open(os.path.join(chatifolder, custom_name, 'names', 'Chati.py'), 'w', encoding='UTF-8') as chpy:
+        chpy.write(f"name = {custom_name}\n")
 
 def recompile_apworld(mod_name: str):
     world_directory = os.path.join(f'{self.libfolder}/worlds/chatipelago')
