@@ -61,6 +61,7 @@ ItemNum58 = 'https://www.twitch.tv/dangers/clip/PatientSincereDotterelJebaited'
 ItemNum59 = 'https://www.twitch.tv/dangers/clip/SavoryEncouragingPhoneBudBlast-6n_LzXFr4xrTePTW'
 ItemNum60 = 'https://www.twitch.tv/dangers/clip/FunnyAffluentFlyTF2John-HKFpI54E_uKcKsSA'
 ItemNum61 = 'https://www.twitch.tv/dangers/clip/LitigiousElegantDolphinBCouch-JBXyckTnOqqtEv9E'
+ItemNum62 = 'Mario\'s missing red coin (Impossible to reach)'
 #trap
 ItemNum197 = 'The Top of the Hour Ad Break'
 ItemNum198 = 'Mute Button, Pressed 5 Minutes Earlier'
