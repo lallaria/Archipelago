@@ -3,6 +3,7 @@ from .Items import *
 from .Regions import *
 from Options import PerGameCommonOptions
 from .Rules import *
+from .names import Chati
 from worlds.AutoWorld import World, WebWorld
 import logging
 
@@ -22,7 +23,7 @@ class ChatipelagoWorld(World):
     """
     Chat plays Archipelago!
     """
-    game = "Chatipelago"
+    game = Chati.name
     options_dataclass = PerGameCommonOptions
     web = ChatipelagoWeb()
 
