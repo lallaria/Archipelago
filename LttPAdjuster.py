@@ -25,8 +25,11 @@ ModuleUpdate.update()
 
 from worlds.alttp.Rom import Sprite, LocalRom, apply_rom_settings, get_base_rom_bytes
 from Utils import output_path, local_path, user_path, open_file, get_cert_none_ssl_context, persistent_store, \
-    get_adjuster_settings, get_adjuster_settings_no_defaults, tkinter_center_window, init_logging, archipelago_name
-
+    get_adjuster_settings, get_adjuster_settings_no_defaults, tkinter_center_window, init_logging
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
 
 GAME_ALTTP = "A Link to the Past"
 WINDOW_MIN_HEIGHT = 545
@@ -253,7 +256,7 @@ def adjustGUI():
     from Utils import __version__ as MWVersion
     adjustWindow = Tk()
     adjustWindow.minsize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
-    adjustWindow.wm_title(archipelago_name + " %s LttP Adjuster" % MWVersion)
+    adjustWindow.wm_title(apname + " %s LttP Adjuster" % MWVersion)
     set_icon(adjustWindow)
 
     rom_options_frame, rom_vars, set_sprite = get_rom_options_frame(adjustWindow)

@@ -12,6 +12,8 @@ import random
 import re
 import urllib.parse
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
+
 from NetUtils import NetworkItem
 from typing import NamedTuple, Optional, Set, cast
 from itertools import groupby
@@ -365,7 +367,7 @@ class XenobladeXContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " Xenoblade X Client"
+            base_title = apname + " Xenoblade X Client"
 
         self.ui = XenobladeXManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

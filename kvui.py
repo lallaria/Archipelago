@@ -22,12 +22,12 @@ os.environ["KIVY_NO_ARGS"] = "1"
 os.environ["KIVY_LOG_ENABLE"] = "0"
 
 import Utils
-
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 if Utils.is_frozen():
     os.environ["KIVY_DATA_DIR"] = Utils.local_path("data")
 
 import platformdirs
-os.environ["KIVY_HOME"] = os.path.join(platformdirs.user_config_dir(Utils.archipelago_name, False), "kivy")
+os.environ["KIVY_HOME"] = os.path.join(platformdirs.user_config_dir(apname, False), "kivy")
 os.makedirs(os.environ["KIVY_HOME"], exist_ok=True)
 
 from kivy.config import Config
@@ -268,7 +268,7 @@ class ServerLabel(HovererableLabel):
             return text
 
         else:
-            return f"No current server connection. \nPlease connect to a {Utils.archipelago_name} server."
+            return f"No current server connection. \nPlease connect to a {apname} server."
 
 
 class MainLayout(GridLayout):
@@ -550,7 +550,7 @@ class GameManager(App):
     logging_pairs = [
         ("Client", "Archipelago"),
     ]
-    base_title: str = Utils.archipelago_name + " Client"
+    base_title: str = apname + " Client"
     last_autofillable_command: str
 
     main_area_container: GridLayout
@@ -636,7 +636,7 @@ class GameManager(App):
         hint_panel.content.add_widget(self.hint_log)
 
         if len(self.logging_pairs) == 1:
-            self.tabs.default_tab_text = Utils.archipelago_name + " Console"
+            self.tabs.default_tab_text = apname + " Console"
 
         self.main_area_container = GridLayout(size_hint_y=1, rows=1)
         self.main_area_container.add_widget(self.tabs)

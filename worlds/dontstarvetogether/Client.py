@@ -15,6 +15,10 @@ from .Constants import LOCATION_BOSS_RANGE, LOCATION_RESEARCH_RANGE, VERSION, CL
 from math import floor
 DST_FILE_START = "KLEI     1 "
 TIMEOUT_TIME:int = 60*3
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
 
 class DSTInvalidRequest(Exception):
     pass
@@ -51,7 +55,7 @@ class DSTContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("DSTInterface", "Don't Starve Together"),
             ]
-            base_title = Utils.archipelago_name + " Don't Starve Together Client"
+            base_title = apname + " Don't Starve Together Client"
 
         self.ui = DSTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

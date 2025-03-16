@@ -10,6 +10,8 @@ from .Locations import LocationData, LocationType, all_locations, location_table
 from .Items import item_code_table
 from . import albw_base_id
 
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
+
 def bytes_or(a: bytes, b: bytes) -> bytes:
     return bytes([x | y for x,y in zip(a,b)])
 
@@ -61,7 +63,7 @@ class ALBWClientContext(CommonContext):
         from kvui import GameManager
 
         class ALBWManager(GameManager):
-            base_title: str = Utils.archipelago_name + " A Link Between Worlds Client"
+            base_title: str = apname + " A Link Between Worlds Client"
 
         self.ui = ALBWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

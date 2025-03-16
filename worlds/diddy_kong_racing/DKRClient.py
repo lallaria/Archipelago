@@ -7,7 +7,12 @@ from multiprocessing import freeze_support
 
 # CommonClient import first to trigger ModuleUpdater
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, gui_enabled, logger, server_loop
-from Utils import async_start, init_logging, archipelago_name
+from Utils import async_start, init_logging
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
+
 from worlds import network_data_package
 
 SYSTEM_MESSAGE_ID = 0
@@ -102,7 +107,7 @@ class DiddyKongRacingContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = archipelago_name + " Diddy Kong Racing Client"
+            base_title = apname + " Diddy Kong Racing Client"
 
         self.ui = DiddyKongRacingManager(self)
         self.ui_task = create_task(self.ui.async_run(), name="UI")

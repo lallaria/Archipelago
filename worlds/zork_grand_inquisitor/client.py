@@ -3,6 +3,7 @@ import asyncio
 import CommonClient
 import NetUtils
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -74,7 +75,7 @@ class ZorkGrandInquisitorContext(CommonClient.CommonContext):
 
         class TextManager(GameManager):
             logging_pairs: List[Tuple[str, str]] = [("Client", "Archipelago")]
-            base_title: str = Utils.archipelago_name + " Zork Grand Inquisitor Client"
+            base_title: str = apname + " Zork Grand Inquisitor Client"
 
         self.ui = TextManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

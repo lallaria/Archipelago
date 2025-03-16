@@ -16,7 +16,7 @@ import Utils
 from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger, \
     get_base_parser
 from .Rom import BfBBDeltaPatch
-
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 class CheckTypes(Flag):
     SPAT = 1
@@ -643,7 +643,7 @@ class BfBBContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " Archipelago Battle for Bikini Bottom Client"
+            base_title = apname + " Archipelago Battle for Bikini Bottom Client"
 
         self.ui = BfBBManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

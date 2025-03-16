@@ -13,6 +13,7 @@ import bsdiff4
 from CommonClient import CommonContext, server_loop, gui_enabled, \
     ClientCommandProcessor, logger, get_base_parser
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from NetUtils import ClientStatus
 from worlds.mmbn3.Items import items_by_id
 from worlds.mmbn3.Rom import get_base_rom_path
@@ -95,7 +96,7 @@ class MMBN3Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " MegaMan Battle Network 3 Client"
+            base_title = apname + " MegaMan Battle Network 3 Client"
 
         self.ui = MMBN3Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

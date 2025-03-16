@@ -17,6 +17,7 @@ ModuleUpdate.update()
 import websockets
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 if __name__ == "__main__":
     Utils.init_logging("TextClient", exception_logger="Client")
@@ -722,7 +723,7 @@ class CommonContext:
         from kvui import GameManager
 
         class TextManager(GameManager):
-            base_title = Utils.archipelago_name + " Text Client"
+            base_title = apname + " Text Client"
 
         return TextManager
 
@@ -769,7 +770,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
 
     # Wait for the user to provide a multiworld server address
     if not address:
-        logger.info(f'Please connect to a {Utils.archipelago_name} server.')
+        logger.info(f'Please connect to a {apname} server.')
         return
 
     ctx.cancel_autoreconnect()
@@ -789,7 +790,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
     def reconnect_hint() -> str:
         return ", type /connect to reconnect" if ctx.server_address else ""
 
-    logger.info(f'Connecting to {Utils.archipelago_name} server at {address}')
+    logger.info(f'Connecting to {apname} server at {address}')
     try:
         port = server_url.port or 38281  # raises ValueError if invalid
         socket = await websockets.connect(address, port=port, ping_timeout=None, ping_interval=None,
@@ -816,7 +817,7 @@ async def server_loop(ctx: CommonContext, address: typing.Optional[str] = None) 
                                        f"{reconnect_hint()}")
     except ConnectionRefusedError:
         ctx.handle_connection_loss("Connection refused by the server. "
-                                   f"May not be running {Utils.archipelago_name} on that address or port.")
+                                   f"May not be running {apname} on that address or port.")
     except websockets.InvalidURI:
         ctx.handle_connection_loss("Failed to connect to the multiworld server (invalid URI)")
     except OSError:
@@ -1120,9 +1121,9 @@ def run_as_textclient(*args):
 
     import colorama
 
-    parser = get_base_parser(description=f"Gameless {Utils.archipelago_name} Client, for text interfacing.")
+    parser = get_base_parser(description=f"Gameless {apname} Client, for text interfacing.")
     parser.add_argument('--name', default=None, help="Slot Name to connect as.")
-    parser.add_argument("url", nargs="?", help=f"{Utils.archipelago_name} connection url")
+    parser.add_argument("url", nargs="?", help=f"{apname} connection url")
     args = parser.parse_args(args)
 
     args = handle_url_arg(args, parser=parser)

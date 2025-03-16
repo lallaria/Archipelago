@@ -22,6 +22,10 @@ from typing import Collection, Optional, List, SupportsIndex
 
 from BaseClasses import CollectionState, Region, Location, MultiWorld
 from Utils import local_path, user_path, int16_as_bytes, int32_as_bytes, snes_to_pc, is_frozen, parse_yaml, read_snes_rom
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
 
 from .Shops import ShopType, ShopPriceType
 from .Dungeons import dungeon_music_addresses
@@ -1697,7 +1701,7 @@ def patch_rom(world: MultiWorld, rom: LocalRom, player: int, enemized: bool):
 
     # set rom name
     # 21 bytes
-    from Utils import __version__, archipelago_name
+    from Utils import __version__, apname
     rom.name = bytearray(f'AP{__version__.replace(".", "")[0:3]}_{player}_{world.seed:11}\0', 'utf8')[:21]
     rom.name.extend([0] * (21 - len(rom.name)))
     rom.write_bytes(0x7FC0, rom.name)

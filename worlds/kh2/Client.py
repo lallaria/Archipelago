@@ -12,7 +12,11 @@ from . import item_dictionary_table, exclusion_item_table, CheckDupingItems, all
 from .Names import ItemName
 from .WorldLocations import *
 
-from Utils import archipelago_name
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
+
 from NetUtils import ClientStatus
 from CommonClient import gui_enabled, logger, get_base_parser, CommonContext, server_loop
 
@@ -564,7 +568,7 @@ class KH2Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = archipelago_name + " KH2 Client"
+            base_title = apname + " KH2 Client"
 
         self.ui = KH2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

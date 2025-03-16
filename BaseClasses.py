@@ -17,6 +17,7 @@ from typing_extensions import NotRequired, TypedDict
 import NetUtils
 import Options
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 if TYPE_CHECKING:
     from entrance_rando import ERPlacementState
@@ -1638,7 +1639,7 @@ class Spoiler:
         with open(filename, 'w', encoding="utf-8-sig") as outfile:
             outfile.write(
                 '%s Version %s  -  Seed: %s\n\n' % (
-                    Utils.archipelago_name, Utils.__version__, self.multiworld.seed))
+                    apname, Utils.__version__, self.multiworld.seed))
             outfile.write('Filling Algorithm:               %s\n' % self.multiworld.algorithm)
             outfile.write('Players:                         %d\n' % self.multiworld.players)
             outfile.write(f'Plando Options:                  {self.multiworld.plando_options}\n')

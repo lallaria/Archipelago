@@ -12,6 +12,7 @@ from asyncio import StreamReader, StreamWriter
 from typing import List
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from Utils import async_start
 from CommonClient import CommonContext, server_loop, gui_enabled, console_loop, ClientCommandProcessor, logger, \
     get_base_parser
@@ -127,7 +128,7 @@ class ZeldaContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " Zelda 1 Client"
+            base_title = apname + " Zelda 1 Client"
 
         self.ui = ZeldaManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

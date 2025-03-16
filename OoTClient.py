@@ -10,6 +10,7 @@ from asyncio import StreamReader, StreamWriter
 from CommonClient import CommonContext, server_loop, gui_enabled, \
     ClientCommandProcessor, logger, get_base_parser
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from Utils import async_start
 from worlds import network_data_package
 from worlds.oot.Rom import Rom, compress_rom_file
@@ -116,7 +117,7 @@ class OoTContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " Ocarina of Time Client"
+            base_title = apname + " Ocarina of Time Client"
 
         self.ui = OoTManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

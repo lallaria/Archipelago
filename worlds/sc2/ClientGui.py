@@ -1,7 +1,10 @@
 from typing import *
 import asyncio
 
-from Utils import archipelago_name
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
 from NetUtils import JSONMessagePart
 from kvui import GameManager, HoverBehavior, ServerToolTip, KivyJSONtoTextParser
 from kivy.app import App
@@ -88,7 +91,7 @@ class SC2Manager(GameManager):
         ("Client", "Archipelago"),
         ("Starcraft2", "Starcraft2"),
     ]
-    base_title = archipelago_name + " Starcraft 2 Client"
+    base_title = apname + " Starcraft 2 Client"
 
     campaign_panel: Optional[CampaignLayout] = None
     last_checked_locations: Set[int] = set()

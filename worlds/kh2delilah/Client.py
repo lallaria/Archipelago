@@ -18,7 +18,11 @@ from .Names import ItemName
 from .WorldLocations import *
 from .Gamecall import Gamecall as DTD
 
-from Utils import archipelago_name
+try:
+    from Utils import archipelago_name as apname
+except ImportError:
+    apname = "Archipelago"
+
 from NetUtils import ClientStatus, JSONMessagePart, JSONtoTextParser
 from CommonClient import gui_enabled, logger, get_base_parser, CommonContext, server_loop, ClientCommandProcessor
 
@@ -483,9 +487,9 @@ class KH2DelilahContext(CommonContext):
                 self.on_deathlink(args["data"])
 
     def data_package_kh2_cache(self, args):
-        self.kh2_loc_name_to_id = args["data"]["games"]["Kingdom Hearts 2"]["location_name_to_id"]
+        self.kh2_loc_name_to_id = args["data"]["games"]["Kingdom Hearts 2 Delilah"]["location_name_to_id"]
         self.lookup_id_to_location = {v: k for k, v in self.kh2_loc_name_to_id.items()}
-        self.kh2_item_name_to_id = args["data"]["games"]["Kingdom Hearts 2"]["item_name_to_id"]
+        self.kh2_item_name_to_id = args["data"]["games"]["Kingdom Hearts 2 Delilah"]["item_name_to_id"]
         self.lookup_id_to_item = {v: k for k, v in self.kh2_item_name_to_id.items()}
         self.ability_code_list = [self.kh2_item_name_to_id[item] for item in exclusion_item_table["Ability"]]
 
@@ -670,7 +674,7 @@ class KH2DelilahContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = archipelago_name + " KH2 Delilah Client"
+            base_title = apname + " KH2 Delilah Client"
 
         self.ui = KH2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

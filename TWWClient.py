@@ -6,6 +6,7 @@ from typing import Any
 import dolphin_memory_engine
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, gui_enabled, logger, server_loop
 from NetUtils import ClientStatus, NetworkItem
 
@@ -119,7 +120,7 @@ class TWWContext(CommonContext):
 
         class TWWManager(GameManager):
             logging_pairs = [("Client", "Archipelago")]
-            base_title = Utils.archipelago_name + " The Wind Waker Client"
+            base_title = apname + " The Wind Waker Client"
 
         self.ui = TWWManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

@@ -11,6 +11,7 @@ from typing import Any
 from CommonClient import CommonContext, ClientCommandProcessor, get_base_parser, server_loop, logger, gui_enabled
 import Patch
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 from . import BizHawkContext, ConnectionStatus, NotConnectedError, RequestFailedError, connect, disconnect, get_hash, \
     get_script_version, get_system, ping
@@ -61,7 +62,7 @@ class BizHawkClientContext(CommonContext):
 
     def make_gui(self):
         ui = super().make_gui()
-        ui.base_title = Utils.archipelago_name + " BizHawk Client"
+        ui.base_title = apname + " BizHawk Client"
         return ui
 
     def on_package(self, cmd, args):

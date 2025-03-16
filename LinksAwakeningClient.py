@@ -2,6 +2,7 @@ import ModuleUpdate
 ModuleUpdate.update()
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 
 if __name__ == "__main__":
     Utils.init_logging("LinksAwakeningContext", exception_logger="Client")
@@ -485,7 +486,7 @@ class LinksAwakeningContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("Tracker", "Tracker"),
             ]
-            base_title = Utils.archipelago_name + " Links Awakening DX Client"
+            base_title = apname + " Links Awakening DX Client"
 
             def build(self):
                 b = super().build()

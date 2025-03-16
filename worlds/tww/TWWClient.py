@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Optional
 import dolphin_memory_engine
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from CommonClient import ClientCommandProcessor, CommonContext, get_base_parser, gui_enabled, logger, server_loop
 from NetUtils import ClientStatus, NetworkItem
 
@@ -253,7 +254,7 @@ class TWWContext(CommonContext):
         :return: The client's GUI.
         """
         ui = super().make_gui()
-        ui.base_title = Utils.archipelago_name + " The Wind Waker Client"
+        ui.base_title = apname + " The Wind Waker Client"
         return ui
 
     async def update_visited_stages(self, newly_visited_stage_name: str) -> None:

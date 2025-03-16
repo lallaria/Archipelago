@@ -11,6 +11,7 @@ from typing import List
 
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from NetUtils import ClientStatus
 from Utils import async_start
 from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger, \
@@ -140,7 +141,7 @@ class AdventureContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " Adventure Client"
+            base_title = apname + " Adventure Client"
 
         self.ui = AdventureManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")

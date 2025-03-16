@@ -29,6 +29,7 @@ if __name__ == "__main__":
 
 import settings
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from Utils import (init_logging, is_frozen, is_linux, is_macos, is_windows, local_path, messagebox, open_filename,
                    user_path)
 from worlds.LauncherComponents import Component, components, icon_paths, SuffixIdentifier, Type
@@ -182,8 +183,8 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
     if isinstance(component, str):
         name = component
         component = None
-        if name.startswith(Utils.archipelago_name):
-            name = name[len(Utils.archipelago_name):]
+        if name.startswith(apname):
+            name = name[len(apname):]
         if name.endswith(".exe"):
             name = name[:-4]
         if name.endswith(".py"):
@@ -191,7 +192,7 @@ def get_exe(component: Union[str, Component]) -> Optional[Sequence[str]]:
         if not name:
             return None
         for c in components:
-            if c.script_name == name or c.frozen_name == Utils.archipelago_name + name:
+            if c.script_name == name or c.frozen_name == apname + name:
                 component = c
                 break
         if not component:
@@ -233,7 +234,7 @@ def run_gui():
     from kivy.uix.widget import Widget
 
     class Launcher(App):
-        base_title: str = Utils.archipelago_name + " Launcher"
+        base_title: str = apname + " Launcher"
         container: ContainerLayout
         grid: GridLayout
         _tool_layout: Optional[ScrollBox] = None
@@ -395,7 +396,7 @@ if __name__ == '__main__':
     Utils.freeze_support()
     multiprocessing.set_start_method("spawn")  # if launched process uses kivy, fork won't work
     parser = argparse.ArgumentParser(
-        description=f'{Utils.archipelago_name} Launcher',
+        description=f'{apname} Launcher',
         usage="[-h] [--update_settings] [Patch|Game|Component] [-- component args here]"
     )
     run_group = parser.add_argument_group("Run")

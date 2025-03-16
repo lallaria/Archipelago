@@ -10,6 +10,7 @@ from typing import cast, Dict, Optional, List
 from asyncio import StreamReader, StreamWriter
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from Utils import async_start
 from NetUtils import ClientStatus
 from CommonClient import CommonContext, server_loop, gui_enabled, ClientCommandProcessor, logger, \
@@ -301,7 +302,7 @@ class KHDaysContext(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = Utils.archipelago_name + " KH Days Client"
+            base_title = apname + " KH Days Client"
             ctx: KHDaysContext
             commander_buttons: Dict[int, List[CommanderButton]]
             day_buttons: List[CommanderButton]

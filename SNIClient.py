@@ -18,6 +18,7 @@ from json import loads, dumps
 from CommonClient import CommonContext, server_loop, ClientCommandProcessor, gui_enabled, get_base_parser
 
 import Utils
+apname = Utils.archipelago_name if Utils.archipelago_name else "Archipelago"
 from Utils import async_start
 from MultiServer import mark_raw
 if typing.TYPE_CHECKING:
@@ -255,7 +256,7 @@ class SNIContext(CommonContext):
                 ("Client", "Archipelago"),
                 ("SNES", "SNES"),
             ]
-            base_title = Utils.archipelago_name + " SNI Client"
+            base_title = apname + " SNI Client"
 
         self.ui = SNIManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")  # type: ignore
