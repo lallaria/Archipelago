@@ -520,6 +520,6 @@ async def main() -> None:
 
 
 def launch() -> None:
-    colorama.init()
+    colorama.just_fix_windows_console()
     asyncio.run(main())
     colorama.deinit()

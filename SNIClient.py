@@ -736,6 +736,6 @@ async def main() -> None:
 
 
 if __name__ == '__main__':
-    colorama.init()
+    colorama.just_fix_windows_console()
     asyncio.run(main())
     colorama.deinit()

@@ -81,7 +81,7 @@ Currently, the following games are supported:
 * Saving Princess
 * Castlevania: Circle of the Moon
 * Inscryption
-* The Legend of Zelda: The Wind Waker
+* Civilization VI
 
 For setup and instructions check out our [tutorials page](https://trezapalooza.com/tutorial/).
 Downloads can be found at [Releases](https://github.com/ArchipelagoMW/Archipelago/releases), including compiled
@@ -138,7 +138,7 @@ To contribute to Archipelago, including the WebHost, core program, or by adding 
 
 ## FAQ
 
-For Frequently asked questions, please see the website's [FAQ Page](https://trezapalooza.com/faq/en/).
+For Frequently asked questions, please see the website's [FAQ Page](https://archipelago.gg/faq/en/).
 
 ## Code of Conduct
 
