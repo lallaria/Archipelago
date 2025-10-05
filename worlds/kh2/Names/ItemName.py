@@ -110,6 +110,12 @@ NobodyGuard = "Nobody Guard"
 OgreShield = "Ogre Shield"
 SaveTheKing2 = "Save The King+"
 UltimateMushroom = "Ultimate Mushroom"
+AdamantShield = "Adamant Shield"
+FallingStar = "Falling Star"
+ChainGear = "Chain Gear"
+Dreamcloud = "Dreamcloud"
+KnightsDefender = "Knight's Defender"
+KnightsShield = "Knight's Shield"
 
 # accesrosies
 AbilityRing = "Ability Ring"
