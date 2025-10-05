@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from Options import Choice, Range, Toggle, ItemDict, PerGameCommonOptions, StartInventoryPool
+from Options import Choice, Range, Toggle, ItemDict, OptionDict, PerGameCommonOptions, StartInventoryPool
 
-from . import default_itempool_option
+from . import default_itempool_option, default_keyblade_pool
 
 
 class SoraEXP(Range):
@@ -286,6 +286,19 @@ class BountyAmount(Range):
     range_end = 26
     default = 10
 
+class BountyLevel(Range):
+    """Bounty Difficulty level.
+
+    Ranges from early game to late game. 
+
+    10 includes Terra, 9 includes all Data fights
+    8 is all Datas except Demyx, Xemnas, Xaldin, Xigbar
+    
+    7 and lower are other bosses and game events"""
+    display_name = "Bounty Difficulty"
+    range_start = 1
+    range_end = 10
+    default = 10
 
 class BountyStartHint(Toggle):
     """Start with Bounties Hinted"""
@@ -311,16 +324,34 @@ class CorSkipToggle(Toggle):
     display_name = "CoR Skip Toggle"
     default = False
 
+class CustomKeybladePool(OptionDict):
+    """Abilities that are allowed to go onto Keyblades. 
+    
+    Note: Values will not change ability pool values.
+
+    Example: Reducing Negative Combo to 1 will
+    
+    prevent both from showing up on keyblades but
+    
+    not remove from the overall pool."""
+    verify_item_name = True
+    display_name = "Keyblade Ability Pool"
+    valid_keys = default_keyblade_pool.keys()
+    default = default_keyblade_pool
 
 class CustomItemPoolQuantity(ItemDict):
-    """Add more of an item into the itempool. Note: You cannot take out items from the pool."""
+    """Add more of an item into the itempool. 
+    
+    Note: You cannot take out items from the pool."""
     display_name = "Custom Item Pool"
     valid_keys = default_itempool_option.keys()
     default = default_itempool_option
 
 
 class FillerItemsLocal(Toggle):
-    """Make all dynamic filler classified items local. Recommended when playing with games with fewer locations than kh2"""
+    """Make all dynamic filler classified items local. 
+    
+    Recommended when playing with games with fewer locations than kh2"""
     display_name = "Local Filler Items"
     default = True
 
@@ -353,6 +384,7 @@ class KingdomHearts2Options(PerGameCommonOptions):
     LuckyEmblemsRequired: LuckyEmblemsRequired
     BountyAmount: BountyAmount
     BountyRequired: BountyRequired
+    BountyLevel: BountyLevel
     BountyStartingHintToggle: BountyStartHint
     Keyblade_Minimum: KeybladeMin
     Keyblade_Maximum: KeybladeMax
@@ -369,4 +401,5 @@ class KingdomHearts2Options(PerGameCommonOptions):
     SummonLevelLocationToggle: SummonLevelLocationToggle
     AtlanticaToggle: AtlanticaToggle
     CorSkipToggle: CorSkipToggle
+    CustomKeybladePool: CustomKeybladePool
     CustomItemPoolQuantity: CustomItemPoolQuantity

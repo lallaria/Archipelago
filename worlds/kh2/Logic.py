@@ -36,7 +36,8 @@ party_limit = [
     ItemName.Fantasia,
     ItemName.FlareForce,
     ItemName.Teamwork,
-    ItemName.TornadoFusion
+    ItemName.TornadoFusion,
+    ItemName.TrinityLimit
 ]
 donald_limit = [
     ItemName.Fantasia,
@@ -46,8 +47,7 @@ aerial_move = [
     ItemName.AerialDive,
     ItemName.AerialSpiral,
     ItemName.HorizontalSlash,
-    ItemName.AerialSweep,
-    ItemName.AerialFinish
+    ItemName.AerialSweep
 ]
 level_3_form_loc = [
     LocationName.Valorlvl3,

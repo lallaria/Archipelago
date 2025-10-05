@@ -9,8 +9,12 @@ import json
 import requests
 
 from pymem import pymem
-from worlds.kh2 import item_dictionary_table, exclusion_item_table, CheckDupingItems, all_locations, exclusion_table, \
-    SupportAbility_Table, ActionAbility_Table, all_weapon_slot
+import logging
+# Disable pymem logger to suppress ProcessError messages
+logging.getLogger('pymem').setLevel(logging.CRITICAL)
+
+from worlds.kh2 import item_dictionary_table, exclusion_item_table, CheckDupingItems, all_locations, \
+                       exclusion_table,  all_weapon_slot, support_set, action_set 
 from worlds.kh2.Names import ItemName
 from .WorldLocations import *
 
@@ -45,12 +49,15 @@ class KH2Context(CommonContext):
         self.kh2_item_name_to_id = None
         self.lookup_id_to_item = None
         self.lookup_id_to_location = None
-        self.sora_ability_dict = {k: v.quantity for dic in [SupportAbility_Table, ActionAbility_Table] for k, v in
-                                  dic.items()}
+        self.sora_ability_dict = {k: v.quantity for dic in [
+                support_set, action_set
+                ] 
+            for k, v in dic.items()}
         self.location_name_to_worlddata = {name: data for name, data, in all_world_locations.items()}
 
         self.slot_name = None
         self.disconnect_from_server = False
+        self.pause_game = False
         self.sending = []
         # queue for the strings to display on the screen
         self.queued_puzzle_popup = []
@@ -136,14 +143,13 @@ class KH2Context(CommonContext):
             elif os.path.exists(self.kh2_client_settings_join):
                 with open(self.kh2_client_settings_join) as f:
                     # if the file isnt empty load it
-                    # this is the best I could fine to valid json stuff https://stackoverflow.com/questions/23344948/validate-and-format-json-files
                     try:
-                        self.kh2_seed_save = json.load(f)
-                    except json.decoder.JSONDecodeError:
-                        pass
-                        # this is what is effectively doing on
-                        # self.client_settings = default
-                    f.close()
+                        loaded_settings_json = json.load(f)
+                        # Merge with defaults to ensure all required keys exist
+                        self.kh2_seed_save = {**self.client_settings, **loaded_settings_json}
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Error decoding JSON: {e}")
+                        self.kh2_seed_save = self.client_settings.copy()
 
         self.hitlist_bounties = 0
         # hooked object
@@ -279,7 +285,7 @@ class KH2Context(CommonContext):
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
             await super(KH2Context, self).server_auth(password_requested)
-        await self.get_username()
+            await self.get_username()
         # if slot name != first time login or previous name
         # and seed name is none or saved seed name
         if not self.slot_name and not self.kh2seedname:
@@ -676,6 +682,9 @@ class KH2Context(CommonContext):
 async def kh2_watcher(ctx: KH2Context):
     while not ctx.exit_event.is_set():
         try:
+            if ctx.pause_game:
+                await asyncio.sleep(5)
+                continue
             if ctx.kh2connected and ctx.serverconnected:
                 ctx.sending = []
                 await asyncio.create_task(ctx.checkWorldLocations())
@@ -705,25 +714,37 @@ async def kh2_watcher(ctx: KH2Context):
                     await asyncio.create_task(ctx.displayChestTextInGame(ctx.queued_chest_popup[0]))
 
             elif not ctx.kh2connected and ctx.serverconnected:
+                if ctx.pause_game:
+                    await asyncio.sleep(5)
+                    continue
                 logger.info("Game Connection lost. trying to reconnect.")
                 ctx.kh2 = None
                 #todo: change this to be an option for the client to auto reconnect with the default being yes
                 # reason is because the await sleep causes the client to hang if you close the game then the client without disconnecting.
+                # I uh.. added a /pause_game awhile ago to stop the process search, here it is :) --Delilah
                 while not ctx.kh2connected and ctx.serverconnected:
                     try:
+                        if ctx.pause_game:
+                            await asyncio.sleep(5)
+                            continue
                         ctx.kh2 = pymem.Pymem(process_name="KINGDOM HEARTS II FINAL MIX")
                         ctx.get_addresses()
                         logger.info("Game Connection Established.")
                     except Exception as e:
-                        await asyncio.sleep(5)
+                        logger.info("Game not found, retrying in 5 seconds...")
+                        if not ctx.exit_event.is_set():
+                            await asyncio.sleep(5)
             if ctx.disconnect_from_server:
                 ctx.disconnect_from_server = False
                 await ctx.disconnect()
         except Exception as e:
             if ctx.kh2connected:
                 ctx.kh2connected = False
-            logger.info(e)
-            logger.info("line 940")
+                logger.info("Game connection lost, will attempt to reconnect.")
+            if "Could not find process" in str(e):
+                logger.info("Game process not found, retrying in 5 seconds...")
+            else:
+                logger.info(f"Watcher error: {str(e)}")
         await asyncio.sleep(0.5)
 
 
