@@ -22,14 +22,11 @@ class ChatipelagoWeb(WebWorld):
 
 class ChatipelagoWorld(World):
     """
-    Chat plays MultiworldGG!
+    Chat plays Archipelago!
     """
 
-    from BaseUtils import get_archipelago_json
-    GAME_NAME, AUTHOR, AP_VERSION, WORLD_VERSION = get_archipelago_json("chatipelago")
+    game = "Chatipelago"
 
-    game = GAME_NAME
-    author: str = AUTHOR
     options_dataclass = PerGameCommonOptions
     web = ChatipelagoWeb()
 
