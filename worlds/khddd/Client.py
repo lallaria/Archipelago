@@ -110,6 +110,12 @@ class KHDDDContext(CommonContext):
             self.connectedToAp = True
             self.slot_data_info = args['slot_data']
             await self.send_slot_data()
+        
+        if cmd in {"ReceivedItems"}:
+            if len(args["items"]) > 0:
+                self.socket.send_multipleItems(args["items"], len(args["items"]))
+            else:
+                self.socket.send_singleItem(args["items"][0].item, 1)
 
 
     def on_deathlink(self, data: dict[str, object]):
@@ -144,9 +150,8 @@ class KHDDDContext(CommonContext):
             try:
                 while not ctx.exit_event.is_set() and not ctx.connectedToAp:
                     await asyncio.sleep(5)
-                if ctx.connectedToAp:
-                    if ctx.items_received:
-                        ctx.socket.send_multipleItems(ctx.items_received, len(ctx.items_received))
+                if ctx.connectedToAp: #should catch drop traps somehow in multi-sends to prevent drop on connect
+                    ctx.socket.send_multipleItems(ctx.items_received, len(ctx.items_received))
             finally:
                 ctx._get_items_running = False
 
