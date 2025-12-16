@@ -163,7 +163,7 @@ class KHDDDContext(CommonContext):
 
     async def send_slot_data(self):
         while not self.exit_event.is_set():
-            if not self.connectedToDDD:
+            if not self.connectedToDDD or self._get_items_running:
                 await asyncio.sleep(5)
                 continue
             elif self.slot_data_info:
