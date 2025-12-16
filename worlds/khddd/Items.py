@@ -27,8 +27,9 @@ def get_items_by_category(category: str) -> Dict[str, KHDDDItemData]:
 def get_items_by_character_category(character:int, category: str) -> Dict[str, KHDDDItemData]:
     item_dict: Dict[str, KHDDDItemData] = {}
     for name, data in item_data_table.items():
-        if data.category == category and data.character == character or data.category == category and data.character == 0:
-            item_dict.setdefault(name, data)
+        if data.category == category:
+            if data.character == character or data.character == 0 or character == 0:
+                item_dict.setdefault(name, data)
     return item_dict
 
 item_data_table: Dict[str, KHDDDItemData] = {
