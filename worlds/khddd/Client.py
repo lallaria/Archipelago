@@ -161,6 +161,9 @@ class KHDDDContext(CommonContext):
             self._get_items_running = True
             Utils.async_start(async_get_items(self), name="KHDDDGetItems")
 
+    def get_slot_data(self):
+        Utils.async_start(self.send_slot_data(), name="KHDDDGetSlotData")
+
     async def send_slot_data(self):
         while not self.exit_event.is_set():
             if not self.connectedToDDD or self._get_items_running:

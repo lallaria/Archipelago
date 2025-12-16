@@ -80,6 +80,9 @@ class KHDDDSocket():
                 self.send_client_cmd(DDDCommand.DEATH_LINK, str(self.client.death_link)) 
                 # Reapply deathlink to game after ddd websocket reconnect
                 self.client.get_items()
+
+                # Queue up a request for slot data
+                self.client.get_slot_data()
                 # Resend all items to game after ddd websocket reconnect 
                 return
             except OSError as e:
