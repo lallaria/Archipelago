@@ -8,35 +8,40 @@ class KHDDDRegionData(NamedTuple):
     locations: Optional[List[str]]
     region_exits: Optional[List[str]]
 
+#Initialize data table
+region_data_table: Dict[str, KHDDDRegionData] = {}
 
-region_data_table: Dict[str, KHDDDRegionData] = {
-    "World": KHDDDRegionData(None ,["Destiny Islands"]),
-    "World Map [Sora]": KHDDDRegionData([], ["World Map [Riku]", "Traverse Town [Sora]", "La Cite des Cloches [Sora]", "The Grid [Sora]", "Prankster's Paradise [Sora]", "Country of the Musketeers [Sora]", "Symphony of Sorcery [Sora]", "The World That Never Was [Sora]", "Levels"]),
-    "World Map [Riku]": KHDDDRegionData([], ["Traverse Town [Riku]", "La Cite des Cloches [Riku]", "The Grid [Riku]", "Prankster's Paradise [Riku]", "Country of the Musketeers [Riku]", "Symphony of Sorcery [Riku]", "The World That Never Was [Riku]"]),
-    "Traverse Town [Sora]": KHDDDRegionData([],["Traverse Town 2 [Sora]"]),
-    "Levels": KHDDDRegionData([], []),
-    "La Cite des Cloches [Sora]": KHDDDRegionData([],[]),
-    "The Grid [Sora]": KHDDDRegionData([],[]),
-    "Prankster's Paradise [Sora]": KHDDDRegionData([],[]),
-    "Country of the Musketeers [Sora]": KHDDDRegionData([],[]),
-    "Symphony of Sorcery [Sora]": KHDDDRegionData([],[]),
-    "The World That Never Was [Sora]": KHDDDRegionData([],[]),
-    "Traverse Town 2 [Sora]": KHDDDRegionData([],[]),
+def set_region_table():
+    global region_data_table
+    region_data_table = {
+        "World": KHDDDRegionData(None ,["Destiny Islands"]),
+        "World Map [Sora]": KHDDDRegionData([], ["World Map [Riku]", "Traverse Town [Sora]", "La Cite des Cloches [Sora]", "The Grid [Sora]", "Prankster's Paradise [Sora]", "Country of the Musketeers [Sora]", "Symphony of Sorcery [Sora]", "The World That Never Was [Sora]", "Levels"]),
+        "World Map [Riku]": KHDDDRegionData([], ["Traverse Town [Riku]", "La Cite des Cloches [Riku]", "The Grid [Riku]", "Prankster's Paradise [Riku]", "Country of the Musketeers [Riku]", "Symphony of Sorcery [Riku]", "The World That Never Was [Riku]"]),
+        "Traverse Town [Sora]": KHDDDRegionData([],["Traverse Town 2 [Sora]"]),
+        "Levels": KHDDDRegionData([], []),
+        "La Cite des Cloches [Sora]": KHDDDRegionData([],[]),
+        "The Grid [Sora]": KHDDDRegionData([],[]),
+        "Prankster's Paradise [Sora]": KHDDDRegionData([],[]),
+        "Country of the Musketeers [Sora]": KHDDDRegionData([],[]),
+        "Symphony of Sorcery [Sora]": KHDDDRegionData([],[]),
+        "The World That Never Was [Sora]": KHDDDRegionData([],[]),
+        "Traverse Town 2 [Sora]": KHDDDRegionData([],[]),
 
-    "Traverse Town [Riku]": KHDDDRegionData([],["Traverse Town 2 [Riku]"]),
-    "La Cite des Cloches [Riku]": KHDDDRegionData([],[]),
-    "The Grid [Riku]": KHDDDRegionData([],[]),
-    "Prankster's Paradise [Riku]": KHDDDRegionData([],[]),
-    "Country of the Musketeers [Riku]": KHDDDRegionData([],[]),
-    "Symphony of Sorcery [Riku]": KHDDDRegionData([],[]),
-    "The World That Never Was [Riku]": KHDDDRegionData([],[]),
-    "Traverse Town 2 [Riku]": KHDDDRegionData([],[]),
+        "Traverse Town [Riku]": KHDDDRegionData([],["Traverse Town 2 [Riku]"]),
+        "La Cite des Cloches [Riku]": KHDDDRegionData([],[]),
+        "The Grid [Riku]": KHDDDRegionData([],[]),
+        "Prankster's Paradise [Riku]": KHDDDRegionData([],[]),
+        "Country of the Musketeers [Riku]": KHDDDRegionData([],[]),
+        "Symphony of Sorcery [Riku]": KHDDDRegionData([],[]),
+        "The World That Never Was [Riku]": KHDDDRegionData([],[]),
+        "Traverse Town 2 [Riku]": KHDDDRegionData([],[]),
 
-    "Destiny Islands": KHDDDRegionData([],["World Map [Sora]"]),
+        "Destiny Islands": KHDDDRegionData([],["World Map [Sora]"]),
 }
 
 def create_regions(multiworld: MultiWorld, player: int, options):
     #Attach locations to regions
+    set_region_table() #Reset locations from prior DDD gens
 
     for name, data in location_data_table.items():
 
