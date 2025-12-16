@@ -647,6 +647,11 @@ def set_rules(khdddworld):
         ###################################
         #####The World That Never Was######
         ###################################
+        add_rule(khdddworld.get_location("The World That Never Was Delusive Beginning Third Elixir [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide", "High Jump"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
+        add_rule(khdddworld.get_location("The World That Never Was Delusive Beginning Keeba Tiger Recipe [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide", "High Jump"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
+
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Candy Goggles [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) or can_infinite_jump(state, player))
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Second Elixir [Riku]"),
