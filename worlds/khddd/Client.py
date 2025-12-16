@@ -61,6 +61,8 @@ class KHDDDContext(CommonContext):
     _connectedToAp: bool = False
     _connectedToDDD: bool = False
 
+    _get_items_running = False
+
     def __init__(self, server_address, password):
         super(KHDDDContext, self).__init__(server_address, password)
 
@@ -76,7 +78,7 @@ class KHDDDContext(CommonContext):
 
     async def connection_closed(self):
         await super(KHDDDContext, self).connection_closed()
-        self.connectedToAp = False
+        self._connectedToAp = False
         self.slot_data_info = {}
 
     @property
@@ -105,17 +107,17 @@ class KHDDDContext(CommonContext):
         self.socket.send(20, ["Closing"])
         self.socket.shutdown_server()
     
-    async def on_package(self, cmd: str, args: dict):
+    def on_package(self, cmd: str, args: dict):
         if cmd in {"Connected"}:
             self.connectedToAp = True
             self.slot_data_info = args['slot_data']
-            await self.send_slot_data()
+            asyncio.create_task(self.send_slot_data(), name="KHDDDSendSlotData")
         
         if cmd in {"ReceivedItems"}:
             if len(args["items"]) > 0:
-                self.socket.send_multipleItems(args["items"], len(args["items"]))
+                self.socket.send_multipleItems(args["items"], len(self.items_received))
             else:
-                self.socket.send_singleItem(args["items"][0].item, 1)
+                self.socket.send_singleItem(args["items"][0].item, len(self.items_received))
 
 
     def on_deathlink(self, data: dict[str, object]):
