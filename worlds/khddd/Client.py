@@ -114,7 +114,7 @@ class KHDDDContext(CommonContext):
             asyncio.create_task(self.send_slot_data(), name="KHDDDSendSlotData")
         
         if cmd in {"ReceivedItems"}:
-            if len(args["items"]) > 0:
+            if len(args["items"]) > 1:
                 self.socket.send_multipleItems(args["items"], len(self.items_received))
             else:
                 self.socket.send_singleItem(args["items"][0].item, len(self.items_received))
