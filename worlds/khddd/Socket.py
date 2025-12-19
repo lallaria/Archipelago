@@ -115,6 +115,8 @@ class KHDDDSocket():
                 self._safe_close_client()
                 await self._accept_client()
                 return
+            except (ValueError) as ve:
+                logger.debug(f"Message was improperly formatted: {message}\n {ve}")
 
     def send(self, msgId: int, values: list):
         if not self.isConnected or self.client_socket is None:
