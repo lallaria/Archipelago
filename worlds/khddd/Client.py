@@ -54,6 +54,8 @@ class KHDDDContext(CommonContext):
     items_handling = 0b111 #Attempt full remote
     death_link: bool = False
 
+    sent_notifications = 0
+
     #Vars for socket
     socket: KHDDDSocket = None
     check_location_IDs = []
@@ -118,6 +120,23 @@ class KHDDDContext(CommonContext):
                 self.socket.send_multipleItems(args["items"], len(self.items_received))
             else:
                 self.socket.send_singleItem(args["items"][0].item, len(self.items_received))
+
+        #Send item notifications to game
+        if cmd in {"PrintJSON"} and "type" in args:
+            if args["type"] == "ItemSend":
+                item = args["item"]
+                networkItem = NetworkItem(*item)
+                receiverID = args["receiving"]
+                senderID = networkItem.player
+                if receiverID == self.slot or senderID == self.slot:
+                    itemName = self.item_names.lookup_in_slot(networkItem.item, receiverID)[:20]
+                    itemCategory = networkItem.flags
+                    receiverName = self.player_names[receiverID][:20]
+                    #message = ""
+                    if senderID == self.slot and receiverID != senderID: # Item sent to someone else
+                        #message = itemName + "\nTo " + receiverName
+                        #logger.info(message)
+                        self.socket.item_msg(str(itemName), str(receiverName), str(itemCategory))
 
 
     def on_deathlink(self, data: dict[str, object]):

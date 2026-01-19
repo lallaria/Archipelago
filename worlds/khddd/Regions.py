@@ -51,7 +51,7 @@ def create_regions(multiworld: MultiWorld, player: int, options):
 
         # Skip character-specific locations
         if name.find("Superbosses") == -1:
-            if options.character == 1 and name.find("Riku") > -1 or options.character == 2 and name.find("Sora") > -1:
+            if options.character == 1 and name.find("Sora") == -1 or options.character == 2 and name.find("Riku") == -1:
                 continue
 
         # Skip AVN is not needed
@@ -69,6 +69,10 @@ def create_regions(multiworld: MultiWorld, player: int, options):
 
         # Skip YX if goal is not final boss
         if name.find("Young Xehanort Defeated") > -1 and options.goal == 1:
+            continue
+
+        #Skip Lord Kyroo if disabled
+        if name.find("Lord Kyroo") > -1 and not options.lord_kyroo:
             continue
 
         if not name in region_data_table[data.region].locations:
