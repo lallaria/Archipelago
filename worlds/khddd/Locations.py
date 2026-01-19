@@ -2226,6 +2226,24 @@ location_data_table: Dict[str, KHDDDLocationData] = {
         code=2650648,
     ),
 
+    #Lord Kyroo
+    "La Cite des Cloches Nave Lord Kyroo Fight [Riku]": KHDDDLocationData(
+        region="La Cite des Cloches [Riku]",
+        code=2650649,
+    ),
+    "Prankster's Paradise Promontory Lord Kyroo Fight [Sora]": KHDDDLocationData(
+        region="Prankster's Paradise [Sora]",
+        code=2650650,
+    ),
+    "Symphony of Sorcery Moonlight Wood Lord Kyroo Fight [Riku]": KHDDDLocationData(
+        region="Symphony of Sorcery [Riku]",
+        code=2650651,
+    ),
+    "Lord Kyroo Defeated [Sora] [Riku]": KHDDDLocationData(
+        region="World Map [Sora]",
+        code=2650652,
+    ),
+
 
     #Levels
     "Sora Level 02": KHDDDLocationData(region="Levels",code=2660010),

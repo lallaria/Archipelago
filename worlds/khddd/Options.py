@@ -11,7 +11,7 @@ class StartingWorlds(Range):
     range_start = 1
     range_end = 10
 
-class Character(NamedRange):
+class Character(Choice):
     """
     Determines whether to play as Sora, Riku, or Both
     0: Both
@@ -20,15 +20,11 @@ class Character(NamedRange):
     """
     display_name = "Character"
     default = 0
-    range_start = 0
-    range_end = 2
-    special_range_names = {
-        "both": 0,
-        "sora": 1,
-        "riku": 2,
-    }
+    option_both = 0
+    option_sora = 1
+    option_riku = 2
 
-class Goal(NamedRange):
+class Goal(Choice):
     """
     Win Condition
     0: Defeat the Final Boss (Xemnas for Sora and Young Xehanort for Riku
@@ -36,12 +32,8 @@ class Goal(NamedRange):
     """
     display_name = "Goal"
     default = 0
-    range_start = 0
-    range_end = 1
-    special_range_names = {
-        "final_boss": 0,
-        "superbosses": 1
-    }
+    option_final_boss = 0
+    option_superbosses = 1
 
 class AVN(Toggle):
     """
@@ -75,6 +67,15 @@ class Superbosses(Toggle):
     Determines whether Secret Portals and Julius  are checks
     This option is ignored if the Goal is Superbosses
     """
+
+class LordKyroo(Toggle):
+    display_name = "Lord Kyroo"
+    """
+    Determines whether fighting Lord Kyroo is needed for checks.
+    Each unique location he can be fought grants a check, as well
+    as granting an additional check for defeating him.
+    """
+    default = True
 
 #####################################
 #########Quality of Life#############
@@ -146,6 +147,7 @@ class SkipLightCycle(Toggle):
     Does nothing if the player chooses Sora as their character.
     """
     display_name = "Skip Light Cycle"
+    default = True
 
 class FastGoMode(Toggle):
     """
@@ -225,6 +227,32 @@ class SingleFlowmotion(Toggle):
     """
     display_name = "Flowmotion is One Item"
 
+class ReceivedItemNotifications(Choice):
+    """
+    Determine how received item notifications are handled
+    0: Display a notification for every received item
+    1: Display a notification for received progressive items only
+    2: Do not display received item notifications
+    """
+    display_name = "Local Item Notifications"
+    default = 0
+    option_display_received_all = 0
+    option_display_received_progressive = 1
+    option_display_received_none = 2
+
+class SentItemNotifications(Choice):
+    """
+    Determine how sent item notifications are handled
+    0: Display a notification for every sent item
+    1: Display a notification for sent progressive items only
+    2: Do not display sent item notifications
+    """
+    display_name = "Sent Item Notifications"
+    default = 0
+    option_display_sent_all = 0
+    option_display_sent_progressive = 1
+    option_display_sent_none = 2
+
 @dataclass
 class KHDDDOptions(PerGameCommonOptions):
     character: Character
@@ -234,6 +262,7 @@ class KHDDDOptions(PerGameCommonOptions):
     recipes_in_pool: RecipesInPool
     starting_worlds: StartingWorlds
     superbosses: Superbosses
+    lord_kyroo: LordKyroo
     play_destiny_islands: PlayDestinyIslands
     skip_light_cycle: SkipLightCycle
     fast_go_mode: FastGoMode
@@ -250,5 +279,7 @@ class KHDDDOptions(PerGameCommonOptions):
     instant_drop_trap_chance: InstantDropTrapChance
     stats_on_levels: StatsOnLevels
     single_flowmotion: SingleFlowmotion
+    received_notifications: ReceivedItemNotifications
+    sent_notifications: SentItemNotifications
 
     start_inventory_from_pool: StartInventoryPool
