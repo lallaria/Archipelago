@@ -258,7 +258,8 @@ icon_paths = {
     'discord': local_path('data', 'discord-mark-blue.png'),
 }
 
-if not is_frozen():
+running_chati_build: bool = True
+if running_chati_build:
     def _build_apworlds(*launch_args: str):
         import json
         import os
