@@ -235,7 +235,7 @@ def set_rules(khdddworld):
 
         #####Third District Balcony#####
         add_rule(khdddworld.get_location("Traverse Town Third District Vibrant Fantasy [Sora]"),
-                 lambda state: state.has_any({"Glide", "Superglide", "High Jump"}, player) or can_infinite_jump(state, player))
+                 lambda state: state.has("High Jump", player) or can_infinite_jump(state, player))
 
         #####Second District Rooftops#####
         add_rule(khdddworld.get_location("Traverse Town Second District Confetti Candy [Sora]"),
@@ -446,6 +446,9 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("Traverse Town Back Streets Intrepid Figment [Riku]"),
                  lambda state: state.has_all({"Double Flight", "Air Slide"}, player) or (
                      can_infinite_jump(state, player)) or state.has("Flowmotion", player))
+
+        add_rule(khdddworld.get_location("Traverse Town Fountain Plaza Blizzard Edge [Riku]"),
+                 lambda state: state.has_any({"Double Flight", "High Jump", "Flowmotion"}, player) or can_infinite_jump(state, player))
 
         add_rule(khdddworld.get_location("Traverse Town Garden Royal Cake [Riku]"),
                  lambda state: state.has_any({"Rail Slide, Flowmotion"}, player) or can_infinite_jump(state, player))
@@ -667,7 +670,11 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Wondrous Fantasy [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) or can_infinite_jump(state, player))
 
-        add_rule(khdddworld.get_location("The World That Never Was Ansem II Bonus Slot 1 [Riku]"),
+        add_rule(khdddworld.get_location("The World That Never Was Ansem II Defeated [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
+        add_rule(khdddworld.get_location("The World That Never Was Ansem I Defeated [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
+        add_rule(khdddworld.get_location("The World That Never Was Anti Black Coat Nightmare Defeated [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
 
         if options.goal == 0: #YX/AVN can only be played with Final Boss goal

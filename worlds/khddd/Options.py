@@ -135,8 +135,8 @@ class PlayDestinyIslands(Toggle):
     This grants 5 additional checks.
     Does nothing if the player chooses Riku as their character.
 
-    NOTE: Need to connect to the server during the intro cutscene
-          with Braig in order for this to take effect.
+    NOTE: Need to connect to the server before starting a new game
+          in order for this to take effect.
     """
     display_name = "Play Ursula Battle"
 
