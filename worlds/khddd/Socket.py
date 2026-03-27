@@ -59,6 +59,7 @@ class KHDDDSocket():
         self.host: str = host
         self.port: int = port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setblocking(False)
         self.client_socket = None
         self.deathTime = ""
         self.goaled = False

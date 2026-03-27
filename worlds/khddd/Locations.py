@@ -409,7 +409,7 @@ location_data_table: Dict[str, KHDDDLocationData] = {
         region="Symphony of Sorcery [Riku]",
         code=2670282
     ),
-    "The World That Never Was Ansem II Bonus Slot 1 [Riku]": KHDDDLocationData(
+    "The World That Never Was Ansem II Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
         code=2670283
     ),
@@ -420,6 +420,14 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     "Armored Ventus Nightmare Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
         code=2670295
+    ),
+    "The World That Never Was Ansem I Defeated [Riku]": KHDDDLocationData(
+        region="The World That Never Was [Riku]",
+        code=2670296
+    ),
+    "The World That Never Was Anti Black Coat Nightmare Defeated [Riku]": KHDDDLocationData(
+        region="The World That Never Was [Riku]",
+        code=2670297
     ),
 
     ########################################
