@@ -409,7 +409,7 @@ location_data_table: Dict[str, KHDDDLocationData] = {
         region="Symphony of Sorcery [Riku]",
         code=2670282
     ),
-    "The World That Never Was Ansem II Bonus Slot 1 [Riku]": KHDDDLocationData(
+    "The World That Never Was Ansem II Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
         code=2670283
     ),
@@ -420,6 +420,14 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     "Armored Ventus Nightmare Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
         code=2670295
+    ),
+    "The World That Never Was Ansem I Defeated [Riku]": KHDDDLocationData(
+        region="The World That Never Was [Riku]",
+        code=2670296
+    ),
+    "The World That Never Was Anti Black Coat Nightmare Defeated [Riku]": KHDDDLocationData(
+        region="The World That Never Was [Riku]",
+        code=2670297
     ),
 
     ########################################
@@ -2224,6 +2232,24 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     "The World That Never Was Delusive Beginning Third Elixir [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
         code=2650648,
+    ),
+
+    #Lord Kyroo
+    "La Cite des Cloches Nave Lord Kyroo Fight [Riku]": KHDDDLocationData(
+        region="La Cite des Cloches [Riku]",
+        code=2650649,
+    ),
+    "Prankster's Paradise Promontory Lord Kyroo Fight [Sora]": KHDDDLocationData(
+        region="Prankster's Paradise [Sora]",
+        code=2650650,
+    ),
+    "Symphony of Sorcery Moonlight Wood Lord Kyroo Fight [Riku]": KHDDDLocationData(
+        region="Symphony of Sorcery [Riku]",
+        code=2650651,
+    ),
+    "Lord Kyroo Defeated [Sora] [Riku]": KHDDDLocationData(
+        region="World Map [Sora]",
+        code=2650652,
     ),
 
 

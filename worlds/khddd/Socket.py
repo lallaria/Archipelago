@@ -20,6 +20,7 @@ class MessageType(IntEnum):
     Victory = 11
     Handshake = 12
     GetCurrentIndex = 13
+    ItemPrompt = 14
     Closed = 20
 
 class DDDCommand(IntEnum):
@@ -38,6 +39,8 @@ class SlotDataType(IntEnum):
     recipe_reqs = 6
     win_con = 7
     stat_bonus = 8
+    lord_kyroo = 9
+    local_item_notifs = 10
 
 class KHDDDSocket():
     @property
@@ -56,6 +59,7 @@ class KHDDDSocket():
         self.host: str = host
         self.port: int = port
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setblocking(False)
         self.client_socket = None
         self.deathTime = ""
         self.goaled = False
@@ -239,6 +243,9 @@ class KHDDDSocket():
             values.append(extParam)
         logger.debug(f"Sending client command to player: {cmdId}")
         self.send(MessageType.ClientCommand, values)
+
+    def item_msg(self, itemName:str, owningPlayer:str, itemCategory:str):
+        self.send(MessageType.ItemPrompt, [itemName, owningPlayer, itemCategory])
 
     def shutdown_server(self):
         self.client_socket.close()

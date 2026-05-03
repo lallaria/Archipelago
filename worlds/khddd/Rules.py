@@ -235,7 +235,7 @@ def set_rules(khdddworld):
 
         #####Third District Balcony#####
         add_rule(khdddworld.get_location("Traverse Town Third District Vibrant Fantasy [Sora]"),
-                 lambda state: state.has_any({"Glide", "Superglide", "High Jump"}, player) or can_infinite_jump(state, player))
+                 lambda state: state.has("High Jump", player) or can_infinite_jump(state, player))
 
         #####Second District Rooftops#####
         add_rule(khdddworld.get_location("Traverse Town Second District Confetti Candy [Sora]"),
@@ -447,6 +447,9 @@ def set_rules(khdddworld):
                  lambda state: state.has_all({"Double Flight", "Air Slide"}, player) or (
                      can_infinite_jump(state, player)) or state.has("Flowmotion", player))
 
+        add_rule(khdddworld.get_location("Traverse Town Fountain Plaza Blizzard Edge [Riku]"),
+                 lambda state: state.has_any({"Double Flight", "High Jump", "Flowmotion"}, player) or can_infinite_jump(state, player))
+
         add_rule(khdddworld.get_location("Traverse Town Garden Royal Cake [Riku]"),
                  lambda state: state.has_any({"Rail Slide, Flowmotion"}, player) or can_infinite_jump(state, player))
 
@@ -600,6 +603,10 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("Symphony of Sorcery Moonlight Wood Intrepid Fancy [Riku]"),
                  lambda state: state.has_any({"High Jump", "Double Flight", "Flowmotion"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
 
+        if options.lord_kyroo:
+            add_rule(khdddworld.get_location("Symphony of Sorcery Moonlight Wood Lord Kyroo Fight [Riku]"),
+                     lambda state: state.has_any({"High Jump", "Double Flight", "Flowmotion"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
+
         #####Golden Wood#####
         add_rule(khdddworld.get_location("Symphony of Sorcery Golden Wood Elixir [Riku]"),
                  lambda state: state.has_any({"High Jump", "Double Flight", "Flowmotion"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
@@ -663,7 +670,11 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Wondrous Fantasy [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) or can_infinite_jump(state, player))
 
-        add_rule(khdddworld.get_location("The World That Never Was Ansem II Bonus Slot 1 [Riku]"),
+        add_rule(khdddworld.get_location("The World That Never Was Ansem II Defeated [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
+        add_rule(khdddworld.get_location("The World That Never Was Ansem I Defeated [Riku]"),
+                 lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
+        add_rule(khdddworld.get_location("The World That Never Was Anti Black Coat Nightmare Defeated [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) and state.has("Air Slide", player))
 
         if options.goal == 0: #YX/AVN can only be played with Final Boss goal
@@ -686,6 +697,16 @@ def set_rules(khdddworld):
                          lambda state: state.has_any({"Rail Slide", "Flowmotion"}, player))
 
 
+    #Lord Kyroo Completion Access
+    if options.lord_kyroo:
+        if options.character == 0 or options.character == 1:
+            add_rule(khdddworld.get_location("Lord Kyroo Defeated [Sora] [Riku]"),
+                     lambda state: state.can_reach(khdddworld.get_location("Prankster's Paradise Promontory Lord Kyroo Fight [Sora]"), player))
+        elif options.character == 0 or options.character == 2:
+            add_rule(khdddworld.get_location("Lord Kyroo Defeated [Sora] [Riku]"),
+                     lambda state: state.can_reach(khdddworld.get_location("La Cite des Cloches Nave Lord Kyroo Fight [Riku]"), player))
+            add_rule(khdddworld.get_location("Lord Kyroo Defeated [Sora] [Riku]"),
+                     lambda state: state.can_reach(khdddworld.get_location("Symphony of Sorcery Moonlight Wood Lord Kyroo Fight [Riku]"), player))
 
     #Region rules
     if options.character == 0:
