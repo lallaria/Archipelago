@@ -1,0 +1,14 @@
+name: Create and Release Python Package
+on:
+  release:
+    types: [published]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # for the wheel branch + tag push to this repo
+
+jobs:
+  publish:
+    uses: MultiworldGG/build-and-publish-action/.github/workflows/build.yml@v3
+    # No `with:` — slug comes from vars.WORLD_FOLDER_NAME
+    # No `secrets:` — no Oliver secrets needed
