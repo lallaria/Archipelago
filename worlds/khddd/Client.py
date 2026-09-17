@@ -64,6 +64,7 @@ class KHDDDContext(CommonContext):
     socket: KHDDDSocket = None
     check_location_IDs = []
     slot_data_info: Dict[str, str] = {}
+    last_room: Dict[str, int] = {}
     _connectedToAp: bool = False
     _connectedToDDD: bool = False
     _dddPatched: bool = False
@@ -120,6 +121,7 @@ class KHDDDContext(CommonContext):
             self.slot_data_info = args['slot_data']
             asyncio.create_task(self.send_slot_data(), name="KHDDDSendSlotData")
             self.locations_checked = set(args['checked_locations'])
+            self.send_room()
         
         if cmd in {"ReceivedItems"}:
             if len(args["items"]) > 0:
@@ -195,9 +197,26 @@ class KHDDDContext(CommonContext):
             Utils.async_start(async_get_items(self), name="KHDDDGetItems")
 
     def set_data_storage(self, world, room, character):
-        self.stored_data["current_world"] = world
-        self.stored_data["current_room"] = room
-        self.stored_data["current_character"] = character
+        try:
+            self.last_room = {"world": int(world), "room": int(room), "character": int(character)}
+        except (TypeError, ValueError):
+            logger.warning(f"Ignoring malformed room info from game: {world!r}, {room!r}, {character!r}")
+            return
+        self.send_room()
+
+    def send_room(self):
+        """Pushes the last known position to server data storage"""
+        if not (self.server and self.slot and self.last_room):
+            return
+        key = f"khddd_{self.team}_{self.slot}_room"
+        self.stored_data[key] = self.last_room
+        asyncio.create_task(self.send_msgs([{
+            "cmd": "Set",
+            "key": key,
+            "default": {},
+            "want_reply": False,
+            "operations": [{"operation": "replace", "value": self.last_room}],
+        }]), name="KHDDDSendRoom")
 
     def get_slot_data(self):
         Utils.async_start(self.send_slot_data(), name="KHDDDGetSlotData")
