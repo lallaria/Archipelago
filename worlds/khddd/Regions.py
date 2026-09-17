@@ -64,14 +64,12 @@ def create_regions(multiworld: MultiWorld, player: int, options, khdddworld):
         if name.find("Ventus") > -1 and not options.armored_ventus_nightmare or options.goal == 1 and name.find("Ventus") > -1:
             continue
 
-        # Skip Superbosses if not enabled
-        if is_location_superboss(name):
-            if not options.superbosses and options.goal == 0:
+        # The Superbosses goal forces every superboss check on
+        if options.goal != 1:
+            if is_location_superboss(name) and not options.superbosses:
                 continue
-
-        # Skip the final superboss location if goal is not superbosses
-        if name.find("All Superbosses Defeated") > -1 and options.goal == 0:
-            continue
+            if name.find("All Superbosses Defeated") > -1:
+                continue
 
         # Skip all emblems found location if no emblems are in the pool
         if name.find("Lucky Emblems") > -1 and options.emblem_reqs == 0 and options.goal != 2:

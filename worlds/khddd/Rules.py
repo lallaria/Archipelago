@@ -375,7 +375,7 @@ def set_rules(khdddworld):
             if data.region == "The Grid [Sora]" and name != "The Grid City Potion [Sora]":
 
                 if name == "The Grid Secret Portal [Sora]":
-                    if not options.superbosses and options.goal == 0:
+                    if not options.superbosses and options.goal != 1:
                         continue
 
                 add_rule(khdddworld.get_location(name),
