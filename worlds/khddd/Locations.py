@@ -12,7 +12,6 @@ class KHDDDLocation(Location):
 class KHDDDLocationData(NamedTuple):
     region: str
     code: int
-    category: str = "Chest"
 
 def get_locations_by_region(region: str) -> Dict[str, KHDDDLocationData]:
     location_dict: Dict[str, KHDDDLocationData] = {}
@@ -22,87 +21,68 @@ def get_locations_by_region(region: str) -> Dict[str, KHDDDLocationData]:
 
     return location_dict
 
-def get_location_type(loc_code:int):
-    for name, data in location_data_table.items():
-        if data.code == loc_code:
-            return data.category
-    return "None"
-
 location_data_table: Dict[str, KHDDDLocationData] = {
     ########################################
     ###########Secret Portals###############
     ########################################
     "Traverse Town Secret Portal [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2680201,
-        category="Portal"
+        code=2680201
     ),
     "Traverse Town Secret Portal [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2680202,
-        category="Portal"
+        code=2680202
     ),
 
     "La Cite des Cloches Secret Portal [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2680203,
-        category="Portal"
+        code=2680203
     ),
     "La Cite des Cloches Secret Portal [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2680204,
-        category="Portal"
+        code=2680204
     ),
 
     "The Grid Secret Portal [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
-        code=2680205,
-        category="Portal"
+        code=2680205
     ),
     "The Grid Secret Portal [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2680206,
-        category="Portal"
+        code=2680206
     ),
 
     "Prankster's Paradise Secret Portal [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2680207,
-        category="Portal"
+        code=2680207
     ),
     "Prankster's Paradise Secret Portal [Riku]": KHDDDLocationData(
         region="Prankster's Paradise [Riku]",
-        code=2680208,
-        category="Portal"
+        code=2680208
     ),
 
     "Country of the Musketeers Secret Portal [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2680209,
-        category="Portal"
+        code=2680209
     ),
     "Country of the Musketeers Secret Portal [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2680210,
-        category="Portal"
+        code=2680210
     ),
 
     "Symphony of Sorcery Secret Portal [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2680211,
-        category="Portal"
+        code=2680211
     ),
 
     "Unbound Keyblade Reward [Sora]": KHDDDLocationData(
         region="World Map [Sora]",
-        code = 2680212,
-        category="Reward"
+        code = 2680212
     ),
 
     "Unbound Keyblade Reward [Riku]": KHDDDLocationData(
         region="World Map [Riku]",
-        code = 2680213,
-        category="Reward"
+        code = 2680213
     ),
 
     ########################################
@@ -110,229 +90,184 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     ########################################
     "Destiny Islands Ursula Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="Destiny Islands",
-        code=2670201,
-        category="Slot"
+        code=2670201
     ),
     "Destiny Islands Flashback: The Mark of Mastery Exam Reward [Sora]": KHDDDLocationData(
         region="Destiny Islands",
-        code=2670202,
-        category="Reward"
+        code=2670202
     ),
     "Destiny Islands Glossary: Keyblades Reward [Sora]": KHDDDLocationData(
         region="Destiny Islands",
-        code=2670203,
-        category="Reward"
+        code=2670203
     ),
     "Destiny Islands Glossary: Keyblade Masters Reward [Sora]": KHDDDLocationData(
         region="Destiny Islands",
-        code=2670204,
-        category="Reward"
+        code=2670204
     ),
     "Destiny Islands Glossary: Master Xehanort Reward [Sora]": KHDDDLocationData(
         region="Destiny Islands",
-        code=2670205,
-        category="Reward"
+        code=2670205
     ),
 
     "Traverse Town Flashback: Dream Eaters Reward [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670206,
-        category="Reward"
+        code=2670206
     ),
     "Traverse Town Glossary: Heartless Reward [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670207,
-        category="Reward"
+        code=2670207
     ),
     "Traverse Town Hockomonkey Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670211,
-        category="Slot"
+        code=2670211
     ),
     "Traverse Town Hockomonkey Bonus Slot 2 [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670212,
-        category="Slot"
+        code=2670212
     ),
     "Traverse Town Skull Noise Reward [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670213,
-        category="Reward"
+        code=2670213
     ),
     "La Cite des Cloches Zolephant Recipe Reward [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670214,
-        category="Reward"
+        code=2670214
     ),
     "La Cite des Cloches Flashback: Frollo Warns Quasimodo Reward [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670215,
-        category="Reward"
+        code=2670215
     ),
     "La Cite des Cloches Flower Fight Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670216,
-        category="Slot"
+        code=2670216
     ),
     "La Cite des Cloches Wargoyle Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670217,
-        category="Slot"
+        code=2670217
     ),
-    "La Cite des Cloches Guardian Bell Reward [Sora]": KHDDDLocationData(
+    "La Cite des Cloches Chronicle Bell Reward [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670218,
-        category="Reward"
+        code=2670218
     ),
     "La Cite des Cloches Chronicle BBS Reward [Sora]": KHDDDLocationData(
         region="La Cite des Cloches [Sora]",
-        code=2670219,
-        category="Reward"
+        code=2670219
     ),
     "The Grid Counter Rush Reward [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
-        code=2670220,
-        category="Reward"
+        code=2670220
     ),
     "The Grid Rinzler Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
-        code=2670221,
-        category="Slot"
+        code=2670221
     ),
     "The Grid Rinzler Bonus Slot 2 [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
-        code=2670222,
-        category="Slot"
+        code=2670222
     ),
     "The Grid Dual Disc [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
-        code=2670223,
-        category="Reward"
+        code=2670223
     ),
     "Prankster's Paradise Flashback: When World's Dream Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670224,
-        category="Reward"
+        code=2670224
     ),
     "Prankster's Paradise Flashback: Pinocchio Lies Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670225,
-        category="Reward"
+        code=2670225
     ),
     "Prankster's Paradise Found Pinocchio HP Bonus [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670226,
-        category="Slot"
+        code=2670226
     ),
     "Prankster's Paradise Jestabocky Recipe Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670227,
-        category="Reward"
+        code=2670227
     ),
     "Prankster's Paradise High Jump Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670228,
-        category="Reward"
+        code=2670228
     ),
     "Prankster's Paradise Glossary: Nobodies Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670229,
-        category="Reward"
+        code=2670229
     ),
     "Prankster's Paradise Glossary: Organization XIII Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670230,
-        category="Reward"
+        code=2670230
     ),
     "Prankster's Paradise Chronicle: KH2 Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670231,
-        category="Reward"
+        code=2670231
     ),
     "Prankster's Paradise Flashback: In Search of Monstro Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670232,
-        category="Reward"
+        code=2670232
     ),
     "Prankster's Paradise Chill Clawbster Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670233,
-        category="Slot"
+        code=2670233
     ),
     "Prankster's Paradise Ferris Gear Reward [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
-        code=2670234,
-        category="Reward"
+        code=2670234
     ),
     "Country of the Musketeers Flashback: Overnight Musketeers Reward [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2670235,
-        category="Reward"
+        code=2670235
     ),
     "Country of the Musketeers Tyranto Rex Recipe Reward [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2670236,
-        category="Reward"
+        code=2670236
     ),
     "Country of the Musketeers Slide Roll Reward [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2670237,
-        category="Reward"
+        code=2670237
     ),
     "Country of the Musketeers Pete Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2670238,
-        category="Slot"
+        code=2670238
     ),
     "Country of the Musketeers All For One Reward [Sora]": KHDDDLocationData(
         region="Country of the Musketeers [Sora]",
-        code=2670239,
-        category="Reward"
+        code=2670239
     ),
     "Symphony of Sorcery Flashback: Sorcerer's Apprentice Reward [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2670240,
-        category="Reward"
+        code=2670240
     ),
     "Symphony of Sorcery Double Impact Reward [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2670241,
-        category="Reward"
+        code=2670241
     ),
     "Symphony of Sorcery Spellican Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2670242,
-        category="Slot"
+        code=2670242
     ),
     "Symphony of Sorcery Spellican Bonus Slot 2 [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2670243,
-        category="Slot"
+        code=2670243
     ),
     "Symphony of Sorcery Counterpoint Reward [Sora]": KHDDDLocationData(
         region="Symphony of Sorcery [Sora]",
-        code=2670244,
-        category="Reward"
+        code=2670244
     ),
     "The World That Never Was Xemnas Bonus Slot 1 [Sora]": KHDDDLocationData(
         region="The World That Never Was [Sora]",
-        code=2670245,
-        category="Slot"
+        code=2670245
     ),
     "The World That Never Was Glossary: Recusant's Sigil Reward [Sora]": KHDDDLocationData(
         region="The World That Never Was [Sora]",
-        code=2670246,
-        category="Reward"
+        code=2670246
     ),
     "The World That Never Was Glossary: Hearts Tied to Sora Reward [Sora]": KHDDDLocationData(
         region="The World That Never Was [Sora]",
-        code=2670247,
-        category="Reward"
+        code=2670247
     ),
     "Traverse Town Meow Wow Recipe Reward [Sora]": KHDDDLocationData(
         region="Traverse Town [Sora]",
-        code=2670248,
-        category="Reward"
+        code=2670248
     ),
 
     ########################################
@@ -340,198 +275,159 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     ########################################
     "Traverse Town Komory Bat Recipe Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670249,
-        category="Reward"
+        code=2670249
     ),
     "Traverse Town Flashback: Keyblade War Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670250,
-        category="Reward"
+        code=2670250
     ),
     "Traverse Town Glossary: Keyblade War Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670251,
-        category="Reward"
+        code=2670251
     ),
     "Traverse Town Glossary: Kingdom Hearts Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670252,
-        category="Reward"
+        code=2670252
     ),
     "Traverse Town Glossary: Keyblade Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670253,
-        category="Reward"
+        code=2670253
     ),
     "Traverse Town Rescue Shiki Bonus Slot [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670254,
-        category="Slot"
+        code=2670254
     ),
     "Traverse Town Hockomonkey Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670255,
-        category="Slot"
+        code=2670255
     ),
     "Traverse Town Hockomonkey Bonus Slot 2 [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670256,
-        category="Slot"
+        code=2670256
     ),
     "Traverse Town Skull Noise Reward [Riku]": KHDDDLocationData(
         region="Traverse Town [Riku]",
-        code=2670257,
-        category="Reward"
+        code=2670257
     ),
     "La Cite des Cloches Flashback: Dark Obsession Reward [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670258,
-        category="Reward"
+        code=2670258
     ),
     "La Cite des Cloches Sonic Impact Reward [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670259,
-        category="Reward"
+        code=2670259
     ),
     "La Cite des Cloches Wargoyle Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670260,
-        category="Slot"
+        code=2670260
     ),
     "La Cite des Cloches Wargoyle Bonus Slot 2 [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670261,
-        category="Slot"
+        code=2670261
     ),
     "La Cite des Cloches Chronicle: Kingdom Hearts Reward [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670262,
-        category="Reward"
+        code=2670262
     ),
     "La Cite des Cloches Guardian Bell Reward [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
-        code=2670263,
-        category="Reward"
+        code=2670263
     ),
     "The Grid Light Cycle Bonus Slot [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670264,
-        category="Slot"
+        code=2670264
     ),
     "The Grid Flashback: Father and Son Reward [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670265,
-        category="Reward"
+        code=2670265
     ),
     "The Grid City Dream Eater Fight Bonus Slot [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670266,
-        category="Slot"
+        code=2670266
     ),
     "The Grid Flashback: Stolen Disk Reward [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670267,
-        category="Reward"
+        code=2670267
     ),
     "The Grid Commantis Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670268,
-        category="Slot"
+        code=2670268
     ),
     "The Grid Dual Disc Reward [Riku]": KHDDDLocationData(
         region="The Grid [Riku]",
-        code=2670269,
-        category="Reward"
+        code=2670269
     ),
     "Prankster's Paradise Chronicle: Chain of Memories Reward [Riku]": KHDDDLocationData(
         region="Prankster's Paradise [Riku]",
-        code=2670270,
-        category="Reward"
+        code=2670270
     ),
     "Prankster's Paradise Char Clobster Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="Prankster's Paradise [Riku]",
-        code=2670271,
-        category="Slot"
+        code=2670271
     ),
     "Prankster's Paradise Ocean's Rage Reward [Riku]": KHDDDLocationData(
         region="Prankster's Paradise [Riku]",
-        code=2670272,
-        category="Reward"
+        code=2670272
     ),
     "Country of the Musketeers Flashback: Bon Journey Reward [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670273,
-        category="Reward"
+        code=2670273
     ),
     "Country of the Musketeers Stage Gadget Reward [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670274,
-        category="Bonus" #Player gets rewarded the stage gadget here as well, so extra item is a bonus
+        code=2670274
     ),
     "Country of the Musketeers Holey Moley Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670275,
-        category="Slot"
+        code=2670275
     ),
     "Country of the Musketeers Shadow Slide Reward [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670276,
-        category="Reward"
+        code=2670276
     ),
     "Country of the Musketeers Shadow Strike Reward [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670277,
-        category="Reward"
+        code=2670277
     ),
     "Country of the Musketeers All For One Reward [Riku]": KHDDDLocationData(
         region="Country of the Musketeers [Riku]",
-        code=2670278,
-        category="Reward"
+        code=2670278
     ),
     "Symphony of Sorcery Flashback: A Magical Mishap Reward [Riku]": KHDDDLocationData(
         region="Symphony of Sorcery [Riku]",
-        code=2670279,
-        category="Reward"
+        code=2670279
     ),
     "Symphony of Sorcery Chernobog Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="Symphony of Sorcery [Riku]",
-        code=2670280,
-        category="Slot"
+        code=2670280
     ),
     "Symphony of Sorcery Chernobog Bonus Slot 2 [Riku]": KHDDDLocationData(
         region="Symphony of Sorcery [Riku]",
-        code=2670281,
-        category="Slot"
+        code=2670281
     ),
     "Symphony of Sorcery Counterpoint Reward [Riku]": KHDDDLocationData(
         region="Symphony of Sorcery [Riku]",
-        code=2670282,
-        category="Reward"
+        code=2670282
     ),
     "The World That Never Was Ansem II Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
-        code=2670283,
-        category="Slot" #This was previously a bonus; genned seeds might treat it as such
+        code=2670283
     ),
     "The World That Never Was Young Xehanort Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
-        code=2670284,
-        category="Bonus"
+        code=2670284
     ),
     "Armored Ventus Nightmare Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
-        code=2670295,
-        category="Bonus"
+        code=2670295
     ),
     "The World That Never Was Ansem I Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
-        code=2670296,
-        category="Bonus"
+        code=2670296
     ),
     "The World That Never Was Anti Black Coat Nightmare Defeated [Riku]": KHDDDLocationData(
         region="The World That Never Was [Riku]",
-        code=2670297,
-        category="Bonus"
+        code=2670297
     ),
 
     ########################################
@@ -539,68 +435,43 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     ########################################
     "Traverse Town 2 Sliding Sidewinder Reward [Sora]": KHDDDLocationData(
         region="Traverse Town 2 [Sora]",
-        code=2670285,
-        category="Reward"
+        code=2670285
     ),
     "Traverse Town 2 Knockout Punch Reward [Sora]": KHDDDLocationData(
         region="Traverse Town 2 [Sora]",
-        code=2670286,
-        category="Reward"
+        code=2670286
     ),
     "Traverse Town 2 Boss Gauntlet Reward [Sora]": KHDDDLocationData(
         region="Traverse Town 2 [Sora]",
-        code=2670287,
-        category="Bonus"
-    ),
-    "Traverse Town 2 Boss Gauntlet Bonus Slot 1 [Sora]": KHDDDLocationData(
-        region="Traverse Town 2 [Sora]",
-        code=2670298,
-        category="Slot"
-    ),
-    "Traverse Town 2 Boss Gauntlet Bonus Slot 2 [Sora]": KHDDDLocationData(
-        region="Traverse Town 2 [Sora]",
-        code=2670299,
-        category="Slot"
+        code=2670287
     ),
     "Traverse Town 2 Cera Terror Battle Bonus Slot 1 [Riku]": KHDDDLocationData(
         region="Traverse Town 2 [Riku]",
-        code=2670288,
-        category="Slot"
+        code=2670288
     ),
     "Traverse Town 2 Cera Terror Battle Bonus Slot 2 [Riku]": KHDDDLocationData(
         region="Traverse Town 2 [Riku]",
-        code=2670289,
-        category="Slot"
+        code=2670289
     ),
     "Traverse Town 2 Cera Terror Recipe Reward [Riku]": KHDDDLocationData(
         region="Traverse Town 2 [Riku]",
-        code=2670290,
-        category="Reward"
+        code=2670290
     ),
     "Traverse Town 2 Knockout Punch Reward [Riku]": KHDDDLocationData(
         region="Traverse Town 2 [Riku]",
-        code=2670291,
-        category="Reward"
+        code=2670291
     ),
     "Traverse Town 2 Ultima Weapon Reward [Sora]": KHDDDLocationData(
         region="Traverse Town 2 [Sora]",
-        code=2670292,
-        category="Reward"
+        code=2670292
     ),
     "Traverse Town 2 Ultima Weapon Reward [Riku]": KHDDDLocationData(
         region="Traverse Town 2 [Riku]",
-        code=2670293,
-        category="Reward"
+        code=2670293
     ),
     "All Superbosses Defeated [Sora] [Riku]": KHDDDLocationData(
         region="World Map [Sora]",
-        code=2670294,
-        category="Bonus"
-    ),
-    "All Lucky Emblems Found [Sora] [Riku]": KHDDDLocationData(
-        region="World Map [Sora]",
-        code=2670300,
-        category="Bonus"
+        code=2670294
     ),
     
     ########################################
@@ -2367,225 +2238,121 @@ location_data_table: Dict[str, KHDDDLocationData] = {
     "La Cite des Cloches Nave Lord Kyroo Fight [Riku]": KHDDDLocationData(
         region="La Cite des Cloches [Riku]",
         code=2650649,
-        category="Bonus"
     ),
     "Prankster's Paradise Promontory Lord Kyroo Fight [Sora]": KHDDDLocationData(
         region="Prankster's Paradise [Sora]",
         code=2650650,
-        category="Bonus"
     ),
     "Symphony of Sorcery Moonlight Wood Lord Kyroo Fight [Riku]": KHDDDLocationData(
         region="Symphony of Sorcery [Riku]",
         code=2650651,
-        category="Bonus"
     ),
     "Lord Kyroo Defeated [Sora] [Riku]": KHDDDLocationData(
         region="World Map [Sora]",
         code=2650652,
-        category="Reward"
     ),
 
 
     #Levels
-    "Sora Level 02": KHDDDLocationData(region="Levels",code=2660002,category="Slot"),
-    "Sora Level 03": KHDDDLocationData(region="Levels",code=2660003,category="Slot"),
-    "Sora Level 04": KHDDDLocationData(region="Levels",code=2660004,category="Slot"),
-    "Sora Level 05": KHDDDLocationData(region="Levels",code=2660005,category="Slot"),
-    "Sora Level 06": KHDDDLocationData(region="Levels",code=2660006,category="Slot"),
-    "Sora Level 07": KHDDDLocationData(region="Levels", code=2660007,category="Slot"),
-    "Sora Level 08": KHDDDLocationData(region="Levels", code=2660008,category="Slot"),
-    "Sora Level 09": KHDDDLocationData(region="Levels", code=2660009,category="Slot"),
-    "Sora Level 10": KHDDDLocationData(region="Levels", code=2660010,category="Slot"),
-    "Sora Level 11": KHDDDLocationData(region="Levels", code=2660011,category="Slot"),
-    "Sora Level 12": KHDDDLocationData(region="Levels", code=2660012,category="Slot"),
-    "Sora Level 13": KHDDDLocationData(region="Levels", code=2660013,category="Slot"),
-    "Sora Level 14": KHDDDLocationData(region="Levels", code=2660014,category="Slot"),
-    "Sora Level 15": KHDDDLocationData(region="Levels", code=2660015,category="Slot"),
-    "Sora Level 16": KHDDDLocationData(region="Levels", code=2660016,category="Slot"),
-    "Sora Level 17": KHDDDLocationData(region="Levels", code=2660017,category="Slot"),
-    "Sora Level 18": KHDDDLocationData(region="Levels", code=2660018,category="Slot"),
-    "Sora Level 19": KHDDDLocationData(region="Levels", code=2660019,category="Slot"),
-    "Sora Level 20": KHDDDLocationData(region="Levels", code=2660020,category="Slot"),
-    "Sora Level 21": KHDDDLocationData(region="Levels", code=2660021,category="Slot"),
-    "Sora Level 22": KHDDDLocationData(region="Levels", code=2660022,category="Slot"),
-    "Sora Level 23": KHDDDLocationData(region="Levels", code=2660023,category="Slot"),
-    "Sora Level 24": KHDDDLocationData(region="Levels", code=2660024,category="Slot"),
-    "Sora Level 25": KHDDDLocationData(region="Levels", code=2660025,category="Slot"),
-    "Sora Level 26": KHDDDLocationData(region="Levels", code=2660026,category="Slot"),
-    "Sora Level 27": KHDDDLocationData(region="Levels", code=2660027,category="Slot"),
-    "Sora Level 28": KHDDDLocationData(region="Levels", code=2660028,category="Slot"),
-    "Sora Level 29": KHDDDLocationData(region="Levels", code=2660029,category="Slot"),
-    "Sora Level 30": KHDDDLocationData(region="Levels", code=2660030,category="Slot"),
-    "Sora Level 31": KHDDDLocationData(region="Levels", code=2660031,category="Slot"),
-    "Sora Level 32": KHDDDLocationData(region="Levels", code=2660032,category="Slot"),
-    "Sora Level 33": KHDDDLocationData(region="Levels", code=2660033,category="Slot"),
-    "Sora Level 34": KHDDDLocationData(region="Levels", code=2660034,category="Slot"),
-    "Sora Level 35": KHDDDLocationData(region="Levels", code=2660035,category="Slot"),
-    "Sora Level 36": KHDDDLocationData(region="Levels", code=2660036,category="Slot"),
-    "Sora Level 37": KHDDDLocationData(region="Levels", code=2660037,category="Slot"),
-    "Sora Level 38": KHDDDLocationData(region="Levels", code=2660038,category="Slot"),
-    "Sora Level 39": KHDDDLocationData(region="Levels", code=2660039,category="Slot"),
-    "Sora Level 40": KHDDDLocationData(region="Levels", code=2660040,category="Slot"),
-    "Sora Level 41": KHDDDLocationData(region="Levels", code=2660041,category="Slot"),
-    "Sora Level 42": KHDDDLocationData(region="Levels", code=2660042,category="Slot"),
-    "Sora Level 43": KHDDDLocationData(region="Levels", code=2660043,category="Slot"),
-    "Sora Level 44": KHDDDLocationData(region="Levels", code=2660044,category="Slot"),
-    "Sora Level 45": KHDDDLocationData(region="Levels", code=2660045,category="Slot"),
-    "Sora Level 46": KHDDDLocationData(region="Levels", code=2660046,category="Slot"),
-    "Sora Level 47": KHDDDLocationData(region="Levels", code=2660047,category="Slot"),
-    "Sora Level 48": KHDDDLocationData(region="Levels", code=2660048,category="Slot"),
-    "Sora Level 49": KHDDDLocationData(region="Levels", code=2660049,category="Slot"),
-    "Sora Level 50": KHDDDLocationData(region="Levels", code=2660050,category="Slot"),
+    "Sora Level 02": KHDDDLocationData(region="Levels",code=2660010),
+    "Sora Level 03": KHDDDLocationData(region="Levels",code=2660011),
+    "Sora Level 04": KHDDDLocationData(region="Levels",code=2660012),
+    "Sora Level 05": KHDDDLocationData(region="Levels",code=2660013),
+    "Sora Level 06": KHDDDLocationData(region="Levels",code=2660014),
+    "Sora Level 07": KHDDDLocationData(region="Levels", code=2660015),
+    "Sora Level 08": KHDDDLocationData(region="Levels", code=2660016),
+    "Sora Level 09": KHDDDLocationData(region="Levels", code=2660017),
+    "Sora Level 10": KHDDDLocationData(region="Levels", code=2660018),
+    "Sora Level 11": KHDDDLocationData(region="Levels", code=2660019),
+    "Sora Level 12": KHDDDLocationData(region="Levels", code=2660020),
+    "Sora Level 13": KHDDDLocationData(region="Levels", code=2660021),
+    "Sora Level 14": KHDDDLocationData(region="Levels", code=2660022),
+    "Sora Level 15": KHDDDLocationData(region="Levels", code=2660023),
+    "Sora Level 16": KHDDDLocationData(region="Levels", code=2660024),
+    "Sora Level 17": KHDDDLocationData(region="Levels", code=2660025),
+    "Sora Level 18": KHDDDLocationData(region="Levels", code=2660026),
+    "Sora Level 19": KHDDDLocationData(region="Levels", code=2660027),
+    "Sora Level 20": KHDDDLocationData(region="Levels", code=2660028),
+    "Sora Level 21": KHDDDLocationData(region="Levels", code=2660029),
+    "Sora Level 22": KHDDDLocationData(region="Levels", code=2660030),
+    "Sora Level 23": KHDDDLocationData(region="Levels", code=2660031),
+    "Sora Level 24": KHDDDLocationData(region="Levels", code=2660032),
+    "Sora Level 25": KHDDDLocationData(region="Levels", code=2660033),
+    "Sora Level 26": KHDDDLocationData(region="Levels", code=2660034),
+    "Sora Level 27": KHDDDLocationData(region="Levels", code=2660035),
+    "Sora Level 28": KHDDDLocationData(region="Levels", code=2660036),
+    "Sora Level 29": KHDDDLocationData(region="Levels", code=2660037),
+    "Sora Level 30": KHDDDLocationData(region="Levels", code=2660038),
+    "Sora Level 31": KHDDDLocationData(region="Levels", code=2660039),
+    "Sora Level 32": KHDDDLocationData(region="Levels", code=2660040),
+    "Sora Level 33": KHDDDLocationData(region="Levels", code=2660041),
+    "Sora Level 34": KHDDDLocationData(region="Levels", code=2660042),
+    "Sora Level 35": KHDDDLocationData(region="Levels", code=2660043),
+    "Sora Level 36": KHDDDLocationData(region="Levels", code=2660044),
+    "Sora Level 37": KHDDDLocationData(region="Levels", code=2660045),
+    "Sora Level 38": KHDDDLocationData(region="Levels", code=2660046),
+    "Sora Level 39": KHDDDLocationData(region="Levels", code=2660047),
+    "Sora Level 40": KHDDDLocationData(region="Levels", code=2660048),
+    "Sora Level 41": KHDDDLocationData(region="Levels", code=2660049),
+    "Sora Level 42": KHDDDLocationData(region="Levels", code=2660050),
+    "Sora Level 43": KHDDDLocationData(region="Levels", code=2660051),
+    "Sora Level 44": KHDDDLocationData(region="Levels", code=2660052),
+    "Sora Level 45": KHDDDLocationData(region="Levels", code=2660053),
+    "Sora Level 46": KHDDDLocationData(region="Levels", code=2660054),
+    "Sora Level 47": KHDDDLocationData(region="Levels", code=2660055),
+    "Sora Level 48": KHDDDLocationData(region="Levels", code=2660056),
+    "Sora Level 49": KHDDDLocationData(region="Levels", code=2660057),
+    "Sora Level 50": KHDDDLocationData(region="Levels", code=2660058),
 
-    "Sora Level 51": KHDDDLocationData(region="Levels", code=2660051,category="Slot"),
-    "Sora Level 52": KHDDDLocationData(region="Levels", code=2660052,category="Slot"),
-    "Sora Level 53": KHDDDLocationData(region="Levels", code=2660053,category="Slot"),
-    "Sora Level 54": KHDDDLocationData(region="Levels", code=2660054,category="Slot"),
-    "Sora Level 55": KHDDDLocationData(region="Levels", code=2660055,category="Slot"),
-    "Sora Level 56": KHDDDLocationData(region="Levels", code=2660056,category="Slot"),
-    "Sora Level 57": KHDDDLocationData(region="Levels", code=2660057,category="Slot"),
-    "Sora Level 58": KHDDDLocationData(region="Levels", code=2660058,category="Slot"),
-    "Sora Level 59": KHDDDLocationData(region="Levels", code=2660059,category="Slot"),
-    "Sora Level 60": KHDDDLocationData(region="Levels", code=2660060, category="Slot"),
-    "Sora Level 61": KHDDDLocationData(region="Levels", code=2660061, category="Slot"),
-    "Sora Level 62": KHDDDLocationData(region="Levels", code=2660062, category="Slot"),
-    "Sora Level 63": KHDDDLocationData(region="Levels", code=2660063, category="Slot"),
-    "Sora Level 64": KHDDDLocationData(region="Levels", code=2660064, category="Slot"),
-    "Sora Level 65": KHDDDLocationData(region="Levels", code=2660065, category="Slot"),
-    "Sora Level 66": KHDDDLocationData(region="Levels", code=2660066, category="Slot"),
-    "Sora Level 67": KHDDDLocationData(region="Levels", code=2660067, category="Slot"),
-    "Sora Level 68": KHDDDLocationData(region="Levels", code=2660068, category="Slot"),
-    "Sora Level 69": KHDDDLocationData(region="Levels", code=2660069, category="Slot"),
-    "Sora Level 70": KHDDDLocationData(region="Levels", code=2660070, category="Slot"),
-    "Sora Level 71": KHDDDLocationData(region="Levels", code=2660071, category="Slot"),
-    "Sora Level 72": KHDDDLocationData(region="Levels", code=2660072, category="Slot"),
-    "Sora Level 73": KHDDDLocationData(region="Levels", code=2660073, category="Slot"),
-    "Sora Level 74": KHDDDLocationData(region="Levels", code=2660074, category="Slot"),
-    "Sora Level 75": KHDDDLocationData(region="Levels", code=2660075, category="Slot"),
-    "Sora Level 76": KHDDDLocationData(region="Levels", code=2660076, category="Slot"),
-    "Sora Level 77": KHDDDLocationData(region="Levels", code=2660077, category="Slot"),
-    "Sora Level 78": KHDDDLocationData(region="Levels", code=2660078, category="Slot"),
-    "Sora Level 79": KHDDDLocationData(region="Levels", code=2660079, category="Slot"),
-    "Sora Level 80": KHDDDLocationData(region="Levels", code=2660080, category="Slot"),
-    "Sora Level 81": KHDDDLocationData(region="Levels", code=2660081, category="Slot"),
-    "Sora Level 82": KHDDDLocationData(region="Levels", code=2660082, category="Slot"),
-    "Sora Level 83": KHDDDLocationData(region="Levels", code=2660083, category="Slot"),
-    "Sora Level 84": KHDDDLocationData(region="Levels", code=2660084, category="Slot"),
-    "Sora Level 85": KHDDDLocationData(region="Levels", code=2660085, category="Slot"),
-    "Sora Level 86": KHDDDLocationData(region="Levels", code=2660086, category="Slot"),
-    "Sora Level 87": KHDDDLocationData(region="Levels", code=2660087, category="Slot"),
-    "Sora Level 88": KHDDDLocationData(region="Levels", code=2660088, category="Slot"),
-    "Sora Level 89": KHDDDLocationData(region="Levels", code=2660089, category="Slot"),
-    "Sora Level 90": KHDDDLocationData(region="Levels", code=2660090, category="Slot"),
-    "Sora Level 91": KHDDDLocationData(region="Levels", code=2660091, category="Slot"),
-    "Sora Level 92": KHDDDLocationData(region="Levels", code=2660092, category="Slot"),
-    "Sora Level 93": KHDDDLocationData(region="Levels", code=2660093, category="Slot"),
-    "Sora Level 94": KHDDDLocationData(region="Levels", code=2660094, category="Slot"),
-    "Sora Level 95": KHDDDLocationData(region="Levels", code=2660095, category="Slot"),
-    "Sora Level 96": KHDDDLocationData(region="Levels", code=2660096, category="Slot"),
-    "Sora Level 97": KHDDDLocationData(region="Levels", code=2660097, category="Slot"),
-    "Sora Level 98": KHDDDLocationData(region="Levels", code=2660098, category="Slot"),
-    "Sora Level 99": KHDDDLocationData(region="Levels", code=2660099, category="Slot"),
-
-    "Riku Level 02": KHDDDLocationData(region="Levels",code=2660102,category="Slot"),
-    "Riku Level 03": KHDDDLocationData(region="Levels",code=2660103,category="Slot"),
-    "Riku Level 04": KHDDDLocationData(region="Levels",code=2660104,category="Slot"),
-    "Riku Level 05": KHDDDLocationData(region="Levels",code=2660105,category="Slot"),
-    "Riku Level 06": KHDDDLocationData(region="Levels",code=2660106,category="Slot"),
-    "Riku Level 07": KHDDDLocationData(region="Levels", code=2660107,category="Slot"),
-    "Riku Level 08": KHDDDLocationData(region="Levels", code=2660108,category="Slot"),
-    "Riku Level 09": KHDDDLocationData(region="Levels", code=2660109,category="Slot"),
-    "Riku Level 10": KHDDDLocationData(region="Levels", code=2660110,category="Slot"),
-    "Riku Level 11": KHDDDLocationData(region="Levels", code=2660111,category="Slot"),
-    "Riku Level 12": KHDDDLocationData(region="Levels", code=2660112,category="Slot"),
-    "Riku Level 13": KHDDDLocationData(region="Levels", code=2660113,category="Slot"),
-    "Riku Level 14": KHDDDLocationData(region="Levels", code=2660114,category="Slot"),
-    "Riku Level 15": KHDDDLocationData(region="Levels", code=2660115,category="Slot"),
-    "Riku Level 16": KHDDDLocationData(region="Levels", code=2660116,category="Slot"),
-    "Riku Level 17": KHDDDLocationData(region="Levels", code=2660117,category="Slot"),
-    "Riku Level 18": KHDDDLocationData(region="Levels", code=2660118,category="Slot"),
-    "Riku Level 19": KHDDDLocationData(region="Levels", code=2660119,category="Slot"),
-    "Riku Level 20": KHDDDLocationData(region="Levels", code=2660120,category="Slot"),
-    "Riku Level 21": KHDDDLocationData(region="Levels", code=2660121,category="Slot"),
-    "Riku Level 22": KHDDDLocationData(region="Levels", code=2660122,category="Slot"),
-    "Riku Level 23": KHDDDLocationData(region="Levels", code=2660123,category="Slot"),
-    "Riku Level 24": KHDDDLocationData(region="Levels", code=2660124,category="Slot"),
-    "Riku Level 25": KHDDDLocationData(region="Levels", code=2660125,category="Slot"),
-    "Riku Level 26": KHDDDLocationData(region="Levels", code=2660126,category="Slot"),
-    "Riku Level 27": KHDDDLocationData(region="Levels", code=2660127,category="Slot"),
-    "Riku Level 28": KHDDDLocationData(region="Levels", code=2660128,category="Slot"),
-    "Riku Level 29": KHDDDLocationData(region="Levels", code=2660129,category="Slot"),
-    "Riku Level 30": KHDDDLocationData(region="Levels", code=2660130,category="Slot"),
-    "Riku Level 31": KHDDDLocationData(region="Levels", code=2660131,category="Slot"),
-    "Riku Level 32": KHDDDLocationData(region="Levels", code=2660132,category="Slot"),
-    "Riku Level 33": KHDDDLocationData(region="Levels", code=2660133,category="Slot"),
-    "Riku Level 34": KHDDDLocationData(region="Levels", code=2660134,category="Slot"),
-    "Riku Level 35": KHDDDLocationData(region="Levels", code=2660135,category="Slot"),
-    "Riku Level 36": KHDDDLocationData(region="Levels", code=2660136,category="Slot"),
-    "Riku Level 37": KHDDDLocationData(region="Levels", code=2660137,category="Slot"),
-    "Riku Level 38": KHDDDLocationData(region="Levels", code=2660138,category="Slot"),
-    "Riku Level 39": KHDDDLocationData(region="Levels", code=2660139,category="Slot"),
-    "Riku Level 40": KHDDDLocationData(region="Levels", code=2660140,category="Slot"),
-    "Riku Level 41": KHDDDLocationData(region="Levels", code=2660141,category="Slot"),
-    "Riku Level 42": KHDDDLocationData(region="Levels", code=2660142,category="Slot"),
-    "Riku Level 43": KHDDDLocationData(region="Levels", code=2660143,category="Slot"),
-    "Riku Level 44": KHDDDLocationData(region="Levels", code=2660144,category="Slot"),
-    "Riku Level 45": KHDDDLocationData(region="Levels", code=2660145,category="Slot"),
-    "Riku Level 46": KHDDDLocationData(region="Levels", code=2660146,category="Slot"),
-    "Riku Level 47": KHDDDLocationData(region="Levels", code=2660147,category="Slot"),
-    "Riku Level 48": KHDDDLocationData(region="Levels", code=2660148,category="Slot"),
-    "Riku Level 49": KHDDDLocationData(region="Levels", code=2660149,category="Slot"),
-    "Riku Level 50": KHDDDLocationData(region="Levels", code=2660150,category="Slot"),
-
-    "Riku Level 51": KHDDDLocationData(region="Levels", code=2660151,category="Slot"),
-    "Riku Level 52": KHDDDLocationData(region="Levels", code=2660152,category="Slot"),
-    "Riku Level 53": KHDDDLocationData(region="Levels", code=2660153,category="Slot"),
-    "Riku Level 54": KHDDDLocationData(region="Levels", code=2660154,category="Slot"),
-    "Riku Level 55": KHDDDLocationData(region="Levels", code=2660155,category="Slot"),
-    "Riku Level 56": KHDDDLocationData(region="Levels", code=2660156,category="Slot"),
-    "Riku Level 57": KHDDDLocationData(region="Levels", code=2660157,category="Slot"),
-    "Riku Level 58": KHDDDLocationData(region="Levels", code=2660158,category="Slot"),
-    "Riku Level 59": KHDDDLocationData(region="Levels", code=2660159,category="Slot"),
-    "Riku Level 60": KHDDDLocationData(region="Levels", code=2660160, category="Slot"),
-    "Riku Level 61": KHDDDLocationData(region="Levels", code=2660161, category="Slot"),
-    "Riku Level 62": KHDDDLocationData(region="Levels", code=2660162, category="Slot"),
-    "Riku Level 63": KHDDDLocationData(region="Levels", code=2660163, category="Slot"),
-    "Riku Level 64": KHDDDLocationData(region="Levels", code=2660164, category="Slot"),
-    "Riku Level 65": KHDDDLocationData(region="Levels", code=2660165, category="Slot"),
-    "Riku Level 66": KHDDDLocationData(region="Levels", code=2660166, category="Slot"),
-    "Riku Level 67": KHDDDLocationData(region="Levels", code=2660167, category="Slot"),
-    "Riku Level 68": KHDDDLocationData(region="Levels", code=2660168, category="Slot"),
-    "Riku Level 69": KHDDDLocationData(region="Levels", code=2660169, category="Slot"),
-    "Riku Level 70": KHDDDLocationData(region="Levels", code=2660170, category="Slot"),
-    "Riku Level 71": KHDDDLocationData(region="Levels", code=2660171, category="Slot"),
-    "Riku Level 72": KHDDDLocationData(region="Levels", code=2660172, category="Slot"),
-    "Riku Level 73": KHDDDLocationData(region="Levels", code=2660173, category="Slot"),
-    "Riku Level 74": KHDDDLocationData(region="Levels", code=2660174, category="Slot"),
-    "Riku Level 75": KHDDDLocationData(region="Levels", code=2660175, category="Slot"),
-    "Riku Level 76": KHDDDLocationData(region="Levels", code=2660176, category="Slot"),
-    "Riku Level 77": KHDDDLocationData(region="Levels", code=2660177, category="Slot"),
-    "Riku Level 78": KHDDDLocationData(region="Levels", code=2660178, category="Slot"),
-    "Riku Level 79": KHDDDLocationData(region="Levels", code=2660179, category="Slot"),
-    "Riku Level 80": KHDDDLocationData(region="Levels", code=2660180, category="Slot"),
-    "Riku Level 81": KHDDDLocationData(region="Levels", code=2660181, category="Slot"),
-    "Riku Level 82": KHDDDLocationData(region="Levels", code=2660182, category="Slot"),
-    "Riku Level 83": KHDDDLocationData(region="Levels", code=2660183, category="Slot"),
-    "Riku Level 84": KHDDDLocationData(region="Levels", code=2660184, category="Slot"),
-    "Riku Level 85": KHDDDLocationData(region="Levels", code=2660185, category="Slot"),
-    "Riku Level 86": KHDDDLocationData(region="Levels", code=2660186, category="Slot"),
-    "Riku Level 87": KHDDDLocationData(region="Levels", code=2660187, category="Slot"),
-    "Riku Level 88": KHDDDLocationData(region="Levels", code=2660188, category="Slot"),
-    "Riku Level 89": KHDDDLocationData(region="Levels", code=2660189, category="Slot"),
-    "Riku Level 90": KHDDDLocationData(region="Levels", code=2660190, category="Slot"),
-    "Riku Level 91": KHDDDLocationData(region="Levels", code=2660191, category="Slot"),
-    "Riku Level 92": KHDDDLocationData(region="Levels", code=2660192, category="Slot"),
-    "Riku Level 93": KHDDDLocationData(region="Levels", code=2660193, category="Slot"),
-    "Riku Level 94": KHDDDLocationData(region="Levels", code=2660194, category="Slot"),
-    "Riku Level 95": KHDDDLocationData(region="Levels", code=2660195, category="Slot"),
-    "Riku Level 96": KHDDDLocationData(region="Levels", code=2660196, category="Slot"),
-    "Riku Level 97": KHDDDLocationData(region="Levels", code=2660197, category="Slot"),
-    "Riku Level 98": KHDDDLocationData(region="Levels", code=2660198, category="Slot"),
-    "Riku Level 99": KHDDDLocationData(region="Levels", code=2660199, category="Slot"),
+    "Riku Level 02": KHDDDLocationData(region="Levels",code=2660060),
+    "Riku Level 03": KHDDDLocationData(region="Levels",code=2660061),
+    "Riku Level 04": KHDDDLocationData(region="Levels",code=2660062),
+    "Riku Level 05": KHDDDLocationData(region="Levels",code=2660063),
+    "Riku Level 06": KHDDDLocationData(region="Levels",code=2660064),
+    "Riku Level 07": KHDDDLocationData(region="Levels",code=2660065),
+    "Riku Level 08": KHDDDLocationData(region="Levels",code=2660066),
+    "Riku Level 09": KHDDDLocationData(region="Levels",code=2660067),
+    "Riku Level 10": KHDDDLocationData(region="Levels",code=2660068),
+    "Riku Level 11": KHDDDLocationData(region="Levels",code=2660069),
+    "Riku Level 12": KHDDDLocationData(region="Levels",code=2660070),
+    "Riku Level 13": KHDDDLocationData(region="Levels",code=2660071),
+    "Riku Level 14": KHDDDLocationData(region="Levels",code=2660072),
+    "Riku Level 15": KHDDDLocationData(region="Levels",code=2660073),
+    "Riku Level 16": KHDDDLocationData(region="Levels",code=2660074),
+    "Riku Level 17": KHDDDLocationData(region="Levels",code=2660075),
+    "Riku Level 18": KHDDDLocationData(region="Levels",code=2660076),
+    "Riku Level 19": KHDDDLocationData(region="Levels",code=2660077),
+    "Riku Level 20": KHDDDLocationData(region="Levels",code=2660078),
+    "Riku Level 21": KHDDDLocationData(region="Levels",code=2660079),
+    "Riku Level 22": KHDDDLocationData(region="Levels",code=2660080),
+    "Riku Level 23": KHDDDLocationData(region="Levels",code=2660081),
+    "Riku Level 24": KHDDDLocationData(region="Levels",code=2660082),
+    "Riku Level 25": KHDDDLocationData(region="Levels",code=2660083),
+    "Riku Level 26": KHDDDLocationData(region="Levels",code=2660084),
+    "Riku Level 27": KHDDDLocationData(region="Levels",code=2660085),
+    "Riku Level 28": KHDDDLocationData(region="Levels",code=2660086),
+    "Riku Level 29": KHDDDLocationData(region="Levels",code=2660087),
+    "Riku Level 30": KHDDDLocationData(region="Levels",code=2660088),
+    "Riku Level 31": KHDDDLocationData(region="Levels",code=2660089),
+    "Riku Level 32": KHDDDLocationData(region="Levels",code=2660090),
+    "Riku Level 33": KHDDDLocationData(region="Levels",code=2660091),
+    "Riku Level 34": KHDDDLocationData(region="Levels",code=2660092),
+    "Riku Level 35": KHDDDLocationData(region="Levels",code=2660093),
+    "Riku Level 36": KHDDDLocationData(region="Levels",code=2660094),
+    "Riku Level 37": KHDDDLocationData(region="Levels",code=2660095),
+    "Riku Level 38": KHDDDLocationData(region="Levels",code=2660096),
+    "Riku Level 39": KHDDDLocationData(region="Levels",code=2660097),
+    "Riku Level 40": KHDDDLocationData(region="Levels",code=2660098),
+    "Riku Level 41": KHDDDLocationData(region="Levels",code=2660099),
+    "Riku Level 42": KHDDDLocationData(region="Levels",code=2660100),
+    "Riku Level 43": KHDDDLocationData(region="Levels",code=2660101),
+    "Riku Level 44": KHDDDLocationData(region="Levels",code=2660102),
+    "Riku Level 45": KHDDDLocationData(region="Levels",code=2660103),
+    "Riku Level 46": KHDDDLocationData(region="Levels",code=2660104),
+    "Riku Level 47": KHDDDLocationData(region="Levels",code=2660105),
+    "Riku Level 48": KHDDDLocationData(region="Levels",code=2660106),
+    "Riku Level 49": KHDDDLocationData(region="Levels",code=2660107),
+    "Riku Level 50": KHDDDLocationData(region="Levels",code=2660108),
 }
 
 event_location_table: Dict[str, KHDDDLocationData] = {}
