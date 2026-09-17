@@ -2,11 +2,7 @@ from enum import IntEnum
 import asyncio
 from re import S
 import socket
-import ast
 from CommonClient import logger
-from worlds.khddd.Items import get_item_category
-from worlds.khddd.Locations import get_location_type
-
 
 class MessageType(IntEnum):
     Invalid = -1
@@ -25,8 +21,6 @@ class MessageType(IntEnum):
     Handshake = 12
     GetCurrentIndex = 13
     ItemPrompt = 14
-    DataStorage = 15
-    HasSlotData = 16
     Closed = 20
 
 class DDDCommand(IntEnum):
@@ -47,10 +41,6 @@ class SlotDataType(IntEnum):
     stat_bonus = 8
     lord_kyroo = 9
     local_item_notifs = 10
-    remote_item_notifs = 11
-    non_remote_ids = 12
-    use_vanilla_levels = 13
-    emblem_reqs = 14
 
 class KHDDDSocket():
     @property
@@ -74,7 +64,6 @@ class KHDDDSocket():
         self.deathTime = ""
         self.goaled = False
         self.client_item_index = 0
-        self.hasSlotData = False
 
     async def start_server(self):
         logger.debug("Starting server... waiting for game.")
@@ -127,9 +116,7 @@ class KHDDDSocket():
                 self.handle_message(values)
             except (ConnectionResetError, OSError) as e:
                 logger.info(f"Connection to game lost, reconnecting...")
-                self.client.dddPatched = False
                 self._safe_close_client()
-                self.hasSlotData = False
                 await self._accept_client()
                 return
 
@@ -158,30 +145,25 @@ class KHDDDSocket():
 
         if msgType == MessageType.ChestChecked:
             locid = int(message[1])
-            if locid not in self.client.locations_checked:
-                self.client.check_location_IDs.append(locid)
+            self.client.check_location_IDs.append(locid)
             logger.debug("Chest location checked: "+str(locid))
 
         elif msgType == MessageType.LevelChecked:
             logger.debug("Level checked")
-            locid = int(message[1])
-            if locid not in self.client.locations_checked:
-                self.client.check_location_IDs.append(locid)
+            self.client.check_location_IDs.append(int(message[1]))
 
         elif msgType == MessageType.StoryChecked:
             for x in message:
                 if len(x) > 1:
                     locid = int(x)
-                    if locid not in self.client.locations_checked:
-                        self.client.check_location_IDs.append(locid)
+                    self.client.check_location_IDs.append(locid)
                     logger.debug("Story location checked: " + str(locid))
 
         elif msgType == MessageType.PortalChecked:
             for x in message:
                 if len(x) > 1:
                     locid = int(x)
-                    if locid not in self.client.locations_checked:
-                        self.client.check_location_IDs.append(locid)
+                    self.client.check_location_IDs.append(locid)
                     logger.debug("Secret portal location checked: " + str(locid))
 
         elif msgType == MessageType.Deathlink:
@@ -198,23 +180,12 @@ class KHDDDSocket():
             self.send(MessageType.Handshake, [str(self.client.connectedToAp)])
             logger.debug("Responded to Handshake")
 
-        elif msgType == MessageType.HasSlotData:
-            if message[0] == "0":
-                self.hasSlotData = False
-            else:
-                self.hasSlotData = True
 
         elif msgType == MessageType.GetCurrentIndex:
             self.client_item_index = int(message[1])
 
-        elif msgType == MessageType.DataStorage:
-            self.client.set_data_storage(message[1], message[2], message[3])
-
-    def send_singleItem(self, item, itemCnt, isLocal):
-        msgCont = [str(item.item), str(itemCnt)]
-        if isLocal:
-            if not self.is_slot_location(item):
-                msgCont.append("local")
+    def send_singleItem(self, id: int, itemCnt):
+        msgCont = [str(id), str(itemCnt)]
         self.send(MessageType.ReceiveSingleItem, msgCont)
 
 
@@ -222,7 +193,7 @@ class KHDDDSocket():
         logger.debug(f"Sending multiple items {len(items)}")
         values = []
 
-        msgLimit = 1 #Need to cap how long each message can be to prevent data from being lost
+        msgLimit = 3 #Need to cap how long each message can be to prevent data from being lost
 
         currItemCount = 0
         currMsg = 0
@@ -232,13 +203,6 @@ class KHDDDSocket():
             if currItemCount == 0:
                 values.append([])
             values[currMsg].append(item.item)
-
-            #Local item check
-            if item.player == self.client.slot:
-                if self.is_local_location(item.location):
-                    if not self.is_slot_location(item):
-                        values[currMsg].append("local")
-
             currItemCount += 1
             sendCnt += 1
             if currItemCount > msgLimit:
@@ -253,22 +217,7 @@ class KHDDDSocket():
             sendMsg += 1
             self.send(MessageType.ReceiveAllItems, msg)
 
-    def is_local_location(self, loc:int) -> bool:
-        location_ids = ast.literal_eval(self.client.slot_data_info["non_remote_ids"])
-        for id_set in location_ids:
-            if id_set[0] == loc:
-                return True
-
-        return False
-
-    #Commands in a slot location still need to be treated as remote, among other items
-    def is_slot_location(self, item):
-        return get_location_type(item.location) == "Slot"
-
     def send_slot_data(self, slotType, data):
-        if self.hasSlotData:
-            return
-
         if slotType == SlotDataType.keyblade_stats:
             splitNums = data.split(",")
             sendVal = [str(slotType)]
@@ -283,27 +232,6 @@ class KHDDDSocket():
                     sendVal = [str(slotType)]
                     currStat = 0
                 currStat = currStat + 1
-        elif slotType == SlotDataType.non_remote_ids:
-            splitIndexes = data.split("[")
-            sendVal = [str(slotType)]
-            currId = 1
-
-            sendLimit = 4
-            for ind in splitIndexes:
-                if len(ind) > 1:
-                    splitVals = ind.split(" ")
-                    for val in splitVals:
-                        if len(val) > 1:
-                            sendVal.append(val.replace(",","").replace("]",""))
-                            if currId >= sendLimit:
-                                self.send(MessageType.SendSlotData, sendVal)
-                                sendVal = [str(slotType)]
-                                currId = 0
-                            currId = currId + 1
-            #Send remaining location data
-            if len(sendVal) > 1:
-                self.send(MessageType.SendSlotData, sendVal)
-            self.client.dddPatched = True
         else:
             self.send(MessageType.SendSlotData, [str(slotType), str(data)])
 

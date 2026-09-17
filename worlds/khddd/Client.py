@@ -46,11 +46,7 @@ class KHDDDClientCommandProcessor(ClientCommandProcessor):
             lambda _: self.output(f"Death Link turned {'on' if self.ctx.death_link else 'off'}"))
         self.ctx.socket.send_client_cmd(DDDCommand.DEATH_LINK, str(self.ctx.death_link))
 
-    def _cmd_slot_data(self):
-        """Prints slot data settings for the connected seed"""
-        for key in self.ctx.slot_data_info.keys():
-            if key not in ["keyblade_stats", "non_remote_ids"]: ##TODO: Prevent slot data from being printed
-                self.output(str(key)+": "+str(self.ctx.slot_data_info[key]))
+
 
 class KHDDDContext(CommonContext):
     command_processor: int = KHDDDClientCommandProcessor
@@ -64,10 +60,8 @@ class KHDDDContext(CommonContext):
     socket: KHDDDSocket = None
     check_location_IDs = []
     slot_data_info: Dict[str, str] = {}
-    last_room: Dict[str, int] = {}
     _connectedToAp: bool = False
     _connectedToDDD: bool = False
-    _dddPatched: bool = False
 
     _get_items_running = False
 
@@ -120,22 +114,12 @@ class KHDDDContext(CommonContext):
             self.connectedToAp = True
             self.slot_data_info = args['slot_data']
             asyncio.create_task(self.send_slot_data(), name="KHDDDSendSlotData")
-            self.locations_checked = set(args['checked_locations'])
-            self.send_room()
         
         if cmd in {"ReceivedItems"}:
             if len(args["items"]) > 0:
                 self.socket.send_multipleItems(args["items"], len(self.items_received))
             else:
-                is_item_local = False
-                if args["items"][0].player == self.slot:
-                    is_item_local = self.socket.is_local_location(args["items"][0].location)
-                self.socket.send_singleItem(args["items"][0], len(self.items_received), is_item_local)
-
-        if cmd in {"RoomUpdate"}:
-            if "checked_locations" in args:
-                new_locations = set(args["checked_locations"])
-                self.locations_checked |= new_locations
+                self.socket.send_singleItem(args["items"][0].item, len(self.items_received))
 
         #Send item notifications to game
         if cmd in {"PrintJSON"} and "type" in args:
@@ -196,28 +180,6 @@ class KHDDDContext(CommonContext):
             self._get_items_running = True
             Utils.async_start(async_get_items(self), name="KHDDDGetItems")
 
-    def set_data_storage(self, world, room, character):
-        try:
-            self.last_room = {"world": int(world), "room": int(room), "character": int(character)}
-        except (TypeError, ValueError):
-            logger.warning(f"Ignoring malformed room info from game: {world!r}, {room!r}, {character!r}")
-            return
-        self.send_room()
-
-    def send_room(self):
-        """Pushes the last known position to server data storage"""
-        if not (self.server and self.slot and self.last_room):
-            return
-        key = f"khddd_{self.team}_{self.slot}_room"
-        self.stored_data[key] = self.last_room
-        asyncio.create_task(self.send_msgs([{
-            "cmd": "Set",
-            "key": key,
-            "default": {},
-            "want_reply": False,
-            "operations": [{"operation": "replace", "value": self.last_room}],
-        }]), name="KHDDDSendRoom")
-
     def get_slot_data(self):
         Utils.async_start(self.send_slot_data(), name="KHDDDGetSlotData")
 
@@ -253,14 +215,9 @@ async def game_watcher(ctx: KHDDDContext):
                 await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
                 ctx.finished_game = True
 
-            sending = []
-            sending = sending + ctx.check_location_IDs
-            if sending:
-                #ctx.locations_checked = ctx.check_location_IDs
-                ctx.check_location_IDs = []
-                print("Location checked")
-                message = [{"cmd": 'LocationChecks', "locations": sending}]
-                await ctx.send_msgs(message)
+            ctx.locations_checked = ctx.check_location_IDs
+            message = [{"cmd": 'LocationChecks', "locations": ctx.check_location_IDs}]
+            await ctx.send_msgs(message)
             await asyncio.sleep(0.5)
 
 
