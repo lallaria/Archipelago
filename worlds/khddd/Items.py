@@ -32,6 +32,12 @@ def get_items_by_character_category(character:int, category: str) -> Dict[str, K
                 item_dict.setdefault(name, data)
     return item_dict
 
+def get_item_category(item_id:int):
+    for name,data in item_data_table.items():
+        if data.code == item_id:
+            return data.category
+    return "None"
+
 item_data_table: Dict[str, KHDDDItemData] = {
     "Potion": KHDDDItemData(
         category="Item",
@@ -49,6 +55,11 @@ item_data_table: Dict[str, KHDDDItemData] = {
         code=280_1001,
         type=ItemClassification.progression,
         qty=1
+    ),
+    "Lucky Emblem": KHDDDItemData(
+        category="Special",
+        code=280_1002,
+        type=ItemClassification.progression
     ),
     ############################################
     ################Traps#######################
@@ -1190,9 +1201,15 @@ item_data_table: Dict[str, KHDDDItemData] = {
         type=ItemClassification.useful,
         qty = 1
     ),
-    "Waking Dream": KHDDDItemData(
+    "Support Boost": KHDDDItemData(
         category = "Ability",
         code = 267_1042,
+        type=ItemClassification.useful,
+        qty = 3
+    ),
+    "Waking Dream": KHDDDItemData(
+        category = "Ability",
+        code = 267_1043,
         type=ItemClassification.useful,
         qty = 1
     ),

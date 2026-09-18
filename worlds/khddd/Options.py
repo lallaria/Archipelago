@@ -5,18 +5,16 @@ from Options import Choice, Toggle, PerGameCommonOptions, StartInventoryPool, Na
 class StartingWorlds(Range):
     """
     Number of random worlds to start with
+    Defaults to 1 if value is set to 0 and Play Destiny Islands is disabled
     """
     display_name = "Starting Worlds"
     default = 1
-    range_start = 1
+    range_start = 0
     range_end = 10
 
 class Character(Choice):
     """
     Determines whether to play as Sora, Riku, or Both
-    0: Both
-    1: Sora Only
-    2: Riku Only
     """
     display_name = "Character"
     default = 0
@@ -27,13 +25,15 @@ class Character(Choice):
 class Goal(Choice):
     """
     Win Condition
-    0: Defeat the Final Boss (Xemnas for Sora and Young Xehanort for Riku
-    1: Defeat All Superbosses (Secret Portals and Julius)
+    final_boss: Defeat the Final Boss (Xemnas for Sora and Young Xehanort for Riku
+    superbosses: Defeat All Superbosses (Secret Portals and Julius)
+    lucky_emblem_hunt: Instantly goal when obtaining all required lucky emblems
     """
     display_name = "Goal"
     default = 0
     option_final_boss = 0
     option_superbosses = 1
+    option_lucky_emblem_hunt = 2
 
 class AVN(Toggle):
     """
@@ -42,10 +42,30 @@ class AVN(Toggle):
     """
     display_name = "Armored Ventus Nightmare"
 
+class EmblemsRequired(Range):
+    """
+    How many Lucky Emblems are needed to beat the seed.
+    This setting applies to all goals.
+    """
+    display_name = "Lucky Emblems Required"
+    default = 0
+    range_start = 0
+    range_end = 99
+
+class EmblemsInPool(Range):
+    """
+    Number of Lucky Emblems in the Item Pool
+    """
+    display_name = "Lucky Emblems in Pool"
+    default = 0
+    range_start = 0
+    range_end = 99
+
 class RecipeReqs(Range):
     """
     Number of Recipes needed to beat the game
     Meow Wow and Komory Bat recipes are always required
+    This setting is ignored if goal is Lucky Emblem Hunt
     """
     display_name = "Recipes Required"
     default = 2
@@ -77,6 +97,33 @@ class LordKyroo(Toggle):
     """
     default = True
 
+class LevelCap(Range):
+    """
+    Determines how many level locations can contain non-filler items.
+    Set to 1 to make all levels contain filler items.
+    IF SETTING ABOVE 50, IT IS RECOMMENDED TO USE A HIGH EXP MULTIPLIER
+    """
+    display_name = "Level Cap"
+    default = 50
+    range_start = 1
+    range_end = 99
+
+class StatsOnLevels(Choice):
+    """
+    Determines what items level locations can have.
+    Any Item: Any item can be placed in level locations.
+    No Progression: Any non-progression item can be placed into level locations.
+    Stats Only: Only stats will be placed in level locations (up to Level Cap).
+    Vanilla Stats: Level locations are excluded and are treated as vanilla.
+                   Stat increases are also removed from the item pool.
+    """
+    display_name = "Level Up Rewards"
+    default = 0
+    option_any_item = 0
+    option_no_progression = 1
+    option_stats_only = 2
+    option_vanilla_stats = 3
+
 #####################################
 #########Quality of Life#############
 #####################################
@@ -88,6 +135,14 @@ class ExpMultiplier(Range):
     default = 2
     range_start = 1
     range_end = 10
+
+class StartWithSuperJump(Toggle):
+    """
+    If enabled, adds Super Jump to starting items.
+    Super Jump requires other flowmotion to use.
+    """
+    display_name = "Start with Super Jump"
+    default = True
 
 class StatBonusAmount(Range):
     """
@@ -215,12 +270,6 @@ class InstantDropTrapChance(Range):
     range_start = 0
     range_end = 25
 
-class StatsOnLevels(Toggle):
-    """
-    Determines whether level checks contain only stat increases.
-    """
-    display_name = "Stats On Levels"
-
 class SingleFlowmotion(Toggle):
     """
     If enabled, all flowmotion is obtained as a single item
@@ -258,6 +307,8 @@ class KHDDDOptions(PerGameCommonOptions):
     character: Character
     goal: Goal
     armored_ventus_nightmare: AVN
+    emblem_reqs: EmblemsRequired
+    emblems_in_pool: EmblemsInPool
     recipe_reqs: RecipeReqs
     recipes_in_pool: RecipesInPool
     starting_worlds: StartingWorlds
@@ -267,6 +318,9 @@ class KHDDDOptions(PerGameCommonOptions):
     skip_light_cycle: SkipLightCycle
     fast_go_mode: FastGoMode
     exp_multiplier: ExpMultiplier
+    super_jump_start: StartWithSuperJump
+    level_cap: LevelCap
+    stats_on_levels: StatsOnLevels
     stat_bonus: StatBonusAmount
     strength_in_pool: StrengthInPool
     magic_in_pool: MagicInPool
@@ -277,7 +331,6 @@ class KHDDDOptions(PerGameCommonOptions):
     keyblade_min_mag: KeybladeMinMagic
     keyblade_max_mag: KeybladeMaxMagic
     instant_drop_trap_chance: InstantDropTrapChance
-    stats_on_levels: StatsOnLevels
     single_flowmotion: SingleFlowmotion
     received_notifications: ReceivedItemNotifications
     sent_notifications: SentItemNotifications
