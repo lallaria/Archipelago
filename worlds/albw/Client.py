@@ -103,7 +103,7 @@ class ALBWClientContext(CommonContext):
     SYSTEM_LOCATION: int = 0x712468
     TASK_MAIN_GAME_VTABLE: int = 0x6d1db4
     RAVIO_ITEM: List[int] = [4, 3, 11, 6, 2, 8, 9, 10, 7]
-    HINT_GHOST_INDICES: Dict[Tuple[str, int], int] = {ghost: i for i, ghost in enumerate(hint_ghost_labels)}
+    HINT_GHOST_INDICES: Dict[Tuple[str, int], int] = {(label, course): i for i, (label, course, _) in enumerate(hint_ghost_labels)}
 
     def __init__(self, server_address: Optional[str], password: Optional[str]):
         super().__init__(server_address, password)
@@ -300,6 +300,7 @@ class ALBWClientContext(CommonContext):
                 "slots": [self.slot],
                 "data": {"albw_course": course},
             })
+            self.messages.append(self.storage_set("albw_course", -1, "replace", course))
 
         self.new_stage = course != self.course or stage != self.stage
         self.course = course
@@ -374,30 +375,12 @@ class ALBWClientContext(CommonContext):
 
         if len(updated_flags) > 0:
             logger.debug("Updating flags " + ", ".join(updated_flags.keys()))
-            self.messages.append({
-                "cmd": "Set",
-                "key": f"albw_flags_{self.slot}",
-                "default": {},
-                "want_reply": False,
-                "operations": [{
-                    "operation": "update",
-                    "value": updated_flags,
-                }],
-            })
+            self.messages.append(self.storage_set("albw_flags", {}, "update", updated_flags))
 
         if self.maiamai_count != self.last_maiamai_count:
             self.last_maiamai_count = self.maiamai_count
             logger.debug(f"Updating maiamai count: {self.maiamai_count}")
-            self.messages.append({
-                "cmd": "Set",
-                "key": f"albw_maiamai_{self.slot}",
-                "default": 0,
-                "want_reply": False,
-                "operations": [{
-                    "operation": "replace",
-                    "value": self.maiamai_count,
-                }]
-            })
+            self.messages.append(self.storage_set("albw_maiamai", 0, "replace", self.maiamai_count))
 
         if len(checks) > 0:
             self.messages.append({
@@ -410,6 +393,18 @@ class ALBWClientContext(CommonContext):
                 "cmd": "StatusUpdate",
                 "status": ClientStatus.CLIENT_GOAL,
             })
+
+    def storage_set(self, key: str, default: Any, operation: str, value: Any) -> Dict[str, Any]:
+        return {
+            "cmd": "Set",
+            "key": f"{key}_{self.slot}",
+            "default": default,
+            "want_reply": False,
+            "operations": [{
+                "operation": operation,
+                "value": value,
+            }],
+        }
 
     def scout_hints(self) -> None:
         if not self.ravio_scouted and self.check_location(location_table["Ravio's Gift"]):
@@ -449,9 +444,16 @@ class ALBWClientContext(CommonContext):
             self.last_ghost = ghost_key
             ghost = self.HINT_GHOST_INDICES.get(ghost_key)
             target = self.ghost_hints[ghost] if ghost is not None and ghost < len(self.ghost_hints) else None
+            logger.debug(f"Hint ghost {ghost_key}: index {ghost}, hint target {target}")
+            if ghost is not None:
+                flag = f"ghost_{hint_ghost_labels[ghost][2]}"
+                if flag not in self.server_storage_flags:
+                    self.server_storage_flags.add(flag)
+                    self.messages.append(self.storage_set("albw_flags", {}, "update", {flag: True}))
             if target and ghost not in self.ghosts_hinted:
                 self.ghosts_hinted.add(ghost)
                 player, location = target
+                logger.info(f"Creating hint for hint ghost {ghost}")
                 self.messages.append({
                     "cmd": "CreateHints",
                     "locations": [location],
