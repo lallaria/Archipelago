@@ -67,12 +67,20 @@ def create_regions(multiworld: MultiWorld, player: int, options):
         if name.find("All Superbosses Defeated") > -1 and options.goal == 0:
             continue
 
+        # Skip all emblems found location if no emblems are in the pool
+        if name.find("Lucky Emblems") > -1 and options.emblem_reqs == 0 and options.goal != 2:
+            continue
+
         # Skip YX if goal is not final boss
         if name.find("Young Xehanort Defeated") > -1 and options.goal == 1:
             continue
 
         #Skip Lord Kyroo if disabled
         if name.find("Lord Kyroo") > -1 and not options.lord_kyroo:
+            continue
+
+        #Skip Levels if Vanilla Stats are enabled
+        if name.find("Level") > -1 and options.stats_on_levels == 3:
             continue
 
         if not name in region_data_table[data.region].locations:

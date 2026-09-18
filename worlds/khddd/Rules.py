@@ -95,7 +95,7 @@ def set_rules(khdddworld):
 
     #Sora Level Rules
 
-    if options.character == 0 or options.character == 1:
+    if (options.character == 0 or options.character == 1) and options.stats_on_levels < 3:
         add_rule(khdddworld.get_location("Sora Level 02"), lambda state: has_x_sora_worlds(state, player, 1))
         add_rule(khdddworld.get_location("Sora Level 03"), lambda state: has_x_sora_worlds(state, player, 1))
         add_rule(khdddworld.get_location("Sora Level 04"), lambda state: has_x_sora_worlds(state, player, 1))
@@ -145,9 +145,11 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("Sora Level 48"), lambda state: has_x_sora_worlds(state, player, 6))
         add_rule(khdddworld.get_location("Sora Level 49"), lambda state: has_x_sora_worlds(state, player, 6))
         add_rule(khdddworld.get_location("Sora Level 50"), lambda state: has_x_sora_worlds(state, player, 6))
+        for num in range(51, 99):
+            add_rule(khdddworld.get_location("Sora Level "+str(num)), lambda state: has_x_sora_worlds(state, player, 6))
 
     # Riku Level Rules
-    if options.character == 0 or options.character == 2:
+    if (options.character == 0 or options.character == 2) and options.stats_on_levels < 3:
         add_rule(khdddworld.get_location("Riku Level 02"), lambda state: has_x_riku_worlds(state, player, 1))
         add_rule(khdddworld.get_location("Riku Level 03"), lambda state: has_x_riku_worlds(state, player, 1))
         add_rule(khdddworld.get_location("Riku Level 04"), lambda state: has_x_riku_worlds(state, player, 1))
@@ -197,6 +199,8 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("Riku Level 48"), lambda state: has_x_riku_worlds(state, player, 6))
         add_rule(khdddworld.get_location("Riku Level 49"), lambda state: has_x_riku_worlds(state, player, 6))
         add_rule(khdddworld.get_location("Riku Level 50"), lambda state: has_x_riku_worlds(state, player, 6))
+        for num in range(51, 99):
+            add_rule(khdddworld.get_location("Riku Level "+str(num)), lambda state: has_x_riku_worlds(state, player, 6))
 
     ###############################
     #########SORA RULES############
@@ -339,7 +343,7 @@ def set_rules(khdddworld):
                         continue
 
                 add_rule(khdddworld.get_location(name),
-                         lambda state: (state.has_any({"Air Slide", "Glide", "Superglide", "Rail Slide", "Flowmotion"}, player)
+                         lambda state: (state.has_any({"Glide", "Superglide", "Rail Slide", "Flowmotion"}, player)
                          or can_infinite_jump(state, player)))
 
         add_rule(khdddworld.get_location("The Grid Throughput Dulcet Figment [Sora]"),
@@ -398,11 +402,11 @@ def set_rules(khdddworld):
 
         #####Add Macguffin Rules#####
         add_rule(khdddworld.get_location("The World That Never Was Xemnas Bonus Slot 1 [Sora]"),
-                 lambda state: has_macguffins(state, player, options.recipe_reqs))
+                 lambda state: has_macguffins(state, player, options.recipe_reqs) and(state.count("Lucky Emblem", player) >= options.emblem_reqs))
         add_rule(khdddworld.get_location("The World That Never Was Glossary: Recusant's Sigil Reward [Sora]"),
-                 lambda state: has_macguffins(state, player, options.recipe_reqs))
+                 lambda state: has_macguffins(state, player, options.recipe_reqs) and(state.count("Lucky Emblem", player) >= options.emblem_reqs))
         add_rule(khdddworld.get_location("The World That Never Was Glossary: Hearts Tied to Sora Reward [Sora]"),
-                 lambda state: has_macguffins(state, player, options.recipe_reqs))
+                 lambda state: has_macguffins(state, player, options.recipe_reqs) and(state.count("Lucky Emblem", player) >= options.emblem_reqs))
 
     ###############################
     #########RIKU RULES############
@@ -423,7 +427,7 @@ def set_rules(khdddworld):
             add_rule(khdddworld.get_location("Unbound Keyblade Reward [Riku]"), lambda state: can_access_riku_portals(state, player))
             if options.goal == 1:
                 add_rule(khdddworld.get_location("All Superbosses Defeated [Sora] [Riku]"),
-                         lambda state: can_access_riku_portals(state, player) and tt2_access_riku(state, player) and has_required_recipes(state, player, options.recipe_reqs))
+                         lambda state: can_access_riku_portals(state, player) and tt2_access_riku(state, player) and state.count("Lucky Emblem", player) >= options.emblem_reqs and has_required_recipes(state, player, options.recipe_reqs))
 
         ###################################
         ###########Traverse Town###########
@@ -475,10 +479,10 @@ def set_rules(khdddworld):
         ##############The Grid#############
         ###################################
         add_rule(khdddworld.get_location("The Grid City Fleeting Figment [Riku]"),
-                 lambda state: (state.has_any({"Air Slide", "Flowmotion", "Rail Slide"}, player)
+                 lambda state: (state.has_any({"Flowmotion", "Rail Slide"}, player)
                         or (can_infinite_jump(state, player))))
         add_rule(khdddworld.get_location("The Grid City Drop-Me-Not [Riku]"),
-                 lambda state: (state.has_any({"Air Slide", "Flowmotion", "Rail Slide"}, player)
+                 lambda state: (state.has_any({"Flowmotion", "Rail Slide"}, player)
                         or (can_infinite_jump(state, player))))
         add_rule(khdddworld.get_location("The Grid City Thundara [Riku]"),
                  lambda state: (state.has("Flowmotion", player)
@@ -659,6 +663,10 @@ def set_rules(khdddworld):
         add_rule(khdddworld.get_location("The World That Never Was Delusive Beginning Keeba Tiger Recipe [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide", "High Jump"}, player) or can_infinite_jump(state, player) or can_pole_jump(state, player))
 
+        #Delusive Beginning Second Elixir, Dulcet Fantasy, and Dark Splicer need high jump minimum
+
+        #Fact within fiction Spark Raid needs movement logic (Rail Slide or Infinite Jump)
+
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Candy Goggles [Riku]"),
                  lambda state: state.has_any({"Flowmotion", "Rail Slide"}, player) or can_infinite_jump(state, player))
         add_rule(khdddworld.get_location("The World That Never Was Verge of Chaos Second Elixir [Riku]"),
@@ -683,7 +691,7 @@ def set_rules(khdddworld):
                     lambda state: (state.can_reach(khdddworld.get_location("The World That Never Was Xemnas Bonus Slot 1 [Sora]"), player)))
             elif options.character == 2:
                  add_rule(khdddworld.get_location("The World That Never Was Young Xehanort Defeated [Riku]"),
-             lambda state: (state.has_all({"Meow Wow Recipe", "Komory Bat Recipe", "Recusant Sigil"}, player) and(has_required_recipes(state, player, options.recipe_reqs))))
+             lambda state: (state.has_all({"Meow Wow Recipe", "Komory Bat Recipe", "Recusant Sigil"}, player) and(state.count("Lucky Emblem", player) >= options.emblem_reqs) and(has_required_recipes(state, player, options.recipe_reqs))))
 
             if options.armored_ventus_nightmare:
                 add_rule(khdddworld.get_location("Armored Ventus Nightmare Defeated [Riku]"),
@@ -730,7 +738,7 @@ def set_rules(khdddworld):
     add_rule(khdddworld.get_entrance("Country of the Musketeers [Sora]"),
              lambda state: state.has("Country of the Musketeers [Sora]", player))
     add_rule(khdddworld.get_entrance("The World That Never Was [Sora]"),
-             lambda state: state.has("The World That Never Was [Sora]", player) and has_x_sora_worlds(state, player, 3))
+             lambda state: state.has("The World That Never Was [Sora]", player) and has_x_sora_worlds(state, player, 4))
     add_rule(khdddworld.get_entrance("Symphony of Sorcery [Sora]"),
              lambda state: state.has("Symphony of Sorcery [Sora]", player))
     add_rule(khdddworld.get_entrance("Traverse Town 2 [Sora]"),
@@ -747,11 +755,15 @@ def set_rules(khdddworld):
     add_rule(khdddworld.get_entrance("Country of the Musketeers [Riku]"),
              lambda state: state.has("Country of the Musketeers [Riku]", player))
     add_rule(khdddworld.get_entrance("The World That Never Was [Riku]"),
-             lambda state: state.has("The World That Never Was [Riku]", player) and has_x_riku_worlds(state, player, 3))
+             lambda state: state.has("The World That Never Was [Riku]", player) and has_x_riku_worlds(state, player, 4))
     add_rule(khdddworld.get_entrance("Symphony of Sorcery [Riku]"),
              lambda state: state.has("Symphony of Sorcery [Riku]", player))
     add_rule(khdddworld.get_entrance("Traverse Town 2 [Riku]"),
              lambda state: state.count("Traverse Town [Riku]", player) > 1)
+
+    if options.emblem_reqs > 0:
+        add_rule(khdddworld.get_location("All Lucky Emblems Found [Sora] [Riku]"),
+             lambda state: state.count("Lucky Emblem", player) >= options.emblem_reqs)
 
 
 
