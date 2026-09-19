@@ -64,6 +64,7 @@ class KHDDDContext(CommonContext):
     socket: KHDDDSocket = None
     check_location_IDs = []
     slot_data_info: Dict[str, str] = {}
+    last_room: Dict[str, int] = {}
     _connectedToAp: bool = False
     _connectedToDDD: bool = False
     _dddPatched: bool = False
