@@ -150,42 +150,42 @@ item_data_table: Dict[str, KHDDDItemData] = {
     "La Cite des Cloches [Sora]": KHDDDItemData(
         category="World",
         code=269_1001,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
     "The Grid [Sora]": KHDDDItemData(
         category="World",
         code=269_1002,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
     "Prankster's Paradise [Sora]": KHDDDItemData(
         category="World",
         code=269_1003,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
     "Country of the Musketeers [Sora]": KHDDDItemData(
         category="World",
         code=269_1004,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
     "Symphony of Sorcery [Sora]": KHDDDItemData(
         category="World",
         code=269_1005,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
     "The World That Never Was [Sora]": KHDDDItemData(
         category="World",
         code=269_1006,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 1
     ),
@@ -193,42 +193,42 @@ item_data_table: Dict[str, KHDDDItemData] = {
     "La Cite des Cloches [Riku]": KHDDDItemData(
         category="World",
         code=269_1007,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
     "The Grid [Riku]": KHDDDItemData(
         category="World",
         code=269_1008,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
     "Prankster's Paradise [Riku]": KHDDDItemData(
         category="World",
         code=269_1009,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
     "Country of the Musketeers [Riku]": KHDDDItemData(
         category="World",
         code=269_1010,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
     "Symphony of Sorcery [Riku]": KHDDDItemData(
         category="World",
         code=269_1011,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
     "The World That Never Was [Riku]": KHDDDItemData(
         category="World",
         code=269_1012,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 1,
         character = 2
     ),
@@ -236,14 +236,14 @@ item_data_table: Dict[str, KHDDDItemData] = {
     "Traverse Town [Sora]": KHDDDItemData(
         category="World",
         code=269_1013,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 2,
         character = 1
     ),
     "Traverse Town [Riku]": KHDDDItemData(
         category="World",
         code=269_1014,
-        type=ItemClassification.progression | ItemClassification.useful,
+        type=ItemClassification.progression,
         qty = 2,
         character = 2
     ),

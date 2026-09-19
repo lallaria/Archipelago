@@ -7,7 +7,7 @@ from .Locations import KHDDDLocation, location_data_table, location_table, event
 from .Options import KHDDDOptions
 from .Regions import region_data_table, create_regions
 from .Rules import set_rules
-from worlds.LauncherComponents import Component, components, Type, launch as launch_component
+from worlds.LauncherComponents import Component, components, Type, launch as launch_component, icon_paths
 import random
 
 from ..generic.Rules import add_item_rule
@@ -17,7 +17,8 @@ def launch_client():
     from .Client import launch
     launch_component(launch, name="KHDDD Client")
 
-components.append(Component("KHDDD Client", "KHDDD Client", func=launch_client, component_type=Type.CLIENT))
+components.append(Component("KHDDD Client", "KHDDD Client", func=launch_client, component_type=Type.CLIENT, icon="kh3d_icon"))
+icon_paths["kh3d_icon"] = f"ap:{__name__}/icons/kh3d_icon.png"
 
 class KHDDDWorld(World):
     """KHDDD is a cool KH game"""
