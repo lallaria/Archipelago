@@ -116,15 +116,24 @@ class KHDDDSocket():
 
 
     async def listen(self):
+        msgBuf = b""
         while True:
             try:
                 message = await self.loop.sock_recv(self.client_socket, 1024)
                 if not message:
                     raise ConnectionResetError("Client disconnected")
-                msgStr = message.decode("utf-8").replace("\n", "")
-                values = msgStr.split(";")
-                logger.debug("Received message: "+msgStr)
-                self.handle_message(values)
+                msgBuf += message
+                *messages, msgBuf = msgBuf.split(b"\n")
+                for msg in messages:
+                    if not msg:
+                        continue
+                    try:
+                        msgStr = msg.decode("utf-8")
+                        values = msgStr.split(";")
+                        logger.debug("Received message: " + msgStr)
+                        self.handle_message(values)
+                    except (ValueError, IndexError) as msge:
+                        logger.debug(f"Error parsing message: {msge}; ignoring message")
             except (ConnectionResetError, OSError) as e:
                 logger.info(f"Connection to game lost, reconnecting...")
                 self.client.dddPatched = False
