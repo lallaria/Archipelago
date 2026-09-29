@@ -209,10 +209,7 @@ class KHDDDSocket():
             logger.debug("Responded to Handshake")
 
         elif msgType == MessageType.HasSlotData:
-            if message[0] == "0":
-                self.hasSlotData = False
-            else:
-                self.hasSlotData = True
+            self.hasSlotData = message[1] != "0"
 
         elif msgType == MessageType.GetCurrentIndex:
             self.client_item_index = int(message[1])
