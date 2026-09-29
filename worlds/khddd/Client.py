@@ -223,14 +223,12 @@ class KHDDDContext(CommonContext):
 
     async def send_slot_data(self):
         while not self.exit_event.is_set():
-            if not self.connectedToDDD or self._get_items_running:
-                await asyncio.sleep(5)
-                continue
-            elif self.slot_data_info:
+            if self.connectedToDDD and not self._get_items_running and self.slot_data_info:
                 for key, value in self.slot_data_info.items():
                     if key in SlotDataType.__members__.keys():
                         self.socket.send_slot_data(SlotDataType[key], str(value))
                 break
+            await asyncio.sleep(5)
 
 
 async def game_watcher(ctx: KHDDDContext):
