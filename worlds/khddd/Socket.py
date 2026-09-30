@@ -94,11 +94,9 @@ class KHDDDSocket():
                 self.loop.create_task(self.listen())
                 self.send_client_cmd(DDDCommand.DEATH_LINK, str(self.client.death_link)) 
                 # Reapply deathlink to game after ddd websocket reconnect
-                self.client.get_items()
-
-                # Queue up a request for slot data
+                # Slot data is queued first so the game has its settings for the item resync
                 self.client.get_slot_data()
-                # Resend all items to game after ddd websocket reconnect 
+                self.client.get_items()
                 return
             except OSError as e:
                 logger.debug(f"Socket accept failed ({e}); retrying in 5s")

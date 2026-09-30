@@ -223,7 +223,8 @@ class KHDDDContext(CommonContext):
 
     async def send_slot_data(self):
         while not self.exit_event.is_set():
-            if self.connectedToDDD and not self._get_items_running and self.slot_data_info:
+            # Must not wait on get_items; slot data goes out before the item resync
+            if self.connectedToDDD and self.slot_data_info:
                 for key, value in self.slot_data_info.items():
                     if key in SlotDataType.__members__.keys():
                         self.socket.send_slot_data(SlotDataType[key], str(value))
