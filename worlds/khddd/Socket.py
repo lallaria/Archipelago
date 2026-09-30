@@ -3,9 +3,11 @@ import asyncio
 from re import S
 import socket
 import ast
+
+import Utils
 from CommonClient import logger
-from worlds.khddd.Items import get_item_category
-from worlds.khddd.Locations import get_location_type
+from worlds.khddd.Items import get_item_category, get_spirit_by_id
+from worlds.khddd.Locations import get_location_type, get_locations_by_category
 
 
 class MessageType(IntEnum):
@@ -27,6 +29,8 @@ class MessageType(IntEnum):
     ItemPrompt = 14
     DataStorage = 15
     HasSlotData = 16
+    ScoutBoard = 17
+    NodeChecked = 18
     Closed = 20
 
 class DDDCommand(IntEnum):
@@ -219,6 +223,30 @@ class KHDDDSocket():
         elif msgType == MessageType.DataStorage:
             self.client.set_data_storage(message[1], message[2], message[3])
 
+        elif msgType == MessageType.ScoutBoard:
+           print("Received scouting request for spirit "+message[1])
+           try:
+               self.client.hint_boards(int(message[1]))
+           except (TypeError, ValueError) as e:
+                   print("Failed to hint boards: "+str(e))
+
+        elif msgType == MessageType.NodeChecked:
+            #Construct location ID from node info
+            print("Checking node")
+            try:
+                sId = int(message[1])
+                nodeNum = int(message[2])
+                baseLocId = 2690000
+                locid = baseLocId + (sId*100) + (nodeNum-1)
+                print("Location ID: "+str(locid))
+                #Check the location
+                if locid not in self.client.locations_checked:
+                    self.client.check_location_IDs.append(locid)
+                logger.debug("Node location checked: "+str(locid))
+            except (TypeError, ValueError) as e:
+                print("Node check failed: "+str(e))
+
+
     def send_singleItem(self, item, itemCnt, isLocal):
         msgCont = [str(item.item), str(itemCnt)]
         if isLocal:
@@ -315,6 +343,10 @@ class KHDDDSocket():
             self.client.dddPatched = True
         else:
             self.send(MessageType.SendSlotData, [str(slotType), str(data)])
+
+    def send_board_items(self, spiritId:int, nodeNum:int, itemName:str, playerName:str):
+        #Send item names for remote items on link boards to client
+        self.send(MessageType.ScoutBoard, [str(spiritId), str(nodeNum), itemName, playerName])
 
     def send_client_cmd(self, cmdId, extParam):
         values = [str(cmdId)]

@@ -1634,6 +1634,16 @@ item_data_table: Dict[str, KHDDDItemData] = {
 
 }
 
+SPIRITLIST:dict[str, int] = {
+    "Meow Wow":1,
+    "Tama Sheep":2
+}
+
+def get_spirit_by_id(sid:int) -> str:
+    for name, val in SPIRITLIST.items():
+        if val == sid:
+            return name
+    return ""
 
 item_table = {name: data.code for name, data in item_data_table.items() if data.code is not None}
 

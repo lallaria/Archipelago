@@ -12,6 +12,8 @@ import Utils
 item_num = 1
 
 from .Socket import KHDDDSocket, SlotDataType, DDDCommand
+from .Items import get_spirit_by_id, SPIRITLIST
+from .Locations import get_location_name, get_location_id, location_name_groups
 
 if __name__ == "__main__":
     Utils.init_logging("KHDDDClient", exception_logger="Client")
@@ -137,6 +139,33 @@ class KHDDDContext(CommonContext):
                 new_locations = set(args["checked_locations"])
                 self.locations_checked |= new_locations
 
+        #Send scouted board data to client for displaying item names
+        if cmd in {"LocationInfo"}:
+            location_info:NetworkItem = args["locations"]
+            for item in location_info:
+                if item.player != self.slot: #Only send remote item data
+                    #Determine Spirit
+                    locId = item.location
+                    locName = get_location_name(item.location)
+                    if locName != "":
+                        spiritId = SPIRITLIST[locName[:-8]]
+
+                        #Determine Node Number
+                        nodeNum = int(locName[-2:])
+
+                        #Get name of item
+                        itemName = self.item_names.lookup_in_slot(item.item, item.player)
+
+                        #Get owning player
+                        playerName = self.player_names[item.player][:7]
+
+                        #Send info to client
+                        self.socket.send_board_items(spiritId, nodeNum, itemName, playerName)
+
+
+                    pass
+            pass
+
         #Send item notifications to game
         if cmd in {"PrintJSON"} and "type" in args:
             if args["type"] == "ItemSend":
@@ -195,6 +224,26 @@ class KHDDDContext(CommonContext):
         if not self._get_items_running:
             self._get_items_running = True
             Utils.async_start(async_get_items(self), name="KHDDDGetItems")
+
+    def hint_boards(self, spiritID:int=0):
+        print(f"spiritID {spiritID}: type {type(spiritID)}")
+        spiritName = get_spirit_by_id(spiritID)
+        print("Spirit Name: "+spiritName)
+
+        if spiritName == "":
+            return
+
+        #Get table of ids to pass into scout
+        idTbl = []
+        for name in location_name_groups[spiritName+" Ability Link"]:
+            idTbl.append(get_location_id(name))
+
+        if spiritName != "":
+            asyncio.create_task(self.send_msgs([{
+                "cmd": "LocationScouts",
+                "locations": idTbl,
+                "create_as_hint": 2
+            }]), name="KHDDDScoutBoard")
 
     def set_data_storage(self, world, room, character):
         try:
