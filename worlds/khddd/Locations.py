@@ -28,6 +28,23 @@ def get_location_type(loc_code:int):
             return data.category
     return "None"
 
+def get_locations_by_category(category: str) -> Dict[str, KHDDDLocationData]:
+    location_dict: Dict[str, KHDDDLocationData] = {}
+    for name, data in location_data_table.items():
+        if data.category == category:
+            location_dict.setdefault(name, data)
+
+    return location_dict
+
+def get_location_name(loc_code:int) -> str:
+    for name, data in location_data_table.items():
+        if data.code == loc_code:
+            return name
+    return ""
+
+def get_location_id(loc_name:str) -> int:
+    return location_data_table[loc_name].code
+
 location_data_table: Dict[str, KHDDDLocationData] = {
     ########################################
     ###########Secret Portals###############
@@ -2385,6 +2402,40 @@ location_data_table: Dict[str, KHDDDLocationData] = {
         category="Reward"
     ),
 
+    #Link Boards
+    "Meow Wow Node 01": KHDDDLocationData(region="World Map [Sora]", code=2690100, category="Board"),
+    "Meow Wow Node 02": KHDDDLocationData(region="World Map [Sora]", code=2690101, category="Board"),
+    "Meow Wow Node 03": KHDDDLocationData(region="World Map [Sora]", code=2690102, category="Board"),
+    "Meow Wow Node 04": KHDDDLocationData(region="World Map [Sora]", code=2690103, category="Board"),
+    "Meow Wow Node 05": KHDDDLocationData(region="World Map [Sora]", code=2690104, category="Board"),
+    "Meow Wow Node 06": KHDDDLocationData(region="World Map [Sora]", code=2690105, category="Board"),
+    "Meow Wow Node 07": KHDDDLocationData(region="World Map [Sora]", code=2690106, category="Board"),
+    "Meow Wow Node 08": KHDDDLocationData(region="World Map [Sora]", code=2690107, category="Board"),
+    "Meow Wow Node 09": KHDDDLocationData(region="World Map [Sora]", code=2690108, category="Board"),
+    "Meow Wow Node 10": KHDDDLocationData(region="World Map [Sora]", code=2690109, category="Board"),
+    "Meow Wow Node 11": KHDDDLocationData(region="World Map [Sora]", code=2690110, category="Board"),
+    "Meow Wow Node 12": KHDDDLocationData(region="World Map [Sora]", code=2690111, category="Board"),
+    "Meow Wow Node 13": KHDDDLocationData(region="World Map [Sora]", code=2690112, category="Board"),
+    "Meow Wow Node 14": KHDDDLocationData(region="World Map [Sora]", code=2690113, category="Board"),
+    "Meow Wow Node 15": KHDDDLocationData(region="World Map [Sora]", code=2690114, category="Board"),
+    "Meow Wow Node 16": KHDDDLocationData(region="World Map [Sora]", code=2690115, category="Board"),
+
+    "Tama Sheep Node 01": KHDDDLocationData(region="World Map [Sora]", code=2690200, category="Board"),
+    "Tama Sheep Node 02": KHDDDLocationData(region="World Map [Sora]", code=2690201, category="Board"),
+    "Tama Sheep Node 03": KHDDDLocationData(region="World Map [Sora]", code=2690202, category="Board"),
+    "Tama Sheep Node 04": KHDDDLocationData(region="World Map [Sora]", code=2690203, category="Board"),
+    "Tama Sheep Node 05": KHDDDLocationData(region="World Map [Sora]", code=2690204, category="Board"),
+    "Tama Sheep Node 06": KHDDDLocationData(region="World Map [Sora]", code=2690205, category="Board"),
+    "Tama Sheep Node 07": KHDDDLocationData(region="World Map [Sora]", code=2690206, category="Board"),
+    "Tama Sheep Node 08": KHDDDLocationData(region="World Map [Sora]", code=2690207, category="Board"),
+    "Tama Sheep Node 09": KHDDDLocationData(region="World Map [Sora]", code=2690208, category="Board"),
+    "Tama Sheep Node 10": KHDDDLocationData(region="World Map [Sora]", code=2690209, category="Board"),
+    "Tama Sheep Node 11": KHDDDLocationData(region="World Map [Sora]", code=2690210, category="Board"),
+    "Tama Sheep Node 12": KHDDDLocationData(region="World Map [Sora]", code=2690211, category="Board"),
+    "Tama Sheep Node 13": KHDDDLocationData(region="World Map [Sora]", code=2690212, category="Board"),
+    "Tama Sheep Node 14": KHDDDLocationData(region="World Map [Sora]", code=2690213, category="Board"),
+    "Tama Sheep Node 15": KHDDDLocationData(region="World Map [Sora]", code=2690214, category="Board"),
+    "Tama Sheep Node 16": KHDDDLocationData(region="World Map [Sora]", code=2690215, category="Board"),
 
     #Levels
     "Sora Level 02": KHDDDLocationData(region="Levels",code=2660002,category="Slot"),
@@ -2592,6 +2643,14 @@ event_location_table: Dict[str, KHDDDLocationData] = {}
 location_table = {name: data.code for name, data in location_data_table.items() if data.code is not None}
 
 lookup_id_to_name: typing.Dict[int, str] = {data.code: name for name, data in location_data_table.items() if data.code}
+
+location_name_groups: Dict[str, Set[str]] = { #TODO: Streamline this
+    "Meow Wow Ability Link": {"Meow Wow Node 01", "Meow Wow Node 02", "Meow Wow Node 03", "Meow Wow Node 04", "Meow Wow Node 05", "Meow Wow Node 06", "Meow Wow Node 07", "Meow Wow Node 08",
+                              "Meow Wow Node 09", "Meow Wow Node 10", "Meow Wow Node 11", "Meow Wow Node 12", "Meow Wow Node 13", "Meow Wow Node 14", "Meow Wow Node 15", "Meow Wow Node 16"},
+    "Tama Sheep Ability Link": {"Tama Sheep Node 01", "Tama Sheep Node 02", "Tama Sheep Node 03", "Tama Sheep Node 04", "Tama Sheep Node 05", "Tama Sheep Node 06", "Tama Sheep Node 07", "Tama Sheep Node 08",
+                              "Tama Sheep Node 09", "Tama Sheep Node 10", "Tama Sheep Node 11", "Tama Sheep Node 12", "Tama Sheep Node 13", "Tama Sheep Node 14", "Tama Sheep Node 15", "Tama Sheep Node 16"}
+}
+
 
 #Make location categories
 #location_name_groups: Dict[str, Set[str]] = {}

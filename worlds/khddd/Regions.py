@@ -52,7 +52,8 @@ def create_regions(multiworld: MultiWorld, player: int, options):
         # Skip character-specific locations
         if name.find("Superbosses") == -1:
             if options.character == 1 and name.find("Sora") == -1 or options.character == 2 and name.find("Riku") == -1:
-                continue
+                if name.find("Node") == -1: #Link board nodes do not specify character
+                    continue
 
         # Skip AVN is not needed
         if name.find("Ventus") > -1 and not options.armored_ventus_nightmare or options.goal == 1 and name.find("Ventus") > -1:
