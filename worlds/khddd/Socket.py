@@ -94,11 +94,9 @@ class KHDDDSocket():
                 self.loop.create_task(self.listen())
                 self.send_client_cmd(DDDCommand.DEATH_LINK, str(self.client.death_link)) 
                 # Reapply deathlink to game after ddd websocket reconnect
-                self.client.get_items()
-
-                # Queue up a request for slot data
+                # Slot data is queued first so the game has its settings for the item resync
                 self.client.get_slot_data()
-                # Resend all items to game after ddd websocket reconnect 
+                self.client.get_items()
                 return
             except OSError as e:
                 logger.debug(f"Socket accept failed ({e}); retrying in 5s")
@@ -116,15 +114,25 @@ class KHDDDSocket():
 
 
     async def listen(self):
+        msgBuf = b""
         while True:
             try:
                 message = await self.loop.sock_recv(self.client_socket, 1024)
                 if not message:
                     raise ConnectionResetError("Client disconnected")
-                msgStr = message.decode("utf-8").replace("\n", "")
-                values = msgStr.split(";")
-                logger.debug("Received message: "+msgStr)
-                self.handle_message(values)
+                msgBuf += message
+                *messages, msgBuf = msgBuf.split(b"\n")
+                for msg in messages:
+                    if not msg:
+                        continue
+                    try:
+                        msgStr = msg.decode("utf-8")
+                        values = msgStr.split(";")
+                        logger.debug("Received message: "+msgStr)
+                        self.handle_message(values)
+                    except (ValueError, IndexError) as msge:
+                        logger.debug(f"Error parsing message: {msge}; ignoring message")
+                    
             except (ConnectionResetError, OSError) as e:
                 logger.info(f"Connection to game lost, reconnecting...")
                 self.client.dddPatched = False
@@ -199,10 +207,7 @@ class KHDDDSocket():
             logger.debug("Responded to Handshake")
 
         elif msgType == MessageType.HasSlotData:
-            if message[0] == "0":
-                self.hasSlotData = False
-            else:
-                self.hasSlotData = True
+            self.hasSlotData = message[1] != "0"
 
         elif msgType == MessageType.GetCurrentIndex:
             self.client_item_index = int(message[1])
