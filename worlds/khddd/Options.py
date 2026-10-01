@@ -136,6 +136,16 @@ class ExpMultiplier(Range):
     range_start = 1
     range_end = 10
 
+class AffinityMultiplier(Range):
+    """
+    Determines the multiplier to apply to Spirit Affinity gained.
+    Divides the Affinity needed for each level, on top of the Affinity Gain drop bonus.
+    """
+    display_name = "Affinity Multiplier"
+    default = 1
+    range_start = 1
+    range_end = 10
+
 class StartWithSuperJump(Toggle):
     """
     If enabled, adds Super Jump to starting items.
@@ -318,6 +328,7 @@ class KHDDDOptions(PerGameCommonOptions):
     skip_light_cycle: SkipLightCycle
     fast_go_mode: FastGoMode
     exp_multiplier: ExpMultiplier
+    affinity_multiplier: AffinityMultiplier
     super_jump_start: StartWithSuperJump
     level_cap: LevelCap
     stats_on_levels: StatsOnLevels

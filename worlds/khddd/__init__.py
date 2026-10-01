@@ -269,6 +269,7 @@ class KHDDDWorld(World):
         slot_data["skip_light_cycle"] = str(self.options.skip_light_cycle.value)
         slot_data["fast_go_mode"] = str(self.options.fast_go_mode.value)
         slot_data["exp_multiplier"] = int(self.options.exp_multiplier.value)
+        slot_data["affinity_multiplier"] = int(self.options.affinity_multiplier.value)
         slot_data["stat_bonus"] = int(self.options.stat_bonus.value)
 
         slot_data["recipe_reqs"] = int(self.options.recipe_reqs.value)

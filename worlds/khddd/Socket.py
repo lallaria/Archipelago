@@ -51,6 +51,7 @@ class SlotDataType(IntEnum):
     non_remote_ids = 12
     use_vanilla_levels = 13
     emblem_reqs = 14
+    affinity_multiplier = 15
 
 class KHDDDSocket():
     @property
