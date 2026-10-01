@@ -304,6 +304,8 @@ class KHDDDWorld(World):
                         non_remote_ids.append([location_data.code, item_data.code])
         return non_remote_ids
 
+
+
     def using_vanilla_stats(self):
         is_vanilla = 0
         if self.options.stats_on_levels == 3:
