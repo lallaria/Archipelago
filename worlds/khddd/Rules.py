@@ -4,14 +4,23 @@ from BaseClasses import CollectionState
 from worlds.generic.Rules import add_rule, add_item_rule
 from BaseClasses import ItemClassification
 
-from .Locations import KHDDDLocation, location_data_table
-from .Items import get_items_by_category
+from .Locations import KHDDDLocation, location_data_table, location_name_groups
+from .Items import get_items_by_category, SPIRITLIST
+
+
 
 if TYPE_CHECKING:
     from . import KHDDDWorld
 
 SORA_WORLDS = ["Traverse Town [Sora]", "La Cite des Cloches [Sora]", "The Grid [Sora]", "Prankster's Paradise [Sora]", "Country of the Musketeers [Sora]", "Symphony of Sorcery [Sora]"]
 RIKU_WORLDS = ["Traverse Town [Riku]", "La Cite des Cloches [Riku]", "The Grid [Riku]", "Prankster's Paradise [Riku]", "Country of the Musketeers [Riku]", "Symphony of Sorcery [Riku]"]
+
+SORA_COMPLETION_LOCS = ["Traverse Town Skull Noise Reward [Sora]", "La Cite des Cloches Guardian Bell Reward [Sora]", "The Grid Dual Disc Reward [Sora]",
+                        "Prankster's Paradise Ferris Gear Reward [Sora]", "Country of the Musketeers All For One Reward [Sora]", "Symphony of Sorcery Counterpoint Reward [Sora]",
+                        "The World That Never Was Xemnas Bonus Slot 1 [Sora]"]
+RIKU_COMPLETION_LOCS = ["Traverse Town Skull Noise Reward [Riku]", "La Cite des Cloches Guardian Bell Reward [Riku]", "The Grid Dual Disc Reward [Riku]",
+                        "Prankster's Paradise Ocean's Rage Reward [Riku]", "Country of the Musketeers All For One Reward [Riku]", "Symphony of Sorcery Counterpoint Reward [Riku]",
+                        "The World That Never Was Ansem II Defeated [Riku]"]
 
 def has_x_sora_worlds(state: CollectionState, player: int, num_of_worlds: int) -> bool:
     worlds_acquired = 0.0
@@ -26,6 +35,24 @@ def has_x_riku_worlds(state: CollectionState, player: int, num_of_worlds: int) -
         if state.has(RIKU_WORLDS[i], player):
             worlds_acquired += 1.0
     return worlds_acquired >= num_of_worlds
+
+def beat_x_sora_worlds(state: CollectionState, player: int, num_of_worlds: int) -> bool:
+    worlds_beaten = 0
+
+    for loc in SORA_COMPLETION_LOCS:
+        if state.can_reach_location(loc, player):
+            worlds_beaten += 1
+
+    return worlds_beaten >= num_of_worlds
+
+def beat_x_riku_worlds(state: CollectionState, player: int, num_of_worlds: int) -> bool:
+    worlds_beaten = 0
+
+    for loc in RIKU_COMPLETION_LOCS:
+        if state.can_reach_location(loc, player):
+            worlds_beaten += 1
+
+    return worlds_beaten >= num_of_worlds
 
 def tt2_access_sora(state:CollectionState, player:int) -> bool:
     return state.count("Traverse Town [Sora]", player) > 1
@@ -90,6 +117,15 @@ def set_rules(khdddworld):
     multiworld = khdddworld.multiworld
     player = khdddworld.player
     options = khdddworld.options
+
+    #Make all Link Board nodes require base recipe
+    for name, data in location_name_groups.items():
+        spirit_name = name[:-13] #Trim " Ability Link"
+
+        if SPIRITLIST[spirit_name] in khdddworld.ids_for_gates: #Only add rule for recipes in the pool
+            for nodes in data:
+                add_rule(khdddworld.get_location(nodes), lambda state: state.has(spirit_name+" Recipe", player))
+
 
     #Ensure the player is not expected to level grind much for checks
 

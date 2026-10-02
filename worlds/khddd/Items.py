@@ -281,7 +281,7 @@ item_data_table: Dict[str, KHDDDItemData] = {
         type=ItemClassification.progression_deprioritized,
         qty = 1
     ),
-    "Hebby Rep Recipe": KHDDDItemData(
+    "Hebby Repp Recipe": KHDDDItemData(
         category="Recipe",
         code=270_1006,
         type=ItemClassification.progression_deprioritized,
@@ -335,7 +335,7 @@ item_data_table: Dict[str, KHDDDItemData] = {
         type=ItemClassification.progression_deprioritized,
         qty = 1
     ),
-    "Icequin Ace Recipe": KHDDDItemData(
+    "Iceguin Ace Recipe": KHDDDItemData(
         category="Recipe",
         code=270_1015,
         type=ItemClassification.progression_deprioritized,

@@ -2,6 +2,7 @@
 from typing import Dict, List, NamedTuple, Optional
 from BaseClasses import MultiWorld, Region, Entrance
 from .Locations import KHDDDLocation, location_data_table, KHDDDLocationData, get_locations_by_region
+from .Items import SPIRITLIST
 
 
 class KHDDDRegionData(NamedTuple):
@@ -39,7 +40,7 @@ def set_region_table():
         "Destiny Islands": KHDDDRegionData([],["World Map [Sora]"]),
 }
 
-def create_regions(multiworld: MultiWorld, player: int, options):
+def create_regions(multiworld: MultiWorld, player: int, options, khdddworld):
     #Attach locations to regions
     set_region_table() #Reset locations from prior DDD gens
 
@@ -54,6 +55,10 @@ def create_regions(multiworld: MultiWorld, player: int, options):
             if options.character == 1 and name.find("Sora") == -1 or options.character == 2 and name.find("Riku") == -1:
                 if name.find("Node") == -1: #Link board nodes do not specify character
                     continue
+                else: #Determine if node is in the pool
+                    spirit_name = name[:-8]
+                    if SPIRITLIST[spirit_name] not in khdddworld.ids_for_gates:
+                        continue
 
         # Skip AVN is not needed
         if name.find("Ventus") > -1 and not options.armored_ventus_nightmare or options.goal == 1 and name.find("Ventus") > -1:
