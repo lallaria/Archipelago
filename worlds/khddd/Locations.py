@@ -221,7 +221,7 @@ location_data_table: Dict[str, KHDDDLocationData] = {
         code=2670222,
         category="Slot"
     ),
-    "The Grid Dual Disc [Sora]": KHDDDLocationData(
+    "The Grid Dual Disc Reward [Sora]": KHDDDLocationData(
         region="The Grid [Sora]",
         code=2670223,
         category="Reward"
@@ -3639,6 +3639,63 @@ location_name_groups: Dict[str, Set[str]] = { #TODO: Streamline this
                                 "Tubguin Ace Node 09", "Tubguin Ace Node 10", "Tubguin Ace Node 11", "Tubguin Ace Node 12", "Tubguin Ace Node 13", "Tubguin Ace Node 14", "Tubguin Ace Node 15", "Tubguin Ace Node 16"},
 }
 
+#Which nodes are locked behind gates
+gate_thresholds = { #First node counts starting from 0
+    "Meow Wow": [7, 11],
+    "Tama Sheep": [4, 11],
+    "Yoggy Ram": [9, 12],
+    "Komory Bat": [12, 8],
+    "Pricklemane": [5, 10],
+    "Hebby Repp": [7],
+    "Sir Kyroo": [7, 11],
+    "Toximander": [7],
+    "Fin Fatale": [8, 12],
+    "Tatsu Steed": [7],
+    "Necho Cat": [8],
+    "Thunderaffe": [8],
+    "Kooma Panda": [6, 12],
+    "Pegaslick": [10, 13],
+    "Iceguin Ace": [7],
+    "Peepsta Hoo": [8],
+    "Escarglow": [8],
+    "KO Kabuto": [5, 12],
+    "Wheeflower": [8],
+    "Ghostabocky": [14], #Technically has 2 gates
+    "Zolephant": [7],
+    "Juggle Pup": [7, 12],
+    "Halbird": [8, 12],
+    "Staggerceps": [7],
+    "Fishbone": [8],
+    "Flowbermeow": [8, 12],
+    "Cyber Yog": [7],
+    "Chef Kyroo": [6, 11],
+    "Lord Kyroo": [7, 11],
+    "Tatsu Blaze": [8, 12],
+    "Electricorn": [6, 11],
+    "Woeflower": [6],
+    "Jestabocky": [9, 12],
+    "Eaglider": [8],
+    "Me Me Bunny": [7, 11],
+    "Drill Sye": [7],
+    "Tyranto Rex": [11, 6],
+    "Majik Lapin": [8, 12],
+    "Cera Terror": [6, 11],
+    "Skelterwild": [6, 11],
+    "Ducky Goose": [12, 8],
+    "Aura Lion": [6],
+    "Ryu Dragon": [6],
+    "Drak Quack": [11, 6],
+    "Keeba Tiger": [6],
+    "Meowjesty": [6, 11],
+    "Sudo Neku": [6],
+    "Frootz Cat": [11, 6],
+    "Ursa Circus": [6, 11],
+    "Kab Kannon": [6, 11],
+    "R & R Seal": [6, 11],
+    "Catanuki": [11, 6],
+    "Beatalike": [7],
+    "Tubguin Ace": [12, 8]
+}
 
 #Make location categories
 #location_name_groups: Dict[str, Set[str]] = {}

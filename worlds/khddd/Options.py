@@ -82,6 +82,34 @@ class RecipesInPool(Range):
     range_start = 2
     range_end = 54
 
+class MinGateReq(Range):
+    """
+    The minimum number of worlds needed to open a
+    gate on an Ability Link Board.
+
+    World requirement for each gate is randomly chosen based on
+    minimum and maximum gate requirements. Randomly chooses
+    between Sora or Riku if both are enabled in the seed.
+    """
+    display_name = "Minimum Gate Requirement"
+    default = 1
+    range_start = 1
+    range_end = 7
+
+class MaxGateReq(Range):
+    """
+    The maximum number of worlds needed to open a
+    gate on an Ability Link Board.
+
+    World requirement for each gate is randomly chosen based on
+    minimum and maximum gate requirements. Randomly chooses
+    between Sora or Riku if both are enabled in the seed.
+    """
+    display_name = "Maximum Gate Requirement"
+    default = 7
+    range_start = 1
+    range_end = 7
+
 class Superbosses(Toggle):
     """
     Determines whether Secret Portals and Julius  are checks
@@ -311,6 +339,8 @@ class KHDDDOptions(PerGameCommonOptions):
     emblems_in_pool: EmblemsInPool
     recipe_reqs: RecipeReqs
     recipes_in_pool: RecipesInPool
+    min_gate_req: MinGateReq
+    max_gate_req: MaxGateReq
     starting_worlds: StartingWorlds
     superbosses: Superbosses
     lord_kyroo: LordKyroo

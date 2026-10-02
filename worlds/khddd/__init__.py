@@ -2,15 +2,15 @@ from typing import List, Dict, Any
 
 from BaseClasses import Region, Entrance, Tutorial, ItemClassification
 from worlds.AutoWorld import World
-from .Items import KHDDDItem, item_data_table, item_table, get_items_by_category, get_items_by_character_category
-from .Locations import KHDDDLocation, location_data_table, location_table, event_location_table, get_locations_by_region
+from .Items import KHDDDItem, item_data_table, item_table, get_items_by_category, get_items_by_character_category, SPIRITLIST, get_spirit_by_id
+from .Locations import KHDDDLocation, location_data_table, location_table, event_location_table, get_locations_by_region, gate_thresholds
 from .Options import KHDDDOptions
 from .Regions import region_data_table, create_regions
-from .Rules import set_rules
+from .Rules import set_rules, beat_x_sora_worlds, beat_x_riku_worlds
 from worlds.LauncherComponents import Component, components, Type, launch as launch_component, icon_paths
 import random
 
-from ..generic.Rules import add_item_rule
+from ..generic.Rules import add_item_rule, add_rule
 
 
 def launch_client():
@@ -30,8 +30,44 @@ class KHDDDWorld(World):
     item_name_to_id = item_table
     origin_region_name = "World"
 
+    ids_for_gates = []
+    gate_requirements = []
+    recipes_in_pool = []
+
     def create_item(self, name: str) -> KHDDDItem:
         return KHDDDItem(name, item_data_table[name].type, item_data_table[name].code, self.player)
+
+    def __init__(self, multiworld, player):
+        super(KHDDDWorld, self).__init__(multiworld, player)
+        self.ids_for_gates = []
+        self.gate_requirements = []
+        self.recipes_in_pool = []
+
+
+    def generate_early(self): #Need to determine recipes before regions are created
+        # Add recipes to the item pool
+        self.recipes_in_pool = []
+
+        recipe_count = max(int(self.options.recipes_in_pool - 2), int(self.options.recipe_reqs - 2))
+        recipes = []
+        for name, data in get_items_by_category("Recipe").items():
+            if name != "Meow Wow Recipe" and name != "Komory Bat Recipe":
+                recipes.append(name)
+
+        # Shuffle recipes and add to item pool based on reqs
+        random.shuffle(recipes)
+        for x in range(recipe_count):
+            #item_pool += [self.create_item(recipes[x])]
+            self.recipes_in_pool.append(recipes[x])
+
+        #Always ensure Meow Wow and Komory Bat are in pool
+        self.recipes_in_pool.append("Meow Wow Recipe")
+        self.recipes_in_pool.append("Komory Bat Recipe")
+
+        # Retrieve ids for recipes in the pool
+        self.ids_for_gates = []
+        for x in self.recipes_in_pool:
+            self.ids_for_gates += [SPIRITLIST[x[:-7]]]
 
     def create_items(self) -> None:
         self.place_predetermined_items()
@@ -59,21 +95,14 @@ class KHDDDWorld(World):
                     continue
                 item_pool += [self.create_item(name)]
 
-        #Add recipes to the item pool
-        recipe_count = max(int(self.options.recipes_in_pool-2), int(self.options.recipe_reqs-2))
-        recipes = []
-        for name, data in get_items_by_category("Recipe").items():
-            if name != "Meow Wow Recipe" and name != "Komory Bat Recipe":
-                recipes.append(name)
-
-        #Shuffle recipes and add to item pool based on reqs
-        random.shuffle(recipes)
-        for x in range(recipe_count):
-            item_pool += [self.create_item(recipes[x])]
-
         #Always have Meow Wow and Komory Bat in the item pool
-        item_pool += [self.create_item("Meow Wow Recipe")]
-        item_pool += [self.create_item("Komory Bat Recipe")]
+        #item_pool += [self.create_item("Meow Wow Recipe")]
+        #item_pool += [self.create_item("Komory Bat Recipe")]
+        for x in self.recipes_in_pool:
+            print("CREATING ITEM FOR "+x)
+            item_pool += [self.create_item(x)]
+
+        self.gate_requirements = self.get_gate_requirements()
 
         non_filler_categories = ["Stat", "World", "Keyblade", "Movement", "Defense", "Ability", "Special"]
 
@@ -231,7 +260,7 @@ class KHDDDWorld(World):
             self.get_location("All Lucky Emblems Found [Sora] [Riku]").place_locked_item(self.create_item("Victory"))
 
     def create_regions(self) -> None:
-        create_regions(self.multiworld, self.player, self.options)
+        create_regions(self.multiworld, self.player, self.options, self)
 
     def get_filler_item_name(self) -> str:
         if int(self.options.instant_drop_trap_chance) > 0: #Check to see if a trap was rolled
@@ -285,6 +314,8 @@ class KHDDDWorld(World):
 
         slot_data["emblem_reqs"] = self.convert_required_emblems()
 
+        slot_data["gate_reqs"] = str(self.gate_requirements)
+
         return slot_data
 
     def get_non_remote_ids(self):
@@ -304,7 +335,66 @@ class KHDDDWorld(World):
                         non_remote_ids.append([location_data.code, item_data.code])
         return non_remote_ids
 
+    def get_gate_requirements(self):
+        gate_reqs = []
 
+        ids_with_1_gate = [6, 8, 10, 11, 12, 15, 16, 17, 19, 21, 24, 25, 27, 32, 34, 36, 42, 43, 45, 47, 53]
+
+        min_gate = min(self.options.min_gate_req.value, self.options.max_gate_req.value)
+        max_gate = max(self.options.max_gate_req.value, self.options.min_gate_req.value)
+
+        #Structure output as 2d list: [[Spirit_ID, Character_ID, Gate_1_Req, Gate_2_Req]]
+        for x in self.ids_for_gates:
+            spirit_name = get_spirit_by_id(x)
+            chosen_character = int(self.options.character.value)
+            if chosen_character == 0:
+                chosen_character = self.random.randint(1, 2)
+            if x in ids_with_1_gate:
+                gate_val = int(self.random.randint(min_gate, max_gate))
+                #Create Gate Rule
+                self.set_gate_rules(spirit_name, 0, chosen_character, gate_val)
+                gate_reqs.append([x, chosen_character, gate_val])
+            else:
+                gate_val_1 = int(self.random.randint(min_gate, max_gate))
+                gate_val_2 = int(self.random.randint(min_gate, max_gate))
+
+                #Create gate rules
+                self.set_gate_rules(spirit_name, 0, chosen_character, gate_val_1)
+                self.set_gate_rules(spirit_name, 1, chosen_character, gate_val_2)
+
+                gate_reqs.append([x, chosen_character, gate_val_1, gate_val_2])
+
+        return gate_reqs
+
+    def set_gate_rules(self, spiritName, gateNum, character, worldReq):
+        #Get gate thresholds
+        gated_nodes = gate_thresholds[spiritName]
+
+        if gateNum + 1 > len(gated_nodes):
+            return
+
+        go_to_end = False
+        if len(gated_nodes) == 1:
+            go_to_end = True
+        elif len(gated_nodes) > 1:
+            larger_gate = max(gated_nodes[0], gated_nodes[1])
+            if gated_nodes[gateNum] == larger_gate:
+                go_to_end = True
+
+        end_node = 15
+        if not go_to_end:
+            if gateNum == 0:
+                end_node = gated_nodes[1]
+            else:
+                end_node = gated_nodes[0]
+
+        for x in range(gated_nodes[gateNum], end_node-1):
+            node_num = f"{(x+1):02d}"
+            loc_name = spiritName+" Node "+node_num
+            if character == 1:
+                add_rule(self.get_location(loc_name), lambda state: beat_x_sora_worlds(state, self.player, worldReq))
+            else:
+                add_rule(self.get_location(loc_name), lambda state: beat_x_riku_worlds(state, self.player, worldReq))
 
     def using_vanilla_stats(self):
         is_vanilla = 0
