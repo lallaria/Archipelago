@@ -1,0 +1,3 @@
+[submodule "worlds/khddd"]
+	path = worlds/khddd
+	url = https://github.com/lallaria/Archipelago-worlds-khddd.git
