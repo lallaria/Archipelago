@@ -2,3 +2,7 @@
 	path = worlds/khddd
 	url = https://github.com/lallaria/Archipelago-worlds-khddd.git
 	ignore = dirty
+[submodule "worlds/albw"]
+	path = worlds/albw
+	url = https://github.com/lallaria/Archipelago-worlds-albw.git
+	ignore = dirty
